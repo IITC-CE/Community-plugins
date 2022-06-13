@@ -6,8 +6,8 @@
 // @description    Highlighter for unique visited/captured/scout controlled portals
 // @id             highlight-intel-uniques@jaiperdu
 // @namespace      https://github.com/IITC-CE/ingress-intel-total-conversion
-// @updateURL      https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist/highlight-intel-uniques.meta.js
-// @downloadURL    https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist/highlight-intel-uniques.user.js
+// @updateURL      https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist//highlight-intel-uniques@jaiperdu/highlight-intel-uniques.meta.js
+// @downloadURL    https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist//highlight-intel-uniques@jaiperdu/highlight-intel-uniques.user.js
 // @match          https://intel.ingress.com/*
 // @grant          none
 // ==/UserScript==

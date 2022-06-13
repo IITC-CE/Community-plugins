@@ -11,6 +11,6 @@
 // @match          http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
 // @grant          none
-// @updateURL      https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist/advanced_player_tracker.meta.js
-// @downloadURL    https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist/advanced_player_tracker.user.js
+// @updateURL      https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist//advanced_player_tracker@BlancLapin/advanced_player_tracker.meta.js
+// @downloadURL    https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist//advanced_player_tracker@BlancLapin/advanced_player_tracker.user.js
 // ==/UserScript==

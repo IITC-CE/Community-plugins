@@ -4,8 +4,8 @@
 // @category       Draw
 // @version        0.0.0
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
-// @updateURL      https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist/ImageOverlay2.meta.js
-// @downloadURL    https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist/ImageOverlay2.user.js
+// @updateURL      https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist//ImageOverlay2@McBen/ImageOverlay2.meta.js
+// @downloadURL    https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist//ImageOverlay2@McBen/ImageOverlay2.user.js
 // @description    Add an image to your map.
 // @include        https://intel.ingress.com/*
 // @author         Hevne

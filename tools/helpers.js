@@ -196,9 +196,9 @@ export const get_dist_plugins = () => {
     for (const plugin of plugins) {
         if (plugin.depends !== undefined) {
             plugin._depends_links = [];
-            for (const depends of plugin.depends) {
-                if (id_link_map[depends] !== undefined) {
-                    plugin._depends_links.push([plugin.id, id_link_map[plugin.id]]);
+            for (const depend of plugin.depends) {
+                if (id_link_map[depend] !== undefined) {
+                    plugin._depends_links.push([plugin.id, id_link_map[depend]]);
                 }
             }
         }

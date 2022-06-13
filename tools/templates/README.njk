@@ -1,0 +1,45 @@
+# IITC Store
+
+A collection of amazing plugins made by community.
+
+> Note: You must install IITC-CE on your [desktop](https://iitc.app/download_desktop.html)
+or [mobile device](https://iitc.app/download_desktop.html) to use IITC plugins.
+
+> IITC is a browser add-on that modifies the Ingress intel map. It is faster than the standard site, and offers many more features. It is available for desktop browsers, such as Firefox and Chrome, and as a mobile application.
+
+###### [IITC-CE Website](https://iitc.app/) | [IITC-CE Repository](https://github.com/IITC-CE/ingress-intel-total-conversion) | [News in Telegram](https://t.me/iitc_news) | [Discuss on Reddit](https://www.reddit.com/r/IITC/)
+
+## How do I add my plugin to this list?
+
+See the [Contributing](CONTRIBUTING.md) documentation.
+
+# IITC plugins from the community
+
+{% for category, plugins in store %}
+## {{ category }}
+  {% for plugin in plugins %}
+### [{{ plugin.name }}]({{ plugin.downloadURL }}){% if plugin.author %} by {{ plugin.author }}{% endif %}
+###### {{ plugin.id }}
+
+{% if plugin.antiFeatures -%}
+    **Anti-features:** {% for antiFeature in plugin.antiFeatures %}**[{{ antiFeature }}]()** {% endfor %}
+{%- endif %}
+
+{% if plugin.description -%}
+    {{ plugin.description }}
+{%- endif %}
+
+{% if plugin.depends -%}
+    *Depends*: {% for depend in plugin.depends %}[{{ depend }}](#{{ depend }}) {% endfor %} |
+{% endif %}{% if plugin.tags -%}
+    *Tags*: {{ plugin.tags|join(",") }} |
+{% endif %}{% if plugin.homepageURL -%}
+    *[Homepage]({{ plugin.homepageURL }})* |
+{% endif %}{% if plugin.issueTracker -%}
+    *[Issue tracker]({{ plugin.issueTracker }})* |
+{% endif %}{% if plugin.version -%}
+    *Version:* {{ plugin.version }}
+{% endif %}
+
+  {% endfor %}
+{% endfor %}

@@ -10,6 +10,7 @@
   "dependencies": {
     "lib-iitc-manager": "^1.0.0",
     "node-fetch": "^3.2.6",
+    "nunjucks": "^3.2.3",
     "yaml": "^2.1.1"
   }
 }

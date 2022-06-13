@@ -1,4 +1,7 @@
 import * as helpers from "./helpers.js";
+import nunjucks from "nunjucks";
+import fs from 'fs';
+import {get_plugins_in_categories, read_dist_plugins} from './helpers.js';
 
 export const run_update = async (metadata_files) => {
     for (const [filepath, id, filename] of metadata_files) {
@@ -12,4 +15,17 @@ export const run_update = async (metadata_files) => {
             console.log(`${id}/${filename} is up to date`);
         }
     }
+}
+
+export const make_plugins_list = () => {
+    const template = fs.readFileSync("templates/README.njk", 'utf8');
+    const plugins = read_dist_plugins();
+    const plugins_in_categories = get_plugins_in_categories(plugins);
+    console.log(plugins_in_categories);
+
+    nunjucks.configure({ autoescape: true });
+    const readme = nunjucks.renderString(template, { store: plugins_in_categories });
+
+    fs.writeFileSync("../README.md", readme);
+    console.log("README.md updated");
 }

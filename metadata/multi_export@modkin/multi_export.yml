@@ -1,0 +1,5 @@
+updateURL: https://raw.githubusercontent.com/modkin/Ingress-IITC-Multi-Export/master/multi_export.user.js
+downloadURL: https://raw.githubusercontent.com/modkin/Ingress-IITC-Multi-Export/master/multi_export.user.js
+author: modkin
+match:
+  - https://intel.ingress.com/*

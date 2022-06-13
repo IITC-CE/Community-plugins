@@ -1,0 +1,15 @@
+{
+  "name": "iitc-store",
+  "main": "helpers.js",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "update-all": "node update-all.js"
+  },
+  "dependencies": {
+    "lib-iitc-manager": "^1.0.0",
+    "node-fetch": "^3.2.6",
+    "yaml": "^2.1.1"
+  }
+}

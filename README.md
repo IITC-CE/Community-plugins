@@ -250,7 +250,7 @@ Shows drone flight distance between portals
 
 [iitc-20190311.013370] Highlights level 19 cells where portal limit is reached, in order to see where you would best submit new candidates
 
-*Depends*: [occupied19cells@wintervorst](#l19-cells-for-ingress-by-wintervorst)  |
+*Depends*: [occupied19cells@wintervorst](#s2-cell-drawer-by-wintervorst)  |
 *Version:* 0.0.7.20190311.013370
 
 

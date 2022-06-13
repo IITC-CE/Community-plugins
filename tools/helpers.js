@@ -95,8 +95,8 @@ const remove_first_line = (str) => {
 const replace_update_url = (id, filename) => {
     const base_url = (process.env.BASE_RAW !== undefined) ? process.env.BASE_RAW : "https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist/";
     return {
-        updateURL: `${base_url}/${id}/${ext(filename, "meta")}`,
-        downloadURL: `${base_url}/${id}/${ext(filename, "user")}`
+        updateURL: `${base_url}${id}/${ext(filename, "meta")}`,
+        downloadURL: `${base_url}${id}/${ext(filename, "user")}`
     }
 }
 

@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import YAML from 'yaml';
-import {ajaxGet, check_meta_match_pattern, parseMeta} from 'lib-iitc-manager';
+import {ajaxGet, check_meta_match_pattern, getUID, parseMeta} from 'lib-iitc-manager';
 
 const METABLOCK_RE_HEADER = /==UserScript==\s*([\s\S]*)\/\/\s*==\/UserScript==/m;
 const fileExists = async path => !!(await fs.promises.stat(path).catch(() => false));
@@ -56,22 +56,6 @@ export const read_metadata_file = (filepath) => {
     return metadata;
 }
 
-export const read_dist_plugins = () => {
-    const files = get_all_dist_files();
-    const plugins = [];
-    for (const [filepath, id, filename] of files) {
-        const metajs = fs.readFileSync(filepath, 'utf8');
-        const meta = parseMeta(metajs);
-        for (const mergeKey of ["antiFeatures", "tags", "depends"]) {
-            if (meta[mergeKey] !== undefined) {
-                meta[mergeKey] = meta[mergeKey].split("|");
-            }
-        }
-        plugins.push(meta);
-    }
-    return plugins;
-}
-
 /**
  * Replaces the .yml extension with ".meta.js" or ".user.js".
  *
@@ -108,18 +92,17 @@ const remove_first_line = (str) => {
     return str.substring(str.indexOf('\n') + 1);
 }
 
-const replace_update_url = (filename) => {
+const replace_update_url = (id, filename) => {
     const base_url = (process.env.BASE_RAW !== undefined) ? process.env.BASE_RAW : "https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist/";
     return {
-        updateURL: base_url+ext(filename, "meta"),
-        downloadURL: base_url+ext(filename, "user")
+        updateURL: `${base_url}/${id}/${ext(filename, "meta")}`,
+        downloadURL: `${base_url}/${id}/${ext(filename, "user")}`
     }
 }
 
 const prepare_meta_js = (meta) => {
     const max_key_length = Object.keys(meta).reduce((max, key) => Math.max(max, key.length), 0);
     const key_padding = max_key_length + 4;
-    console.log(meta);
 
     let meta_js = "// ==UserScript==\n";
     for (let [key, values] of Object.entries(meta)) {
@@ -142,7 +125,7 @@ export const update_plugin = async (metadata, id, filename) => {
     const source_meta = parseMeta(source_plugin_js);
     if (source_meta === null) throw new Error(`${metadata.downloadURL} is not a valid metadata file`);
 
-    const meta = {...source_meta, ...metadata, ...replace_update_url(filename)};
+    const meta = {...source_meta, ...metadata, ...replace_update_url(id, filename)};
     if (!check_meta_match_pattern(meta)) throw new Error(`Not a valid match pattern in ${meta.match} and ${meta.include}`);
     if (meta.name === undefined) throw new Error(`name is missing in ${filename}`);
     meta.id = id;
@@ -180,4 +163,46 @@ export const get_plugins_in_categories = (metadata) => {
     for (let [, plugins] of Object.entries(data))
         plugins.sort((a, b) => a.name.localeCompare(b.name));
     return orderedDict(data);
+}
+
+const dist_plugin_relative_link = (name, author) => {
+    let link = name;
+    if (author !== undefined) {
+        link += " by " + author;
+    }
+    link = link.toLowerCase();
+    link = link.replace(/[^A-Za-z0-9 -]/g, '');
+    link = link.replace(/ /g, "-");
+    link = "#"+link;
+    return link;
+}
+
+export const get_dist_plugins = () => {
+    const files = get_all_dist_files();
+    const id_link_map = {};
+    const plugins = [];
+    for (const [filepath, id, filename] of files) {
+        const metajs = fs.readFileSync(filepath, 'utf8');
+        const meta = parseMeta(metajs);
+        for (const mergeKey of ["antiFeatures", "tags", "depends"]) {
+            if (meta[mergeKey] !== undefined) {
+                meta[mergeKey] = meta[mergeKey].split("|");
+            }
+        }
+        id_link_map[id] = dist_plugin_relative_link(meta.name, meta.author);
+        plugins.push(meta);
+    }
+
+    for (const plugin of plugins) {
+        if (plugin.depends !== undefined) {
+            plugin._depends_links = [];
+            for (const depends of plugin.depends) {
+                if (id_link_map[depends] !== undefined) {
+                    plugin._depends_links.push([plugin.id, id_link_map[plugin.id]]);
+                }
+            }
+        }
+    }
+
+    return get_plugins_in_categories(plugins);
 }

@@ -19,7 +19,6 @@ See the [Contributing](CONTRIBUTING.md) documentation.
 ## {{ category }}
   {% for plugin in plugins %}
 ### [{{ plugin.name }}]({{ plugin.downloadURL }}){% if plugin.author %} by {{ plugin.author }}{% endif %}
-###### {{ plugin.id }}
 
 {% if plugin.antiFeatures -%}
     **Anti-features:** {% for antiFeature in plugin.antiFeatures %}**[{{ antiFeature }}]()** {% endfor %}
@@ -29,8 +28,8 @@ See the [Contributing](CONTRIBUTING.md) documentation.
     {{ plugin.description }}
 {%- endif %}
 
-{% if plugin.depends -%}
-    *Depends*: {% for depend in plugin.depends %}[{{ depend }}](#{{ depend }}) {% endfor %} |
+{% if plugin._depends_links -%}
+    *Depends*: {% for depend_id, depend_link in plugin._depends_links %}[{{ depend_id }}]({{ depend_link }}) {% endfor %} |
 {% endif %}{% if plugin.tags -%}
     *Tags*: {{ plugin.tags|join(",") }} |
 {% endif %}{% if plugin.homepageURL -%}

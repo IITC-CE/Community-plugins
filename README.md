@@ -24,9 +24,11 @@ See the [Contributing](CONTRIBUTING.md) documentation.
 
 Bring ameba64/ingress-items icons into IITC
 
+
+
 *Version:* 0.1.1
 
-
+![Desktop screenshot](https://i.ibb.co/nsprM3s/IITC-Ingress-Icons-by-jaiperdu-desktop.jpg)
   
 
 ## COMM

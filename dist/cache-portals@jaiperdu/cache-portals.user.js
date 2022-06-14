@@ -6,8 +6,8 @@
 // @description    Cache the data of visible portals and use this to populate the map when possible
 // @id             cache-portals@jaiperdu
 // @namespace      https://github.com/IITC-CE/ingress-intel-total-conversion
-// @updateURL      https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist//cache-portals@jaiperdu/cache-portals.meta.js
-// @downloadURL    https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist//cache-portals@jaiperdu/cache-portals.user.js
+// @updateURL      https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist/cache-portals@jaiperdu/cache-portals.meta.js
+// @downloadURL    https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist/cache-portals@jaiperdu/cache-portals.user.js
 // @match          https://intel.ingress.com/*
 // @grant          none
 // ==/UserScript==

@@ -13,12 +13,12 @@ or [mobile device](https://iitc.app/download_desktop.html) to use IITC plugins.
 
 See the [Contributing](CONTRIBUTING.md) documentation.
 
-# IITC plugins from the community
+# IITC community plugins
 
 
 ## Appearance
   
-### [Ingress Icons](https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist//ingress-icons@jaiperdu/ingress-icons.user.js) by jaiperdu
+### [Ingress Icons](https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist/ingress-icons@jaiperdu/ingress-icons.user.js) by jaiperdu
 
 
 
@@ -31,7 +31,7 @@ Bring ameba64/ingress-items icons into IITC
 
 ## COMM
   
-### [COMM Filter Tab](https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist//comm-filter-tab@jaiperdu/comm-filter-tab.user.js) by jaiperdu
+### [COMM Filter Tab](https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist/comm-filter-tab@jaiperdu/comm-filter-tab.user.js) by jaiperdu
 
 
 
@@ -41,7 +41,7 @@ Show virus in the regular Comm and add a new tab with portal/player name filter 
 
 
   
-### [MUs Tab](https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist//muTab@jaiperdu/muTab.user.js) by jaiperdu
+### [MUs Tab](https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist/muTab@jaiperdu/muTab.user.js) by jaiperdu
 
 
 
@@ -54,7 +54,7 @@ Add a MUs tab scoring the MU
 
 ## Cache
   
-### [Cache visible portals](https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist//cache-portals@jaiperdu/cache-portals.user.js) by jaiperdu
+### [Cache visible portals](https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist/cache-portals@jaiperdu/cache-portals.user.js) by jaiperdu
 
 
 
@@ -67,7 +67,7 @@ Cache the data of visible portals and use this to populate the map when possible
 
 ## Controls
   
-### [Hide UI Zaso](https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist//hide-ui@Zaso/hide-ui.user.js) by Zaso
+### [Hide UI Zaso](https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist/hide-ui@Zaso/hide-ui.user.js) by Zaso
 
 
 
@@ -77,7 +77,7 @@ Hide all UI for screenshot.
 
 
   
-### [Local Storage Manager](https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist//local-storage-manager@GMOogway/local-storage-manager.user.js) by GMOogway
+### [Local Storage Manager](https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist/local-storage-manager@GMOogway/local-storage-manager.user.js) by GMOogway
 
 
 
@@ -90,7 +90,7 @@ Hide all UI for screenshot.
 
 ## Draw
   
-### [ImageOverlay2](https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist//ImageOverlay2@McBen/ImageOverlay2.user.js) by Hevne
+### [ImageOverlay2](https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist/ImageOverlay2@McBen/ImageOverlay2.user.js) by Hevne
 
 
 
@@ -100,7 +100,7 @@ Add an image to your map.
 
 
   
-### [KMLImport](https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist//KMLImport@McBen/KMLImport.user.js) by McBen
+### [KMLImport](https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist/KMLImport@McBen/KMLImport.user.js) by McBen
 
 
 
@@ -113,7 +113,7 @@ Import KML/GPX/Geojson/TCX into DrawTools
 
 ## Highlighter
   
-### [Highlight uniques captured/visited/scanned](https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist//highlight-intel-uniques@jaiperdu/highlight-intel-uniques.user.js) by jaiperdu
+### [Highlight uniques captured/visited/scanned](https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist/highlight-intel-uniques@jaiperdu/highlight-intel-uniques.user.js) by jaiperdu
 
 
 
@@ -126,7 +126,7 @@ Highlighter for unique visited/captured/scout controlled portals
 
 ## Info
   
-### [Draw Tools Replace Portal](https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist//dt-replace-portal@Loskir/dt-replace-portal.user.js) by Loskir
+### [Draw Tools Replace Portal](https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist/dt-replace-portal@Loskir/dt-replace-portal.user.js) by Loskir
 
 
 
@@ -136,7 +136,7 @@ Quickly replace one portal with another in Draw Tools
 
 
   
-### [Inventory Parser](https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist//inventoryParser@633KYN35D/inventoryParser.user.js) by 633KYN35D with significant code from EisFrei
+### [Inventory Parser](https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist/inventoryParser@633KYN35D/inventoryParser.user.js) by 633KYN35D with significant code from EisFrei
 
 
 
@@ -147,7 +147,7 @@ Parse Inventory from Ingress
 
 
   
-### [Player Inventory](https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist//player-inventory@jaiperdu/player-inventory.user.js) by jaiperdu
+### [Player Inventory](https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist/player-inventory@jaiperdu/player-inventory.user.js) by jaiperdu
 
 
 
@@ -157,7 +157,7 @@ View inventory and highlight portals with keys at any zoom. Can be used with the
 
 
   
-### [Poly Counts 2](https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist//poly-counts2@Jormund/poly-counts2.user.js) by Jormund
+### [Poly Counts 2](https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist/poly-counts2@Jormund/poly-counts2.user.js) by Jormund
 
 
 
@@ -167,7 +167,7 @@ View inventory and highlight portals with keys at any zoom. Can be used with the
 
 
   
-### [Portals Gallery](https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist//portals_gallery_script@nerotu/portals_gallery_script.user.js) by Kofirs2634 aka Nerotu
+### [Portals Gallery](https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist/portals_gallery_script@nerotu/portals_gallery_script.user.js) by Kofirs2634 aka Nerotu
 
 
 
@@ -177,7 +177,7 @@ Creates the gallery of portals that can be used to solve the First Saturday pass
 
 
   
-### [Portals pictures](https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist//portals-pictures@jaiperdu/portals-pictures.user.js) by jaiperdu
+### [Portals pictures](https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist/portals-pictures@jaiperdu/portals-pictures.user.js) by jaiperdu
 
 
 
@@ -187,7 +187,7 @@ Show portal pictures in a dialog
 
 
   
-### [Scanner link](https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist//scanner-link@xMAXIMx/scanner-link.user.js) by xMAXIMx
+### [Scanner link](https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist/scanner-link@xMAXIMx/scanner-link.user.js) by xMAXIMx
 
 
 
@@ -197,7 +197,7 @@ Adds scanner link to IITC
 
 
   
-### [Scanner link-copy](https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist//scanner-link-copy@xMAXIMx/scanner-link-copy.user.js) by xMAXIMx
+### [Scanner link-copy](https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist/scanner-link-copy@xMAXIMx/scanner-link-copy.user.js) by xMAXIMx
 
 
 
@@ -210,7 +210,7 @@ Adds scanner link (copy mode) to IITC
 
 ## Information
   
-### [Ingress Maxfields](https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist//IngressMaxFields@itayo/IngressMaxFields.user.js) by itayo
+### [Ingress Maxfields](https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist/IngressMaxFields@itayo/IngressMaxFields.user.js) by itayo
 
 
 
@@ -220,7 +220,7 @@ Exports portals in the format for http://www.ingress-maxfield.com/ and allow dir
 
 
   
-### [Ingress Portal CSV Export](https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist//ingress_export@zetaphor/ingress_export.user.js) by Zetaphor
+### [Ingress Portal CSV Export](https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist/ingress_export@zetaphor/ingress_export.user.js) by Zetaphor
 
 
 
@@ -233,7 +233,7 @@ Exports portals to a CSV list
 
 ## Layer
   
-### [dronerange](https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist//DroneRange@VE6SRV/DroneRange.user.js) by VE6SRV
+### [dronerange](https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist/DroneRange@VE6SRV/DroneRange.user.js) by VE6SRV
 
 
 
@@ -244,7 +244,7 @@ Shows drone flight distance between portals
 
 
   
-### [L19 Cells for Ingress](https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist//occupied19cells@wintervorst/occupied19cells.user.js) by Wintervorst
+### [L19 Cells for Ingress](https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist/occupied19cells@wintervorst/occupied19cells.user.js) by Wintervorst
 
 
 
@@ -255,7 +255,7 @@ Shows drone flight distance between portals
 
 
   
-### [Portal submitrange](https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist//submitrange@wintervorst/submitrange.user.js) by Wintervorst
+### [Portal submitrange](https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist/submitrange@wintervorst/submitrange.user.js) by Wintervorst
 
 
 
@@ -265,7 +265,7 @@ Shows drone flight distance between portals
 
 
   
-### [S2 Cell Drawer](https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist//s2celldrawer@wintervorst/s2celldrawer.user.js) by Wintervorst
+### [S2 Cell Drawer](https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist/s2celldrawer@wintervorst/s2celldrawer.user.js) by Wintervorst
 
 
 
@@ -278,7 +278,7 @@ Shows drone flight distance between portals
 
 ## Map Tiles
   
-### [Custom Google map](https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist//basemap-google-custom@jaiperdu/basemap-google-custom.user.js) by jaiperdu
+### [Custom Google map](https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist/basemap-google-custom@jaiperdu/basemap-google-custom.user.js) by jaiperdu
 
 
 
@@ -288,7 +288,7 @@ Add a customizable Version of Google map tiles as a base layer.
 
 
   
-### [Default base maps with labels above fields](https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist//labels_layer@jaiperdu/labels_layer.user.js) by jaiperdu
+### [Default base maps with labels above fields](https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist/labels_layer@jaiperdu/labels_layer.user.js) by jaiperdu
 
 
 
@@ -298,7 +298,7 @@ Print labels as an overlay of intel layer
 
 
   
-### [Glify layer](https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist//glify-layer@jaiperdu/glify-layer.user.js) by jaiperdu
+### [Glify layer](https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist/glify-layer@jaiperdu/glify-layer.user.js) by jaiperdu
 
 
 
@@ -308,7 +308,7 @@ GL layer
 
 
   
-### [Map layers from GAODE by GMOogway](https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist//basemap-gaode@GMOogway/basemap-gaode.user.js) by GMOogway
+### [Map layers from GAODE by GMOogway](https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist/basemap-gaode@GMOogway/basemap-gaode.user.js) by GMOogway
 
 
 
@@ -321,7 +321,7 @@ GL layer
 
 ## Misc
   
-### [Advanced Tracker Player](https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist//advanced_player_tracker@BlancLapin/advanced_player_tracker.user.js) by BlancLapin
+### [Advanced Tracker Player](https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist/advanced_player_tracker@BlancLapin/advanced_player_tracker.user.js) by BlancLapin
 
 
 
@@ -331,7 +331,7 @@ Advanced version of Player Tracker
 
 
   
-### [Aurora Glyph Hack Challenge](https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist//aurora@mrDinckleman/aurora.user.js) by mrDinckleman
+### [Aurora Glyph Hack Challenge](https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist/aurora@mrDinckleman/aurora.user.js) by mrDinckleman
 
 
 
@@ -341,7 +341,7 @@ Advanced version of Player Tracker
 
 
   
-### [Dialog List](https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist//dialogs@jaiperdu/dialogs.user.js) by jaiperdu
+### [Dialog List](https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist/dialogs@jaiperdu/dialogs.user.js) by jaiperdu
 
 
 
@@ -351,7 +351,7 @@ List open dialogs in the sidebar
 
 
   
-### [Drone Helper](https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist//dronehelper@azrael-42/dronehelper.user.js) by azrael-42
+### [Drone Helper](https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist/dronehelper@azrael-42/dronehelper.user.js) by azrael-42
 
 
 
@@ -362,7 +362,7 @@ Display area drone can &quot;see&quot; from currently selected portal. Manually 
 
 
   
-### [Portal Multi Export](https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist//multi_export@modkin/multi_export.user.js) by modkin
+### [Portal Multi Export](https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist/multi_export@modkin/multi_export.user.js) by modkin
 
 
 
@@ -372,7 +372,7 @@ Export portals from bookmarks, current view or polygon
 
 
   
-### [Short portal info](https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist//short-portal-info@eccenux/short-portal-info.user.js) by Eccenux
+### [Short portal info](https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist/short-portal-info@eccenux/short-portal-info.user.js) by Eccenux
 
 
 
@@ -382,7 +382,7 @@ Export portals from bookmarks, current view or polygon
 
 
   
-### [spam-filter](https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist//spamfilter@3ch01c/spamfilter.user.js) by 3ch01c
+### [spam-filter](https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist/spamfilter@3ch01c/spamfilter.user.js) by 3ch01c
 
 
 
@@ -392,7 +392,7 @@ This is a spam filter plugin which filters out SPAM from Comm messages.
 
 
   
-### [Umbra Deploy Challenge](https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist//umbra@mrDinckleman/umbra.user.js) by mrDinckleman
+### [Umbra Deploy Challenge](https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist/umbra@mrDinckleman/umbra.user.js) by mrDinckleman
 
 
 
@@ -405,7 +405,7 @@ This is a spam filter plugin which filters out SPAM from Comm messages.
 
 ## Portal Info
   
-### [PLink](https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist//PLink@McBen/PLink.user.js) by McBen
+### [PLink](https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist/PLink@McBen/PLink.user.js) by McBen
 
 
 
@@ -415,7 +415,7 @@ Enhance Portal Links
 
 
   
-### [Replace player names with more easily remembered names](https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist//barcodes@3ch01c/barcodes.user.js) by 3ch01c
+### [Replace player names with more easily remembered names](https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist/barcodes@3ch01c/barcodes.user.js) by 3ch01c
 
 
 
@@ -428,7 +428,7 @@ Enhance Portal Links
 
 ## Utilities
   
-### [Ingress Inventory Overview (based on Ingress Live Inventory from Freamstern)](https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist//inventory-overview@Guschtel/inventory-overview.user.js) by Guschtel
+### [Ingress Inventory Overview (based on Ingress Live Inventory from Freamstern)](https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist/inventory-overview@Guschtel/inventory-overview.user.js) by Guschtel
 
 
 

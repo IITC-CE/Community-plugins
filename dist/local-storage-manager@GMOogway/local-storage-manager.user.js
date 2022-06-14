@@ -5,8 +5,8 @@
 // @version        0.1.0.20190214
 // @author         GMOogway
 // @description    [local-2019-02-14] LocalStorageManager plugin by GMOogway.
-// @downloadURL    https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist//local-storage-manager@GMOogway/local-storage-manager.user.js
-// @updateURL      https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist//local-storage-manager@GMOogway/local-storage-manager.meta.js
+// @downloadURL    https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist/local-storage-manager@GMOogway/local-storage-manager.user.js
+// @updateURL      https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist/local-storage-manager@GMOogway/local-storage-manager.meta.js
 // @namespace      https://github.com/GMOogway/iitc-plugins
 // @include        https://intel.ingress.com/*
 // @match          https://intel.ingress.com/*

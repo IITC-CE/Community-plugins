@@ -4,8 +4,8 @@
 // @category       Layer
 // @version        0.1
 // @namespace      https://github.com/VE6SRV/iitc-plugins
-// @updateURL      https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist//DroneRange@VE6SRV/DroneRange.meta.js
-// @downloadURL    https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist//DroneRange@VE6SRV/DroneRange.user.js
+// @updateURL      https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist/DroneRange@VE6SRV/DroneRange.meta.js
+// @downloadURL    https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist/DroneRange@VE6SRV/DroneRange.user.js
 // @homepageURL    https://gitbub.com/VE6SRV/iitc-plugins
 // @description    Shows drone flight distance between portals
 // @author         VE6SRV

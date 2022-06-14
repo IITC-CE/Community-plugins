@@ -10,6 +10,6 @@
 // @match          https://intel.ingress.com/
 // @match          http://intel.ingress.com/
 // @grant          none
-// @downloadURL    https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist//portals_gallery_script@nerotu/portals_gallery_script.user.js
-// @updateURL      https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist//portals_gallery_script@nerotu/portals_gallery_script.meta.js
+// @downloadURL    https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist/portals_gallery_script@nerotu/portals_gallery_script.user.js
+// @updateURL      https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist/portals_gallery_script@nerotu/portals_gallery_script.meta.js
 // ==/UserScript==

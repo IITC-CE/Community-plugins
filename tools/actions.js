@@ -1,5 +1,5 @@
-import * as helpers from "./helpers.js";
-import nunjucks from "nunjucks";
+import * as helpers from './helpers.js';
+import nunjucks from 'nunjucks';
 import fs from 'fs';
 import {get_dist_plugins} from './helpers.js';
 
@@ -15,15 +15,15 @@ export const run_update = async (metadata_files, force = false) => {
             console.log(`${id}/${filename} is up to date`);
         }
     }
-}
+};
 
 export const make_plugins_list = () => {
-    const template = fs.readFileSync("templates/README.njk", 'utf8');
+    const template = fs.readFileSync('templates/README.njk', 'utf8');
     const plugins = get_dist_plugins();
 
     nunjucks.configure({ autoescape: true });
     const readme = nunjucks.renderString(template, { store: plugins });
 
-    fs.writeFileSync("../README.md", readme);
-    console.log("README.md updated");
-}
+    fs.writeFileSync('../README.md', readme);
+    console.log('README.md updated');
+};

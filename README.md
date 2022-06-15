@@ -75,6 +75,18 @@ Cache the data of visible portals and use this to populate the map when possible
 
 ## Controls
   
+### [Free Sidebar](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/free-sidebar@Zaso/free-sidebar.user.js) by Zaso
+
+
+
+
+
+Reduces use of sidebar.
+
+*Version:* 0.0.4.20200216.174029
+
+
+  
 ### [Hide UI Zaso](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/hide-ui@Zaso/hide-ui.user.js) by Zaso
 
 
@@ -87,6 +99,18 @@ Hide all UI for screenshot.
 
 
   
+### [Layers Profiles](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/layers-profiles@Zaso/layers-profiles.user.js) by Zaso
+
+
+
+
+
+Saves the current enabled layers (base, overlays and hightlighter). Restore it just a click.
+
+*Version:* 0.1.2.20200216.174029
+
+
+  
 ### [Local Storage Manager](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/local-storage-manager@GMOogway/local-storage-manager.user.js) by GMOogway
 
 
@@ -96,6 +120,21 @@ Hide all UI for screenshot.
 [local-2019-02-14] LocalStorageManager plugin by GMOogway.
 
 *Version:* 0.1.0.20190214
+
+
+  
+
+## Debug
+  
+### [LocalStorage Manager](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/localstorage-manager@Zaso/localstorage-manager.user.js) by Zaso
+
+
+
+
+
+Manage LocalStorage: import, export and delete.
+
+*Version:* 0.1.1.20200216.174029
 
 
   
@@ -144,6 +183,30 @@ Highlighter for unique visited/captured/scout controlled portals
 
 ## Info
   
+### [Check Point Timer](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/check-point-timer@Zaso/check-point-timer.user.js) by Zaso
+
+
+
+
+
+Add to the sidebar a countdown timer to next checkpoint.
+
+*Version:* 0.1.2.20200216.174028
+
+
+  
+### [Decay Calculator](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/decay-calculator@Zaso/decay-calculator.user.js) by Zaso
+
+
+
+
+
+Estimate the portal decaying.
+
+*Version:* 0.0.3.20200723.162738
+
+
+  
 ### [Draw Tools Replace Portal](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/dt-replace-portal@Loskir/dt-replace-portal.user.js) by Loskir
 
 
@@ -166,6 +229,18 @@ Parse Inventory from Ingress
 
 *[Homepage](https://github.com/633KYN35D/iitc-inventory-parser/)* |
 *Version:* 0.0.5
+
+
+  
+### [Last Action Timestamp](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/last-action-timestamp@Zaso/last-action-timestamp.user.js) by Zaso
+
+
+
+
+
+Estimate the portal decaying.
+
+*Version:* 0.0.3.20200216.174029
 
 
   
@@ -271,6 +346,30 @@ Exports portals to a CSV list
 
 ## Layer
   
+### [Destroyed Links Simulator](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/destroyed-links-simulator@Zaso/destroyed-links-simulator.user.js) by Zaso
+
+
+
+
+
+Simulate the destruction of portal links: hide its links and fields.
+
+*Version:* 0.0.8.20200216.174029
+
+
+  
+### [Draw tools plus](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/draw-tools-plus@Zaso/draw-tools-plus.user.js) by Zaso
+
+
+
+
+
+Edit and improve Draw tools.
+
+*Version:* 0.1.10.20210103.185428
+
+
+  
 ### [dronerange](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DroneRange@VE6SRV/DroneRange.user.js) by VE6SRV
 
 
@@ -294,6 +393,30 @@ Shows drone flight distance between portals
 
 *Depends*: [occupied19cells@wintervorst](#s2-cell-drawer-by-wintervorst)  |
 *Version:* 0.0.7.20190311.013370
+
+
+  
+### [Player Ranges](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/player-ranges@Zaso/player-ranges.user.js) by Zaso
+
+
+
+
+
+Add one or more player markers and his ranges (hack/deploy range and xmp ranges) on the map.
+
+*Version:* 0.3.1.20210103.154230
+
+
+  
+### [Portal Hack Range](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/portal-hack-range@Zaso/portal-hack-range.user.js) by Zaso
+
+
+
+
+
+Add a circle around the portals to show the range where you can hack the portal.
+
+*Version:* 0.0.7.20200216.174030
 
 
   
@@ -330,6 +453,21 @@ Shows drone flight distance between portals
 Shows under field throw range at 500m
 
 *Version:* 1.1.2
+
+
+  
+
+## Layers
+  
+### [Link Prolongation](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/link-prolongation@Zaso/link-prolongation.user.js) by Zaso
+
+
+
+
+
+Create link prolongations.
+
+*Version:* 0.1.1.20200216.174029
 
 
   
@@ -448,6 +586,30 @@ Display area drone can &quot;see&quot; from currently selected portal. Manually 
 
 
   
+### [Fake Message Location](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/fake-message-location@Zaso/fake-message-location.user.js) by Zaso
+
+
+
+
+
+Set a location. The COMM messages you send will have the setted location.
+
+*Version:* 0.1.1.20200216.174029
+
+
+  
+### [Logs Diary](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/logs-diary@Zaso/logs-diary.user.js) by Zaso
+
+
+
+
+
+Storage favorite logs.
+
+*Version:* 0.0.2.20200216.174029
+
+
+  
 ### [Portal Multi Export](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/multi_export@modkin/multi_export.user.js) by modkin
 
 
@@ -484,6 +646,18 @@ This is a spam filter plugin which filters out SPAM from Comm messages.
 
 
   
+### [To Do List](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/todo-list@Zaso/todo-list.user.js) by Zaso
+
+
+
+
+
+Add a To Do List.
+
+*Version:* 0.0.3.20200216.174030
+
+
+  
 ### [Umbra Deploy Challenge](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/umbra@mrDinckleman/umbra.user.js) by mrDinckleman
 
 
@@ -511,6 +685,18 @@ Enhance Portal Links
 
 
   
+### [Pocket Portal Details](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/pocket-portal-details@Zaso/pocket-portal-details.user.js) by Zaso
+
+
+
+
+
+Append a pocket box containing some restricted details of the selected portal.
+
+*Version:* 0.0.6.20200723.154151
+
+
+  
 ### [Replace player names with more easily remembered names](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/barcodes@3ch01c/barcodes.user.js) by 3ch01c
 
 
@@ -520,6 +706,81 @@ Enhance Portal Links
 [3ch01c-2017-01-03] Show resonator energy percentage on resonator energy bar in portal detail panel.
 
 *Version:* 0.1.0.20170103
+
+
+  
+
+## Tweaks
+  
+### [Bring Portals To Front](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/bring-portals-to-front@Zaso/bring-portals-to-front.user.js) by Zaso
+
+
+
+
+
+Bring the portals layers to front. Prevents that fields and drawn items cover them, making them unclickable.
+
+*Version:* 0.0.2.20200216.174028
+
+
+  
+### [Chat Message Length](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/chat-message-length@Zaso/chat-message-length.user.js) by Zaso
+
+
+
+
+
+Counts the chat message characters.
+
+*Version:* 0.1.3.20200216.174028
+
+
+  
+### [Emoji Chat](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/emoji-chat@Zaso/emoji-chat.user.js) by Zaso
+
+
+
+
+
+Add Emoji support and append an Emoji Keyboard.
+
+*Version:* 0.0.2.20200216.174029
+
+
+  
+### [Font Awesome](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/font-awesome@Zaso/font-awesome.user.js) by Zaso
+
+
+
+
+
+Add Font Awesome Icons.
+
+*Version:* 0.0.4.20200216.174029
+
+
+  
+### [Minify Some Portals Details](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/minify-some-portal-details@Zaso/minify-some-portal-details.user.js) by Zaso
+
+
+
+
+
+Minify some Portal Details in sidebar: mod slots and resonators info
+
+*Version:* 0.0.4.20200216.174030
+
+
+  
+### [Scroll Sleep](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/scroll-sleep@Zaso/scroll-sleep.user.js) by Zaso
+
+
+
+
+
+A control to enable/disable the zoom map by scroll mouse.
+
+*Version:* 0.0.3.20200216.174030
 
 
   

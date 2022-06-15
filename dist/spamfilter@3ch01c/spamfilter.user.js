@@ -15,8 +15,8 @@
 // @match          http://*.ingress.com/mission/*
 // @match          https://intel.ingress.com/*
 // @grant          none
-// @updateURL      https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist/spamfilter@3ch01c/spamfilter.meta.js
-// @downloadURL    https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist/spamfilter@3ch01c/spamfilter.user.js
+// @updateURL      https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/spamfilter@3ch01c/spamfilter.meta.js
+// @downloadURL    https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/spamfilter@3ch01c/spamfilter.user.js
 // @author         3ch01c
 // ==/UserScript==
 

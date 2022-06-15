@@ -4,8 +4,8 @@
 // @category       Layer
 // @version        0.0.7.20190311.013370
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
-// @updateURL      https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist/occupied19cells@wintervorst/occupied19cells.meta.js
-// @downloadURL    https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist/occupied19cells@wintervorst/occupied19cells.user.js
+// @updateURL      https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/occupied19cells@wintervorst/occupied19cells.meta.js
+// @downloadURL    https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/occupied19cells@wintervorst/occupied19cells.user.js
 // @description    [iitc-20190311.013370] Highlights level 19 cells where portal limit is reached, in order to see where you would best submit new candidates
 // @include        https://*.ingress.com/intel*
 // @include        http://*.ingress.com/intel*

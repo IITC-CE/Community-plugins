@@ -3,8 +3,8 @@
 // @name           Direct Link
 // @version        1.0.0
 // @namespace      https://github.com
-// @updateURL      https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist/direct-link@blsmit5728/direct-link.meta.js
-// @downloadURL    https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist/direct-link@blsmit5728/direct-link.user.js
+// @updateURL      https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/direct-link@blsmit5728/direct-link.meta.js
+// @downloadURL    https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/direct-link@blsmit5728/direct-link.user.js
 // @description    Direct Link
 // @match          *://*.ingress.com/intel*
 // @match          *://*.ingress.com/mission/*

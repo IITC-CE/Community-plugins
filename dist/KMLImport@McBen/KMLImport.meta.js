@@ -4,8 +4,8 @@
 // @category       Draw
 // @version        1.0.1
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
-// @updateURL      https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist/KMLImport@McBen/KMLImport.meta.js
-// @downloadURL    https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist/KMLImport@McBen/KMLImport.user.js
+// @updateURL      https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/KMLImport@McBen/KMLImport.meta.js
+// @downloadURL    https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/KMLImport@McBen/KMLImport.user.js
 // @description    Import KML/GPX/Geojson/TCX into DrawTools
 // @include        https://intel.ingress.com/*
 // @author         McBen

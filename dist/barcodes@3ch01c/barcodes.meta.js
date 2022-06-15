@@ -4,8 +4,8 @@
 // @category       Portal Info
 // @version        0.1.0.20170103
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
-// @updateURL      https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist/barcodes@3ch01c/barcodes.meta.js
-// @downloadURL    https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist/barcodes@3ch01c/barcodes.user.js
+// @updateURL      https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/barcodes@3ch01c/barcodes.meta.js
+// @downloadURL    https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/barcodes@3ch01c/barcodes.user.js
 // @description    [3ch01c-2017-01-03] Show resonator energy percentage on resonator energy bar in portal detail panel.
 // @include        https://*.ingress.com/intel*
 // @include        http://*.ingress.com/intel*

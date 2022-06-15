@@ -11,8 +11,8 @@
 // @match          http://*.ingress.com/intel*
 // @match          https://intel.ingress.com/*
 // @grant          none
-// @updateURL      https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist/short-portal-info@eccenux/short-portal-info.meta.js
-// @downloadURL    https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist/short-portal-info@eccenux/short-portal-info.user.js
+// @updateURL      https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/short-portal-info@eccenux/short-portal-info.meta.js
+// @downloadURL    https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/short-portal-info@eccenux/short-portal-info.user.js
 // @author         Eccenux
 // ==/UserScript==
 

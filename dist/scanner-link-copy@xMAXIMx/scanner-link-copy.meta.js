@@ -7,6 +7,6 @@
 // @category       Info
 // @include        *://*.ingress.com/*
 // @match          *://*.ingress.com/*
-// @updateURL      https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist/scanner-link-copy@xMAXIMx/scanner-link-copy.meta.js
-// @downloadURL    https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist/scanner-link-copy@xMAXIMx/scanner-link-copy.user.js
+// @updateURL      https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/scanner-link-copy@xMAXIMx/scanner-link-copy.meta.js
+// @downloadURL    https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/scanner-link-copy@xMAXIMx/scanner-link-copy.user.js
 // ==/UserScript==

@@ -24,6 +24,10 @@ See the [Contributing](CONTRIBUTING.md) documentation.
     **Anti-features:** {% for antiFeature in plugin.antiFeatures %}**[{{ antiFeature }}]()** {% endfor %}
 {%- endif %}
 
+{% if plugin.preview -%}
+    ![preview]({{ plugin.preview }})
+{%- endif %}
+
 {% if plugin.description -%}
     {{ plugin.description }}
 {%- endif %}

@@ -1,0 +1,17 @@
+// ==UserScript==
+// @id             direct-link@blsmit5728
+// @name           Direct Link
+// @version        1.0.0
+// @namespace      https://github.com
+// @updateURL      https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist/direct-link@blsmit5728/direct-link.meta.js
+// @downloadURL    https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist/direct-link@blsmit5728/direct-link.user.js
+// @description    Direct Link
+// @match          *://*.ingress.com/intel*
+// @match          *://*.ingress.com/mission/*
+// @match          *://mission-author-dot-betaspike.appspot.com/*
+// @match          *://intel.ingress.com/*
+// @match          *://opr.ingress.com/*
+// @grant          none
+// @runAt          document-start
+// @author         blsmit5728
+// ==/UserScript==

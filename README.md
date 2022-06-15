@@ -275,6 +275,16 @@ Shows drone flight distance between portals
 
 
   
+### [Under-Field Throw Range](https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist/throw-range@blsmit5728/throwrange.user.js) by blsmit5728
+
+
+
+Shows under field throw range at 500m
+
+*Version:* 1.1.2
+
+
+  
 
 ## Map Tiles
   
@@ -348,6 +358,16 @@ Advanced version of Player Tracker
 List open dialogs in the sidebar
 
 *Version:* 0.1.0
+
+
+  
+### [Direct Link](https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist/direct-link@blsmit5728/direct-link.user.js) by blsmit5728
+
+
+
+Direct Link
+
+*Version:* 1.0.0
 
 
   

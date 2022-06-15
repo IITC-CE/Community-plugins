@@ -1,5 +1,5 @@
 {
-  "name": "iitc-store",
+  "name": "iitc-community-plugins",
   "main": "helpers.js",
   "version": "0.1.0",
   "type": "module",

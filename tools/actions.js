@@ -22,7 +22,7 @@ export const make_plugins_list = () => {
     const plugins = get_dist_plugins();
 
     nunjucks.configure({ autoescape: true });
-    const readme = nunjucks.renderString(template, { store: plugins });
+    const readme = nunjucks.renderString(template, { collection: plugins });
 
     fs.writeFileSync('../README.md', readme);
     console.log('README.md updated');

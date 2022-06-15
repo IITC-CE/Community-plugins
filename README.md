@@ -22,6 +22,8 @@ See the [Contributing](CONTRIBUTING.md) documentation.
 
 
 
+![preview](https://i.ibb.co/nsprM3s/IITC-Ingress-Icons-by-jaiperdu-desktop.jpg)
+
 Bring ameba64/ingress-items icons into IITC
 
 *Version:* 0.1.1
@@ -35,6 +37,8 @@ Bring ameba64/ingress-items icons into IITC
 
 
 
+
+
 Show virus in the regular Comm and add a new tab with portal/player name filter and event type filter.
 
 *Version:* 0.4.5
@@ -42,6 +46,8 @@ Show virus in the regular Comm and add a new tab with portal/player name filter 
 
   
 ### [MUs Tab](https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist/muTab@jaiperdu/muTab.user.js) by jaiperdu
+
+
 
 
 
@@ -58,6 +64,8 @@ Add a MUs tab scoring the MU
 
 
 
+
+
 Cache the data of visible portals and use this to populate the map when possible
 
 *Version:* 0.4.3
@@ -71,6 +79,8 @@ Cache the data of visible portals and use this to populate the map when possible
 
 
 
+
+
 Hide all UI for screenshot.
 
 *Version:* 0.1.4.20200528.070838
@@ -78,6 +88,8 @@ Hide all UI for screenshot.
 
   
 ### [Local Storage Manager](https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist/local-storage-manager@GMOogway/local-storage-manager.user.js) by GMOogway
+
+
 
 
 
@@ -94,6 +106,8 @@ Hide all UI for screenshot.
 
 
 
+
+
 Add an image to your map.
 
 *Version:* 0.0.0
@@ -101,6 +115,8 @@ Add an image to your map.
 
   
 ### [KMLImport](https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist/KMLImport@McBen/KMLImport.user.js) by McBen
+
+
 
 
 
@@ -117,6 +133,8 @@ Import KML/GPX/Geojson/TCX into DrawTools
 
 
 
+
+
 Highlighter for unique visited/captured/scout controlled portals
 
 *Version:* 1.5.5
@@ -130,6 +148,8 @@ Highlighter for unique visited/captured/scout controlled portals
 
 
 
+
+
 Quickly replace one portal with another in Draw Tools
 
 *Version:* 1.0.7
@@ -137,6 +157,8 @@ Quickly replace one portal with another in Draw Tools
 
   
 ### [Inventory Parser](https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist/inventoryParser@633KYN35D/inventoryParser.user.js) by 633KYN35D with significant code from EisFrei
+
+
 
 
 
@@ -151,6 +173,8 @@ Parse Inventory from Ingress
 
 
 
+
+
 View inventory and highlight portals with keys at any zoom. Can be used with the official plugins Keys and Keys on map to show the number of keys on the map.
 
 *Version:* 0.3.3
@@ -158,6 +182,8 @@ View inventory and highlight portals with keys at any zoom. Can be used with the
 
   
 ### [Poly Counts 2](https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist/poly-counts2@Jormund/poly-counts2.user.js) by Jormund
+
+
 
 
 
@@ -171,6 +197,8 @@ View inventory and highlight portals with keys at any zoom. Can be used with the
 
 
 
+
+
 Creates the gallery of portals that can be used to solve the First Saturday passcode.
 
 *Version:* 1.0
@@ -178,6 +206,8 @@ Creates the gallery of portals that can be used to solve the First Saturday pass
 
   
 ### [Portals pictures](https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist/portals-pictures@jaiperdu/portals-pictures.user.js) by jaiperdu
+
+
 
 
 
@@ -191,6 +221,8 @@ Show portal pictures in a dialog
 
 
 
+
+
 Adds scanner link to IITC
 
 *Version:* 0.1
@@ -198,6 +230,8 @@ Adds scanner link to IITC
 
   
 ### [Scanner link-copy](https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist/scanner-link-copy@xMAXIMx/scanner-link-copy.user.js) by xMAXIMx
+
+
 
 
 
@@ -214,6 +248,8 @@ Adds scanner link (copy mode) to IITC
 
 
 
+
+
 Exports portals in the format for http://www.ingress-maxfield.com/ and allow direct transfer to site
 
 *Version:* 0.1.9.0
@@ -221,6 +257,8 @@ Exports portals in the format for http://www.ingress-maxfield.com/ and allow dir
 
   
 ### [Ingress Portal CSV Export](https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist/ingress_export@zetaphor/ingress_export.user.js) by Zetaphor
+
+
 
 
 
@@ -237,6 +275,8 @@ Exports portals to a CSV list
 
 
 
+
+
 Shows drone flight distance between portals
 
 *[Homepage](https://gitbub.com/VE6SRV/iitc-plugins)* |
@@ -245,6 +285,8 @@ Shows drone flight distance between portals
 
   
 ### [L19 Cells for Ingress](https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist/occupied19cells@wintervorst/occupied19cells.user.js) by Wintervorst
+
+
 
 
 
@@ -259,6 +301,8 @@ Shows drone flight distance between portals
 
 
 
+
+
 [iitc-20190613.013370] Shows the &#39;too close&#39; radius of existing portals, in order to see where you can search for and submit new candidates
 
 *Version:* 1.0.12.20190613.013370
@@ -269,6 +313,8 @@ Shows drone flight distance between portals
 
 
 
+
+
 [iitc-20181209.010307] Allows drawing of s2cells and creates a layerselected hook
 
 *Version:* 0.0.4.20181209.010307
@@ -276,6 +322,8 @@ Shows drone flight distance between portals
 
   
 ### [Under-Field Throw Range](https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist/throw-range@blsmit5728/throwrange.user.js) by blsmit5728
+
+
 
 
 
@@ -292,6 +340,8 @@ Shows under field throw range at 500m
 
 
 
+
+
 Add a customizable Version of Google map tiles as a base layer.
 
 *Version:* 0.1.2
@@ -299,6 +349,8 @@ Add a customizable Version of Google map tiles as a base layer.
 
   
 ### [Default base maps with labels above fields](https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist/labels_layer@jaiperdu/labels_layer.user.js) by jaiperdu
+
+
 
 
 
@@ -312,6 +364,8 @@ Print labels as an overlay of intel layer
 
 
 
+
+
 GL layer
 
 *Version:* 0.1.0
@@ -319,6 +373,8 @@ GL layer
 
   
 ### [Map layers from GAODE by GMOogway](https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist/basemap-gaode@GMOogway/basemap-gaode.user.js) by GMOogway
+
+
 
 
 
@@ -335,6 +391,8 @@ GL layer
 
 
 
+
+
 Advanced version of Player Tracker
 
 *Version:* 0.0.1
@@ -342,6 +400,8 @@ Advanced version of Player Tracker
 
   
 ### [Aurora Glyph Hack Challenge](https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist/aurora@mrDinckleman/aurora.user.js) by mrDinckleman
+
+
 
 
 
@@ -355,6 +415,8 @@ Advanced version of Player Tracker
 
 
 
+
+
 List open dialogs in the sidebar
 
 *Version:* 0.1.0
@@ -365,6 +427,8 @@ List open dialogs in the sidebar
 
 
 
+
+
 Direct Link
 
 *Version:* 1.0.0
@@ -372,6 +436,8 @@ Direct Link
 
   
 ### [Drone Helper](https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist/dronehelper@azrael-42/dronehelper.user.js) by azrael-42
+
+
 
 
 
@@ -386,6 +452,8 @@ Display area drone can &quot;see&quot; from currently selected portal. Manually 
 
 
 
+
+
 Export portals from bookmarks, current view or polygon
 
 *Version:* 0.11
@@ -393,6 +461,8 @@ Export portals from bookmarks, current view or polygon
 
   
 ### [Short portal info](https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist/short-portal-info@eccenux/short-portal-info.user.js) by Eccenux
+
+
 
 
 
@@ -406,6 +476,8 @@ Export portals from bookmarks, current view or polygon
 
 
 
+
+
 This is a spam filter plugin which filters out SPAM from Comm messages.
 
 *Version:* 0.0.7
@@ -413,6 +485,8 @@ This is a spam filter plugin which filters out SPAM from Comm messages.
 
   
 ### [Umbra Deploy Challenge](https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist/umbra@mrDinckleman/umbra.user.js) by mrDinckleman
+
+
 
 
 
@@ -429,6 +503,8 @@ This is a spam filter plugin which filters out SPAM from Comm messages.
 
 
 
+
+
 Enhance Portal Links
 
 *Version:* 1.1
@@ -436,6 +512,8 @@ Enhance Portal Links
 
   
 ### [Replace player names with more easily remembered names](https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist/barcodes@3ch01c/barcodes.user.js) by 3ch01c
+
+
 
 
 
@@ -449,6 +527,8 @@ Enhance Portal Links
 ## Utilities
   
 ### [Ingress Inventory Overview (based on Ingress Live Inventory from Freamstern)](https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist/inventory-overview@Guschtel/inventory-overview.user.js) by Guschtel
+
+
 
 
 

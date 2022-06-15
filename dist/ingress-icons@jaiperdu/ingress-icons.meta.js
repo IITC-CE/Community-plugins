@@ -10,4 +10,5 @@
 // @downloadURL    https://raw.githubusercontent.com/IITC-CE/IITC-Store/master/dist/ingress-icons@jaiperdu/ingress-icons.user.js
 // @match          https://intel.ingress.com/*
 // @grant          none
+// @preview        https://i.ibb.co/nsprM3s/IITC-Ingress-Icons-by-jaiperdu-desktop.jpg
 // ==/UserScript==

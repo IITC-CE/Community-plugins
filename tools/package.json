@@ -5,7 +5,9 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "update-all": "node update-all.js"
+    "update-all": "node update-all.js",
+    "check-pr": "node check-pr.js",
+    "check-updates": "node check-updates.js"
   },
   "dependencies": {
     "lib-iitc-manager": "^1.0.0",

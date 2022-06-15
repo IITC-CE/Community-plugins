@@ -1,0 +1,44 @@
+name: Check PR
+
+on:
+  pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Install Dependencies
+        run: npm install
+        working-directory: ./tools
+
+      # GitHub Actions is unable to process multiline comments, this sanitization helps with the problem as described here: https://trstringer.com/github-actions-multiline-strings/
+      - name: Check PR
+        id: run-check-pr
+        run: |
+          RESULTS=$(npm run check-pr 2>&1)
+          RESULTS="${RESULTS//'%'/'%25'}"
+          RESULTS="${RESULTS//$'\n'/'%0A'}"
+          RESULTS="${RESULTS//$'\r'/'%0D'}"
+          echo "::set-output name=PR_COMMENT::$RESULTS"
+        working-directory: ./tools
+
+      # The output is inserted as a multiline code block into the body of pull request comment
+      - uses: mshick/add-pr-comment@v1
+        with:
+          message: ${{ steps.run-check-pr.outputs.PR_COMMENT }}
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          repo-token-user-login: 'github-actions[bot]'

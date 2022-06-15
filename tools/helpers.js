@@ -63,7 +63,7 @@ export const read_metadata_file = (filepath) => {
  * @param {"meta" | "user"} prefix - Prefix to add to the filename.
  * @return {string}
  */
-const ext = (filename, prefix) => {
+export const ext = (filename, prefix) => {
     return filename.replace(/.yml$/, `.${prefix}.js`);
 };
 

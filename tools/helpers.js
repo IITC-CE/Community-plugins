@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import YAML from 'yaml';
-import {ajaxGet, check_meta_match_pattern, getUID, parseMeta} from 'lib-iitc-manager';
+import {ajaxGet, check_meta_match_pattern, parseMeta} from 'lib-iitc-manager';
 
 const METABLOCK_RE_HEADER = /==UserScript==\s*([\s\S]*)\/\/\s*==\/UserScript==/m;
 const fileExists = async path => !!(await fs.promises.stat(path).catch(() => false));
@@ -128,7 +128,7 @@ export const update_plugin = async (metadata, author, filename) => {
     const meta = {...source_meta, ...metadata, ...replace_update_url(author, filename)};
     if (!check_meta_match_pattern(meta)) throw new Error(`Not a valid match pattern in ${meta.match} and ${meta.include}`);
     if (meta.name === undefined) throw new Error(`name is missing in ${filename}`);
-    meta.id = filename.replace(/\.yml$/, '')+"@"+author;
+    meta.id = filename.replace(/\.yml$/, '')+'@'+author;
     for (const mergeKey of ['antiFeatures', 'tags', 'depends']) {
         if (typeof meta[mergeKey] === 'object') {
             meta[mergeKey] = meta[mergeKey].join('|');
@@ -197,7 +197,7 @@ export const get_dist_plugins = () => {
             plugin._depends_links = [];
             for (const depend of plugin['depends']) {
                 if (id_link_map[depend] === undefined) {
-                    plugin._depends_links.push([depend, "#"]);
+                    plugin._depends_links.push([depend, '#']);
                 } else {
                     plugin._depends_links.push([depend, id_link_map[depend]]);
                 }
@@ -206,4 +206,15 @@ export const get_dist_plugins = () => {
     }
 
     return get_plugins_in_categories(plugins);
+};
+
+export const check_duplicate_plugins = () => {
+    const urls = [];
+    const metadata_files = get_all_metadata_files();
+    for (const [filepath, author, filename] of metadata_files) {
+        console.log(`Checking ${author}/${filename}`);
+        const metadata = read_metadata_file(filepath);
+        if (metadata.downloadURL in urls) {throw new Error(`Duplicate plugin ${author}/${filename}`);}
+        urls.push(metadata.downloadURL);
+    }
 };

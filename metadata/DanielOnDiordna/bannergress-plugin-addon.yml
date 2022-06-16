@@ -1,3 +1,4 @@
 updateURL: https://softspot.nl/ingress/plugins/bannergress-plugin-addon.meta.js
 downloadURL: https://softspot.nl/ingress/plugins/bannergress-plugin-addon.user.js
 homepageURL: https://softspot.nl/ingress/plugins/documentation/bannergress-plugin-addon.user.js.html
+skipMatchCheck: true

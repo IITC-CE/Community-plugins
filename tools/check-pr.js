@@ -16,16 +16,16 @@ proc.on('exit', async (code) => {
     const metadata_files = [];
     for (const file of updated_files) {
         if (file.startsWith('metadata/')) {
-            const [, id, filename] = file.split('/');
-            metadata_files.push(["../" + file, id, filename]);
+            const [, author, filename] = file.split('/');
+            metadata_files.push(["../" + file, author, filename]);
         }
     }
     await run_update(metadata_files, true);
 
     let message = "### Changes are detected:\n";
-    for (const [, id, filename] of metadata_files) {
-        const meta = fs.readFileSync(`../dist/${id}/${ext(filename, "meta")}`, 'utf8');
-        message += `**${id}/${ext(filename, "meta")}**\n\`\`\`\n${meta}\n\`\`\`\n---\n`;
+    for (const [, author, filename] of metadata_files) {
+        const meta = fs.readFileSync(`../dist/${author}/${ext(filename, "meta")}`, 'utf8');
+        message += `**${author}/${ext(filename, "meta")}**\n\`\`\`\n${meta}\n\`\`\`\n---\n`;
     }
 
     console.log(message);

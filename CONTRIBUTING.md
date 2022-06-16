@@ -11,7 +11,7 @@ You only need to make sure the plugin is always available to our catalog build s
 ## Adding the plugin to catalog
 
 - Clone this repository.
-- In `metadata` folder, create a folder with name `[filename]@[author]`, for example `minimap@johnd0e`.
+- In `metadata` folder, create a folder with the name of plugin's author.
 - Inside create a file `[filename].yml`. For example, `minimap.yml`.
 - Then, using YAML syntax, describe at least 2 mandatory fields: `updateURL` and `downloadURL`. Example:
 ```yaml

@@ -4,15 +4,15 @@ import fs from 'fs';
 import {get_dist_plugins} from './helpers.js';
 
 export const run_update = async (metadata_files, force = false) => {
-    for (const [filepath, id, filename] of metadata_files) {
-        console.log(`Checking ${id}/${filename}`);
+    for (const [filepath, author, filename] of metadata_files) {
+        console.log(`Checking ${author}/${filename}`);
         const metadata = helpers.read_metadata_file(filepath);
 
-        if (force || await helpers.is_plugin_update_available(metadata, id, filename)) {
-            console.log(`Updating ${id}/${filename}`);
-            await helpers.update_plugin(metadata, id, filename);
+        if (force || await helpers.is_plugin_update_available(metadata, author, filename)) {
+            console.log(`Updating ${author}/${filename}`);
+            await helpers.update_plugin(metadata, author, filename);
         } else {
-            console.log(`${id}/${filename} is up to date`);
+            console.log(`${author}/${filename} is up to date`);
         }
     }
 };

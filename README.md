@@ -18,7 +18,7 @@ See the [Contributing](CONTRIBUTING.md) documentation.
 
 ## Appearance
   
-### [Ingress Icons](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/ingress-icons@jaiperdu/ingress-icons.user.js) by jaiperdu
+### [Ingress Icons](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/jaiperdu/ingress-icons.user.js) by jaiperdu
 
 
 
@@ -33,7 +33,7 @@ Bring ameba64/ingress-items icons into IITC
 
 ## COMM
   
-### [COMM Filter Tab](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/comm-filter-tab@jaiperdu/comm-filter-tab.user.js) by jaiperdu
+### [COMM Filter Tab](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/jaiperdu/comm-filter-tab.user.js) by jaiperdu
 
 
 
@@ -45,7 +45,7 @@ Show virus in the regular Comm and add a new tab with portal/player name filter 
 
 
   
-### [MUs Tab](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/muTab@jaiperdu/muTab.user.js) by jaiperdu
+### [MUs Tab](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/jaiperdu/muTab.user.js) by jaiperdu
 
 
 
@@ -60,7 +60,7 @@ Add a MUs tab scoring the MU
 
 ## Cache
   
-### [Cache visible portals](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/cache-portals@jaiperdu/cache-portals.user.js) by jaiperdu
+### [Cache visible portals](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/jaiperdu/cache-portals.user.js) by jaiperdu
 
 
 
@@ -75,7 +75,7 @@ Cache the data of visible portals and use this to populate the map when possible
 
 ## Controls
   
-### [Free Sidebar](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/free-sidebar@Zaso/free-sidebar.user.js) by Zaso
+### [Free Sidebar](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Zaso/free-sidebar.user.js) by Zaso
 
 
 
@@ -87,7 +87,7 @@ Reduces use of sidebar.
 
 
   
-### [Hide UI Zaso](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/hide-ui@Zaso/hide-ui.user.js) by Zaso
+### [Hide UI Zaso](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Zaso/hide-ui.user.js) by Zaso
 
 
 
@@ -99,7 +99,7 @@ Hide all UI for screenshot.
 
 
   
-### [Layers Profiles](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/layers-profiles@Zaso/layers-profiles.user.js) by Zaso
+### [Layers Profiles](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Zaso/layers-profiles.user.js) by Zaso
 
 
 
@@ -111,7 +111,7 @@ Saves the current enabled layers (base, overlays and hightlighter). Restore it j
 
 
   
-### [Local Storage Manager](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/local-storage-manager@GMOogway/local-storage-manager.user.js) by GMOogway
+### [Local Storage Manager](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/GMOogway/local-storage-manager.user.js) by GMOogway
 
 
 
@@ -126,7 +126,7 @@ Saves the current enabled layers (base, overlays and hightlighter). Restore it j
 
 ## Debug
   
-### [LocalStorage Manager](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/localstorage-manager@Zaso/localstorage-manager.user.js) by Zaso
+### [LocalStorage Manager](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Zaso/localstorage-manager.user.js) by Zaso
 
 
 
@@ -141,7 +141,7 @@ Manage LocalStorage: import, export and delete.
 
 ## Draw
   
-### [ImageOverlay2](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/ImageOverlay2@McBen/ImageOverlay2.user.js) by Hevne
+### [ImageOverlay2](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/McBen/ImageOverlay2.user.js) by Hevne
 
 
 
@@ -153,7 +153,7 @@ Add an image to your map.
 
 
   
-### [KMLImport](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/KMLImport@McBen/KMLImport.user.js) by McBen
+### [KMLImport](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/McBen/KMLImport.user.js) by McBen
 
 
 
@@ -168,7 +168,7 @@ Import KML/GPX/Geojson/TCX into DrawTools
 
 ## Highlighter
   
-### [Highlight uniques captured/visited/scanned](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/highlight-intel-uniques@jaiperdu/highlight-intel-uniques.user.js) by jaiperdu
+### [Highlight uniques captured/visited/scanned](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/jaiperdu/highlight-intel-uniques.user.js) by jaiperdu
 
 
 
@@ -183,7 +183,7 @@ Highlighter for unique visited/captured/scout controlled portals
 
 ## Info
   
-### [Check Point Timer](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/check-point-timer@Zaso/check-point-timer.user.js) by Zaso
+### [Check Point Timer](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Zaso/check-point-timer.user.js) by Zaso
 
 
 
@@ -195,7 +195,7 @@ Add to the sidebar a countdown timer to next checkpoint.
 
 
   
-### [Decay Calculator](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/decay-calculator@Zaso/decay-calculator.user.js) by Zaso
+### [Decay Calculator](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Zaso/decay-calculator.user.js) by Zaso
 
 
 
@@ -207,7 +207,7 @@ Estimate the portal decaying.
 
 
   
-### [Draw Tools Replace Portal](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/dt-replace-portal@Loskir/dt-replace-portal.user.js) by Loskir
+### [Draw Tools Replace Portal](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Loskir/dt-replace-portal.user.js) by Loskir
 
 
 
@@ -219,7 +219,7 @@ Quickly replace one portal with another in Draw Tools
 
 
   
-### [Inventory Parser](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/inventoryParser@633KYN35D/inventoryParser.user.js) by 633KYN35D with significant code from EisFrei
+### [Inventory Parser](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/633KYN35D/inventoryParser.user.js) by 633KYN35D with significant code from EisFrei
 
 
 
@@ -232,7 +232,7 @@ Parse Inventory from Ingress
 
 
   
-### [Last Action Timestamp](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/last-action-timestamp@Zaso/last-action-timestamp.user.js) by Zaso
+### [Last Action Timestamp](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Zaso/last-action-timestamp.user.js) by Zaso
 
 
 
@@ -244,7 +244,7 @@ Estimate the portal decaying.
 
 
   
-### [Player Inventory](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/player-inventory@jaiperdu/player-inventory.user.js) by jaiperdu
+### [Player Inventory](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/jaiperdu/player-inventory.user.js) by jaiperdu
 
 
 
@@ -256,7 +256,7 @@ View inventory and highlight portals with keys at any zoom. Can be used with the
 
 
   
-### [Poly Counts 2](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/poly-counts2@Jormund/poly-counts2.user.js) by Jormund
+### [Poly Counts 2](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Jormund/poly-counts2.user.js) by Jormund
 
 
 
@@ -268,7 +268,7 @@ View inventory and highlight portals with keys at any zoom. Can be used with the
 
 
   
-### [Portals Gallery](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/portals_gallery_script@nerotu/portals_gallery_script.user.js) by Kofirs2634 aka Nerotu
+### [Portals Gallery](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/nerotu/portals_gallery_script.user.js) by Kofirs2634 aka Nerotu
 
 
 
@@ -280,7 +280,7 @@ Creates the gallery of portals that can be used to solve the First Saturday pass
 
 
   
-### [Portals pictures](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/portals-pictures@jaiperdu/portals-pictures.user.js) by jaiperdu
+### [Portals pictures](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/jaiperdu/portals-pictures.user.js) by jaiperdu
 
 
 
@@ -292,7 +292,7 @@ Show portal pictures in a dialog
 
 
   
-### [Scanner link](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/scanner-link@xMAXIMx/scanner-link.user.js) by xMAXIMx
+### [Scanner link](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/xMAXIMx/scanner-link.user.js) by xMAXIMx
 
 
 
@@ -304,7 +304,7 @@ Adds scanner link to IITC
 
 
   
-### [Scanner link-copy](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/scanner-link-copy@xMAXIMx/scanner-link-copy.user.js) by xMAXIMx
+### [Scanner link-copy](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/xMAXIMx/scanner-link-copy.user.js) by xMAXIMx
 
 
 
@@ -319,7 +319,7 @@ Adds scanner link (copy mode) to IITC
 
 ## Information
   
-### [Ingress Maxfields](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/IngressMaxFields@itayo/IngressMaxFields.user.js) by itayo
+### [Ingress Maxfields](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/itayo/IngressMaxFields.user.js) by itayo
 
 
 
@@ -331,7 +331,7 @@ Exports portals in the format for http://www.ingress-maxfield.com/ and allow dir
 
 
   
-### [Ingress Portal CSV Export](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/ingress_export@zetaphor/ingress_export.user.js) by Zetaphor
+### [Ingress Portal CSV Export](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/zetaphor/ingress_export.user.js) by Zetaphor
 
 
 
@@ -346,7 +346,7 @@ Exports portals to a CSV list
 
 ## Layer
   
-### [Destroyed Links Simulator](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/destroyed-links-simulator@Zaso/destroyed-links-simulator.user.js) by Zaso
+### [Destroyed Links Simulator](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Zaso/destroyed-links-simulator.user.js) by Zaso
 
 
 
@@ -358,7 +358,7 @@ Simulate the destruction of portal links: hide its links and fields.
 
 
   
-### [Draw tools plus](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/draw-tools-plus@Zaso/draw-tools-plus.user.js) by Zaso
+### [Draw tools plus](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Zaso/draw-tools-plus.user.js) by Zaso
 
 
 
@@ -370,7 +370,7 @@ Edit and improve Draw tools.
 
 
   
-### [dronerange](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DroneRange@VE6SRV/DroneRange.user.js) by VE6SRV
+### [dronerange](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/VE6SRV/DroneRange.user.js) by VE6SRV
 
 
 
@@ -383,7 +383,7 @@ Shows drone flight distance between portals
 
 
   
-### [L19 Cells for Ingress](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/occupied19cells@wintervorst/occupied19cells.user.js) by Wintervorst
+### [L19 Cells for Ingress](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/wintervorst/occupied19cells.user.js) by Wintervorst
 
 
 
@@ -391,12 +391,12 @@ Shows drone flight distance between portals
 
 [iitc-20190311.013370] Highlights level 19 cells where portal limit is reached, in order to see where you would best submit new candidates
 
-*Depends*: [occupied19cells@wintervorst](#s2-cell-drawer-by-wintervorst)  |
+*Depends*: [s2celldrawer@wintervorst](#s2-cell-drawer-by-wintervorst)  |
 *Version:* 0.0.7.20190311.013370
 
 
   
-### [Player Ranges](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/player-ranges@Zaso/player-ranges.user.js) by Zaso
+### [Player Ranges](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Zaso/player-ranges.user.js) by Zaso
 
 
 
@@ -408,7 +408,7 @@ Add one or more player markers and his ranges (hack/deploy range and xmp ranges)
 
 
   
-### [Portal Hack Range](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/portal-hack-range@Zaso/portal-hack-range.user.js) by Zaso
+### [Portal Hack Range](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Zaso/portal-hack-range.user.js) by Zaso
 
 
 
@@ -420,7 +420,7 @@ Add a circle around the portals to show the range where you can hack the portal.
 
 
   
-### [Portal submitrange](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/submitrange@wintervorst/submitrange.user.js) by Wintervorst
+### [Portal submitrange](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/wintervorst/submitrange.user.js) by Wintervorst
 
 
 
@@ -432,7 +432,7 @@ Add a circle around the portals to show the range where you can hack the portal.
 
 
   
-### [S2 Cell Drawer](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/s2celldrawer@wintervorst/s2celldrawer.user.js) by Wintervorst
+### [S2 Cell Drawer](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/wintervorst/s2celldrawer.user.js) by Wintervorst
 
 
 
@@ -444,7 +444,7 @@ Add a circle around the portals to show the range where you can hack the portal.
 
 
   
-### [Under-Field Throw Range](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/throw-range@blsmit5728/throwrange.user.js) by blsmit5728
+### [Under-Field Throw Range](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/blsmit5728/throwrange.user.js) by blsmit5728
 
 
 
@@ -459,7 +459,7 @@ Shows under field throw range at 500m
 
 ## Layers
   
-### [Link Prolongation](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/link-prolongation@Zaso/link-prolongation.user.js) by Zaso
+### [Link Prolongation](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Zaso/link-prolongation.user.js) by Zaso
 
 
 
@@ -474,7 +474,7 @@ Create link prolongations.
 
 ## Map Tiles
   
-### [Custom Google map](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/basemap-google-custom@jaiperdu/basemap-google-custom.user.js) by jaiperdu
+### [Custom Google map](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/jaiperdu/basemap-google-custom.user.js) by jaiperdu
 
 
 
@@ -486,7 +486,7 @@ Add a customizable Version of Google map tiles as a base layer.
 
 
   
-### [Default base maps with labels above fields](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/labels_layer@jaiperdu/labels_layer.user.js) by jaiperdu
+### [Default base maps with labels above fields](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/jaiperdu/labels_layer.user.js) by jaiperdu
 
 
 
@@ -498,7 +498,7 @@ Print labels as an overlay of intel layer
 
 
   
-### [Glify layer](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/glify-layer@jaiperdu/glify-layer.user.js) by jaiperdu
+### [Glify layer](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/jaiperdu/glify-layer.user.js) by jaiperdu
 
 
 
@@ -510,7 +510,7 @@ GL layer
 
 
   
-### [Map layers from GAODE by GMOogway](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/basemap-gaode@GMOogway/basemap-gaode.user.js) by GMOogway
+### [Map layers from GAODE by GMOogway](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/GMOogway/basemap-gaode.user.js) by GMOogway
 
 
 
@@ -525,7 +525,7 @@ GL layer
 
 ## Misc
   
-### [Advanced Tracker Player](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/advanced_player_tracker@BlancLapin/advanced_player_tracker.user.js) by BlancLapin
+### [Advanced Tracker Player](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/BlancLapin/advanced_player_tracker.user.js) by BlancLapin
 
 
 
@@ -537,7 +537,7 @@ Advanced version of Player Tracker
 
 
   
-### [Aurora Glyph Hack Challenge](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/aurora@mrDinckleman/aurora.user.js) by mrDinckleman
+### [Aurora Glyph Hack Challenge](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/mrDinckleman/aurora.user.js) by mrDinckleman
 
 
 
@@ -549,7 +549,7 @@ Advanced version of Player Tracker
 
 
   
-### [Dialog List](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/dialogs@jaiperdu/dialogs.user.js) by jaiperdu
+### [Dialog List](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/jaiperdu/dialogs.user.js) by jaiperdu
 
 
 
@@ -561,7 +561,7 @@ List open dialogs in the sidebar
 
 
   
-### [Direct Link](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/direct-link@blsmit5728/direct-link.user.js) by blsmit5728
+### [Direct Link](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/blsmit5728/direct-link.user.js) by blsmit5728
 
 
 
@@ -573,7 +573,7 @@ Direct Link
 
 
   
-### [Drone Helper](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/dronehelper@azrael-42/dronehelper.user.js) by azrael-42
+### [Drone Helper](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/azrael-42/dronehelper.user.js) by azrael-42
 
 
 
@@ -586,7 +586,7 @@ Display area drone can &quot;see&quot; from currently selected portal. Manually 
 
 
   
-### [Fake Message Location](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/fake-message-location@Zaso/fake-message-location.user.js) by Zaso
+### [Fake Message Location](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Zaso/fake-message-location.user.js) by Zaso
 
 
 
@@ -598,7 +598,7 @@ Set a location. The COMM messages you send will have the setted location.
 
 
   
-### [Logs Diary](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/logs-diary@Zaso/logs-diary.user.js) by Zaso
+### [Logs Diary](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Zaso/logs-diary.user.js) by Zaso
 
 
 
@@ -610,7 +610,7 @@ Storage favorite logs.
 
 
   
-### [Portal Multi Export](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/multi_export@modkin/multi_export.user.js) by modkin
+### [Portal Multi Export](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/modkin/multi_export.user.js) by modkin
 
 
 
@@ -622,7 +622,7 @@ Export portals from bookmarks, current view or polygon
 
 
   
-### [Short portal info](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/short-portal-info@eccenux/short-portal-info.user.js) by Eccenux
+### [Short portal info](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/eccenux/short-portal-info.user.js) by Eccenux
 
 
 
@@ -634,7 +634,7 @@ Export portals from bookmarks, current view or polygon
 
 
   
-### [spam-filter](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/spamfilter@3ch01c/spamfilter.user.js) by 3ch01c
+### [spam-filter](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/3ch01c/spamfilter.user.js) by 3ch01c
 
 
 
@@ -646,7 +646,7 @@ This is a spam filter plugin which filters out SPAM from Comm messages.
 
 
   
-### [To Do List](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/todo-list@Zaso/todo-list.user.js) by Zaso
+### [To Do List](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Zaso/todo-list.user.js) by Zaso
 
 
 
@@ -658,7 +658,7 @@ Add a To Do List.
 
 
   
-### [Umbra Deploy Challenge](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/umbra@mrDinckleman/umbra.user.js) by mrDinckleman
+### [Umbra Deploy Challenge](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/mrDinckleman/umbra.user.js) by mrDinckleman
 
 
 
@@ -673,7 +673,7 @@ Add a To Do List.
 
 ## Portal Info
   
-### [PLink](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/PLink@McBen/PLink.user.js) by McBen
+### [PLink](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/McBen/PLink.user.js) by McBen
 
 
 
@@ -685,7 +685,7 @@ Enhance Portal Links
 
 
   
-### [Pocket Portal Details](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/pocket-portal-details@Zaso/pocket-portal-details.user.js) by Zaso
+### [Pocket Portal Details](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Zaso/pocket-portal-details.user.js) by Zaso
 
 
 
@@ -697,7 +697,7 @@ Append a pocket box containing some restricted details of the selected portal.
 
 
   
-### [Replace player names with more easily remembered names](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/barcodes@3ch01c/barcodes.user.js) by 3ch01c
+### [Replace player names with more easily remembered names](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/3ch01c/barcodes.user.js) by 3ch01c
 
 
 
@@ -712,7 +712,7 @@ Append a pocket box containing some restricted details of the selected portal.
 
 ## Tweaks
   
-### [Bring Portals To Front](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/bring-portals-to-front@Zaso/bring-portals-to-front.user.js) by Zaso
+### [Bring Portals To Front](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Zaso/bring-portals-to-front.user.js) by Zaso
 
 
 
@@ -724,7 +724,7 @@ Bring the portals layers to front. Prevents that fields and drawn items cover th
 
 
   
-### [Chat Message Length](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/chat-message-length@Zaso/chat-message-length.user.js) by Zaso
+### [Chat Message Length](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Zaso/chat-message-length.user.js) by Zaso
 
 
 
@@ -736,7 +736,7 @@ Counts the chat message characters.
 
 
   
-### [Emoji Chat](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/emoji-chat@Zaso/emoji-chat.user.js) by Zaso
+### [Emoji Chat](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Zaso/emoji-chat.user.js) by Zaso
 
 
 
@@ -748,7 +748,7 @@ Add Emoji support and append an Emoji Keyboard.
 
 
   
-### [Font Awesome](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/font-awesome@Zaso/font-awesome.user.js) by Zaso
+### [Font Awesome](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Zaso/font-awesome.user.js) by Zaso
 
 
 
@@ -760,7 +760,7 @@ Add Font Awesome Icons.
 
 
   
-### [Minify Some Portals Details](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/minify-some-portal-details@Zaso/minify-some-portal-details.user.js) by Zaso
+### [Minify Some Portals Details](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Zaso/minify-some-portal-details.user.js) by Zaso
 
 
 
@@ -772,7 +772,7 @@ Minify some Portal Details in sidebar: mod slots and resonators info
 
 
   
-### [Scroll Sleep](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/scroll-sleep@Zaso/scroll-sleep.user.js) by Zaso
+### [Scroll Sleep](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Zaso/scroll-sleep.user.js) by Zaso
 
 
 
@@ -787,7 +787,7 @@ A control to enable/disable the zoom map by scroll mouse.
 
 ## Utilities
   
-### [Ingress Inventory Overview (based on Ingress Live Inventory from Freamstern)](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/inventory-overview@Guschtel/inventory-overview.user.js) by Guschtel
+### [Ingress Inventory Overview (based on Ingress Live Inventory from Freamstern)](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Guschtel/inventory-overview.user.js) by Guschtel
 
 
 

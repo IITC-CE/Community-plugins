@@ -1,0 +1,13 @@
+// ==UserScript==
+// @id             date-time@DanielOnDiordna
+// @name           Date and time
+// @category       Controls
+// @version        2.2.0.20220227.233000
+// @updateURL      https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/date-time.meta.js
+// @downloadURL    https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/date-time.user.js
+// @description    [danielondiordna-2.2.0.20220227.233000] Show date and time on the map, configurable time formatting, select a manual timezone, or automated timezones with your free GeoNames account.
+// @author         DanielOnDiordna
+// @namespace      https://softspot.nl/ingress/
+// @match          https://intel.ingress.com/*
+// @grant          none
+// ==/UserScript==

@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import YAML from 'yaml';
-import {ajaxGet, check_meta_match_pattern, parseMeta} from 'lib-iitc-manager';
+import {ajaxGet, check_meta_match_pattern, getUID, parseMeta} from 'lib-iitc-manager';
 
 const METABLOCK_RE_HEADER = /==UserScript==\s*([\s\S]*)\/\/\s*==\/UserScript==/m;
 const fileExists = async path => !!(await fs.promises.stat(path).catch(() => false));
@@ -29,7 +29,7 @@ const getAllFiles = (dir, ext, getPlugins) =>
 
 /**
  * Gets a list of all metadata files in repository.
- * Returns an array of arrays: [filepath, id, filename].
+ * Returns an array of arrays: [filepath, author, filename].
  *
  * @return {Array.<Array.<string, string, string>>}
  */
@@ -67,14 +67,14 @@ export const ext = (filename, prefix) => {
     return filename.replace(/.yml$/, `.${prefix}.js`);
 };
 
-export const is_plugin_update_available = async (metadata, id, filename) => {
+export const is_plugin_update_available = async (metadata, author, filename) => {
     const source_meta_js = await ajaxGet(metadata.updateURL);
     if (source_meta_js === null) throw new Error(`${metadata.updateURL} is not a valid URL`);
 
     const source_meta = parseMeta(source_meta_js);
     if (source_meta === null) throw new Error(`${metadata.updateURL} is not a valid metadata file`);
 
-    const dist_meta_path = `../dist/${id}/${ext(filename, 'meta')}`;
+    const dist_meta_path = `../dist/${author}/${ext(filename, 'meta')}`;
     if (await fileExists(dist_meta_path)) {
         const dist_meta_js = fs.readFileSync(dist_meta_path, 'utf8');
         const dist_meta = parseMeta(dist_meta_js);
@@ -92,11 +92,11 @@ const remove_first_line = (str) => {
     return str.substring(str.indexOf('\n') + 1);
 };
 
-const replace_update_url = (id, filename) => {
+const replace_update_url = (author, filename) => {
     const base_url = (process.env.BASE_RAW !== undefined) ? process.env.BASE_RAW : 'https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/';
     return {
-        updateURL: `${base_url}${id}/${ext(filename, 'meta')}`,
-        downloadURL: `${base_url}${id}/${ext(filename, 'user')}`
+        updateURL: `${base_url}${author}/${ext(filename, 'meta')}`,
+        downloadURL: `${base_url}${author}/${ext(filename, 'user')}`
     };
 };
 
@@ -118,17 +118,17 @@ const prepare_meta_js = (meta) => {
     return meta_js;
 };
 
-export const update_plugin = async (metadata, id, filename) => {
+export const update_plugin = async (metadata, author, filename) => {
     const source_plugin_js = await ajaxGet(metadata.downloadURL);
     if (source_plugin_js === null) throw new Error(`${metadata.downloadURL} is not a valid URL`);
 
     const source_meta = parseMeta(source_plugin_js);
     if (source_meta === null) throw new Error(`${metadata.downloadURL} is not a valid metadata file`);
 
-    const meta = {...source_meta, ...metadata, ...replace_update_url(id, filename)};
+    const meta = {...source_meta, ...metadata, ...replace_update_url(author, filename)};
     if (!check_meta_match_pattern(meta)) throw new Error(`Not a valid match pattern in ${meta.match} and ${meta.include}`);
     if (meta.name === undefined) throw new Error(`name is missing in ${filename}`);
-    meta.id = id;
+    meta.id = filename.replace(/\.yml$/, '')+"@"+author;
     for (const mergeKey of ['antiFeatures', 'tags', 'depends']) {
         if (typeof meta[mergeKey] === 'object') {
             meta[mergeKey] = meta[mergeKey].join('|');
@@ -139,10 +139,10 @@ export const update_plugin = async (metadata, id, filename) => {
     let plugin_js = source_plugin_js.replace(METABLOCK_RE_HEADER, '\n'+meta_js);
     plugin_js = remove_first_line(plugin_js);
 
-    await fs.promises.mkdir(`../dist/${id}`, {recursive: true});
+    await fs.promises.mkdir(`../dist/${author}`, {recursive: true});
 
-    fs.writeFileSync(`../dist/${id}/${ext(filename, 'meta')}`, meta_js);
-    fs.writeFileSync(`../dist/${id}/${ext(filename, 'user')}`, plugin_js);
+    fs.writeFileSync(`../dist/${author}/${ext(filename, 'meta')}`, meta_js);
+    fs.writeFileSync(`../dist/${author}/${ext(filename, 'user')}`, plugin_js);
 
     return meta;
 };
@@ -180,7 +180,7 @@ export const get_dist_plugins = () => {
     const files = get_all_dist_files();
     const id_link_map = {};
     const plugins = [];
-    for (const [filepath, id,] of files) {
+    for (const [filepath, ,] of files) {
         const metajs = fs.readFileSync(filepath, 'utf8');
         const meta = parseMeta(metajs);
         for (const mergeKey of ['antiFeatures', 'tags', 'depends']) {
@@ -188,7 +188,7 @@ export const get_dist_plugins = () => {
                 meta[mergeKey] = meta[mergeKey].split('|');
             }
         }
-        id_link_map[id] = dist_plugin_relative_link(meta.name, meta.author);
+        id_link_map[meta.id] = dist_plugin_relative_link(meta.name, meta.author);
         plugins.push(meta);
     }
 
@@ -196,8 +196,10 @@ export const get_dist_plugins = () => {
         if (plugin['depends'] !== undefined) {
             plugin._depends_links = [];
             for (const depend of plugin['depends']) {
-                if (id_link_map[depend] !== undefined) {
-                    plugin._depends_links.push([plugin.id, id_link_map[depend]]);
+                if (id_link_map[depend] === undefined) {
+                    plugin._depends_links.push([depend, "#"]);
+                } else {
+                    plugin._depends_links.push([depend, id_link_map[depend]]);
                 }
             }
         }

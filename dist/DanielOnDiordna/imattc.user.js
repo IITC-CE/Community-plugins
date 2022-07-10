@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name           IMATTC
-// @version        1.11.5.20220613.235700
+// @version        1.12.0.20220710.000300
 // @updateURL      https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/imattc.meta.js
 // @downloadURL    https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/imattc.user.js
 // @description    Ingress Mission Authoring Tool Total Conversion, adding categories for missions, show banner preview, export json, download images, and more.
@@ -19,9 +19,12 @@
 // removed from the Tampermonkey headers:
 // @require      https://code.jquery.com/ui/1.10.4/jquery-ui.min.js
 
-var imattcversion = "1.11.5.20220613.235700";
+var imattcversion = "1.12.0.20220710.000300";
 var changelog = `
 Changelog:
+
+version 1.12.0.20220710.000300
+- changed preview image formatting to match Prime spacing, reduced image download size (=s136)
 
 version 1.11.5.20220613.235700
 - checkboxes can now also be selected by clicking on the mission image, title and icon
@@ -188,8 +191,8 @@ Latest updates by DanielOndiordna: https://softspot.nl/ingress/#iitc-plugin-imat
     + ".modal {color: black;}"
     + ".banner-preview .modal-body {background-color: #222;}"
     + ".banner-preview .row {display: flex; flex-direction: row-reverse; flex-wrap:wrap-reverse!important}"
-    + ".banner-preview img {border-radius: 50%;border: 3px solid goldenrod;}"
-    + ".banner-preview .col-xs-2 {padding-bottom: 15px;}";
+//  + ".banner-preview img {border-radius: 50%;border: 3px solid goldenrod;}"
+    + ".banner-preview .col-xs-2 {padding-bottom: 8px;}";
 
     newCssRules += ".mission-list-item-published {background-image: none; background: #001a00; border-color: darkgreen;color: lightgreen;}"
         + ".list .mission .mission-title-published {color: lightgreen;}"
@@ -1530,8 +1533,9 @@ function init() {
                             missionContent += "<button class='btn btn-default'style='float: right!important;margin: 5px;' ng-click='exportJSON(" + i + ")'>Download JSON</button>"
                             missionContent += "<button class='btn btn-default'style='float: right!important;margin: 5px;' data-toggle='modal' data-target='#previewBanner" + i + "'>Preview Images</button>"
                                 + "<button class='btn btn-default'style='float: right!important;margin: 5px;' ng-click='previewBanner(" + i + ")' data-toggle='modal' data-target='#previewMissionModel'>Preview Route</button></div>";
-                            var bannerModal = "<div class='modal fade' id='previewBanner" + i + "' tabindex='-1' role='dialog'><div class='modal-dialog modal-lg' role='document'><div class='modal-content banner-preview'><div class='modal-header'><button type='button' class='close' data-dismiss='modal' aria-label='Close'><span aria-hidden='true'>&times;</span></button><h4 class='modal-title'>Preview \"" + missionScope.categoryContent[i].name + "\"</h4></div><div class='modal-body' id='bannerpreview'><div class='row'>";
-
+                            var bannerModal = "<div class='modal fade' id='previewBanner" + i + "' tabindex='-1' role='dialog'><div class='modal-dialog modal-lg' role='document'><div class='modal-content banner-preview'><div class='modal-header'><button type='button' class='close' data-dismiss='modal' aria-label='Close'><span aria-hidden='true'>&times;</span></button><h4 class='modal-title'>Preview \"" + missionScope.categoryContent[i].name + "\"</h4></div><div class='modal-body' id='bannerpreview'>";
+/*
+                            bannerModal += "<div class='row'>";
                             for (var j = 0; j < missionScope.categoryContent[i].missions.length; j++) {
                                 var mission = missionScope.categorisedMissions[i][j];
                                 if (mission == undefined){
@@ -1541,10 +1545,32 @@ function init() {
                                     storeCategoryContent(missionScope.categoryContent);
                                 } else {
                                     missionContent += generateMission(mission, mission.position, i);
-                                    bannerModal += "<div class='col-xs-2' style='padding-left: 5px; padding-right: 5px'><img class='img-responsive' style='border-width: 2px;' src='" + (mission.definition.logo_url ? mission.definition.logo_url : "/images/button_logo.png") + "' /></div>";
+                                    bannerModal += "<div class='col-xs-2' style='padding-left: 4px; padding-right: 4px'><img class='img-responsive' style='border-width: 2px;' src='" + (mission.definition.logo_url ? mission.definition.logo_url + "=s136" : "/images/button_logo.png") + "' /></div>";
                                 }
                             }
-                            bannerModal += "</div></div></div></div></div>";
+                            bannerModal += "</div>";
+*/
+                            for (let cnt = 0; cnt < missionScope.categoryContent[i].missions.length; cnt++) {
+                                let mission = missionScope.categorisedMissions[i][cnt]; // not reversed
+                                missionContent += generateMission(mission, mission.position, i);
+                            }
+
+                            /* a new circle mask resized to 1/4 128x128 with 4px spacing: 136x136 */
+                            let smallmask = "data:image/png;base64,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";
+                            let bannerelements = [];
+                            for (let cnt = missionScope.categoryContent[i].missions.length - 1; cnt >= 0; cnt--) { // reverse the list
+                                let mission = missionScope.categorisedMissions[i][cnt];
+                                bannerelements.push(`<img src="${(mission.definition.logo_url ? mission.definition.logo_url + "=s128" : "/images/button_logo.png")}" style="width: 128px; height: 128px; margin: 4px;">`);
+                                if (cnt % 6 == 0 && cnt > 0) bannerelements.push("<br>\n");
+                            }
+                            bannerelements = bannerelements.join('');
+                            bannerModal += `
+<div style="width: 818px; transform: scale(1); border: 1px solid #5afbea; margin: 0 auto;">
+<div style="position: absolute; top: 0; left: 0; height: 100%; width: 100%; pointer-events: none; background: url(${smallmask}) left top; background-size: 136px;"></div>
+<div style="background-color: black; display: inline-block; line-height: 0;">${bannerelements}</div>
+</div>`;
+
+                            bannerModal += "</div></div></div></div>";
                             missionContent += bannerModal;
                         }
                         missionContent += "</div></div></div></div>";

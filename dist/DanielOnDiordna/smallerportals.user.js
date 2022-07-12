@@ -1,15 +1,15 @@
 // ==UserScript==
-// @author         DanielOnDiordna
 // @name           Show smaller portals
-// @category       Layer
-// @version        0.0.3.20210724.002500
+// @version        1.0.0.20220711.234400
 // @updateURL      https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/smallerportals.meta.js
 // @downloadURL    https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/smallerportals.user.js
-// @description    [danielondiordna-0.0.3.20210724.002500] Show smaller portals when zooming out.
-// @id             smallerportals@DanielOnDiordna
+// @description    [danielondiordna-1.0.0.20220711.234400] Show smaller portals when zooming out.
+// @author         DanielOnDiordna
 // @namespace      https://softspot.nl/ingress/
 // @match          https://intel.ingress.com/*
 // @grant          none
+// @category       Layer
+// @id             smallerportals@DanielOnDiordna
 // ==/UserScript==
 
 
@@ -22,30 +22,33 @@ function wrapper(plugin_info) {
     var self = window.plugin.smallerportals;
     self.id = 'smallerportals';
     self.title = 'Show smaller portals';
-    self.version = '0.0.3.20210724.002500';
+    self.version = '1.0.0.20220711.234400';
     self.author = 'DanielOnDiordna';
     self.changelog = `
 Changelog:
 
-version 0.0.1.20161103.114400
-- earlier release
+version 1.0.0.20220711.234400
+- made compatible with IITC-CE Beta 0.32.1.20211217.151857
 
-version 0.0.1.20181030.203600
-- intel URL changed from www.ingress.com to *.ingress.com
+version 0.0.3.20210724.002500
+- prevent double plugin setup on hook iitcLoaded
 
-version 0.0.2.20210118.230600
-- changed the portal size per zoom level
-- updated plugin wrapper and userscript header formatting to match IITC-CE coding
+version 0.0.3.20210421.190200
+- minor fix for IITC CE where runHooks iitcLoaded is executed before addHook is defined in this plugin
 
 version 0.0.3.20210121.221100
 - version number fix
 - default enabled
 
-version 0.0.3.20210421.190200
-- minor fix for IITC CE where runHooks iitcLoaded is executed before addHook is defined in this plugin
+version 0.0.2.20210118.230600
+- changed the portal size per zoom level
+- updated plugin wrapper and userscript header formatting to match IITC-CE coding
 
-version 0.0.3.20210724.002500
-- prevent double plugin setup on hook iitcLoaded
+version 0.0.1.20181030.203600
+- intel URL changed from www.ingress.com to *.ingress.com
+
+version 0.0.1.20161103.114400
+- earlier release
 `;
     self.namespace = 'window.plugin.' + self.id + '.';
     self.pluginname = 'plugin-' + self.id;
@@ -78,7 +81,7 @@ version 0.0.3.20210724.002500
         // Desktop:
         portalMarkerScale_string = portalMarkerScale_string.replace(/return zoom >= 14.*;/,'return zoom >= 14 ? 1.0 : zoom >= 13 ? 0.9 : zoom >= 12 ? 0.8 : zoom >= 11 ? 0.7 : zoom >= 10 ? 0.6 : zoom >= 8 ? 0.5 : 0.3;');
         eval('window.portalMarkerScale = ' + portalMarkerScale_string);
-        resetHighlightedPortals();
+        window.resetHighlightedPortals();
 
         self.enabled = true;
         self.storesettings();
@@ -89,7 +92,7 @@ version 0.0.3.20210724.002500
             // restore function:
             eval('window.portalMarkerScale = ' + self.backup_portalMarkerScale);
             self.backup_portalMarkerScale = undefined;
-            resetHighlightedPortals();
+            window.resetHighlightedPortals();
         }
 
         self.enabled = false;
@@ -105,15 +108,21 @@ version 0.0.3.20210724.002500
         }
 
         self.restoresettings();
-        window.updateDisplayedLayerGroup('Smaller Portals',self.enabled); // force status
-        self.togglesmall = new L.LayerGroup();
+        if (window.isLayerGroupDisplayed('Smaller Portals') != self.enabled) {
+            if (typeof window.updateDisplayedLayerGroup == "function") { // IITC 0.32.1 Release
+                window.updateDisplayedLayerGroup('Smaller Portals',self.enabled); // force start status
+            } else if (typeof window.layerChooser._storeOverlayState == "function") { // IITC 0.32.1 Beta
+                window.layerChooser._storeOverlayState('Smaller Portals',self.enabled); // force start status
+            }
+        }
+        self.togglesmall = new window.L.LayerGroup();
         window.addLayerGroup('Smaller Portals', self.togglesmall);
-        map.on('layeradd', function(obj) {
+        window.map.on('layeradd', function(obj) {
             if(obj.layer === self.togglesmall) {
                 self.set();
             }
         });
-        map.on('layerremove', function(obj) {
+        window.map.on('layerremove', function(obj) {
             if(obj.layer === self.togglesmall) {
                 self.reset();
             }

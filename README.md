@@ -129,7 +129,7 @@ Bring ameba64/ingress-items icons into IITC
 
 Show virus in the regular Comm and add a new tab with portal/player name filter and event type filter.
 
-*Version:* 0.4.5
+*Version:* 0.4.6
 
 
   
@@ -166,9 +166,9 @@ Cache the data of visible portals and use this to populate the map when possible
 
 
 
-[danielondiordna-0.0.7.20210724.002500] Use the layer selector to toggle Keep all portals and Keep all links, to keep all out of view portals and links loaded (be aware that currently destroyed links are not removed when these options are switched on)
+[danielondiordna-1.0.0.20220711.233600] Use the layer selector to toggle Keep all portals and Keep all links, to keep all out of view portals and links loaded (be aware that currently destroyed links are not removed when these options are switched on)
 
-*Version:* 0.0.7.20210724.002500
+*Version:* 1.0.0.20220711.233600
 
 
   
@@ -695,9 +695,9 @@ Add a circle around the portals to show the range where you can hack the portal.
 
 
 
-[danielondiordna-0.0.3.20210724.002500] Show smaller portals when zooming out.
+[danielondiordna-1.0.0.20220711.234400] Show smaller portals when zooming out.
 
-*Version:* 0.0.3.20210724.002500
+*Version:* 1.0.0.20220711.234400
 
 
   
@@ -731,9 +731,9 @@ Shows under field throw range at 500m
 
 
 
-[danielondiordna-2.0.1.20210724.002500] Show your personal unique portal history for Visited, Captured or Scout Controlled portals with layers. Choose your own colors. Place bookmarks. Invert results! Add three extra Portals List plugin columns. Requires CORE subscription.
+[danielondiordna-2.1.0.20220711.235400] Show your personal unique portal history for Visited, Captured or Scout Controlled portals with layers. Choose your own colors. Place bookmarks. Invert results! Add three extra Portals List plugin columns. Requires CORE subscription.
 
-*Version:* 2.0.1.20210724.002500
+*Version:* 2.1.0.20220711.235400
 
 
   

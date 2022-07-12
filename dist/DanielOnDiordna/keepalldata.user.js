@@ -1,15 +1,15 @@
 // ==UserScript==
-// @author         DanielOnDiordna
 // @name           Keep all data
-// @category       Cache
-// @version        0.0.7.20210724.002500
+// @version        1.0.0.20220711.233600
 // @updateURL      https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/keepalldata.meta.js
 // @downloadURL    https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/keepalldata.user.js
-// @description    [danielondiordna-0.0.7.20210724.002500] Use the layer selector to toggle Keep all portals and Keep all links, to keep all out of view portals and links loaded (be aware that currently destroyed links are not removed when these options are switched on)
-// @id             keepalldata@DanielOnDiordna
+// @description    [danielondiordna-1.0.0.20220711.233600] Use the layer selector to toggle Keep all portals and Keep all links, to keep all out of view portals and links loaded (be aware that currently destroyed links are not removed when these options are switched on)
+// @author         DanielOnDiordna
 // @namespace      https://softspot.nl/ingress/
 // @match          https://intel.ingress.com/*
 // @grant          none
+// @category       Cache
+// @id             keepalldata@DanielOnDiordna
 // ==/UserScript==
 
 
@@ -22,31 +22,34 @@ function wrapper(plugin_info) {
     var self = window.plugin.keepalldata;
     self.id = 'keepalldata';
     self.title = 'Keep all data';
-    self.version = '0.0.7.20210724.002500';
+    self.version = '1.0.0.20220711.233600';
     self.author = 'DanielOnDiordna';
     self.changelog = `
 Changelog:
 
-version 0.0.4.20201230.203400
-- earlier release
+version 1.0.0.20220711.233600
+- made compatible with IITC-CE Beta 0.32.1.20211217.151857
 
-version 0.0.5.20211801.221400
-- updated plugin wrapper and userscript header formatting to match IITC-CE coding
+version 0.0.7.20210724.002500
+- prevent double plugin setup on hook iitcLoaded
 
-version 0.0.6.20210121.223500
-- version number fix
-- added delete portals and delete links code when keep all data options are disabled
+version 0.0.7.20210421.190200
+- minor fix for IITC CE where runHooks iitcLoaded is executed before addHook is defined in this plugin
 
 version 0.0.7.20210222.194600
 - fixed a log.log error for IITC-CE in function endRenderPass
 - changed from injecting into window.Render.prototype to window.mapDataRequest.render
 - moved some code into functions to clean up the setup
 
-version 0.0.7.20210421.190200
-- minor fix for IITC CE where runHooks iitcLoaded is executed before addHook is defined in this plugin
+version 0.0.6.20210121.223500
+- version number fix
+- added delete portals and delete links code when keep all data options are disabled
 
-version 0.0.7.20210724.002500
-- prevent double plugin setup on hook iitcLoaded
+version 0.0.5.20211801.221400
+- updated plugin wrapper and userscript header formatting to match IITC-CE coding
+
+version 0.0.4.20201230.203400
+- earlier release
 `;
     self.namespace = 'window.plugin.' + self.id + '.';
     self.pluginname = 'plugin-' + self.id;
@@ -82,10 +85,16 @@ version 0.0.7.20210724.002500
     };
 
     self.setupLayerGroupPortals = function() {
-        window.updateDisplayedLayerGroup(self.settings.keepallportalstitle,false); // force start status false
-        self.togglekeepallportals = new L.LayerGroup();
+        if (window.isLayerGroupDisplayed(self.settings.keepallportalstitle)) {
+            if (typeof window.updateDisplayedLayerGroup == "function") { // IITC 0.32.1 Release
+                window.updateDisplayedLayerGroup(self.settings.keepallportalstitle,false); // force start status false
+            } else if (typeof window.layerChooser._storeOverlayState == "function") { // IITC 0.32.1 Beta
+                window.layerChooser._storeOverlayState(self.settings.keepallportalstitle,false); // force start status false
+            }
+        }
+        self.togglekeepallportals = new window.L.LayerGroup();
         window.addLayerGroup(self.settings.keepallportalstitle, self.togglekeepallportals);
-        map.on('layeradd', function(obj) {
+        window.map.on('layeradd', function(obj) {
             if (obj.layer == self.togglekeepallportals) {
                 self.settings.keepallportals = true;
                 if (!self.portalwarningdisplayed) {
@@ -94,7 +103,7 @@ version 0.0.7.20210724.002500
                 }
             }
         });
-        map.on('layerremove', function(obj) {
+        window.map.on('layerremove', function(obj) {
             if (obj.layer == self.togglekeepallportals) {
                 self.settings.keepallportals = false;
 
@@ -112,10 +121,16 @@ version 0.0.7.20210724.002500
     };
 
     self.setupLayerGroupLinks = function() {
-        window.updateDisplayedLayerGroup(self.settings.keepalllinkstitle,false); // force start status false
-        self.togglekeepalllinks = new L.LayerGroup();
+        if (window.isLayerGroupDisplayed(self.settings.keepalllinkstitle)) {
+            if (typeof window.updateDisplayedLayerGroup == "function") { // IITC 0.32.1 Release
+                window.updateDisplayedLayerGroup(self.settings.keepalllinkstitle,false); // force start status false
+            } else if (typeof window.layerChooser._storeOverlayState == "function") { // IITC 0.32.1 Beta
+                window.layerChooser._storeOverlayState(self.settings.keepalllinkstitle,false); // force start status false
+            }
+        }
+        self.togglekeepalllinks = new window.L.LayerGroup();
         window.addLayerGroup(self.settings.keepalllinkstitle, self.togglekeepalllinks);
-        map.on('layeradd', function(obj) {
+        window.map.on('layeradd', function(obj) {
             if (obj.layer == self.togglekeepalllinks) {
                 self.settings.keepalllinks = true;
                 if (!self.linkwarningdisplayed) {
@@ -142,21 +157,21 @@ version 0.0.7.20210724.002500
     };
 
     self.menu = function() {
-        let html = '<div>' +
-            'You can find 2 options in the layer selector:<br />' +
-            '<br />' +
-            '- Keep all portals: if you enable this, then all loaded portals will stay visible at every zoom level, until you disable this option or refresh the map.<br />' +
-            '<br />' +
-            '- Keep all links: if you enable this, then all loaded links will stay visible at every zoom level. <b>Be aware</b> that destroyed links will not be removed from the map, until you disable this option and refresh the map.<br />' +
-            '<br />' +
-            'Both options will automatically start disabled when the map is refreshed.<br />' +
-            '<span style="font-style: italic; font-size: smaller">version ' + self.version + ' by ' + self.author + '</span>' +
-            '</div>';
+        let container = document.createElement('div');
+        container.innerHTML = `<input type="hidden" autofocus><div>
+            You can find 2 options in the layer selector:<br>
+            <br>
+            - Keep all portals: if you enable this, then all loaded portals will stay visible at every zoom level, until you disable this option or refresh the map.<br>
+            <br>
+            - Keep all links: if you enable this, then all loaded links will stay visible at every zoom level. <b>Be aware</b> that destroyed links will not be removed from the map, until you disable this option and refresh the map.<br>
+            <br>
+            Both options will automatically start disabled when the map is refreshed.<br>
+            <span style="font-style: italic; font-size: smaller">version ${self.version} by ${self.author}</span>
+            </div>`;
 
         window.dialog({
-            html: html,
+            html: container,
             id: self.pluginname + '-dialog',
-            dialogClass: 'ui-dialog-' + self.pluginname,
             title: self.title + ' - info'
         }).dialog('option', 'buttons', {
             'Changelog': function() { alert(self.changelog); },
@@ -177,7 +192,12 @@ version 0.0.7.20210724.002500
         self.setupLayerGroupPortals();
         self.setupLayerGroupLinks();
 
-        $('#toolbox').append('<a onclick="' + self.namespace + 'menu(); return false;" href="#">' + self.title + '</a>');
+        let toolboxlink = document.body.querySelector('#toolbox').appendChild(document.createElement('a'));
+        toolboxlink.textContent = self.title;
+        toolboxlink.addEventListener('click', function(e) {
+            e.preventDefault();
+            self.menu();
+        }, false);
 
         console.log('IITC plugin loaded: ' + self.title + ' version ' + self.version);
     };

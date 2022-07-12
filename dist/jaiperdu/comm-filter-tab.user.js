@@ -2,7 +2,7 @@
 // @author         jaiperdu
 // @name           COMM Filter Tab
 // @category       COMM
-// @version        0.4.5
+// @version        0.4.6
 // @description    Show virus in the regular Comm and add a new tab with portal/player name filter and event type filter.
 // @id             comm-filter-tab@jaiperdu
 // @namespace      https://github.com/IITC-CE/ingress-intel-total-conversion
@@ -20,7 +20,7 @@ if(typeof window.plugin !== 'function') window.plugin = function() {};
 //PLUGIN AUTHORS: writing a plugin outside of the IITC build environment? if so, delete these lines!!
 //(leaving them in place might break the 'About IITC' page or break update checks)
 plugin_info.buildName = 'lejeu';
-plugin_info.dateTimeVersion = '2022-06-30-074250';
+plugin_info.dateTimeVersion = '2022-07-11-224151';
 plugin_info.pluginId = 'comm-filter-tab';
 //END PLUGIN AUTHORS NOTE
 
@@ -314,19 +314,23 @@ commFilter.rules = [
   { type: 'capture', plain: 'PLAYER| captured |PORTAL' },
   { type: 'field', plain: 'PLAYER| created a Control Field @|PORTAL| +|NUMBER| MUs' },
   { type: 'beacon', plain: 'PLAYER| deployed a Beacon on |PORTAL' },
-  { type: 'battle', plain: 'PLAYER| deployed a Battle Beacon on |PORTAL' },
+  { type: 'fireworks', plain: 'PLAYER| deployed Fireworks on |PORTAL' },
+  { type: 'battle', plain: 'PLAYER| deployed a Battle Beacon on |PORTAL' }, // dropped ?
   { type: 'battle', plain: 'PLAYER| deployed a Rare Battle Beacon on |PORTAL' },
   { type: 'battle', plain: 'PLAYER| deployed a Very Rare Battle Beacon on |PORTAL' },
-  { type: 'fracker', plain: 'PLAYER| deployed a Fracker on |PORTAL' },
+  { type: 'fracker', plain: 'PLAYER| deployed a Portal Fracker on |PORTAL' },
   { type: 'resonator', plain: 'PLAYER| deployed a Resonator on |PORTAL' },
   { type: 'destroy field', plain: 'PLAYER| destroyed a Control Field @|PORTAL| -|NUMBER| MUs' },
   { type: 'destroy resonator', plain: 'PLAYER| destroyed a Resonator on |PORTAL' },
   { type: 'destroy link', plain: 'PLAYER| destroyed the Link |PORTAL| to |PORTAL' },
   { type: 'link', plain: 'PLAYER| linked |PORTAL| to |PORTAL' },
   { type: 'recurse', plain: 'PLAYER| Recursed' },
-  { type: 'battle result', plain: 'FACTION| won a Battle Beacon on |PORTAL' },
-  { type: 'battle result', plain: 'FACTION| won a Rare Battle Beacon on |PORTAL' },
-  { type: 'battle result', plain: 'FACTION| won a Very Rare Battle Beacon on |PORTAL' },
+  { type: 'battle result', plain: 'FACTION| won a Battle Beacon on |PORTAL' }, // dropped ?
+  { type: 'battle result', plain: 'FACTION| won a Rare Battle Beacon on |PORTAL' }, // dropped ?
+  { type: 'battle result', plain: 'FACTION| won a Very Rare Battle Beacon on |PORTAL' }, // dropped ?
+  { type: 'battle result', plain: 'FACTION| won a CAT-|NUMBER| Rare Battle Beacon on |PORTAL' },
+  { type: 'battle result', plain: 'FACTION| won a CAT-|NUMBER| Very Rare Battle Beacon on |PORTAL' },
+  { type: 'battle scheduled', plain: 'Rare Battle Beacon| will be deployed at the end of the Septicycle (|SEPTICYCLE| UTC) on |PORTAL' },
   { type: 'destroy link', plain: 'Your Link |PORTAL| to |PORTAL| destroyed by |PLAYER' },
   { type: 'attack', plain: 'Your Portal |PORTAL| is under attack by |PLAYER' },
   { type: 'neutralize', plain: 'Your Portal |PORTAL| neutralized by |PLAYER' },
@@ -340,7 +344,19 @@ commFilter.rules = [
   // { type: 'faction chat', plain: '[secure] |SENDER| blah |AT_PLAYER| blah |AT_PLAYER| blah ' },
 ];
 
-const markupType = new Set(['TEXT', 'PLAYER', 'PORTAL', 'FACTION', 'NUMBER', 'AT_PLAYER', 'SENDER', 'SECURE']);
+const markupType = new Set([
+  "TEXT",
+  "PLAYER",
+  "PORTAL",
+  "FACTION",
+  "NUMBER",
+  "AT_PLAYER",
+  "SENDER",
+  "SECURE",
+  "SEPTICYCLE",
+]);
+
+const battle_categories = ["I", "II", "III", "IV", "V", "VI"];
 
 function buildRules () {
   for (const r of commFilter.rules) {
@@ -380,15 +396,29 @@ function matchRule (data) {
       continue;
     let match = true;
     for (let i = 0; i < r.markup.length; i++) {
-      if (r.markup[i] === 'NUMBER') {
-        if (data.markup[i][0] !== 'TEXT' || isNaN(data.markup[i][1].plain)) {
+      if (r.markup[i] === "NUMBER") {
+        if (data.markup[i][0] !== "TEXT") {
+          match = false;
+          break;
+        } else if (battle_categories.includes(data.markup[i][1].plain)) {
+          // pass
+        } else if (isNaN(data.markup[i][1].plain)) {
+          match = false;
+          break;
+        }
+      } else if (r.markup[i] === "SEPTICYCLE") {
+        if (data.markup[i][0] !== "TEXT") {
           match = false;
           break;
         }
       } else if (r.markup[i] !== data.markup[i][0]) {
         match = false;
         break;
-      } else if (r.markup[i] === 'TEXT' && r.text.has(i) && r.text.get(i) !== data.markup[i][1].plain) {
+      } else if (
+        r.markup[i] === "TEXT" &&
+        r.text.has(i) &&
+        r.text.get(i) !== data.markup[i][1].plain
+      ) {
         match = false;
         break;
       }
@@ -436,8 +466,27 @@ function reParseData (data) {
   }
   if (portals.length > 0) parse.portals = portals;
 
-  if (parse.type === 'battle result')
+  if (parse.type === 'battle result') {
     parse.faction = markup[0][1].team;
+    let cat = markup.filter(
+      (ent) => ent[0] === "TEXT" && battle_categories.includes(ent[1].plain)
+    );
+    if (cat.length)
+      parse.category = battle_categories.findIndex((v) => v === cat[0]) + 1;
+  }
+
+  if (parse.type === 'battle scheduled') {
+    let date = data.markup[2][1].plain.replace(
+      /(\d+)\.(\d+)\.(\d+) (\d+):(\d+)/,
+      "$1/$2/$3 $4:$5 UTC" // works on firefox
+    );
+    date = Date.parse(date);
+    if (!isNaN(date)) {
+      date = +date;
+      if (date > 10*Date.now()) date = date / 1000;
+      parse.septicyle = date;
+    }
+  }
 
   if (parse.type === 'chat' || parse.type === 'chat faction') {
     parse.mentions = atPlayers;
@@ -509,7 +558,23 @@ function computeMUs (guids, data) {
       data[guid][2] = renderMsgRow(parseData);
     }
   }
-};
+}
+
+function fixScheduledTime (guids, data) {
+  for (const guid of guids) {
+    const parseData = data[guid][4];
+    const log = parseData['comm-filter'];
+    if (log.type === 'battle scheduled' && log.septicyle) {
+      parseData.markup[2][1].plain =
+        window.unixTimeToString(log.septicyle) +
+        " " +
+        window.unixTimeToHHmm(log.septicyle);
+      parseData.markup[3][1].plain = ") on ";
+      data[guid][2] = renderMsgRow(parseData);
+    }
+  }
+}
+
 
 function computeHidden() {
   let hidden = [];
@@ -603,6 +668,7 @@ function reparsePublicData () {
 
   computeMUs(public.guids, public.data);
   findVirus(public.guids, public.data);
+  fixScheduledTime(public.guids, public.data);
 
   commFilter.hidden = computeHidden();
 

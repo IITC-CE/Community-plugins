@@ -2,10 +2,10 @@
 // @author         DanielOnDiordna
 // @name           Unique Portal History
 // @category       Layer
-// @version        2.0.1.20210724.002500
+// @version        2.1.0.20220711.235400
 // @updateURL      https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/uniqueportalhistory.meta.js
 // @downloadURL    https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/uniqueportalhistory.user.js
-// @description    [danielondiordna-2.0.1.20210724.002500] Show your personal unique portal history for Visited, Captured or Scout Controlled portals with layers. Choose your own colors. Place bookmarks. Invert results! Add three extra Portals List plugin columns. Requires CORE subscription.
+// @description    [danielondiordna-2.1.0.20220711.235400] Show your personal unique portal history for Visited, Captured or Scout Controlled portals with layers. Choose your own colors. Place bookmarks. Invert results! Add three extra Portals List plugin columns. Requires CORE subscription.
 // @id             uniqueportalhistory@DanielOnDiordna
 // @namespace      https://softspot.nl/ingress/
 // @match          https://intel.ingress.com/*
@@ -22,27 +22,32 @@ function wrapper(plugin_info) {
     var self = window.plugin.uniqueportalhistory;
     self.id = 'uniqueportalhistory';
     self.title = 'Unique Portal History';
-    self.version = '2.0.1.20210724.002500';
+    self.version = '2.1.0.20220711.235400';
     self.author = 'DanielOnDiordna';
     self.changelog = `
 Changelog:
 
-version 0.0.1.20210206.120400
-- first release
-- used plugin wrapper and userscript header formatting to match IITC-CE coding
+version 2.1.0.20220711.235400
+- made compatible with IITC-CE Beta 0.32.1.20211217.151857
 
-version 0.0.2.20210209.235900
-version 0.0.2.20210210.001100
-- a lot of changes, a complete rewrite
-- added a menu to select inversion of results
+version 2.0.1.20210724.002500
+- prevent double plugin setup on hook iitcLoaded
 
-version 0.0.3.20210211.164200
-version 0.0.3.20210211.182800
-- fixed log.log debug error on IITC-CE
-- added extra code injections
-- added same team target color setting
-- integrated Spectrum Colorpicker 1.8.1 plugin code, no need for the separate plugin
-- bookmarks menu
+version 2.0.1.20210517.233500
+- added bookmarks anywhere for cached history portals (if plugin portalhistorysupport is installed)
+
+version 2.0.0.20210313.210300
+- removed all IITC core injection functions (moved to separate and required Portal History Support plugin)
+- removed history storage, this is now cached and returned from Portal History Support plugin
+- removed highlighter functions (moved to separate optional History Highlighter plugin)
+- removed getPortalHistoryDetails function
+- replace variable scanned with scoutControlled
+- added rescaling markers when zooming in or out
+
+version 1.0.1.20210222.233700
+- rewritten some IITC core injection function
+- added decodeArray.portalDetail rewrite, to support new history bitarray
+- fixed all portals zoom level detection
 
 version 1.0.0.20210220.134700
 - renamed plugin from Portal Agent Status to Unique Portal History
@@ -54,24 +59,22 @@ version 1.0.0.20210220.134700
 - removed single team color and added both teams, there are now 5 layers to choose from
 - added highlighters to hide all or only all captured portals, with or without ENL and RES portals
 
-version 1.0.1.20210222.233700
-- rewritten some IITC core injection function
-- added decodeArray.portalDetail rewrite, to support new history bitarray
-- fixed all portals zoom level detection
+version 0.0.3.20210211.164200
+version 0.0.3.20210211.182800
+- fixed log.log debug error on IITC-CE
+- added extra code injections
+- added same team target color setting
+- integrated Spectrum Colorpicker 1.8.1 plugin code, no need for the separate plugin
+- bookmarks menu
 
-version 2.0.0.20210313.210300
-- removed all IITC core injection functions (moved to separate and required Portal History Support plugin)
-- removed history storage, this is now cached and returned from Portal History Support plugin
-- removed highlighter functions (moved to separate optional History Highlighter plugin)
-- removed getPortalHistoryDetails function
-- replace variable scanned with scoutControlled
-- added rescaling markers when zooming in or out
+version 0.0.2.20210209.235900
+version 0.0.2.20210210.001100
+- a lot of changes, a complete rewrite
+- added a menu to select inversion of results
 
-version 2.0.1.20210517.233500
-- added bookmarks anywhere for cached history portals (if plugin portalhistorysupport is installed)
-
-version 2.0.1.20210724.002500
-- prevent double plugin setup on hook iitcLoaded
+version 0.0.1.20210206.120400
+- first release
+- used plugin wrapper and userscript header formatting to match IITC-CE coding
 `;
     self.namespace = 'window.plugin.' + self.id + '.';
     self.pluginname = 'plugin-' + self.id;
@@ -510,7 +513,14 @@ version 2.0.1.20210724.002500
             let oldlayername = (!self.settings.invertresults?self.toggle_layernamesinverted[layername]:self.toggle_layernames[layername]);
             let enabled = window.isLayerGroupDisplayed(oldlayername);
             let newlayername = (self.settings.invertresults?self.toggle_layernamesinverted[layername]:self.toggle_layernames[layername]);
-            window.updateDisplayedLayerGroup(newlayername,enabled);
+
+            if (window.isLayerGroupDisplayed(newlayername) != enabled) {
+                if (typeof window.updateDisplayedLayerGroup == "function") { // IITC 0.32.1 Release
+                    window.updateDisplayedLayerGroup(newlayername,enabled); // force start status
+                } else if (typeof window.layerChooser._storeOverlayState == "function") { // IITC 0.32.1 Beta
+                    window.layerChooser._storeOverlayState(newlayername,enabled); // force start status
+                }
+            }
 
             window.removeLayerGroup(self.toggle_layers[layername]);
             window.addLayerGroup((self.settings.invertresults?self.toggle_layernamesinverted[layername]:self.toggle_layernames[layername]), self.toggle_layers[layername], enabled);

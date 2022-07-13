@@ -1,9 +1,9 @@
 // ==UserScript==
 // @name           OpenCycleMap.org map tiles add-on
-// @version        1.0.0.20220710.185000
+// @version        1.0.1.20220712.094300
 // @updateURL      https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/basemap-opencyclemap-addon.meta.js
 // @downloadURL    https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/basemap-opencyclemap-addon.user.js
-// @description    [danielondiordna-1.0.0.20220710.185000] Add-on to set an API KEY for the Thunderforest map tiles (OpenCycleMap). To make things easier, the Add-on already includes the code from the OpenCycleMap plugin.
+// @description    [danielondiordna-1.0.1.20220712.094300] Add-on to set an API KEY for the Thunderforest map tiles (OpenCycleMap). To make things easier, the Add-on already includes the code from the OpenCycleMap plugin.
 // @author         DanielOnDiordna
 // @namespace      https://softspot.nl/ingress/
 // @match          https://intel.ingress.com/*
@@ -22,10 +22,13 @@ function wrapper(plugin_info) {
     var self = window.plugin.basemapOpenCycleMapAddon;
     self.id = 'basemapOpenCycleMapAddon';
     self.title = 'OpenCycleMap Addon';
-    self.version = '1.0.0.20220710.185000';
+    self.version = '1.0.1.20220712.094300';
     self.author = 'DanielOnDiordna';
     self.changelog = `
 Changelog:
+
+version 1.0.1.20220712.094300
+- removed some console debugging messages
 
 version 1.0.0.20220710.185000
 - fixed keeping selected Thunderforest map active after IITC reloads
@@ -154,7 +157,6 @@ version 0.0.1.20191023.001600
                         'landscape': 'Landscape',
                     };
 
-console.log("IITC-CE mapTileOpenCycleMap add on setup");
                     for(var i in layers) {
                         var layer = new window.L.TileLayer('http://{s}.tile.thunderforest.com/' + i + '/{z}/{x}/{y}.png', ocmOpt);
                         window.layerChooser.addBaseLayer(layer, 'Thunderforest ' + layers[i]);
@@ -163,7 +165,7 @@ console.log("IITC-CE mapTileOpenCycleMap add on setup");
             };
             window.plugin.mapTileOpenCycleMap.addLayer();
         } else {
-            console.log("mapTileOpenCycleMap plugin already active");
+            // console.log("mapTileOpenCycleMap plugin already active");
         }
 
         // added some more layers (available from https://manage.thunderforest.com/dashboard):

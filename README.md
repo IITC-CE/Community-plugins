@@ -61,9 +61,9 @@ See the [Contributing](CONTRIBUTING.md) documentation.
 
 
 
-[danielondiordna-1.0.0.20220710.185000] Add-on to set an API KEY for the Thunderforest map tiles (OpenCycleMap). To make things easier, the Add-on already includes the code from the OpenCycleMap plugin.
+[danielondiordna-1.0.1.20220712.094300] Add-on to set an API KEY for the Thunderforest map tiles (OpenCycleMap). To make things easier, the Add-on already includes the code from the OpenCycleMap plugin.
 
-*Version:* 1.0.0.20220710.185000
+*Version:* 1.0.1.20220712.094300
 
 
   

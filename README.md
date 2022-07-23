@@ -304,6 +304,20 @@ Import KML/GPX/Geojson/TCX into DrawTools
 
 
   
+### [Highlight unique visits/captures using opacity](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/xificurk/portal-highlighter-uniques-opacity.user.js)
+
+
+
+![preview](https://raw.githubusercontent.com/xificurk/iitc-plugins/master/images/portal-highlighter-uniques-opacity.png)
+
+[xificurk-2021-02-07-174711] Use stroke and fill opacity to denote player&#39;s unique visits and captures. Requires uniques plugin.
+
+*[Homepage](https://github.com/xificurk/iitc-plugins)* |
+*[Issue tracker](https://github.com/xificurk/iitc-plugins/issues)* |
+*Version:* 0.2.1.20210207.174711
+
+
+  
 ### [Highlight uniques captured/visited/scanned](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/jaiperdu/highlight-intel-uniques.user.js) by jaiperdu
 
 
@@ -737,6 +751,20 @@ Shows under field throw range at 500m
 
 
   
+### [Unique visits/captures heatmap](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/xificurk/uniques-heatmap.user.js)
+
+
+
+![preview](https://raw.githubusercontent.com/xificurk/iitc-plugins/master/images/uniques-heatmap-explorer.png)
+
+[xificurk-2021-02-07-174711] Display heatmap of all portals that the player did NOT visit/capture. Requires uniques plugin.
+
+*[Homepage](https://github.com/xificurk/iitc-plugins)* |
+*[Issue tracker](https://github.com/xificurk/iitc-plugins/issues)* |
+*Version:* 0.2.1.20210207.174711
+
+
+  
 
 ## Layers
   
@@ -800,6 +828,20 @@ GL layer
 [local-2019-01-08] Add autonavi.com (China) map layers by GMOogway
 
 *Version:* 0.3.0.20190108
+
+
+  
+### [Seznam map tiles](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/xificurk/basemap-seznam.user.js)
+
+
+
+
+
+[xificurk-2020-01-05-155450] Seznam map tiles.
+
+*[Homepage](https://github.com/xificurk/iitc-plugins)* |
+*[Issue tracker](https://github.com/xificurk/iitc-plugins/issues)* |
+*Version:* 0.1.3.20200105.155450
 
 
   
@@ -915,6 +957,20 @@ Set a location. The COMM messages you send will have the setted location.
 
 
   
+### [Landgrab](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/birkett83/landgrab.user.js) by birkett83
+
+
+
+![preview](https://github.com/birkett83/landgrab/raw/main/assets/landgrab.png)
+
+Landgrab
+
+*[Homepage](https://birkett83.github.io/landgrab/)* |
+*[Issue tracker](https://github.com/birkett83/landgrab/issues)* |
+*Version:* 0.2
+
+
+  
 ### [Logs Diary](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Zaso/logs-diary.user.js) by Zaso
 
 
@@ -960,6 +1016,20 @@ Export portals from bookmarks, current view or polygon
 [0.2.3] Shows small box with a basic portal information. This is similar to mobile info.
 
 *Version:* 0.2.3
+
+
+  
+### [show uniques visit/captures based on GDPR game_log](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/xificurk/uniques-gdpr.user.js)
+
+
+
+
+
+[xificurk-2020-11-22-121942] Show uniques visit/captures based on GDPR game_log
+
+*[Homepage](https://github.com/xificurk/iitc-plugins)* |
+*[Issue tracker](https://github.com/xificurk/iitc-plugins/issues)* |
+*Version:* 0.1.0.20201122.121942
 
 
   

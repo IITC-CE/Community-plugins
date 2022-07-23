@@ -3,7 +3,7 @@
 // @name            Landgrab
 // @category        Misc
 // @version         0.2
-// @description     Landgrab
+// @description     A mini-game based on ingress and IITC
 // @id              landgrab@birkett83
 // @namespace       https://github.com/IITC-CE/ingress-intel-total-conversion
 // @match           https://intel.ingress.com/*

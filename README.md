@@ -963,7 +963,7 @@ Set a location. The COMM messages you send will have the setted location.
 
 ![preview](https://github.com/birkett83/landgrab/raw/main/assets/landgrab.png)
 
-Landgrab
+A mini-game based on ingress and IITC
 
 *[Homepage](https://birkett83.github.io/landgrab/)* |
 *[Issue tracker](https://github.com/birkett83/landgrab/issues)* |

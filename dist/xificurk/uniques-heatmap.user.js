@@ -6,7 +6,7 @@
 // @namespace       https://github.com/xificurk/iitc-plugins
 // @updateURL       https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/xificurk/uniques-heatmap.meta.js
 // @downloadURL     https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/xificurk/uniques-heatmap.user.js
-// @description     [xificurk-2021-02-07-174711] Display heatmap of all portals that the player did NOT visit/capture. Requires uniques plugin.
+// @description     Display heatmap of all portals that the player did NOT visit/capture.
 // @include         https://intel.ingress.com/*
 // @include         http://intel.ingress.com/*
 // @include         https://*.ingress.com/intel*

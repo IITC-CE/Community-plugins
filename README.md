@@ -757,7 +757,7 @@ Shows under field throw range at 500m
 
 ![preview](https://raw.githubusercontent.com/xificurk/iitc-plugins/master/images/uniques-heatmap-explorer.png)
 
-[xificurk-2021-02-07-174711] Display heatmap of all portals that the player did NOT visit/capture. Requires uniques plugin.
+Display heatmap of all portals that the player did NOT visit/capture.
 
 *[Homepage](https://github.com/xificurk/iitc-plugins)* |
 *[Issue tracker](https://github.com/xificurk/iitc-plugins/issues)* |

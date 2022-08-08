@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name           IMATTC
-// @version        1.12.0.20220710.000300
+// @version        1.12.1.20220807.224600
 // @updateURL      https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/imattc.meta.js
 // @downloadURL    https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/imattc.user.js
 // @description    Ingress Mission Authoring Tool Total Conversion, adding categories for missions, show banner preview, export json, download images, and more.
@@ -19,9 +19,13 @@
 // removed from the Tampermonkey headers:
 // @require      https://code.jquery.com/ui/1.10.4/jquery-ui.min.js
 
-var imattcversion = "1.12.0.20220710.000300";
+var imattcversion = "1.12.1.20220807.224600";
 var changelog = `
 Changelog:
+
+version 1.12.1.20220807.224600
+- added checkbox button to discard drafts of published missions
+- added button counters when selecting missions with checkboxes, buttons disable when 0 checkboxes are checked
 
 version 1.12.0.20220710.000300
 - changed preview image formatting to match Prime spacing, reduced image download size (=s136)
@@ -1029,16 +1033,23 @@ function init() {
                     delete(missionelement.clickevent);
                 }
             } else {
+                missionScope.updateCheckedMissionsCounts();
+
                 $(".dropup").css({display:"flex"});
                 $(".dropup").prepend('<input type="checkbox" class="checkboxesDisplayed">');
+                $(".checkboxesDisplayed").on('click', function(event){
+                    missionScope.updateCheckedMissionsCounts();
+                });
                 $(".checkboxedmissionsbutton").show();
                 $(".togglecheckboxbutton").text('Hide checkboxes');
 
                 for (let missionelement of document.querySelectorAll('.missionbox .mission .mission-header-container')) {
                     missionelement.style.cursor = 'pointer';
+                    // add the event as a function to each mission, so the event can be removed when it needs to be disabled
                     missionelement.clickevent = function(e) {
                         e.stopPropagation();
                         missionelement.parentElement.querySelector('.checkboxesDisplayed').checked = !missionelement.parentElement.querySelector('.checkboxesDisplayed').checked;
+                        missionScope.updateCheckedMissionsCounts();
                     }
                     missionelement.addEventListener('click', missionelement.clickevent, false);
                 }
@@ -1054,6 +1065,17 @@ function init() {
         missionScope.moveCheckedMissions = function() {
             missionScope.selectACategory({mission_guid:'checkboxedmissions',definition:{name:$(".dropup :checked").length + ' Checked Missions'}});
         };
+        missionScope.updateCheckedMissionsCounts = function() {
+            for (let missionListState in missionScope.missionListStates) {
+                let checkboxbuttoncount = document.querySelector('.' + missionListState);
+                if (checkboxbuttoncount) {
+                    let buttontitle = missionScope.missionListStates[missionListState].BUTTON2.title;
+                    let missionguids = [...document.querySelectorAll('.dropup .checkboxesDisplayed:checked')].filter((el)=>{return el.parentElement.querySelector('a[ng-click^=button2Clicked]').innerText == buttontitle;}).map((el)=>{return parseInt(el.parentElement.querySelector('a[ng-click^=button2Clicked]').getAttribute('ng-click').match(/missions\[(\d+)\]/)[1]);}).map((num)=>{return missionScope.missions[num].mission_guid});
+                    checkboxbuttoncount.innerText = (missionguids.length > 0 ? ' ' + missionguids.length : "");
+                    document.querySelector('.' + missionListState).parentElement.disabled = (missionguids.length == 0);
+                }
+            }
+        };
         missionScope.clickButton2CheckedMissions = function(missionListState) {
             let buttontitle = missionScope.missionListStates[missionListState].BUTTON2.title;
             let missionguids = [...document.querySelectorAll('.dropup .checkboxesDisplayed:checked')].filter((el)=>{return el.parentElement.querySelector('a[ng-click^=button2Clicked]').innerText == buttontitle;}).map((el)=>{return parseInt(el.parentElement.querySelector('a[ng-click^=button2Clicked]').getAttribute('ng-click').match(/missions\[(\d+)\]/)[1]);}).map((num)=>{return missionScope.missions[num].mission_guid});
@@ -1067,7 +1089,7 @@ function init() {
             }
             localStorage.setItem('clickbutton2missionguids',JSON.stringify(missionguids));
             clickButton2CheckedMissionsList(missionScope);
-        }
+        };
         missionScope.removeFromCategory = function(category, mission) {
             for (var i = 0; i < missionScope.categoryContent[category].missions.length; i++) {
                 if (missionScope.categoryContent[category].missions[i] == mission.mission_guid) {
@@ -1077,7 +1099,7 @@ function init() {
             }
             storeCategoryContent(missionScope.categoryContent);
             generateAllMissions();
-        }
+        };
 
         missionScope.createCategory = function() {
             var categoryName = prompt("Please enter a name for your new category", "New category name");
@@ -1187,7 +1209,7 @@ function init() {
                     missionSetName: missionScope.categoryContent[category].name,
                     missionSetDescription: missions[0].description,
                     currentMission: 0,
-                    plannedBannerLength: missions.length + 1,
+                    plannedBannerLength: missions.length,
                     titleFormat: "T NN-M",
                     fileFormatVersion: 2,
                     missions: []
@@ -1759,9 +1781,16 @@ function init() {
 
                 buttonContent += "<button ng-click='toggleCheckboxes()' class='yellow togglecheckboxbutton' style='margin: 0 0 0 5px;'>Show Checkboxes</button>";
                 buttonContent += "<button ng-click='moveCheckedMissions()' data-toggle='modal' data-target='#addCateModel' class='checkboxedmissionsbutton' style='display: none'>Move...</button>";
+                for (let id in missionScope.missionListStates) {
+                    buttonContent += "<button ng-click='clickButton2CheckedMissions(\"" + id + "\")' data-toggle='modal' class='checkboxedmissionsbutton' style='display: none' title='" + missionScope.missionListStates[id].BUTTON2.description + "'>" + missionScope.missionListStates[id].BUTTON2.title + "<span class=\"" + id + "\"></span>...</button>";
+                }
+                /*
                 buttonContent += "<button ng-click='clickButton2CheckedMissions(\"PUBLISHED\")' data-toggle='modal' class='checkboxedmissionsbutton' style='display: none' title='" + missionScope.missionListStates.PUBLISHED.BUTTON2.description + "'>Unpublish...</button>";
+                buttonContent += "<button ng-click='clickButton2CheckedMissions(\"DRAFT_OF_PUBLISHED_MISSION\")' data-toggle='modal' class='checkboxedmissionsbutton' style='display: none' title='" + missionScope.missionListStates.DRAFT_OF_PUBLISHED_MISSION.BUTTON2.description + "'>Discard Draft...</button>";
                 buttonContent += "<button ng-click='clickButton2CheckedMissions(\"SUBMITTED\")' data-toggle='modal' class='checkboxedmissionsbutton' style='display: none' title='" + missionScope.missionListStates.SUBMITTED.BUTTON2.description + "'>Withdraw...</button>";
+                buttonContent += "<button ng-click='clickButton2CheckedMissions(\"SUBMITTED_AND_PUBLISHED\")' data-toggle='modal' class='checkboxedmissionsbutton' style='display: none' title='" + missionScope.missionListStates.SUBMITTED_AND_PUBLISHED.BUTTON2.description + "'>Withdraw draft...</button>";
                 buttonContent += "<button ng-click='clickButton2CheckedMissions(\"DRAFT\")' data-toggle='modal' class='checkboxedmissionsbutton' style='display: none' title='" + missionScope.missionListStates.DRAFT.BUTTON2.description + "'>Delete...</button>";
+                */
 
                 //tally up available missions, and missions in draft states
                 var draftMissions = w.$filter('filter')(missionScope.missions, {missionListState: "DRAFT"}, true).length;

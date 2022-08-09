@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name           IMATTC
-// @version        1.12.1.20220807.224600
+// @version        1.12.2.20220808.203900
 // @updateURL      https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/imattc.meta.js
 // @downloadURL    https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/imattc.user.js
 // @description    Ingress Mission Authoring Tool Total Conversion, adding categories for missions, show banner preview, export json, download images, and more.

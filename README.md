@@ -1080,7 +1080,7 @@ Add a To Do List.
 
 Ingress Mission Authoring Tool Total Conversion, adding categories for missions, show banner preview, export json, download images, and more.
 
-*Version:* 1.12.1.20220807.224600
+*Version:* 1.12.2.20220808.203900
 
 
   

@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name           IMATTC
-// @version        1.12.1.20220807.224600
+// @version        1.12.2.20220808.203900
 // @updateURL      https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/imattc.meta.js
 // @downloadURL    https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/imattc.user.js
 // @description    Ingress Mission Authoring Tool Total Conversion, adding categories for missions, show banner preview, export json, download images, and more.
@@ -19,9 +19,15 @@
 // removed from the Tampermonkey headers:
 // @require      https://code.jquery.com/ui/1.10.4/jquery-ui.min.js
 
-var imattcversion = "1.12.1.20220807.224600";
+var imattcversion = "1.12.2.20220808.203900";
 var changelog = `
 Changelog:
+
+version 1.12.2.20220808.203900
+- fixed category selector for new missions to remember category title instead of index
+- hide the create new mission button when processing checked missions (it still flashes in view)
+- added button counter for move button, disable when 0 checkboxes are checked
+- fixed enabling checkbox buttons when using the Toggle all checkboxes button
 
 version 1.12.1.20220807.224600
 - added checkbox button to discard drafts of published missions
@@ -435,46 +441,57 @@ function init() {
     function clickButton2CheckedMissionsList(missionScope,lastonefailed) {
         let resultsdiv = document.querySelector('.clickButton2results');
         let cancelbutton = document.querySelector('.cancel-clickbutton2-button');
-        if (!resultsdiv) {
-            resultsdiv = document.createElement('div');
-            resultsdiv.className = 'clickButton2results';
-            if (document.querySelector('.navbar')) {
-                document.querySelector('.navbar').after(resultsdiv);
+
+        function restoreContainer(keepresultsdiv = false) {
+            if (!keepresultsdiv && resultsdiv) resultsdiv.remove();
+            if (cancelbutton) cancelbutton.remove();
+            if (document.querySelector('.container.ng-scope')) {
+                document.querySelector('.container.ng-scope').style.display = "unset"; // show everything
             }
-            cancelbutton = document.createElement('button');
-            cancelbutton.className = "cancel-clickbutton2-button";
-            cancelbutton.style.marginLeft = '20px';
-            cancelbutton.textContent = "Cancel";
-            cancelbutton.addEventListener('click',function(e) {
-                console.log("Canceled checked missions acount",localStorage.getItem('clickbutton2missionguids'));
-                localStorage.setItem('clickbutton2missionguids',JSON.stringify([]));
-            },false);
-            resultsdiv.after(cancelbutton);
             if (document.querySelector('.create-mission-button')) {
-                document.querySelector('.create-mission-button').style.display = 'none'; // hide the Create New Mission button
+                document.querySelector('.create-mission-button').style.display = 'unset'; // show the Create New Mission button
             }
         }
+
         try {
             if (localStorage.getItem('clickbutton2missionguids') == null || typeof localStorage.getItem('clickbutton2missionguids') != 'string' || localStorage.getItem('clickbutton2missionguids') == '') {
                 // nothing defined (anymore)
-                resultsdiv.remove();
-                cancelbutton.remove();
-                if (document.querySelector('.create-mission-button')) {
-                    document.querySelector('.create-mission-button').style.display = 'unset'; // show the Create New Mission button
-                }
+                restoreContainer();
                 return false;
             }
             let missionguids = JSON.parse(localStorage.getItem('clickbutton2missionguids'));
             if (!(missionguids instanceof Array) || missionguids.length <= 0) {
                 // empty list (last one handled)
                 localStorage.removeItem('clickbutton2missionguids');
-                resultsdiv.remove();
-                cancelbutton.remove();
-                if (document.querySelector('.create-mission-button')) {
-                    document.querySelector('.create-mission-button').style.display = 'unset'; // show the Create New Mission button
-                }
+                restoreContainer();
                 if (lastonefailed) setTimeout(whenItsLoaded);
                 return false;
+            }
+
+            if (!resultsdiv) {
+                resultsdiv = document.createElement('div');
+                resultsdiv.className = 'clickButton2results';
+                if (document.querySelector('.navbar')) {
+                    document.querySelector('.navbar').after(resultsdiv);
+                }
+                cancelbutton = document.createElement('button');
+                cancelbutton.className = "cancel-clickbutton2-button";
+                cancelbutton.style.marginLeft = '20px';
+                cancelbutton.textContent = "Cancel";
+                cancelbutton.addEventListener('click',function(e) {
+                    console.log("Canceled checked missions, keep:",localStorage.getItem('clickbutton2missionguids'));
+                    localStorage.setItem('clickbutton2missionguids',JSON.stringify([]));
+                    if (document.querySelector('.container.ng-scope')) {
+                        document.querySelector('.container.ng-scope').style.display = "unset"; // show everything
+                    }
+                },false);
+                resultsdiv.after(cancelbutton);
+            }
+            if (document.querySelector('.container.ng-scope')) {
+                document.querySelector('.container.ng-scope').style.display = "none"; // hide everything
+            }
+            if (document.querySelector('.yellow create-mission-button')) {
+                document.querySelector('.yellow create-mission-button').style.display = "none"; // hide create button
             }
 
             let total = missionguids.length;
@@ -498,11 +515,8 @@ function init() {
         } catch(e) {
             console.log("FAILED: alter missions failed, cancel all");
             resultsdiv.innerText = 'FAILED: alter missions failed, cancel all';
-            cancelbutton.remove();
+            restoreContainer(true);
             localStorage.removeItem('clickbutton2missionguids');
-            if (document.querySelector('.create-mission-button')) {
-                document.querySelector('.create-mission-button').style.display = 'unset'; // show the Create New Mission button
-            }
             return false;
         }
     };
@@ -694,7 +708,7 @@ function init() {
                         editTarget = $(".preview-buttons");
                         if (!document.querySelector('.category-dropdown')) { // draw only once
                             editCode = "<div class='category-dropdown pull-right' style='display: inline-block; margin-right: 20px;'>"
-                                + "<select class='form-control' ng-model='selectedCategoryID'>"
+                                + "<select class='form-control' ng-model='selectedCategoryID' style='display: none;'>"
                                 + "<option value='-1'>OPTIONAL: Select a category to add this mission to</option>";
                             for (var i = 0; i < editScope.categoryContent.length; i++) {
                                 editCode += "<option value='" + i + "'>" + editScope.categoryContent[i].name + "</option>";
@@ -1061,6 +1075,7 @@ function init() {
             for (let checkbox of checkboxes) {
                 checkbox.checked = !checkbox.checked;
             }
+            missionScope.updateCheckedMissionsCounts();
         };
         missionScope.moveCheckedMissions = function() {
             missionScope.selectACategory({mission_guid:'checkboxedmissions',definition:{name:$(".dropup :checked").length + ' Checked Missions'}});
@@ -1072,8 +1087,14 @@ function init() {
                     let buttontitle = missionScope.missionListStates[missionListState].BUTTON2.title;
                     let missionguids = [...document.querySelectorAll('.dropup .checkboxesDisplayed:checked')].filter((el)=>{return el.parentElement.querySelector('a[ng-click^=button2Clicked]').innerText == buttontitle;}).map((el)=>{return parseInt(el.parentElement.querySelector('a[ng-click^=button2Clicked]').getAttribute('ng-click').match(/missions\[(\d+)\]/)[1]);}).map((num)=>{return missionScope.missions[num].mission_guid});
                     checkboxbuttoncount.innerText = (missionguids.length > 0 ? ' ' + missionguids.length : "");
-                    document.querySelector('.' + missionListState).parentElement.disabled = (missionguids.length == 0);
+                    checkboxbuttoncount.parentElement.disabled = (missionguids.length == 0);
                 }
+            }
+            let checkboxmovebuttoncount = document.querySelector('.MOVECOUNT');
+            if (checkboxmovebuttoncount) {
+                let checkedcount = $(".dropup :checked").length;
+                checkboxmovebuttoncount.innerText = (checkedcount > 0 ? ' ' + checkedcount : "");
+                checkboxmovebuttoncount.parentElement.disabled = (checkedcount == 0);
             }
         };
         missionScope.clickButton2CheckedMissions = function(missionListState) {
@@ -1780,17 +1801,10 @@ function init() {
                     + "</ul></div>"
 
                 buttonContent += "<button ng-click='toggleCheckboxes()' class='yellow togglecheckboxbutton' style='margin: 0 0 0 5px;'>Show Checkboxes</button>";
-                buttonContent += "<button ng-click='moveCheckedMissions()' data-toggle='modal' data-target='#addCateModel' class='checkboxedmissionsbutton' style='display: none'>Move...</button>";
+                buttonContent += "<button ng-click='moveCheckedMissions()' data-toggle='modal' data-target='#addCateModel' class='checkboxedmissionsbutton' style='display: none'>Move<span class=\"MOVECOUNT\"></span>...</button>";
                 for (let id in missionScope.missionListStates) {
                     buttonContent += "<button ng-click='clickButton2CheckedMissions(\"" + id + "\")' data-toggle='modal' class='checkboxedmissionsbutton' style='display: none' title='" + missionScope.missionListStates[id].BUTTON2.description + "'>" + missionScope.missionListStates[id].BUTTON2.title + "<span class=\"" + id + "\"></span>...</button>";
                 }
-                /*
-                buttonContent += "<button ng-click='clickButton2CheckedMissions(\"PUBLISHED\")' data-toggle='modal' class='checkboxedmissionsbutton' style='display: none' title='" + missionScope.missionListStates.PUBLISHED.BUTTON2.description + "'>Unpublish...</button>";
-                buttonContent += "<button ng-click='clickButton2CheckedMissions(\"DRAFT_OF_PUBLISHED_MISSION\")' data-toggle='modal' class='checkboxedmissionsbutton' style='display: none' title='" + missionScope.missionListStates.DRAFT_OF_PUBLISHED_MISSION.BUTTON2.description + "'>Discard Draft...</button>";
-                buttonContent += "<button ng-click='clickButton2CheckedMissions(\"SUBMITTED\")' data-toggle='modal' class='checkboxedmissionsbutton' style='display: none' title='" + missionScope.missionListStates.SUBMITTED.BUTTON2.description + "'>Withdraw...</button>";
-                buttonContent += "<button ng-click='clickButton2CheckedMissions(\"SUBMITTED_AND_PUBLISHED\")' data-toggle='modal' class='checkboxedmissionsbutton' style='display: none' title='" + missionScope.missionListStates.SUBMITTED_AND_PUBLISHED.BUTTON2.description + "'>Withdraw draft...</button>";
-                buttonContent += "<button ng-click='clickButton2CheckedMissions(\"DRAFT\")' data-toggle='modal' class='checkboxedmissionsbutton' style='display: none' title='" + missionScope.missionListStates.DRAFT.BUTTON2.description + "'>Delete...</button>";
-                */
 
                 //tally up available missions, and missions in draft states
                 var draftMissions = w.$filter('filter')(missionScope.missions, {missionListState: "DRAFT"}, true).length;
@@ -1828,7 +1842,7 @@ function init() {
     let settings = {
         defaultmissiontype: 0,
         autoskipmissiontype: false,
-        defaultselectedcategoryid: -1
+        defaultselectedcategorytitle: ''
     }
     function restoresettings() {
         // read stored data in a very safe way:
@@ -1869,6 +1883,7 @@ function init() {
     };
 
     restoresettings();
+    storesettings();
 
     // wait for a new mission at the mission type view, show radio buttons and select the default type
     let addedradiobuttons = false;
@@ -1952,14 +1967,17 @@ function init() {
         // set and store the selected category when submitting a mission
         let categoryselector = document.querySelector('.category-dropdown select');
         if (categoryselector && !setcategoryselector) {
+            let selectedcategoryoption = [...categoryselector.options].find((el)=>{return el.text == settings.defaultselectedcategorytitle});
+            let defaultselectedcategoryid = (selectedcategoryoption != undefined ? parseInt(selectedcategoryoption.value) : -1);
             setcategoryselector = true;
-            categoryselector.value = settings.defaultselectedcategoryid;
+            categoryselector.value = defaultselectedcategoryid;
             let editScope = window.$scope($('div.editor'));
-            editScope.selectedCategoryID = settings.defaultselectedcategoryid;
+            editScope.selectedCategoryID = defaultselectedcategoryid;
             categoryselector.addEventListener('change',function(e) {
-                settings.defaultselectedcategoryid = parseInt(this.value);
+                settings.defaultselectedcategorytitle = (this.value >= 0 ? this.options[this.selectedIndex].text : "");
                 storesettings();
             },false);
+            categoryselector.style.display = 'unset';
         } else if (!categoryselector && setcategoryselector) {
             setcategoryselector = false;
         }

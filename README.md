@@ -618,6 +618,20 @@ Shows drone flight distance between portals
 
 
   
+### [Glympse](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/MaxEtMoritz/glympsemap.user.js) by MaxEtMoritz
+
+
+
+![preview](https://github.com/MaxEtMoritz/iitc-glympse/blob/master/images/Screenshot%202022-08-12%20163456.png)
+
+View a Glympse tag directly on the Intel map.
+
+*[Homepage](https://github.com/MaxEtMoritz/iitc-glympse)* |
+*[Issue tracker](https://github.com/MaxEtMoritz/iitc-glympse/issues)* |
+*Version:* 0.0.1
+
+
+  
 ### [imageOverlay](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/imageOverlay.user.js) by DanielOnDiordna
 
 
@@ -893,6 +907,20 @@ Advanced version of Player Tracker
 [danielondiordna-0.0.1.20210724.002500] Display the Console log in a window, captures console.log and console.warn. Execute Javascript commands with the eval field, results are displayed with JSON.stringify formatting
 
 *Version:* 0.0.1.20210724.002500
+
+
+  
+### [Copy PokeNav Command](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/MaxEtMoritz/PNavCopy.user.js) by MaxEtMoritz
+
+
+
+
+
+Copy portal info to clipboard or send it to Discord in the format the PokeNav Discord bot needs.
+
+*[Homepage](https://github.com/MaxEtMoritz/PNavCopy)* |
+*[Issue tracker](https://github.com/MaxEtMoritz/PNavCopy/issues)* |
+*Version:* 1.7.6
 
 
   

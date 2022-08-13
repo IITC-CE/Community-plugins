@@ -13,6 +13,8 @@
 // @updateURL       https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/MaxEtMoritz/PNavCopy.meta.js
 // @issueTracker    https://github.com/MaxEtMoritz/PNavCopy/issues
 // @homepageURL     https://github.com/MaxEtMoritz/PNavCopy
+// @antiFeatures    export
+// @recommends      s2check@Alfonso_M
 // ==/UserScript==
 
 

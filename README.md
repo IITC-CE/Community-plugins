@@ -938,7 +938,7 @@ Advanced version of Player Tracker
   
 ### [Copy PokeNav Command](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/MaxEtMoritz/PNavCopy.user.js) by MaxEtMoritz
 
-
+**Anti-features:** **[export]()** 
 
 
 

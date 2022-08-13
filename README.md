@@ -545,6 +545,32 @@ Exports portals to a CSV list
 
 ## Layer
   
+### [Alfonso_M](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Alfonso_M/s2check.user.js) by Alfonso M.
+
+
+
+
+
+Pokemon Go tools over IITC. News on https://twitter.com/PogoCells
+
+*[Homepage](https://gitlab.com/AlfonsoML/pogo-s2/)* |
+*Version:* 0.100
+
+
+  
+### [Alfonso_M](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Alfonso_M/wayfarer-planner.user.js)
+
+
+
+
+
+Place markers on the map for your candidates in Wayfarer.
+
+*[Homepage](https://gitlab.com/AlfonsoML/wayfarer/)* |
+*Version:* 1.162
+
+
+  
 ### [Cells areas at portal level](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/cells.user.js) by DanielOnDiordna
 
 

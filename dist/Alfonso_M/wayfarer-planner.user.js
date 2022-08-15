@@ -1,6 +1,6 @@
 // ==UserScript==
 // @id             wayfarer-planner@Alfonso_M
-// @name           Alfonso_M
+// @name           Wayfarer Planner
 // @category       Layer
 // @version        1.162
 // @namespace      https://gitlab.com/AlfonsoML/wayfarer/
@@ -10,6 +10,7 @@
 // @match          https://intel.ingress.com/*
 // @grant          none
 // @updateURL      https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Alfonso_M/wayfarer-planner.meta.js
+// @author         Alfonso_M
 // ==/UserScript==
 
 /* forked from https://github.com/Wintervorst/iitc/raw/master/plugins/totalrecon/ */

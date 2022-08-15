@@ -545,32 +545,6 @@ Exports portals to a CSV list
 
 ## Layer
   
-### [Alfonso_M](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Alfonso_M/s2check.user.js) by Alfonso M.
-
-
-
-
-
-Pokemon Go tools over IITC. News on https://twitter.com/PogoCells
-
-*[Homepage](https://gitlab.com/AlfonsoML/pogo-s2/)* |
-*Version:* 0.100
-
-
-  
-### [Alfonso_M](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Alfonso_M/wayfarer-planner.user.js)
-
-
-
-
-
-Place markers on the map for your candidates in Wayfarer.
-
-*[Homepage](https://gitlab.com/AlfonsoML/wayfarer/)* |
-*Version:* 1.162
-
-
-  
 ### [Cells areas at portal level](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/cells.user.js) by DanielOnDiordna
 
 
@@ -695,6 +669,19 @@ Add one or more player markers and his ranges (hack/deploy range and xmp ranges)
 
 
   
+### [Pogo Tools](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Alfonso_M/s2check.user.js) by Alfonso_M
+
+
+
+
+
+Pokemon Go tools over IITC. News on https://twitter.com/PogoCells
+
+*[Homepage](https://gitlab.com/AlfonsoML/pogo-s2/)* |
+*Version:* 0.100
+
+
+  
 ### [Portal Hack Range](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Zaso/portal-hack-range.user.js) by Zaso
 
 
@@ -802,6 +789,19 @@ Display heatmap of all portals that the player did NOT visit/capture.
 *[Homepage](https://github.com/xificurk/iitc-plugins)* |
 *[Issue tracker](https://github.com/xificurk/iitc-plugins/issues)* |
 *Version:* 0.2.1.20210207.174711
+
+
+  
+### [Wayfarer Planner](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Alfonso_M/wayfarer-planner.user.js) by Alfonso_M
+
+
+
+
+
+Place markers on the map for your candidates in Wayfarer.
+
+*[Homepage](https://gitlab.com/AlfonsoML/wayfarer/)* |
+*Version:* 1.162
 
 
   

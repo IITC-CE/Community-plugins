@@ -1008,6 +1008,7 @@ Advanced version of Player Tracker
 
 Copy portal info to clipboard or send it to Discord in the format the PokeNav Discord bot needs.
 
+*Recommends*: [s2check@Alfonso_M](#pogo-tools-by-alfonsom)  |
 *[Homepage](https://github.com/MaxEtMoritz/PNavCopy)* |
 *[Issue tracker](https://github.com/MaxEtMoritz/PNavCopy/issues)* |
 *Version:* 1.7.6

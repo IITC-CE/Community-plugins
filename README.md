@@ -694,6 +694,20 @@ Add a circle around the portals to show the range where you can hack the portal.
 
 
   
+### [Portal History Flags](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/EisFrei/portalHistoryFlags.user.js) by EisFrei
+
+
+
+
+
+Shows Visited/Captured/Scouted status above portal markers
+
+*[Homepage](https://github.com/EisFrei/IngressPortalHistoryFlags)* |
+*[Issue tracker](https://github.com/EisFrei/IngressPortalHistoryFlags/issues)* |
+*Version:* 0.0.10
+
+
+  
 ### [Portal submitrange](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/wintervorst/submitrange.user.js) by Wintervorst
 
 

@@ -292,6 +292,54 @@ Import KML/GPX/Geojson/TCX into DrawTools
 
 ## Highlighter
   
+### [Hide portals that aren&#39;t fully deployed.](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Perringaiden/wolf-deployed-highlighter.user.js) by Perringaiden
+
+
+
+
+
+Hides any portal that doesn&#39;t have 8 resonators.
+
+*Version:* 0.2
+
+
+  
+### [Hide portals that aren&#39;t fully deployed.](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Perringaiden/wolf-fielded-link-radius.user.js) by Perringaiden
+
+
+
+
+
+Hides any portal that doesn&#39;t have 8 resonators.
+
+*Version:* 0.2
+
+
+  
+### [Hide portals that aren&#39;t linked or fielded.](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Perringaiden/wolf-linked-highlighter.user.js) by Perringaiden
+
+
+
+
+
+Hides any portal that doesn&#39;t have a link or field from it.
+
+*Version:* 0.1
+
+
+  
+### [Highlight field anchors that need recharging](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Perringaiden/wolf-recharge.user.js) by Perringaiden
+
+
+
+
+
+Use the portal fill color to denote if the portal needs recharging and how much. Yellow: above 85%. Orange: above 50%. Red: above 15%. Magenta: below 15%.
+
+*Version:* 0.3
+
+
+  
 ### [Highlight Resonator Owners](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/highlight-resonator-owners.user.js) by DanielOnDiordna
 
 
@@ -1060,6 +1108,18 @@ Storage favorite logs.
 [danielondiordna-1.0.0.20211027.195200] Add some improvements for IITC mobile, such as a close button for the portal details/info screen, a full screen button.
 
 *Version:* 1.0.0.20211027.195200
+
+
+  
+### [Non Captured/Visited/Scout Highlighters](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Perringaiden/wolf-uncaptured.user.js) by Perringaiden
+
+
+
+
+
+
+
+*Version:* 0.7
 
 
   

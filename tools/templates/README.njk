@@ -36,6 +36,8 @@ See the [Contributing](CONTRIBUTING.md) documentation.
 
 {% if plugin._depends_links -%}
     *Depends*: {% for depend_id, depend_link in plugin._depends_links %}[{{ depend_id }}]({{ depend_link }}) {% endfor %} |
+{% endif %}{% if plugin._recommends_links -%}
+   *Recommends*: {% for recommend_id, recommend_link in plugin._recommends_links %}[{{ recommend_id }}]({{ recommend_link }}) {% endfor %} |
 {% endif %}{% if plugin.tags -%}
     *Tags*: {{ plugin.tags|join(",") }} |
 {% endif %}{% if plugin.homepageURL -%}

@@ -27,7 +27,6 @@ jobs:
         run: npm install
         working-directory: ./tools
 
-      # GitHub Actions is unable to process multiline comments, this sanitization helps with the problem as described here: https://trstringer.com/github-actions-multiline-strings/
       - name: Check PR
         id: run-check-pr
         run: |

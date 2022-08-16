@@ -219,3 +219,17 @@ export const check_duplicate_plugins = () => {
         urls.push(metadata.downloadURL);
     }
 };
+
+export const get_stat_counters = (cat) => {
+    let count_plugins = 0;
+    let authors = [];
+    for (const [, plugins] of Object.entries(cat)) {
+        count_plugins += plugins.length;
+        for (const plugin of plugins) {
+            if (plugin.author !== undefined && !authors.includes(plugin.author)) {
+                authors.push(plugin.author);
+            }
+        }
+    }
+    return {count_plugins: count_plugins, count_authors: authors.length};
+};

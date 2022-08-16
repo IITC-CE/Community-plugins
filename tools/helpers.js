@@ -171,7 +171,7 @@ const dist_plugin_relative_link = (name, author) => {
         link += ' by ' + author;
     }
     link = link.toLowerCase();
-    link = link.replace(/[^A-Za-z\d -]/g, '');
+    link = link.replace(/[^A-Za-z\d -_]/g, '');
     link = link.replace(/ /g, '-');
     link = '#'+link;
     return link;

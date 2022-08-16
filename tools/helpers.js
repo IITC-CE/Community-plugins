@@ -130,7 +130,7 @@ export const update_plugin = async (metadata, author, filename) => {
     if (meta.skipMatchCheck) {delete meta.skipMatchCheck;}
     if (meta.name === undefined) throw new Error(`name is missing in ${filename}`);
     meta.id = filename.replace(/\.yml$/, '')+'@'+author;
-    for (const mergeKey of ['antiFeatures', 'tags', 'depends']) {
+    for (const mergeKey of ['antiFeatures', 'tags', 'depends', 'recommends']) {
         if (typeof meta[mergeKey] === 'object') {
             meta[mergeKey] = meta[mergeKey].join('|');
         }
@@ -184,7 +184,7 @@ export const get_dist_plugins = () => {
     for (const [filepath, ,] of files) {
         const metajs = fs.readFileSync(filepath, 'utf8');
         const meta = parseMeta(metajs);
-        for (const mergeKey of ['antiFeatures', 'tags', 'depends']) {
+        for (const mergeKey of ['antiFeatures', 'tags', 'depends', 'recommends']) {
             if (meta[mergeKey] !== undefined) {
                 meta[mergeKey] = meta[mergeKey].split('|');
             }
@@ -201,6 +201,16 @@ export const get_dist_plugins = () => {
                     plugin._depends_links.push([depend, '#']);
                 } else {
                     plugin._depends_links.push([depend, id_link_map[depend]]);
+                }
+            }
+        }
+        if (plugin['recommends'] !== undefined) {
+            plugin._recommends_links = [];
+            for (const recommend of plugin['recommends']) {
+                if (id_link_map[recommend] === undefined) {
+                    plugin._recommends_links.push([recommend, '#']);
+                } else {
+                    plugin._recommends_links.push([recommend, id_link_map[recommend]]);
                 }
             }
         }

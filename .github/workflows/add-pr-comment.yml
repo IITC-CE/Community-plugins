@@ -1,0 +1,47 @@
+name: Add comment to PR
+
+on:
+  workflow_run:
+    workflows: ["Check PR"]
+    types:
+      - completed
+
+jobs:
+  upload:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    steps:
+      - name: 'Download artifact'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            let allArtifacts = await github.rest.actions.listWorkflowRunArtifacts({
+               owner: context.repo.owner,
+               repo: context.repo.repo,
+               run_id: context.payload.workflow_run.id,
+            });
+            let matchArtifact = allArtifacts.data.artifacts.filter((artifact) => {
+              return artifact.name == "changes"
+            })[0];
+            let download = await github.rest.actions.downloadArtifact({
+               owner: context.repo.owner,
+               repo: context.repo.repo,
+               artifact_id: matchArtifact.id,
+               archive_format: 'zip',
+            });
+            let fs = require('fs');
+            fs.writeFileSync(`${process.env.GITHUB_WORKSPACE}/changes.zip`, Buffer.from(download.data));
+
+      - name: 'Unzip artifact'
+        run: unzip changes.zip
+
+      - name: Set env
+        run: |
+          echo "PR_NUMBER=$(cat ./pr_number)" >> "$GITHUB_ENV"
+
+      - name: Create comment
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          header: pr_release
+          number: ${{ env.PR_NUMBER }}
+          path: ./check_pr_output

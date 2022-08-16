@@ -5,7 +5,13 @@ import {ajaxGet, check_meta_match_pattern, parseMeta} from 'lib-iitc-manager';
 
 const METABLOCK_RE_HEADER = /==UserScript==\s*([\s\S]*)\/\/\s*==\/UserScript==/m;
 const fileExists = async path => !!(await fs.promises.stat(path).catch(() => false));
-const orderedDict = (unordered) => Object.keys(unordered).sort().reduce(
+const metaKeysAtBottom = ['include', 'match', 'grant'];
+const sortMeta = (a, b) => {
+    if (metaKeysAtBottom.includes(a)) return 1;
+    if (metaKeysAtBottom.includes(b)) return -1;
+    return 0;
+};
+const orderedDict = (unordered, sort_fn) => Object.keys(unordered).sort(sort_fn).reduce(
     (obj, key) => {
         obj[key] = unordered[key];
         return obj;
@@ -105,7 +111,7 @@ const prepare_meta_js = (meta) => {
     const key_padding = max_key_length + 4;
 
     let meta_js = '// ==UserScript==\n';
-    for (let [key, values] of Object.entries(meta)) {
+    for (let [key, values] of Object.entries(orderedDict(meta, sortMeta))) {
         if (typeof values !== 'object') {
             values = [values];
         }
@@ -125,7 +131,7 @@ export const update_plugin = async (metadata, author, filename) => {
     const source_meta = parseMeta(source_plugin_js);
     if (source_meta === null) throw new Error(`${metadata.downloadURL} is not a valid metadata file`);
 
-    const meta = {...source_meta, ...metadata, ...replace_update_url(author, filename)};
+    const meta = {...{author}, ...source_meta, ...metadata, ...replace_update_url(author, filename)};
     if (meta.skipMatchCheck !== true && !check_meta_match_pattern(meta)) throw new Error(`Not a valid match pattern in ${meta.match} and ${meta.include}`);
     if (meta.skipMatchCheck) {delete meta.skipMatchCheck;}
     if (meta.name === undefined) throw new Error(`name is missing in ${filename}`);

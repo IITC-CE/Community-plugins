@@ -2,7 +2,7 @@
 
 A collection of amazing plugins made by community.
 
-There are now 112 plugins from 30 authors in the collection.
+There are now 112 plugins from 31 authors in the collection.
 
 > Note: You must install IITC-CE on your [desktop](https://iitc.app/download_desktop.html)
 or [mobile device](https://iitc.app/download_desktop.html) to use IITC plugins.
@@ -354,7 +354,7 @@ Use the portal fill color to denote if the portal needs recharging and how much.
 
 
   
-### [Highlight unique visits/captures using opacity](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/xificurk/portal-highlighter-uniques-opacity.user.js)
+### [Highlight unique visits/captures using opacity](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/xificurk/portal-highlighter-uniques-opacity.user.js) by xificurk
 
 
 
@@ -842,7 +842,7 @@ Shows under field throw range at 500m
 
 
   
-### [Unique visits/captures heatmap](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/xificurk/uniques-heatmap.user.js)
+### [Unique visits/captures heatmap](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/xificurk/uniques-heatmap.user.js) by xificurk
 
 
 
@@ -935,7 +935,7 @@ GL layer
 
 
   
-### [Seznam map tiles](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/xificurk/basemap-seznam.user.js)
+### [Seznam map tiles](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/xificurk/basemap-seznam.user.js) by xificurk
 
 
 
@@ -1150,7 +1150,7 @@ Export portals from bookmarks, current view or polygon
 
 
   
-### [show uniques visit/captures based on GDPR game_log](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/xificurk/uniques-gdpr.user.js)
+### [show uniques visit/captures based on GDPR game_log](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/xificurk/uniques-gdpr.user.js) by xificurk
 
 
 

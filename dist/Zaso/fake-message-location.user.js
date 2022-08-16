@@ -7,9 +7,9 @@
 // @id             fake-message-location@Zaso
 // @namespace      https://github.com/IITC-CE/ingress-intel-total-conversion
 // @downloadURL    https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Zaso/fake-message-location.user.js
+// @updateURL      https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Zaso/fake-message-location.meta.js
 // @match          https://intel.ingress.com/*
 // @grant          none
-// @updateURL      https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Zaso/fake-message-location.meta.js
 // ==/UserScript==
 
 

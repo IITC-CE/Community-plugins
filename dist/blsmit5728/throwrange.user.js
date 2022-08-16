@@ -1,7 +1,7 @@
 // ==UserScript==
+// @author         blsmit5728
 // @id             throwrange@blsmit5728
 // @name           Under-Field Throw Range
-// @author         blsmit5728
 // @category       Layer
 // @version        1.1.2
 // @downloadURL    https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/blsmit5728/throwrange.user.js

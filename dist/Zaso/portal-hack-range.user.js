@@ -7,9 +7,9 @@
 // @id             portal-hack-range@Zaso
 // @namespace      https://github.com/IITC-CE/ingress-intel-total-conversion
 // @downloadURL    https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Zaso/portal-hack-range.user.js
+// @updateURL      https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Zaso/portal-hack-range.meta.js
 // @match          https://intel.ingress.com/*
 // @grant          none
-// @updateURL      https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Zaso/portal-hack-range.meta.js
 // ==/UserScript==
 
 

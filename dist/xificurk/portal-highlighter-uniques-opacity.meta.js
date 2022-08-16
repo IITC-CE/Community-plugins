@@ -1,4 +1,5 @@
 // ==UserScript==
+// @author          xificurk
 // @id              portal-highlighter-uniques-opacity@xificurk
 // @name            Highlight unique visits/captures using opacity
 // @category        Highlighter
@@ -7,6 +8,9 @@
 // @updateURL       https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/xificurk/portal-highlighter-uniques-opacity.meta.js
 // @downloadURL     https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/xificurk/portal-highlighter-uniques-opacity.user.js
 // @description     [xificurk-2021-02-07-174711] Use stroke and fill opacity to denote player's unique visits and captures. Requires uniques plugin.
+// @issueTracker    https://github.com/xificurk/iitc-plugins/issues
+// @homepageURL     https://github.com/xificurk/iitc-plugins
+// @preview         https://raw.githubusercontent.com/xificurk/iitc-plugins/master/images/portal-highlighter-uniques-opacity.png
 // @include         https://intel.ingress.com/*
 // @include         http://intel.ingress.com/*
 // @include         https://*.ingress.com/intel*
@@ -20,7 +24,4 @@
 // @match           https://*.ingress.com/mission/*
 // @match           http://*.ingress.com/mission/*
 // @grant           none
-// @issueTracker    https://github.com/xificurk/iitc-plugins/issues
-// @homepageURL     https://github.com/xificurk/iitc-plugins
-// @preview         https://raw.githubusercontent.com/xificurk/iitc-plugins/master/images/portal-highlighter-uniques-opacity.png
 // ==/UserScript==

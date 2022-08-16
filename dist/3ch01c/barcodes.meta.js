@@ -1,4 +1,5 @@
 // ==UserScript==
+// @author         3ch01c
 // @id             barcodes@3ch01c
 // @name           Replace player names with more easily remembered names
 // @category       Portal Info
@@ -16,5 +17,4 @@
 // @match          https://*.ingress.com/mission/*
 // @match          http://*.ingress.com/mission/*
 // @grant          none
-// @author         3ch01c
 // ==/UserScript==

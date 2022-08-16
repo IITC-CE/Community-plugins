@@ -1,4 +1,5 @@
 // ==UserScript==
+// @author         modkin
 // @id             multi_export@modkin
 // @name           Portal Multi Export
 // @category       Misc
@@ -10,7 +11,6 @@
 // @include        http*://*intel.ingress.com/*
 // @match          https://intel.ingress.com/*
 // @grant          none
-// @author         modkin
 // ==/UserScript==
 
 

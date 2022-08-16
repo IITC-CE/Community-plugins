@@ -1,4 +1,5 @@
 // ==UserScript==
+// @author         Perringaiden
 // @id             wolf-uncaptured@Perringaiden
 // @name           Non Captured/Visited/Scout Highlighters
 // @category       Misc
@@ -8,5 +9,4 @@
 // @include        *://*.ingress.com/*
 // @match          *://*.ingress.com/*
 // @grant          none
-// @author         Perringaiden
 // ==/UserScript==

@@ -1,4 +1,5 @@
 // ==UserScript==
+// @author         mrDinckleman
 // @id             aurora@mrDinckleman
 // @name           Aurora Glyph Hack Challenge
 // @category       Misc
@@ -10,5 +11,4 @@
 // @include        https://intel.ingress.com/*
 // @match          https://intel.ingress.com/*
 // @grant          none
-// @author         mrDinckleman
 // ==/UserScript==

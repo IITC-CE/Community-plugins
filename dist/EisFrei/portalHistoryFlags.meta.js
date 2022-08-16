@@ -1,4 +1,5 @@
 // ==UserScript==
+// @author          EisFrei
 // @id              portalHistoryFlags@EisFrei
 // @name            Portal History Flags
 // @category        Layer
@@ -8,9 +9,8 @@
 // @updateURL       https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/EisFrei/portalHistoryFlags.meta.js
 // @homepageURL     https://github.com/EisFrei/IngressPortalHistoryFlags
 // @description     Shows Visited/Captured/Scouted status above portal markers
-// @author          EisFrei
+// @issueTracker    https://github.com/EisFrei/IngressPortalHistoryFlags/issues
 // @include         https://intel.ingress.com/*
 // @match           https://intel.ingress.com/*
 // @grant           none
-// @issueTracker    https://github.com/EisFrei/IngressPortalHistoryFlags/issues
 // ==/UserScript==

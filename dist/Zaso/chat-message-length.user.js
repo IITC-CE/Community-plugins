@@ -7,9 +7,9 @@
 // @id             chat-message-length@Zaso
 // @namespace      https://github.com/IITC-CE/ingress-intel-total-conversion
 // @downloadURL    https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Zaso/chat-message-length.user.js
+// @updateURL      https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Zaso/chat-message-length.meta.js
 // @match          https://intel.ingress.com/*
 // @grant          none
-// @updateURL      https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Zaso/chat-message-length.meta.js
 // ==/UserScript==
 
 

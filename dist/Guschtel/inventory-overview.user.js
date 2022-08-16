@@ -1,7 +1,7 @@
 // ==UserScript==
+// @author         Guschtel
 // @id             inventory-overview@Guschtel
 // @name           Ingress Inventory Overview (based on Ingress Live Inventory from Freamstern)
-// @author         Guschtel
 // @category       Utilities
 // @version        0.0.7
 // @downloadURL    https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Guschtel/inventory-overview.user.js

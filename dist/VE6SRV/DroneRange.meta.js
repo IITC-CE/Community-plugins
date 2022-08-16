@@ -1,4 +1,5 @@
 // ==UserScript==
+// @author         VE6SRV
 // @id             DroneRange@VE6SRV
 // @name           dronerange
 // @category       Layer
@@ -8,7 +9,6 @@
 // @downloadURL    https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/VE6SRV/DroneRange.user.js
 // @homepageURL    https://gitbub.com/VE6SRV/iitc-plugins
 // @description    Shows drone flight distance between portals
-// @author         VE6SRV
 // @include        https://*.ingress.com/intel*
 // @include        http://*.ingress.com/intel*
 // @include        https://*.ingress.com/mission/*

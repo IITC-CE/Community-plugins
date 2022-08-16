@@ -7,9 +7,9 @@
 // @id             bring-portals-to-front@Zaso
 // @namespace      https://github.com/IITC-CE/ingress-intel-total-conversion
 // @downloadURL    https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Zaso/bring-portals-to-front.user.js
+// @updateURL      https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Zaso/bring-portals-to-front.meta.js
 // @match          https://intel.ingress.com/*
 // @grant          none
-// @updateURL      https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Zaso/bring-portals-to-front.meta.js
 // ==/UserScript==
 
 

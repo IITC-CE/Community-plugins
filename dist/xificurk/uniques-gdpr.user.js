@@ -1,4 +1,5 @@
 // ==UserScript==
+// @author          xificurk
 // @id              uniques-gdpr@xificurk
 // @name            show uniques visit/captures based on GDPR game_log
 // @category        Misc
@@ -7,6 +8,8 @@
 // @updateURL       https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/xificurk/uniques-gdpr.meta.js
 // @downloadURL     https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/xificurk/uniques-gdpr.user.js
 // @description     [xificurk-2020-11-22-121942] Show uniques visit/captures based on GDPR game_log
+// @issueTracker    https://github.com/xificurk/iitc-plugins/issues
+// @homepageURL     https://github.com/xificurk/iitc-plugins
 // @include         https://intel.ingress.com/*
 // @include         http://intel.ingress.com/*
 // @include         https://*.ingress.com/intel*
@@ -20,8 +23,6 @@
 // @match           https://*.ingress.com/mission/*
 // @match           http://*.ingress.com/mission/*
 // @grant           none
-// @issueTracker    https://github.com/xificurk/iitc-plugins/issues
-// @homepageURL     https://github.com/xificurk/iitc-plugins
 // ==/UserScript==
 
 

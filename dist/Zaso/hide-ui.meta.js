@@ -7,7 +7,7 @@
 // @id             hide-ui@Zaso
 // @namespace      https://github.com/IITC-CE/ingress-intel-total-conversion
 // @downloadURL    https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Zaso/hide-ui.user.js
+// @updateURL      https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Zaso/hide-ui.meta.js
 // @match          https://intel.ingress.com/*
 // @grant          none
-// @updateURL      https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Zaso/hide-ui.meta.js
 // ==/UserScript==

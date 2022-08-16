@@ -1,4 +1,5 @@
 // ==UserScript==
+// @author         mrDinckleman
 // @id             umbra@mrDinckleman
 // @name           Umbra Deploy Challenge
 // @category       Misc
@@ -10,7 +11,6 @@
 // @include        https://intel.ingress.com/*
 // @match          https://intel.ingress.com/*
 // @grant          none
-// @author         mrDinckleman
 // ==/UserScript==
 
 

@@ -1,4 +1,5 @@
 // ==UserScript==
+// @author         Zetaphor
 // @id             ingress_export@zetaphor
 // @name           Ingress Portal CSV Export
 // @category       Information
@@ -14,7 +15,6 @@
 // @match          https://intel.ingress.com/*
 // @match          http://intel.ingress.com/*
 // @grant          none
-// @author         Zetaphor
 // ==/UserScript==
 
 /*global $:false */

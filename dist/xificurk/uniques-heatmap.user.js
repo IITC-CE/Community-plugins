@@ -1,4 +1,5 @@
 // ==UserScript==
+// @author          xificurk
 // @id              uniques-heatmap@xificurk
 // @name            Unique visits/captures heatmap
 // @category        Layer
@@ -7,6 +8,9 @@
 // @updateURL       https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/xificurk/uniques-heatmap.meta.js
 // @downloadURL     https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/xificurk/uniques-heatmap.user.js
 // @description     Display heatmap of all portals that the player did NOT visit/capture.
+// @issueTracker    https://github.com/xificurk/iitc-plugins/issues
+// @homepageURL     https://github.com/xificurk/iitc-plugins
+// @preview         https://raw.githubusercontent.com/xificurk/iitc-plugins/master/images/uniques-heatmap-explorer.png
 // @include         https://intel.ingress.com/*
 // @include         http://intel.ingress.com/*
 // @include         https://*.ingress.com/intel*
@@ -20,9 +24,6 @@
 // @match           https://*.ingress.com/mission/*
 // @match           http://*.ingress.com/mission/*
 // @grant           none
-// @issueTracker    https://github.com/xificurk/iitc-plugins/issues
-// @homepageURL     https://github.com/xificurk/iitc-plugins
-// @preview         https://raw.githubusercontent.com/xificurk/iitc-plugins/master/images/uniques-heatmap-explorer.png
 // ==/UserScript==
 
 

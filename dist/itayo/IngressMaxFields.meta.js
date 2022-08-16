@@ -1,4 +1,5 @@
 // ==UserScript==
+// @author         itayo
 // @id             IngressMaxFields@itayo
 // @name           Ingress Maxfields
 // @category       Information
@@ -10,5 +11,4 @@
 // @include        https://intel.ingress.com/*
 // @match          https://intel.ingress.com/*
 // @grant          none
-// @author         itayo
 // ==/UserScript==

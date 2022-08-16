@@ -1,4 +1,5 @@
 // ==UserScript==
+// @author         Wintervorst
 // @id             submitrange@wintervorst
 // @name           Portal submitrange
 // @category       Layer
@@ -14,5 +15,4 @@
 // @include        https://*.ingress.com/mission/*
 // @include        http://*.ingress.com/mission/*
 // @grant          none
-// @author         Wintervorst
 // ==/UserScript==

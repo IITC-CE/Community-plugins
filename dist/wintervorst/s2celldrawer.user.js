@@ -1,4 +1,5 @@
 // ==UserScript==
+// @author         Wintervorst
 // @id             s2celldrawer@wintervorst
 // @name           S2 Cell Drawer
 // @category       Layer
@@ -16,7 +17,6 @@
 // @match          https://*.ingress.com/mission/*
 // @match          http://*.ingress.com/mission/*
 // @grant          none
-// @author         Wintervorst
 // ==/UserScript==
 
 

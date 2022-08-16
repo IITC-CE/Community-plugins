@@ -1,4 +1,5 @@
 // ==UserScript==
+// @author         Jormund
 // @id             poly-counts2@Jormund
 // @name           Poly Counts 2
 // @category       Info
@@ -16,7 +17,6 @@
 // @match          https://*.ingress.com/intel*
 // @match          http://*.ingress.com/intel*
 // @grant          none
-// @author         Jormund
 // ==/UserScript==
 
 //improvements on carb.poly-counts.user.js

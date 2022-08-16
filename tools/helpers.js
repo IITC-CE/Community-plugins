@@ -125,7 +125,7 @@ export const update_plugin = async (metadata, author, filename) => {
     const source_meta = parseMeta(source_plugin_js);
     if (source_meta === null) throw new Error(`${metadata.downloadURL} is not a valid metadata file`);
 
-    const meta = {...source_meta, ...metadata, ...replace_update_url(author, filename)};
+    const meta = {...{author}, ...source_meta, ...metadata, ...replace_update_url(author, filename)};
     if (meta.skipMatchCheck !== true && !check_meta_match_pattern(meta)) throw new Error(`Not a valid match pattern in ${meta.match} and ${meta.include}`);
     if (meta.skipMatchCheck) {delete meta.skipMatchCheck;}
     if (meta.name === undefined) throw new Error(`name is missing in ${filename}`);

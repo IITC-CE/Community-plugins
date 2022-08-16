@@ -2,6 +2,8 @@ name: Check PR
 
 on:
   pull_request:
+    paths-ignore:
+      - '!.github/**'
     types:
       - opened
       - synchronize
@@ -29,16 +31,13 @@ jobs:
       - name: Check PR
         id: run-check-pr
         run: |
-          RESULTS=$(npm run check-pr 2>&1)
-          RESULTS="${RESULTS//'%'/'%25'}"
-          RESULTS="${RESULTS//$'\n'/'%0A'}"
-          RESULTS="${RESULTS//$'\r'/'%0D'}"
-          echo "::set-output name=PR_COMMENT::$RESULTS"
+          npm run check-pr
+          echo ${{ github.event.number }} > ../pr_number
         working-directory: ./tools
 
-      # The output is inserted as a multiline code block into the body of pull request comment
-      - uses: mshick/add-pr-comment@v1
+      - uses: actions/upload-artifact@v2
         with:
-          message: ${{ steps.run-check-pr.outputs.PR_COMMENT }}
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-          repo-token-user-login: 'github-actions[bot]'
+          name: changes
+          path: |
+            check_pr_output
+            pr_number

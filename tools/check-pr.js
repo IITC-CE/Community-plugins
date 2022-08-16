@@ -30,4 +30,5 @@ proc.on('exit', async () => {
     }
 
     console.log(message);
+    fs.writeFileSync('../check_pr_output', message);
 });

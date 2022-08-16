@@ -2,6 +2,8 @@
 
 A collection of amazing plugins made by community.
 
+There are now 112 plugins from 30 authors in the collection.
+
 > Note: You must install IITC-CE on your [desktop](https://iitc.app/download_desktop.html)
 or [mobile device](https://iitc.app/download_desktop.html) to use IITC plugins.
 

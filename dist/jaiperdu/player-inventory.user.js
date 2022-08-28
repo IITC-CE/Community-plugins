@@ -1,8 +1,9 @@
+// 
 // ==UserScript==
 // @author         jaiperdu
 // @name           Player Inventory
 // @category       Info
-// @version        0.3.3
+// @version        0.3.4
 // @description    View inventory and highlight portals with keys at any zoom. Can be used with the official plugins Keys and Keys on map to show the number of keys on the map.
 // @id             player-inventory@jaiperdu
 // @namespace      https://github.com/IITC-CE/ingress-intel-total-conversion
@@ -12,17 +13,15 @@
 // @grant          none
 // ==/UserScript==
 
-
 function wrapper(plugin_info) {
+
 // ensure plugin framework is there, even if iitc is not yet loaded
 if(typeof window.plugin !== 'function') window.plugin = function() {};
 
-//PLUGIN AUTHORS: writing a plugin outside of the IITC build environment? if so, delete these lines!!
-//(leaving them in place might break the 'About IITC' page or break update checks)
-plugin_info.buildName = 'lejeu';
-plugin_info.dateTimeVersion = '2022-06-30-074250';
-plugin_info.pluginId = 'player-inventory';
-//END PLUGIN AUTHORS NOTE
+var css_248z = ".inventory-box .container {\n\twidth: max-content;\n}\n\n.inventory-box .ui-accordion-header {\n\tcolor: #ffce00;\n  background: rgba(0, 0, 0, 0.7);\n}\n\n.inventory-box .ui-accordion-header, .inventory-box .ui-accordion-content {\n\tborder: 1px solid rgba(255,255,255,.2);\n\tmargin-top: -1px;\n\tdisplay: block;\n  line-height: 1.4rem;\n}\n\n.inventory-box .ui-accordion-header:before {\n\tfont-size: 18px;\n\tmargin-right: 2px;\n\tcontent: \"⊞\";\n}\n\n.inventory-box .ui-accordion-header-active:before {\n\tcontent: \"⊟\";\n}\n\n.inventory-box table {\n\twidth: 100%;\n}\n\n.inventory-box table tr {\n  background: rgba(0, 0, 0, 0.6);\n}\n\n.inventory-box table tr:nth-child(2n + 1) {\n  background: rgba(0, 0, 0, 0.3);\n}\n\n.inventory-box tr td:first-child {\n  text-align: right;\n}\n\n.inventory-box .sum tr td:first-child {\n  text-align: left;\n  white-space: nowrap;\n  width: max-content;\n}\n\n.inventory-box tr td:nth-child(2) {\n  text-align: center;\n}\n\n.inventory-box tr td:last-child {\n  text-align: left;\n}\n\n.inventory-box tr td:last-child span:not(:last-child)::after {\n  content: ', ';\n}\n\n.inventory-box .all tr td:first-child,\n.inventory-box .keys tr td:first-child,\n.inventory-box .medias tr td:first-child,\n.inventory-box .capsule tr td:first-child {\n  width: 2em;\n}\n\n.inventory-box td {\n\tpadding-left: .3rem;\n\tpadding-right: .3rem;\n}\n\n.inventory-box .sum tr td span {\n    white-space: nowrap;\n}\n\n#dialog-inventory.inventory-box {\n  padding-right: 16px;\n}\n\n.inventory-box.mobile {\n\tposition: absolute;\n\ttop: 0;\n\tleft: 0;\n\twidth: 100%;\n\theight: 100%;\n\toverflow: auto;\n\tpadding: 0;\n}\n.inventory-box.mobile .container {\n\twidth: unset;\n}\n\n.inventory-box.mobile button {\n\twidth: 100%;\n}\n\n.inventory-box .edit-name-icon {\n  margin-top: -18px;\n  position: absolute;\n  right: 20px;\n}\n\n.inventory-box .edit-name-input {\n  display: none;\n  width: 100%;\n}\n\n/* popup */\n.inventory-keys {\n  width: max-content;\n}\n\n#dialog-inventory-opt .container {\n  display: grid;\n  grid-template-columns: auto auto;\n  grid-gap: .5em\n}\n\n#dialog-inventory-opt button {\n  grid-column: 1/3;\n  padding: .3rem 1em;\n}\n\n#dialog-inventory-opt input {\n  margin-left: auto;\n  margin-top: auto;\n  margin-bottom: auto;\n}\n\n#dialog-inventory-names textarea.container {\n  width: 100%;\n  height: 100%;\n}\n\n#randdetails .inventory-details {\n  vertical-align: top;\n}\n";
+
+const playerInventory = {};
+window.plugin.playerInventory = playerInventory;
 
 // stock intel
 const itemTypes = {
@@ -80,36 +79,15 @@ const itemTypes = {
 // missing strings from stock intel
 itemTypes['PORTAL_POWERUP:BB_BATTLE_RARE'] = 'Rare Battle Beacon';
 
-const dontCount = [
-  "DRONE",
-];
+const dontCount = ['DRONE'];
 
 function defaultTypeString(s) {
   if (!(s in itemTypes)) itemTypes[s] = s;
 }
 
-const levelItemTypes = [
-  "EMITTER_A",
-  "EMP_BURSTER",
-  "POWER_CUBE",
-  "ULTRA_STRIKE",
-  "MEDIA",
-];
+const levelItemTypes = ['EMITTER_A', 'EMP_BURSTER', 'POWER_CUBE', 'ULTRA_STRIKE', 'MEDIA'];
 
-const rarity = [
-  "VERY_COMMON",
-  "COMMON",
-  "LESS_COMMON",
-  "RARE",
-  "VERY_RARE",
-  "EXTREMELY_RARE",
-];
-
-const rarityShort = rarity.map((v) => v.split('_').map((a) => a[0]).join(''));
-
-const rarityToInt = {}
-for (const i in rarity)
-  rarityToInt[rarity[i]] = i;
+const rarity = ['VERY_COMMON', 'COMMON', 'LESS_COMMON', 'RARE', 'VERY_RARE', 'EXTREMELY_RARE'];
 
 class Inventory {
   constructor(name) {
@@ -127,7 +105,7 @@ class Inventory {
       leveled: levelItemTypes.includes(type),
       counts: {},
       total: 0,
-    }
+    };
   }
 
   clear() {
@@ -143,8 +121,7 @@ class Inventory {
   }
 
   getItem(type) {
-    if (!(type in this.items))
-      this.clearItem(type);
+    if (!(type in this.items)) this.clearItem(type);
     return this.items[type];
   }
 
@@ -156,21 +133,18 @@ class Inventory {
       keys: {},
       medias: {},
       items: {},
-    }
+    };
     this.capsules[capsule.name] = data;
 
-    if (capsule.type === "KEY_CAPSULE")
-      this.keyLockersCount += capsule.size;
+    if (capsule.type === 'KEY_CAPSULE') this.keyLockersCount += capsule.size;
 
     this.addItem(capsule);
     for (const item of capsule.content) {
       this.addItem(item);
-      if (item.type === "PORTAL_LINK_KEY")
-        data.keys[item.guid] = item;
-      else if (item.type === "MEDIA")
-        data.medias[item.mediaId] = item;
+      if (item.type === 'PORTAL_LINK_KEY') data.keys[item.guid] = item;
+      else if (item.type === 'MEDIA') data.medias[item.mediaId] = item;
       else {
-        if (!data.items[item.type]) data.items[item.type] = {repr: item, leveled: levelItemTypes.includes(item.type), count:{}};
+        if (!data.items[item.type]) data.items[item.type] = { repr: item, leveled: levelItemTypes.includes(item.type), count: {}, type: item.type };
         data.items[item.type].count[item.rarity || item.level] = item.count;
       }
     }
@@ -187,12 +161,11 @@ class Inventory {
     count.total = (count.total || 0) + item.count;
     cat.total += item.count;
 
-    if (!dontCount.includes(item.type))
-      this.count += item.count;
+    if (!dontCount.includes(item.type)) this.count += item.count;
 
-    if (item.type === "PORTAL_LINK_KEY") {
+    if (item.type === 'PORTAL_LINK_KEY') {
       this.addKey(item);
-    } else if (item.type === "MEDIA") {
+    } else if (item.type === 'MEDIA') {
       this.addMedia(item);
     }
   }
@@ -217,7 +190,7 @@ class Inventory {
     const current = this.medias.get(media.mediaId);
     const entry = current.count.get(media.capsule) || 0;
     current.count.set(media.capsule, entry + (media.count || 1));
-    current.total += (media.count || 1);
+    current.total += media.count || 1;
   }
 
   countKey(guid) {
@@ -238,7 +211,7 @@ class Inventory {
     const current = this.keys.get(key.guid);
     const entry = current.count.get(key.capsule) || 0;
     current.count.set(key.capsule, entry + (key.count || 1));
-    current.total += (key.count || 1);
+    current.total += key.count || 1;
   }
 
   onHand() {
@@ -265,15 +238,16 @@ class Inventory {
     }
 
     for (const type in itemTypes) {
-      if (type === "PORTAL_LINK_KEY") continue;
+      if (type === 'PORTAL_LINK_KEY') continue;
       const item = this.getItem(type);
       for (const k in item.counts) {
         const count = item.counts[k][this.name];
         if (count) {
           if (!data.items[type])
             data.items[type] = {
+              type: type,
               leveled: levelItemTypes.includes(type),
-              count:{}
+              count: {},
             };
           data.items[type].count[k] = count;
           data.size += count;
@@ -285,7 +259,7 @@ class Inventory {
 }
 
 function parsePortalLocation(location) {
-  return location.split(',').map(a => (Number.parseInt(a,16)&(-1))*1e-6);
+  return location.split(',').map((a) => (Number.parseInt(a, 16) & -1) * 1e-6);
 }
 
 /*
@@ -316,7 +290,7 @@ function parseMod(mod) {
     type: mod.modResource.resourceType,
     name: mod.modResource.displayName,
     rarity: mod.modResource.rarity,
-  }
+  };
 }
 
 /*
@@ -350,19 +324,20 @@ function parseMedia(data, media) {
   return data;
 }
 
-// {
-//   "resourceWithLevels": {
-//     "resourceType": "EMITTER_A",
-//     "level": 7
-//   }
-// }
+/*
+  {
+    "resourceWithLevels": {
+      "resourceType": "EMITTER_A",
+      "level": 7
+    }
+  }
+*/
 function parseLevelItem(obj) {
   const data = {
     type: obj.resourceWithLevels.resourceType,
     level: obj.resourceWithLevels.level,
   };
-  if (obj.storyItem)
-    return parseMedia(data, obj);
+  if (obj.storyItem) return parseMedia(data, obj);
   return data;
 }
 
@@ -493,16 +468,11 @@ function parseResource(obj) {
     type: obj.resource.resourceType,
     rarity: obj.resource.resourceRarity,
   };
-  if (obj.flipCard)
-    return parseFlipCard(data, obj);
-  if (obj.container)
-    return parseContainer(data, obj);
-  if (obj.portalCoupler)
-    return parsePortalKey(data, obj);
-  if (obj.timedPowerupResource)
-    return parsePortalPowerUp(data, obj);
-  if (obj.playerPowerupResource)
-    return parsePlayerPowerUp(data, obj);
+  if (obj.flipCard) return parseFlipCard(data, obj);
+  if (obj.container) return parseContainer(data, obj);
+  if (obj.portalCoupler) return parsePortalKey(data, obj);
+  if (obj.timedPowerupResource) return parsePortalPowerUp(data, obj);
+  if (obj.playerPowerupResource) return parsePlayerPowerUp(data, obj);
   return data;
 }
 /*
@@ -511,13 +481,10 @@ function parseResource(obj) {
 ]
 */
 function parseItem(item) {
-  const [id, ts, obj] = item;
-  if (obj.resource)
-    return parseResource(obj);
-  if (obj.resourceWithLevels)
-    return parseLevelItem(obj);
-  if (obj.modResource)
-    return parseMod(obj);
+  const obj = item[2];
+  if (obj.resource) return parseResource(obj);
+  if (obj.resourceWithLevels) return parseLevelItem(obj);
+  if (obj.modResource) return parseMod(obj);
   // xxx: other types
 }
 
@@ -526,80 +493,75 @@ function parseInventory(name, data) {
   for (const entry of data) {
     const item = parseItem(entry);
     if (item) {
-      if (item.type.includes("CAPSULE"))
-        inventory.addCapsule(item);
-      else
-        inventory.addItem(item);
+      if (item.type.includes('CAPSULE')) inventory.addCapsule(item);
+      else inventory.addItem(item);
     }
   }
   return inventory;
 }
 
-const plugin = {};
-window.plugin.playerInventory = plugin;
-
-// again...
-function getPortalLink(key) {
-  const latLng = [key.latLng[0].toFixed(6), key.latLng[1].toFixed(6)];
-  const a = L.DomUtil.create('a');
-  a.textContent = key.title;
-  a.title = key.address;
-  a.href = window.makePermalink(latLng);
-  L.DomEvent.on(a, 'click', function(event) {
-    L.DomEvent.preventDefault(event);
-    window.renderPortalDetails(key.guid);
-    window.selectPortalByLatLng(latLng);
-  })
-  L.DomEvent.on(a, 'dblclick', function(event) {
-    L.DomEvent.preventDefault(event);
-    window.renderPortalDetails(key.guid);
-    window.zoomToAndShowPortal(key.guid, latLng);
-  });
-  return a;
-}
-
-function localeCompare(a,b) {
-  if (typeof a !== "string") a = '';
-  if (typeof b !== "string") b = '';
-  return a.localeCompare(b)
-}
-
-const STORE_KEY = "plugin-player-inventory";
-const SETTINGS_KEY = "plugin-player-inventory-settings";
+const STORE_KEY = 'plugin-player-inventory';
+const SETTINGS_KEY = 'plugin-player-inventory-settings';
 
 function openIndexedDB() {
-  const rq = window.indexedDB.open("player-inventory", 1);
-  rq.onupgradeneeded = function(event) {
+  const rq = window.indexedDB.open('player-inventory', 1);
+  rq.onupgradeneeded = function (event) {
     const db = event.target.result;
-    db.createObjectStore("inventory", { autoIncrement: true });
+    db.createObjectStore('inventory', { autoIncrement: true });
   };
   return rq;
 }
 
-function loadFromIndexedDB() {
-  if (!window.indexedDB) return loadFromLocalStorage();
+/**
+ *
+ * @returns {Promise<{ date: string, raw: any }} Returns last saved inventory raw data
+ */
+function loadLastInventory() {
+  return new Promise(loadFromIndexedDB);
+}
+
+function loadFromIndexedDB(resolve, reject) {
+  if (!window.indexedDB) return loadFromLocalStorage(resolve, reject);
   const rq = openIndexedDB();
   rq.onerror = function () {
-    loadFromLocalStorage();
+    loadFromLocalStorage(resolve, reject);
   };
   rq.onsuccess = function (event) {
     const db = event.target.result;
-    const tx = db.transaction(["inventory"], "readonly");
-    const store = tx.objectStore("inventory");
-    store.getAll().onsuccess = function (event) {
+    const tx = db.transaction(['inventory'], 'readonly');
+    const store = tx.objectStore('inventory');
+    const rq = store.getAll();
+    rq.onsuccess = function (event) {
       const r = event.target.result;
       if (r.length > 0) {
-        const data = r[r.length-1];
-        plugin.inventory = parseInventory("⌂", data.raw);
-        plugin.lastRefresh = data.date;
-        autoRefresh();
-        window.runHooks("pluginInventoryRefresh", {inventory: plugin.inventory});
+        const data = r[r.length - 1];
+        resolve(data);
       } else {
-        loadFromLocalStorage();
+        loadFromLocalStorage(resolve, reject);
       }
-    }
+    };
+    rq.onerror = function () {
+      loadFromLocalStorage(resolve, reject);
+    };
     db.close();
   };
+}
+
+function loadFromLocalStorage(resolve, reject) {
+  const store = localStorage[STORE_KEY];
+  if (store) {
+    try {
+      const data = JSON.parse(store);
+      resolve(data);
+    } catch (e) {
+      console.log(e);
+    }
+  }
+  reject('no inventory found');
+}
+
+function saveInventory(data) {
+  return storeToIndexedDB(data);
 }
 
 function storeToIndexedDB(data) {
@@ -610,8 +572,8 @@ function storeToIndexedDB(data) {
   };
   rq.onsuccess = function (event) {
     const db = event.target.result;
-    const tx = db.transaction(["inventory"], "readwrite");
-    const store = tx.objectStore("inventory");
+    const tx = db.transaction(['inventory'], 'readwrite');
+    const store = tx.objectStore('inventory');
     store.clear().onsuccess = function () {
       store.add({
         raw: data,
@@ -620,32 +582,19 @@ function storeToIndexedDB(data) {
     };
     tx.oncomplete = function () {
       delete localStorage[STORE_KEY];
-    }
+    };
     tx.onerror = function () {
       storeToLocalStorage(data);
-    }
+    };
     db.close();
   };
-}
-
-function loadFromLocalStorage() {
-  const store = localStorage[STORE_KEY];
-  if (store) {
-    try {
-      const data = JSON.parse(store);
-      plugin.inventory = parseInventory("⌂", data.raw);
-      plugin.lastRefresh = data.date;
-      autoRefresh();
-      window.runHooks("pluginInventoryRefresh", {inventory: plugin.inventory});
-    } catch (e) {console.log(e);}
-  }
 }
 
 function storeToLocalStorage(data) {
   const store = {
     raw: data,
     date: Date.now(),
-  }
+  };
   localStorage[STORE_KEY] = JSON.stringify(store);
 }
 
@@ -654,62 +603,59 @@ function loadSettings() {
   if (settings) {
     try {
       const data = JSON.parse(settings);
-      $.extend(plugin.settings, data);
-    } catch (e) {console.log(e);}
+      return data;
+    } catch (e) {
+      console.log(e);
+    }
   }
+  return {};
 }
 
-function storeSettings() {
-  localStorage[SETTINGS_KEY] = JSON.stringify(plugin.settings);
+function storeSettings(settings) {
+  localStorage[SETTINGS_KEY] = JSON.stringify(settings);
 }
 
-function handleInventory(data) {
-  if (data.result.length > 0) {
-    plugin.inventory = parseInventory("⌂", data.result);
-    plugin.lastRefresh = Date.now();
-    storeToIndexedDB(data.result);
-    window.runHooks("pluginInventoryRefresh", {inventory: plugin.inventory});
-  } else {
-    alert("Inventory empty, probably hitting rate limit, try again later");
-  }
-  autoRefresh();
-}
-
-function handleError() {
-  autoRefresh();
-}
-
-function getInventory() {
-  window.postAjax('getInventory', {lastQueryTimestamp:0}, handleInventory, handleError);
-}
-
-function handleSubscription(data) {
-  plugin.hasActiveSubscription = data.result;
-  if (data.result) getInventory();
-  else {
-    alert("You need to subscribe to C.O.R.E. to get your inventory from Intel Map.");
-  }
+function postAjax(action, data) {
+  return new Promise(function (resolve, reject) {
+    return window.postAjax(
+      action,
+      data,
+      (ret) => resolve(ret),
+      (_, textStatus, errorThrown) => reject(textStatus + ': ' + errorThrown)
+    );
+  });
 }
 
 function getSubscriptionStatus() {
-  window.postAjax('getHasActiveSubscription', {}, handleSubscription, handleError);
+  return postAjax('getHasActiveSubscription');
+}
+
+/**
+ * @returns {{ result: any[] }}
+ */
+function getInventory() {
+  return postAjax('getInventory', { lastQueryTimestamp: 0 });
+}
+
+function requestInventory() {
+  return getSubscriptionStatus()
+    .then((data) => {
+      if (data.result) return getInventory();
+      return Promise.reject('no core');
+    })
+    .then((data) => data.result);
 }
 
 function injectKeys(data) {
-  if (!plugin.isHighlighActive)
-    return;
+  if (!playerInventory.isHighlighActive) return;
 
   const bounds = window.map.getBounds();
   const entities = [];
-  for (const [guid, key] of plugin.inventory.keys) {
+  for (const [guid, key] of playerInventory.inventory.keys) {
     if (bounds.contains(key.latLng)) {
       // keep known team
       const team = window.portals[guid] ? window.portals[guid].options.ent[2][1] : 'N';
-      const ent = [
-        guid,
-        0,
-        ['p', team, Math.round(key.latLng[0]*1e6), Math.round(key.latLng[1]*1e6)]
-      ];
+      const ent = [guid, 0, ['p', team, Math.round(key.latLng[0] * 1e6), Math.round(key.latLng[1] * 1e6)]];
       entities.push(ent);
     }
   }
@@ -718,19 +664,18 @@ function injectKeys(data) {
 
 function portalKeyHighlight(data) {
   const guid = data.portal.options.guid;
-  if (plugin.inventory.keys.has(guid)) {
+  if (playerInventory.inventory.keys.has(guid)) {
     // place holder
-    if (data.portal.options.team != window.TEAM_NONE && data.portal.options.level === 0) {
+    if (data.portal.options.team !== window.TEAM_NONE && data.portal.options.level === 0) {
       data.portal.setStyle({
         color: 'red',
-        weight: 2*Math.sqrt(window.portalMarkerScale()),
+        weight: 2 * Math.sqrt(window.portalMarkerScale()),
         dashArray: '',
       });
-    }
-    else if (window.map.getZoom() < 15 && data.portal.options.team == window.TEAM_NONE && !window.portalDetail.isFresh(guid))
+    } else if (window.map.getZoom() < 15 && data.portal.options.team === window.TEAM_NONE && !window.portalDetail.isFresh(guid))
       // injected without intel data
-      data.portal.setStyle({color: 'red', fillColor: 'gray'});
-    else data.portal.setStyle({color: 'red'});
+      data.portal.setStyle({ color: 'red', fillColor: 'gray' });
+    else data.portal.setStyle({ color: 'red' });
   }
 }
 
@@ -739,8 +684,10 @@ function createPopup(guid) {
   const latLng = portal.getLatLng();
   // create popup only if the portal is in view
   if (window.map.getBounds().contains(latLng)) {
-    const count = plugin.inventory.keys.get(guid).count;
-    const text = Array.from(count).map(([name, count]) => `<strong>${name}</strong>: ${count}`).join('<br/>');
+    const count = playerInventory.inventory.keys.get(guid).count;
+    const text = Array.from(count)
+      .map(([name, count]) => `<strong>${name}</strong>: ${count}`)
+      .join('<br/>');
 
     L.popup()
       .setLatLng(latLng)
@@ -749,151 +696,320 @@ function createPopup(guid) {
   }
 }
 
+function Fragment(attrs) {
+  const fragment = document.createDocumentFragment();
+  recursiveAppend(fragment, attrs.children);
+  return fragment;
+}
+
+function recursiveAppend(element, children) {
+  // cast to string to display "undefined" or "null"
+  if (children === undefined || children === null) return;
+  if (Array.isArray(children)) {
+    for (const child of children) recursiveAppend(element, child);
+  } else {
+    element.append(children);
+  }
+}
+
+function jsx(tagName, attrs) {
+  if (typeof tagName === 'function') return tagName(attrs);
+  const children = attrs.children;
+  delete attrs.children;
+  const rawHtml = attrs.rawHtml;
+  delete attrs.rawHtml;
+  const elem = document.createElement(tagName);
+  // dataset
+  if (attrs.dataset) {
+    for (const key in attrs.dataset) elem.dataset[key] = attrs.dataset[key];
+    delete attrs.dataset;
+  }
+  // events
+  for (const key in attrs) {
+    if (key.startsWith('on')) {
+      elem.addEventListener(key.slice(2), attrs[key]);
+      delete attrs[key];
+    }
+  }
+  Object.assign(elem, attrs);
+  if (rawHtml) {
+    elem.innerHTML = rawHtml;
+    return elem;
+  }
+  recursiveAppend(elem, children);
+  return elem;
+}
+
+const jsxs = jsx;
+
+const rarityShort = rarity.map(v => v.split('_').map(a => a[0]).join(''));
+const rarityToInt = {};
+
+for (const i in rarity) rarityToInt[rarity[i]] = i; // again...
+
+
+function getPortalLink(key) {
+  const latLng = [key.latLng[0].toFixed(6), key.latLng[1].toFixed(6)];
+  return jsx("a", {
+    title: key.address,
+    href: window.makePermalink(latLng),
+    onclick: function (event) {
+      event.preventDefault();
+      window.renderPortalDetails(key.guid);
+      window.selectPortalByLatLng(latLng);
+    },
+    ondblclick: function (event) {
+      event.preventDefault();
+      window.renderPortalDetails(key.guid);
+      window.zoomToAndShowPortal(key.guid, latLng);
+    },
+    children: key.title
+  });
+}
+
+function localeCompare(a, b) {
+  if (typeof a !== 'string') a = '';
+  if (typeof b !== 'string') b = '';
+  return a.localeCompare(b);
+} // eslint-disable-next-line no-unused-vars
+
+
+function ItemRow(props) {
+  const {
+    item,
+    lvl,
+    count
+  } = props;
+  const lr = item.leveled ? 'L' + lvl : rarityShort[rarityToInt[lvl]];
+  const className = (item.leveled ? 'level_' : 'rarity_') + lr;
+  const name = itemTypes[item.type];
+  return jsxs("tr", {
+    className: className,
+    children: [jsx("td", {
+      children: count
+    }), jsx("td", {
+      children: lr
+    }), jsx("td", {
+      children: name
+    })]
+  });
+}
+
 function createAllTable(inventory) {
-  const table = L.DomUtil.create("table");
+  const table = jsx("table", {});
+
   for (const type in inventory.items) {
     const total = inventory.countType(type);
-    if (total == 0)
-      continue;
+    if (total === 0) continue;
     const item = inventory.items[type];
+
     for (const i in item.counts) {
       const num = inventory.countType(type, i);
+
       if (num > 0) {
-        const lr = item.leveled ? "L" + i : rarityShort[rarityToInt[i]];
-        const row = L.DomUtil.create('tr', (item.leveled ? "level_" : "rarity_") + lr, table);
-        row.innerHTML = `<td>${num}</td><td>${lr}</td><td>${item.name}</td>`;
+        table.append(jsx(ItemRow, {
+          item: item,
+          count: num,
+          lvl: i
+        }));
       }
     }
   }
+
   return table;
+}
+
+function keysSum(inventory) {
+  const total = inventory.items['PORTAL_LINK_KEY'].total;
+  const inventoryCount = inventory.items['PORTAL_LINK_KEY'].counts['VERY_COMMON'][inventory.name] || 0;
+  const otherCount = total - inventoryCount - inventory.keyLockersCount;
+  return jsxs(Fragment, {
+    children: [jsxs("span", {
+      children: [inventory.name, ": ", inventoryCount]
+    }), jsxs("span", {
+      children: ["Key Lockers: ", inventory.keyLockersCount]
+    }), jsxs("span", {
+      children: ["Other: ", otherCount]
+    })]
+  });
+}
+
+function itemSum(item) {
+  return Object.keys(item.counts).map(k => {
+    const lr = item.leveled ? 'L' + k : rarityShort[rarityToInt[k]];
+    return jsxs("span", {
+      className: (item.leveled ? 'level_' : 'rarity_') + lr,
+      children: [item.counts[k].total, " ", lr]
+    });
+  });
 }
 
 function createAllSumTable(inventory) {
-  const table = L.DomUtil.create("table");
+  const table = jsx("table", {});
+
   for (const type in inventory.items) {
     const total = inventory.countType(type);
-    if (total == 0)
-      continue;
+    if (total === 0) continue;
     const item = inventory.items[type];
-
-    const row = L.DomUtil.create('tr', null, table);
-
-    const nums = [];
-
-    if (type === "PORTAL_LINK_KEY") {
-      const inventoryCount = item.counts["VERY_COMMON"][inventory.name] || 0;
-      const otherCount = total - inventoryCount - inventory.keyLockersCount;
-      nums.push(`<span class="level_L1">${inventory.name}: ${inventoryCount}</span>`);
-      nums.push(`<span class="level_L1">Key Lockers: ${inventory.keyLockersCount}</span>`);
-      nums.push(`<span class="level_L1">Other: ${otherCount}</span>`);
-    } else {
-      for (const k in item.counts) {
-        const num = inventory.countType(type, k);
-        if (num > 0) {
-          const lr = item.leveled ? "L" + k : rarityShort[rarityToInt[k]];
-          const className = (item.leveled ? "level_" : "rarity_") + lr;
-          nums.push(`<span class="${className}">${num} ${lr}</span>`);
-        }
-      }
-    }
-
-    row.innerHTML = `<td>${item.name}</td><td>${total}</td><td>${nums.join(', ')}</td>`;
+    table.append(jsxs("tr", {
+      children: [jsx("td", {
+        children: item.name
+      }), jsx("td", {
+        children: total
+      }), type === 'PORTAL_LINK_KEY' ? jsx("td", {
+        className: "level_L1",
+        children: keysSum(inventory)
+      }) : jsx("td", {
+        children: itemSum(item)
+      })]
+    }));
   }
+
   return table;
+} // eslint-disable-next-line no-unused-vars
+
+
+function KeyMediaRow(props) {
+  const {
+    item,
+    children
+  } = props;
+  const details = Array.from(item.count).map(([name, count]) => `${name}: ${count}`).join(', ');
+  return jsxs("tr", {
+    children: [jsx("td", {
+      children: jsx("a", {
+        title: details,
+        children: item.total
+      })
+    }), jsx("td", {
+      children: children
+    })]
+  });
 }
 
 function createKeysTable(inventory) {
-  const table = L.DomUtil.create("table");
-  const keys = [...inventory.keys.values()].sort((a,b) => localeCompare(a.title, b.title));
-  for (const key of keys) {
-    const a = getPortalLink(key);
-    const total = inventory.countKey(key.guid);
-    const counts = Array.from(key.count).map(([name, count]) => `${name}: ${count}`).join(', ');
-
-    const row = L.DomUtil.create('tr', null, table);
-    L.DomUtil.create('td', null, row).innerHTML = `<a title="${counts}">${total}</a>`;
-    L.DomUtil.create('td', null, row).appendChild(a);
-    // L.DomUtil.create('td', null, row).textContent = counts;
-  }
-  return table;
+  const keys = [...inventory.keys.values()].sort((a, b) => localeCompare(a.title, b.title));
+  return jsx("table", {
+    children: keys.map(key => jsx(KeyMediaRow, {
+      item: key,
+      children: getPortalLink(key)
+    }))
+  });
 }
 
 function createMediaTable(inventory) {
-  const table = L.DomUtil.create("table");
-  const medias = [...inventory.medias.values()].sort((a,b) => localeCompare(a.name, b.name));
-  for (const media of medias) {
-    const counts = Array.from(media.count).map(([name, count]) => `${name}: ${count}`).join(', ');
-
-    L.DomUtil.create('tr', 'level_L1', table).innerHTML =
-        `<td><a title="${counts}">${media.total}</a></td>`
-      + `<td><a href="${media.url}">${media.name}</a>`;
-  }
-  return table;
+  const medias = [...inventory.medias.values()].sort((a, b) => localeCompare(a.name, b.name));
+  return jsx("table", {
+    children: medias.map(media => jsx(KeyMediaRow, {
+      item: media,
+      children: jsx("a", {
+        href: media.url,
+        children: media.name
+      })
+    }))
+  });
 }
 
 function createCapsuleTable(inventory, capsule) {
-  const table = L.DomUtil.create("table");
-  const keys = Object.values(capsule.keys).sort((a,b) => localeCompare(a.title, b.title));
-  for (const item of keys) {
-    const a = getPortalLink(item);
-    const total = item.count;
+  const table = jsx("table", {});
 
-    const row = L.DomUtil.create('tr', null, table);
-    L.DomUtil.create('td', null, row).textContent = total;
-    if (capsule.type !== "KEY_CAPSULE") L.DomUtil.create('td', null, row);
-    L.DomUtil.create('td', null, row).appendChild(a);
+  const keys = Object.values(capsule.keys).sort((a, b) => localeCompare(a.title, b.title));
+
+  for (const item of keys) {
+    table.append(jsxs("tr", {
+      children: [jsx("td", {
+        children: item.count
+      }), capsule.type !== 'KEY_CAPSULE' ? jsx("td", {}) : null, jsx("td", {
+        children: getPortalLink(item)
+      })]
+    }));
   }
-  const medias = Object.values(capsule.medias).sort((a,b) => localeCompare(a.name, b.name));
+
+  const medias = Object.values(capsule.medias).sort((a, b) => localeCompare(a.name, b.name));
+
   for (const item of medias) {
-    L.DomUtil.create('tr', 'level_L1', table).innerHTML = `<td>${item.count}</td><td>M</td><td><a href="${item.url}">${item.name}</a>`;
+    table.append(jsxs("tr", {
+      className: "level_L1",
+      children: [jsx("td", {
+        children: item.count
+      }), jsx("td", {
+        children: "M"
+      }), jsx("td", {
+        children: jsx("a", {
+          href: item.url,
+          children: item.name
+        })
+      })]
+    }));
   }
+
   for (const type in itemTypes) {
     const item = capsule.items[type];
     if (!item) continue;
-    const name = itemTypes[type];
-    for (const k in item.count) {
-      const lr = item.leveled ? "L" + k : rarityShort[rarityToInt[k]];
-      const row = L.DomUtil.create('tr', (item.leveled ? "level_" : "rarity_") + lr, table);
-      row.innerHTML = `<td>${item.count[k]}</td><td>${lr}</td><td>${name}</td>`;
+
+    for (const i in item.count) {
+      table.append(jsx(ItemRow, {
+        count: item.count[i],
+        item: item,
+        lvl: i
+      }));
     }
   }
+
   return table;
 }
 
 function buildInventoryHTML(inventory) {
-  const container = L.DomUtil.create("div", "container");
+  const inventoryCount = inventory.count - inventory.keyLockersCount;
+  const keyInInventory = inventory.keys.size > 0 ? inventory.items['PORTAL_LINK_KEY'].counts['VERY_COMMON'][inventory.name] || 0 : 0;
 
-  const sumHeader = L.DomUtil.create("b", null, container);
-  {
-    const inventoryCount = inventory.count - inventory.keyLockersCount;
-    const keyInInventory = (inventory.keys.size > 0) ? inventory.items["PORTAL_LINK_KEY"].counts["VERY_COMMON"][inventory.name] || 0 : 0;
-    sumHeader.textContent = `Summary I:${inventoryCount - keyInInventory} K:${keyInInventory} T:${inventoryCount}/2500 KL:${inventory.keyLockersCount}`;
+  const container = jsxs("div", {
+    className: "container",
+    children: [jsx("b", {
+      children: `Summary I:${inventoryCount - keyInInventory} K:${keyInInventory} T:${inventoryCount}/2500 KL:${inventory.keyLockersCount}`
+    }), jsx("div", {
+      className: "sum",
+      children: createAllSumTable(inventory)
+    }), jsx("b", {
+      children: "Details"
+    }), jsx("div", {
+      className: "all",
+      children: createAllTable(inventory)
+    })]
+  });
+
+  if (inventory.keys.size > 0) {
+    container.append(jsxs(Fragment, {
+      children: [jsx("b", {
+        children: "Keys"
+      }), jsx("div", {
+        className: "medias",
+        children: createKeysTable(inventory)
+      })]
+    }));
   }
-  const sum = L.DomUtil.create("div", "sum", container);
-  sum.appendChild(createAllSumTable(inventory));
-
-  const allHeader = L.DomUtil.create("b", null, container);
-  allHeader.textContent = "Details";
-  const all = L.DomUtil.create("div", "all", container);
-  all.appendChild(createAllTable(inventory));
-
-  const keysHeader = L.DomUtil.create("b", null, container);
-  keysHeader.textContent = "Keys";
-  const keys = L.DomUtil.create("div", "keys", container);
-  keys.appendChild(createKeysTable(inventory));
 
   if (inventory.medias.size > 0) {
-    const mediasHeader = L.DomUtil.create("b", null, container);
-    mediasHeader.textContent = "Medias";
-    const medias = L.DomUtil.create("div", "medias", container);
-    medias.appendChild(createMediaTable(inventory));
+    container.append(jsxs(Fragment, {
+      children: [jsx("b", {
+        children: "Medias"
+      }), jsx("div", {
+        className: "all",
+        children: createMediaTable(inventory)
+      })]
+    }));
   }
 
   const onHand = inventory.onHand();
-  L.DomUtil.create("b", null, container).textContent = `On Hand (${onHand.size})`;
-  L.DomUtil.create("div", "capsule", container).appendChild(createCapsuleTable(inventory, onHand));
-
-  const mapping = plugin.settings.capsuleNameMap;
+  container.append(jsxs(Fragment, {
+    children: [jsxs("b", {
+      children: ["On Hand (", onHand.size, ")"]
+    }), jsx("div", {
+      className: "capsule",
+      children: createCapsuleTable(inventory, onHand)
+    })]
+  }));
+  const mapping = playerInventory.settings.capsuleNameMap;
   const capsulesName = Object.keys(inventory.capsules).sort((a, b) => {
     if (mapping[a] && !mapping[b]) return -1;
     if (!mapping[a] && mapping[b]) return 1;
@@ -901,116 +1017,144 @@ function buildInventoryHTML(inventory) {
     b = mapping[b] || b;
     return localeCompare(a, b);
   });
-  const keyLockers = capsulesName.filter((name) => inventory.capsules[name].type === "KEY_CAPSULE");
-  const quantums = capsulesName.filter((name) => inventory.capsules[name].type === "INTEREST_CAPSULE");
-  const commonCapsules = capsulesName.filter((name) => inventory.capsules[name].type === "CAPSULE");
+  const keyLockers = capsulesName.filter(name => inventory.capsules[name].type === 'KEY_CAPSULE');
+  const quantums = capsulesName.filter(name => inventory.capsules[name].type === 'INTEREST_CAPSULE');
+  const commonCapsules = capsulesName.filter(name => inventory.capsules[name].type === 'CAPSULE');
+
   for (const names of [keyLockers, quantums, commonCapsules]) {
     for (const name of names) {
       const capsule = inventory.capsules[name];
+
       if (capsule.size > 0) {
-        const displayName = mapping[name] ?`${mapping[name]} [${name}]` : name;
+        const displayName = mapping[name] ? `${mapping[name]} [${name}]` : name;
         const typeName = itemTypes[capsule.type];
         const size = capsule.size;
 
-        const head = L.DomUtil.create("b", null, container);
-        head.textContent = `${typeName}: ${displayName} (${size})`;
-
-        const div = L.DomUtil.create("div", "capsule", container);
-
-        const editDiv = L.DomUtil.create("div", "", div);
-        const editIcon = L.DomUtil.create("a", "edit-name-icon", editDiv);
-        editIcon.textContent = "✏️";
-        editIcon.title = "Change capsule name";
-
-        const editInput = L.DomUtil.create("input", "edit-name-input", editDiv);
-        if (mapping[name]) editInput.value = mapping[name];
-        editInput.placeholder = "Enter capsule name";
-        L.DomEvent.on(editIcon, 'click', () => {
-          editInput.style.display = editInput.style.display === "unset" ? null : "unset";
-        });
-        L.DomEvent.on(editInput, 'input', () => {
-          mapping[name] = editInput.value;
-          storeSettings();
-          const displayName = mapping[name] ?`${mapping[name]} [${name}]` : name;
-          head.textContent = `${typeName}: ${displayName} (${size})`;
+        const head = jsx("b", {
+          children: `${typeName}: ${displayName} (${size})`
         });
 
-        div.appendChild(createCapsuleTable(inventory, capsule));
+        container.append(jsxs(Fragment, {
+          children: [head, jsxs("div", {
+            className: "capsule",
+            children: [jsxs("div", {
+              children: [jsx("a", {
+                className: "edit-name-icon",
+                title: "Change capsule name",
+                onclick: ev => {
+                  const input = ev.target.nextElementSibling;
+                  input.style.display = input.style.display === 'unset' ? null : 'unset';
+                },
+                children: "\u270F\uFE0F"
+              }), jsx("input", {
+                className: "edit-name-input",
+                value: mapping[name] || '',
+                placeholder: "Enter capsule name",
+                oninput: ev => {
+                  mapping[name] = ev.target.value;
+                  storeSettings(playerInventory.settings);
+                  const displayName = mapping[name] ? `${mapping[name]} [${name}]` : name;
+                  head.textContent = `${typeName}: ${displayName} (${size})`;
+                }
+              })]
+            }), createCapsuleTable(inventory, capsule)]
+          })]
+        }));
       }
     }
   }
 
   $(container).accordion({
-      header: 'b',
-      heightStyle: 'fill',
-      collapsible: true,
+    header: 'b',
+    heightStyle: 'fill',
+    collapsible: true
   });
-
   return container;
 }
 
 function fillPane(inventory) {
-  const oldContainer = plugin.pane.querySelector('.container');
-  if (oldContainer) plugin.pane.removeChild(oldContainer);
-  plugin.pane.appendChild(buildInventoryHTML(inventory));
+  const oldContainer = playerInventory.pane.querySelector('.container');
+  if (oldContainer) playerInventory.pane.removeChild(oldContainer);
+  playerInventory.pane.appendChild(buildInventoryHTML(inventory));
 }
 
 function getTitle() {
-  let title = "Inventory";
-  if (plugin.lastRefresh) {
-    title =
-      title + " (" + new Date(plugin.lastRefresh).toLocaleTimeString() + ")";
+  let title = 'Inventory';
+
+  if (playerInventory.lastRefresh) {
+    title = title + ' (' + new Date(playerInventory.lastRefresh).toLocaleTimeString() + ')';
   }
+
   return title;
 }
 
 function displayInventory(inventory) {
   const container = buildInventoryHTML(inventory);
-
-  plugin.dialog = window.dialog({
+  playerInventory.dialog = window.dialog({
     title: getTitle(),
     id: 'inventory',
     html: container,
     width: 'auto',
     height: '500',
     classes: {
-      'ui-dialog-content': 'inventory-box',
+      'ui-dialog-content': 'inventory-box'
     },
     buttons: {
-      "Refresh": refreshInventory,
-      "Options": displayOpt,
+      Refresh: refreshInventory,
+      Options: displayOpt
     }
   });
-
   refreshIfOld();
 }
 
+function handleInventory(data) {
+  if (data.length > 0) {
+    playerInventory.inventory = parseInventory('⌂', data);
+    playerInventory.lastRefresh = Date.now();
+    saveInventory(data);
+    window.runHooks('pluginInventoryRefresh', {
+      inventory: playerInventory.inventory
+    });
+  } else {
+    alert('Inventory empty, probably hitting rate limit, try again later');
+  }
+
+  autoRefresh();
+}
+
 function refreshInventory() {
-  clearTimeout(plugin.autoRefreshTimer);
-  getSubscriptionStatus();
+  clearTimeout(playerInventory.autoRefreshTimer);
+  requestInventory().then(handleInventory).catch(e => {
+    if (e === 'no core') alert('You need to subscribe to C.O.R.E. to get your inventory from Intel Map.');else {
+      alert('Inventory: Last refresh failed. ' + e);
+      autoRefresh();
+    }
+  });
 }
 
 function refreshIfOld() {
-  const delay = plugin.lastRefresh + plugin.settings.autoRefreshDelay * 60 * 1000 - Date.now();
+  const delay = playerInventory.lastRefresh + playerInventory.settings.autoRefreshDelay * 60 * 1000 - Date.now();
   if (delay <= 0) return refreshInventory();
 }
 
 function autoRefresh() {
-  if (!plugin.settings.autoRefreshActive) return;
-  plugin.autoRefreshTimer = setTimeout(refreshInventory, plugin.settings.autoRefreshDelay * 60 * 1000);
+  if (!playerInventory.settings.autoRefreshActive) return;
+  playerInventory.autoRefreshTimer = setTimeout(refreshInventory, playerInventory.settings.autoRefreshDelay * 60 * 1000);
 }
 
 function stopAutoRefresh() {
-  clearTimeout(plugin.autoRefreshTimer);
+  clearTimeout(playerInventory.autoRefreshTimer);
 }
 
 function exportToKeys() {
   if (!window.plugin.keys) return;
-  [window.plugin.keys.KEY, window.plugin.keys.UPDATE_QUEUE].forEach((mapping) => {
+  [window.plugin.keys.KEY, window.plugin.keys.UPDATE_QUEUE].forEach(mapping => {
     const data = {};
-    for (const [guid, key] of plugin.inventory.keys) {
+
+    for (const [guid, key] of playerInventory.inventory.keys) {
       data[guid] = key.total;
     }
+
     window.plugin.keys[mapping.field] = data;
     window.plugin.keys.storeLocal(mapping);
   });
@@ -1020,487 +1164,346 @@ function exportToKeys() {
 
 function exportToClipboard() {
   const data = [];
-  for (const [guid, key] of plugin.inventory.keys) {
+
+  for (const key of playerInventory.inventory.keys.values()) {
     for (const [capsule, num] of key.count) {
       data.push([key.title, key.latLng[0].toFixed(6), key.latLng[1].toFixed(6), capsule, num].join('\t'));
     }
   }
+
   const shared = data.join('\n');
 
-  if(typeof android !== 'undefined' && android && android.shareString)
-    android.shareString(shared);
-  else {
-    const content = L.DomUtil.create('textarea', "container");
-    content.textContent = shared;
-    L.DomEvent.on(content, 'click', () => {
+  const content = jsx("textarea", {
+    onclick: () => {
       content.select();
-    });
+    },
+    children: shared
+  });
+
+  if (typeof android !== 'undefined' && android && android.shareString) android.shareString(shared);else {
     window.dialog({
       title: 'Keys',
       html: content,
       width: 'auto',
-      height: 'auto',
+      height: 'auto'
     });
   }
 }
 
 function displayNameMapping() {
-  const container = L.DomUtil.create("textarea", "container");
-  container.placeholder = "AAAAAAAA: Name of AAAAAAAA\nBBBBBBBB: Name of BBBBBBBB\n...";
-
-  const capsules = plugin.inventory.capsules;
-  const mapping = plugin.settings.capsuleNameMap;
+  const capsules = playerInventory.inventory.capsules;
+  const mapping = playerInventory.settings.capsuleNameMap;
   const capsulesName = Object.keys(capsules).sort();
   const text = [];
+
   for (const name of capsulesName) {
-    if (mapping[name])
-      text.push(`${name}: ${mapping[name]}`);
+    if (mapping[name]) text.push(`${name}: ${mapping[name]}`);
   }
-  container.value = text.join("\n");
+
+  const container = jsx("textarea", {
+    className: "container",
+    placeholder: "AAAAAAAA: Name of AAAAAAAA\\nBBBBBBBB: Name of BBBBBBBB\\n...",
+    value: text.join('\n')
+  });
 
   window.dialog({
     title: 'Inventory Capsule Names',
     id: 'inventory-names',
     html: container,
-    buttons: [
-      {
-        text: "Set",
-        click: () => {
-          const lines = container.value.trim().split('\n');
-          for (const line of lines) {
-            const m = line.trim().match(/^([0-9A-F]{8})\s*:\s*(.*)$/);
-            if (m) {
-              mapping[m[1]] = m[2];
-            }
+    buttons: [{
+      text: 'Set',
+      click: () => {
+        const lines = container.value.trim().split('\n');
+
+        for (const line of lines) {
+          const m = line.trim().match(/^([0-9A-F]{8})\s*:\s*(.*)$/);
+
+          if (m) {
+            mapping[m[1]] = m[2];
           }
-          storeSettings();
-        },
-      },
-      {
-        text: "Close",
-        click: function () {
-          $(this).dialog('close');
         }
+
+        storeSettings(playerInventory.settings);
       }
-    ],
+    }, {
+      text: 'Close',
+      click: function () {
+        $(this).dialog('close');
+      }
+    }]
   });
 }
 
 function displayOpt() {
-  const container = L.DomUtil.create("div", "container");
+  const container = jsxs("div", {
+    className: "container",
+    children: [jsx("label", {
+      htmlFor: "plugin-player-inventory-popup-enable",
+      children: "Auto-sync with Keys"
+    }), jsx("input", {
+      type: "checkbox",
+      checked: playerInventory.settings.popupEnable,
+      id: "plugin-player-inventory-popup-enable",
+      onchange: ev => {
+        playerInventory.settings.popupEnable = ev.target.checked === 'true' || (ev.target.checked === 'false' ? false : ev.target.checked);
+        storeSettings(playerInventory.settings);
+      }
+    }), jsx("label", {
+      htmlFor: "plugin-player-inventory-autorefresh-enable",
+      children: "Auto-sync with Keys"
+    }), jsx("input", {
+      type: "checkbox",
+      checked: playerInventory.settings.autoRefreshActive,
+      id: "plugin-player-inventory-autorefresh-enable",
+      onchange: ev => {
+        playerInventory.settings.autoRefreshActive = ev.target.checked === 'true' || (ev.target.checked === 'false' ? false : ev.target.checked);
 
-  const popupLabel = L.DomUtil.create('label', null, container);
-  popupLabel.textContent = "Keys popups";
-  popupLabel.htmlFor = "plugin-player-inventory-popup-enable"
-  const popupCheck = L.DomUtil.create('input', null, container);
-  popupCheck.type = 'checkbox';
-  popupCheck.checked = plugin.settings.popupEnable;
-  popupCheck.id = 'plugin-player-inventory-popup-enable';
-  L.DomEvent.on(popupCheck, "change", () => {
-    plugin.settings.popupEnable = popupCheck.checked === 'true' || (popupCheck.checked === 'false' ? false : popupCheck.checked);
-    storeSettings();
+        if (playerInventory.settings.autoRefreshActive) {
+          autoRefresh();
+        } else {
+          stopAutoRefresh();
+        }
+
+        storeSettings(playerInventory.settings);
+      }
+    }), jsx("label", {
+      children: "Refresh delay (min)"
+    }), jsx("input", {
+      type: "number",
+      checked: playerInventory.settings.autoRefreshDelay,
+      onchange: ev => {
+        playerInventory.settings.autoRefreshDelay = +ev.target.value > 0 ? +ev.target.value : 1;
+        ev.target.value = playerInventory.settings.autoRefreshDelay;
+        storeSettings(playerInventory.settings);
+      }
+    }), jsx("button", {
+      onclick: displayNameMapping,
+      children: "Set Capsule names"
+    }), window.plugin.keys && jsxs(Fragment, {
+      children: [jsx("label", {
+        htmlFor: "plugin-player-inventory-autosync-enable",
+        children: "Auto-sync with Keys"
+      }), jsx("input", {
+        type: "checkbox",
+        checked: playerInventory.settings.autoSyncKeys,
+        id: "plugin-player-inventory-autosync-enable",
+        onchange: ev => {
+          playerInventory.settings.autoSyncKeys = ev.target.checked === 'true' || (ev.target.checked === 'false' ? false : ev.target.checked);
+          storeSettings(playerInventory.settings);
+        }
+      }), jsx("button", {
+        onclick: exportToKeys,
+        children: "Export to keys plugin"
+      })]
+    }), jsx("button", {
+      onclick: exportToClipboard,
+      children: "Export keys to clipboard"
+    }), jsx("label", {
+      htmlFor: "plugin-player-inventory-keys-sidebar-enable",
+      children: "Keys in sidebar"
+    }), jsx("input", {
+      type: "checkbox",
+      checked: playerInventory.settings.keysSidebarEnable,
+      id: "plugin-player-inventory-keys-sidebar-enable",
+      onchange: ev => {
+        playerInventory.settings.keysSidebarEnable = ev.target.checked === 'true' || (ev.target.checked === 'false' ? false : ev.target.checked);
+        storeSettings(playerInventory.settings);
+      }
+    }), jsx("label", {
+      htmlFor: "plugin-player-inventory-lvlcolor-enable",
+      children: "Level/rarity colors"
+    }), jsx("input", {
+      type: "checkbox",
+      checked: playerInventory.settings.lvlColorEnable,
+      id: "plugin-player-inventory-keys-lvlcolor-enable",
+      onchange: ev => {
+        playerInventory.settings.lvlColorEnable = ev.target.checked === 'true' || (ev.target.checked === 'false' ? false : ev.target.checked);
+        setupCSS();
+        storeSettings(playerInventory.settings);
+      }
+    })]
   });
-
-  const refreshLabel = L.DomUtil.create('label', null, container);
-  refreshLabel.textContent = "Auto-refresh";
-  refreshLabel.htmlFor = "plugin-player-inventory-autorefresh-enable"
-  const refreshCheck = L.DomUtil.create('input', null, container);
-  refreshCheck.type = 'checkbox';
-  refreshCheck.checked = plugin.settings.autoRefreshActive;
-  refreshCheck.id = 'plugin-player-inventory-autorefresh-enable';
-  L.DomEvent.on(refreshCheck, "change", () => {
-    plugin.settings.autoRefreshActive = refreshCheck.checked === 'true' || (refreshCheck.checked === 'false' ? false : refreshCheck.checked);
-    if (plugin.settings.autoRefreshActive) {
-      autoRefresh();
-    } else {
-      stopAutoRefresh();
-    }
-    storeSettings();
-  });
-
-  const refreshDelayLabel = L.DomUtil.create('label', null, container);
-  refreshDelayLabel.textContent = "Refresh delay (min)";
-  const refreshDelay = L.DomUtil.create('input', null, container);
-  refreshDelay.type = 'number';
-  refreshDelay.value = plugin.settings.autoRefreshDelay;
-  L.DomEvent.on(refreshDelay, "change", () => {
-    plugin.settings.autoRefreshDelay = +refreshDelay.value > 0 ? +refreshDelay.value : 1;
-    refreshDelay.value = plugin.settings.autoRefreshDelay;
-    storeSettings();
-  });
-
-  {
-    const button = L.DomUtil.create("button", null, container);
-    button.textContent = "Set Capsule names";
-    L.DomEvent.on(button, 'click', displayNameMapping);
-  }
-
-  // sync keys with the keys plugin
-  if (window.plugin.keys) {
-    const syncLabel = L.DomUtil.create('label', null, container);
-    syncLabel.textContent = "Auto-sync with Keys";
-    syncLabel.htmlFor = "plugin-player-inventory-autosync-enable"
-    const syncCheck = L.DomUtil.create('input', null, container);
-    syncCheck.type = 'checkbox';
-    syncCheck.checked = plugin.settings.autoSyncKeys;
-    syncCheck.id = 'plugin-player-inventory-autosync-enable';
-    L.DomEvent.on(syncCheck, "change", () => {
-      plugin.settings.autoSyncKeys = syncCheck.checked === 'true' || (syncCheck.checked === 'false' ? false : syncCheck.checked);
-      storeSettings();
-    });
-    const button = L.DomUtil.create("button", null, container);
-    button.textContent = "Export to keys plugin";
-    L.DomEvent.on(button, 'click', exportToKeys);
-  }
-
-  {
-    const button = L.DomUtil.create("button", null, container);
-    button.textContent = "Export keys to clipboard";
-    L.DomEvent.on(button, 'click', exportToClipboard);
-  }
-
-  {
-    const keysSidebarLabel = L.DomUtil.create('label', null, container);
-    keysSidebarLabel.textContent = "Keys in sidebar";
-    keysSidebarLabel.htmlFor = "plugin-player-inventory-keys-sidebar-enable"
-    const keysSidebarCheck = L.DomUtil.create('input', null, container);
-    keysSidebarCheck.type = 'checkbox';
-    keysSidebarCheck.checked = plugin.settings.keysSidebarEnable;
-    keysSidebarCheck.id = 'plugin-player-inventory-keys-sidebar-enable';
-    L.DomEvent.on(keysSidebarCheck, "change", () => {
-      plugin.settings.keysSidebarEnable = keysSidebarCheck.checked === 'true' || (keysSidebarCheck.checked === 'false' ? false : keysSidebarCheck.checked);
-      storeSettings();
-    });
-  }
 
   window.dialog({
     title: 'Inventory Opt',
     id: 'inventory-opt',
     html: container,
     width: 'auto',
-    height: 'auto',
+    height: 'auto'
   });
 }
 
 function setupCSS() {
-  document.head.append(h('style', {}, '\
-.inventory-box .container {\
-	width: max-content;\
-}\
-\
-.inventory-box .ui-accordion-header {\
-	color: #ffce00;\
-  background: rgba(0, 0, 0, 0.7);\
-}\
-\
-.inventory-box .ui-accordion-header, .inventory-box .ui-accordion-content {\
-	border: 1px solid rgba(255,255,255,.2);\
-	margin-top: -1px;\
-	display: block;\
-  line-height: 1.4rem;\
-}\
-\
-.inventory-box .ui-accordion-header:before {\
-	font-size: 18px;\
-	margin-right: 2px;\
-	content: "⊞";\
-}\
-\
-.inventory-box .ui-accordion-header-active:before {\
-	content: "⊟";\
-}\
-\
-.inventory-box table {\
-	width: 100%;\
-}\
-\
-.inventory-box table tr {\
-  background: rgba(0, 0, 0, 0.6);\
-}\
-\
-.inventory-box table tr:nth-child(2n + 1) {\
-  background: rgba(0, 0, 0, 0.3);\
-}\
-\
-.inventory-box tr td:first-child {\
-  text-align: right;\
-}\
-\
-.inventory-box .sum tr td:first-child {\
-  text-align: left;\
-  white-space: nowrap;\
-  width: max-content;\
-}\
-\
-.inventory-box tr td:nth-child(2) {\
-  text-align: center;\
-}\
-\
-.inventory-box tr td:last-child {\
-  text-align: left;\
-}\
-\
-.inventory-box .all tr td:first-child,\
-.inventory-box .keys tr td:first-child,\
-.inventory-box .medias tr td:first-child,\
-.inventory-box .capsule tr td:first-child {\
-  width: 2em;\
-}\
-\
-.inventory-box td {\
-	padding-left: .3rem;\
-	padding-right: .3rem;\
-}\
-\
-.inventory-box .sum tr td span {\
-    white-space: nowrap;\
-}\
-\
-#dialog-inventory.inventory-box {\
-  padding-right: 16px;\
-}\
-\
-.inventory-box.mobile {\
-	position: absolute;\
-	top: 0;\
-	left: 0;\
-	width: 100%;\
-	height: 100%;\
-	overflow: auto;\
-	padding: 0;\
-}\
-.inventory-box.mobile .container {\
-	width: unset;\
-}\
-\
-.inventory-box.mobile button {\
-	width: 100%;\
-}\
-\
-.inventory-box .edit-name-icon {\
-  margin-top: -18px;\
-  position: absolute;\
-  right: 20px;\
-}\
-\
-.inventory-box .edit-name-input {\
-  display: none;\
-  width: 100%;\
-}\
-\
-/* popup */\
-.inventory-keys {\
-  width: max-content;\
-}\
-\
-#dialog-inventory-opt .container {\
-  display: grid;\
-  grid-template-columns: auto auto;\
-  grid-gap: .5em\
-}\
-\
-#dialog-inventory-opt button {\
-  grid-column: 1/3;\
-  padding: .3rem 1em;\
-}\
-\
-#dialog-inventory-opt input {\
-  margin-left: auto;\
-  margin-top: auto;\
-  margin-bottom: auto;\
-}\
-\
-#dialog-inventory-names textarea.container {\
-  width: 100%;\
-  height: 100%;\
-}\
-\
-#randdetails .inventory-details {\
-  vertical-align: top;\
-}\
-'));
-  let colorStyle = "";
-  window.COLORS_LVL.forEach((c,i) => {
-    colorStyle += `.level_L${i}{ color: ${c} }`;
+  let colorStyle = '';
+
+  if (playerInventory.settings.lvlColorEnable) {
+    window.COLORS_LVL.forEach((c, i) => {
+      colorStyle += `.level_L${i}{ color: ${c} }`;
+    });
+    rarity.forEach((r, i) => {
+      if (window.COLORS_MOD[r]) colorStyle += `.rarity_${rarityShort[i]} { color: ${window.COLORS_MOD[r]}}`;
+    });
+  }
+
+  const style = document.head.querySelector('#player-inventory-css') || jsx("style", {
+    id: "player-inventory-css"
   });
-  rarity.forEach((r,i) => {
-    if (window.COLORS_MOD[r])
-      colorStyle += `.rarity_${rarityShort[i]} { color: ${window.COLORS_MOD[r]}}`;
-  });
-  document.head.append(h('style', {}, colorStyle));
+
+  style.textContent = css_248z + colorStyle;
+  document.head.append(style);
 }
 
 function setupDisplay() {
-  plugin.dialog = null;
+  playerInventory.dialog = null;
 
   if (window.useAndroidPanes()) {
     android.addPane('playerInventory', 'Inventory', 'ic_action_view_as_list');
     window.addHook('paneChanged', function (pane) {
       if (pane === 'playerInventory') {
         refreshIfOld();
-        plugin.pane.style.display = "";
-      } else if (plugin.pane) {
-        plugin.pane.style.display = "none";
+        playerInventory.pane.style.display = '';
+      } else if (playerInventory.pane) {
+        playerInventory.pane.style.display = 'none';
       }
     });
-    plugin.pane = L.DomUtil.create('div', 'inventory-box mobile', document.body);
-    plugin.pane.id = 'pane-inventory';
-    plugin.pane.style.display = "none";
-
-    const refreshButton = L.DomUtil.create('button', null, plugin.pane);
-    refreshButton.textContent = 'Refresh';
-    L.DomEvent.on(refreshButton, 'click', refreshInventory);
-
-    document.getElementById("toolbox").append(
-      h(
-        "a",
-        { title: "Inventory options", onclick: displayOpt },
-        "Inventory Opt"
-      )
-    );
+    playerInventory.pane = jsx("div", {
+      className: "inventory-box mobile",
+      id: "pane-inventory",
+      children: jsx("button", {
+        onclick: refreshInventory,
+        children: "Refresh"
+      })
+    });
+    playerInventory.pane.style.display = 'none';
+    document.body.append(playerInventory.pane);
+    document.getElementById('toolbox').append(jsx("a", {
+      title: "Inventory options",
+      onclick: displayOpt,
+      children: "Inventory Opt"
+    }));
   } else {
-    document.getElementById("toolbox").append(
-      h(
-        "a",
-        {
-          title: "Show inventory",
-          onclick: () => displayInventory(plugin.inventory),
-        },
-        "Inventory"
-      )
-    );
+    document.getElementById('toolbox').append(jsx("a", {
+      title: "Show inventory",
+      onclick: () => displayInventory(playerInventory.inventory),
+      children: "Inventory"
+    }));
   }
-}
-
-/** createElement alias h */
-function h(tagName, attrs = {}, ...children) {
-  if (tagName === "fragment") return children;
-  attrs = attrs || {};
-  const rawHtml = attrs.rawHtml;
-  delete attrs.rawHtml;
-  const elem = document.createElement(tagName);
-  // dataset
-  if (attrs.dataset) {
-    for (const key in attrs.dataset) elem.dataset[key] = attrs.dataset[key];
-    delete attrs.dataset;
-  }
-  Object.assign(elem, attrs);
-  if (rawHtml) {
-    elem.innerHTML = rawHtml;
-    return elem;
-  }
-  for (const child of children) {
-    if (Array.isArray(child)) elem.append(...child);
-    else elem.append(child);
-  }
-  return elem;
-}
+} // iitc setup
 
 
-// iitc setup
-function setup() {
+function setup () {
   // Dummy inventory
-  plugin.inventory = new Inventory();
-
-  plugin.hasActiveSubscription = false;
-  plugin.isHighlighActive = false;
-
-  plugin.lastRefresh = Date.now();
-  plugin.autoRefreshTimer = null;
-
-  plugin.settings = {
+  playerInventory.inventory = new Inventory();
+  playerInventory.isHighlighActive = false;
+  playerInventory.lastRefresh = Date.now();
+  playerInventory.autoRefreshTimer = null;
+  playerInventory.settings = {
     autoRefreshActive: false,
     popupEnable: true,
     autoRefreshDelay: 30,
     autoSyncKeys: false,
     keysSidebarEnable: false,
     capsuleNameMap: {},
-  }
-
-  loadSettings();
-
+    lvlColorEnable: true
+  };
+  $.extend(playerInventory.settings, loadSettings());
   setupCSS();
   setupDisplay();
-
-  plugin.getSubscriptionStatus = getSubscriptionStatus;
-
-  plugin.highlighter = {
+  playerInventory.requestInventory = requestInventory;
+  playerInventory.highlighter = {
     highlight: portalKeyHighlight,
     setSelected: function (selected) {
-      plugin.isHighlighActive = selected;
-    },
-  }
-  window.addPortalHighlighter('Inventory keys', plugin.highlighter);
-
-  window.addHook('pluginInventoryRefresh', (data) => {
-    if (plugin.settings.autoSyncKeys) {
+      playerInventory.isHighlighActive = selected;
+    }
+  };
+  window.addPortalHighlighter('Inventory keys', playerInventory.highlighter);
+  window.addHook('pluginInventoryRefresh', data => {
+    if (playerInventory.settings.autoSyncKeys) {
       exportToKeys();
     }
-    if (plugin.dialog) {
-      plugin.dialog.html(buildInventoryHTML(data.inventory));
-      plugin.dialog.dialog("option", "title", getTitle());
-    }
-    if (plugin.pane) {
-      fillPane(data.inventory);
-      const button = plugin.pane.querySelector("button");
-      if (button)
-        button.textContent =
-          "Refresh (" + new Date(plugin.lastRefresh).toLocaleTimeString() + ")";
-    }
-  })
 
+    if (playerInventory.dialog) {
+      playerInventory.dialog.html(buildInventoryHTML(data.inventory));
+      playerInventory.dialog.dialog('option', 'title', getTitle());
+    }
+
+    if (playerInventory.pane) {
+      fillPane(data.inventory);
+      const button = playerInventory.pane.querySelector('button');
+      if (button) button.textContent = 'Refresh (' + new Date(playerInventory.lastRefresh).toLocaleTimeString() + ')';
+    }
+  });
   window.addHook('mapDataEntityInject', injectKeys);
-  window.addHook('portalSelected', (data) => {
-    //{selectedPortalGuid: guid, unselectedPortalGuid: oldPortalGuid}
-    if (!plugin.settings.popupEnable) return;
+  window.addHook('portalSelected', data => {
+    // {selectedPortalGuid: guid, unselectedPortalGuid: oldPortalGuid}
+    if (!playerInventory.settings.popupEnable) return;
+
     if (data.selectedPortalGuid && data.selectedPortalGuid !== data.unselectedPortalGuid) {
-      const total = plugin.inventory.countKey(data.selectedPortalGuid);
+      const total = playerInventory.inventory.countKey(data.selectedPortalGuid);
+
       if (total > 0) {
         createPopup(data.selectedPortalGuid);
       }
     }
   });
-  window.addHook("portalDetailsUpdated", (data) => {
-    //{guid: guid, portal: portal, portalDetails: details, portalData: data}
-    if (!plugin.settings.keysSidebarEnable) return;
-    const total = plugin.inventory.countKey(data.guid);
-    if (total > 0) {
-      const key = plugin.inventory.keys.get(data.guid);
-      const mapping = plugin.settings.capsuleNameMap;
-      const capsules = Array.from(key.count.keys()).map((name) =>
-        h(
-          "div",
-          { title: mapping[name] ? `${mapping[name]} [${name}]` : name },
-          mapping[name] ? `${mapping[name]}` : name
-        )
-      );
+  window.addHook('portalDetailsUpdated', data => {
+    // {guid: guid, portal: portal, portalDetails: details, portalData: data}
+    if (!playerInventory.settings.keysSidebarEnable) return;
+    const total = playerInventory.inventory.countKey(data.guid);
 
-      document.getElementById("randdetails").append(
-        h(
-          "tr",
-          { className: "inventory-details"},
-          h("td", {}, `${total}`),
-          h("th", {}, "Keys"),
-          h("th", {}, "Capsules"),
-          h("td", {}, capsules)
-        )
-      );
+    if (total > 0) {
+      const key = playerInventory.inventory.keys.get(data.guid);
+      const mapping = playerInventory.settings.capsuleNameMap;
+      const capsules = Array.from(key.count.keys()).map(name => jsx("div", {
+        title: mapping[name] ? `${mapping[name]} [${name}]` : name,
+        children: mapping[name] ? `${mapping[name]}` : name
+      }));
+      document.getElementById('randdetails').append(jsxs("tr", {
+        className: "inventory-details",
+        children: [jsx("td", {
+          children: total
+        }), jsx("td", {
+          children: "Keys"
+        }), jsx("td", {
+          children: "Capsules"
+        }), jsx("td", {
+          children: capsules
+        })]
+      }));
     }
   });
-
-  loadFromIndexedDB();
+  loadLastInventory().then(data => {
+    playerInventory.inventory = parseInventory('⌂', data.raw);
+    playerInventory.lastRefresh = data.date;
+    autoRefresh();
+    window.runHooks('pluginInventoryRefresh', {
+      inventory: playerInventory.inventory
+    });
+  });
 }
 
-setup.info = plugin_info; //add the script info data to the function as a property
 if(!window.bootPlugins) window.bootPlugins = [];
 window.bootPlugins.push(setup);
 // if IITC has already booted, immediately run the 'setup' function
 if(window.iitcLoaded && typeof setup === 'function') setup();
-} // wrapper end
+
+setup.info = plugin_info; //add the script info data to the function as a property
+}
+
 // inject code into site context
-var script = document.createElement('script');
 var info = {};
 if (typeof GM_info !== 'undefined' && GM_info && GM_info.script) info.script = { version: GM_info.script.version, name: GM_info.script.name, description: GM_info.script.description };
-script.appendChild(document.createTextNode('('+ wrapper +')('+JSON.stringify(info)+');'));
-(document.body || document.head || document.documentElement).appendChild(script);
 
+var script = document.createElement('script');
+// if on last IITC mobile, will be replaced by wrapper(info)
+var mobile = `script.appendChild(document.createTextNode('('+ wrapper +')('+JSON.stringify(info)+');'));
+(document.body || document.head || document.documentElement).appendChild(script);`;
+// detect if mobile
+if (mobile.startsWith('script')) {
+  script.appendChild(document.createTextNode('('+ wrapper +')('+JSON.stringify(info)+');'));
+  script.appendChild(document.createTextNode('//# sourceURL=iitc:///plugins/player-inventory.js'));
+  (document.body || document.head || document.documentElement).appendChild(script);
+} else {
+  // mobile string
+  wrapper(info);
+}

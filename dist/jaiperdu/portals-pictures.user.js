@@ -1,3 +1,4 @@
+// 
 // ==UserScript==
 // @author         jaiperdu
 // @name           Portals pictures
@@ -12,119 +13,160 @@
 // @grant          none
 // ==/UserScript==
 
-
 function wrapper(plugin_info) {
+
 // ensure plugin framework is there, even if iitc is not yet loaded
 if(typeof window.plugin !== 'function') window.plugin = function() {};
 
-//PLUGIN AUTHORS: writing a plugin outside of the IITC build environment? if so, delete these lines!!
-//(leaving them in place might break the 'About IITC' page or break update checks)
-plugin_info.buildName = 'lejeu';
-plugin_info.dateTimeVersion = '2022-06-30-074250';
-plugin_info.pluginId = 'portals-pictures';
-//END PLUGIN AUTHORS NOTE
+function recursiveAppend(element, children) {
+  // cast to string to display "undefined" or "null"
+  if (children === undefined || children === null) return;
+  if (Array.isArray(children)) {
+    for (const child of children) recursiveAppend(element, child);
+  } else {
+    element.append(children);
+  }
+}
 
-// use own namespace for plugin
-window.plugin.portalPictures = function() {};
+function jsx(tagName, attrs) {
+  if (typeof tagName === 'function') return tagName(attrs);
+  const children = attrs.children;
+  delete attrs.children;
+  const rawHtml = attrs.rawHtml;
+  delete attrs.rawHtml;
+  const elem = document.createElement(tagName);
+  // dataset
+  if (attrs.dataset) {
+    for (const key in attrs.dataset) elem.dataset[key] = attrs.dataset[key];
+    delete attrs.dataset;
+  }
+  // events
+  for (const key in attrs) {
+    if (key.startsWith('on')) {
+      elem.addEventListener(key.slice(2), attrs[key]);
+      delete attrs[key];
+    }
+  }
+  Object.assign(elem, attrs);
+  if (rawHtml) {
+    elem.innerHTML = rawHtml;
+    return elem;
+  }
+  recursiveAppend(elem, children);
+  return elem;
+}
+
+const jsxs = jsx;
 
 const defaultImage = 'https://fevgames.net/wp-content/uploads/2018/11/FS-Onyx.png';
 
-window.plugin.portalPictures.onPortalDetailsUpdated = function (e) {
+function onPortalDetailsUpdated(e) {
   const img = document.querySelector('.portal-pictures-image[data-guid="' + e.guid + '"]');
+
   if (img) {
-    img.src = (e.portalData.image || defaultImage).replace("http:", "");
+    img.src = (e.portalData.image || defaultImage).replace('http:', '');
     img.title = e.portalData.title;
   }
 }
 
-window.plugin.portalPictures.showDialog = function() {
-  let portals = [];
+function filterOnInput(ev) {
+  ev.preventDefault();
+  const f = ev.target.value.toLowerCase();
 
-  let bounds = map.getBounds();
-  for (const [guid, portal] of Object.entries(window.portals)) {
+  for (const n of document.querySelectorAll('.portal-pictures-image')) {
+    const title = n.title.toLowerCase();
+    if (title.includes(f)) n.style.display = null;else n.style.display = 'none';
+  }
+}
+
+function imgOnClick(ev) {
+  const img = ev.target;
+  img.dataset.count++;
+  let prev = img.previousElementSibling;
+
+  while (prev && prev.dataset.count - img.dataset.count < 0) prev = prev.previousElementSibling;
+
+  if (prev) img.parentNode.insertBefore(img, prev.nextSibling);else img.parentNode.insertBefore(img, img.parentNode.firstElementChild);
+  window.renderPortalDetails(img.dataset.guid);
+  ev.preventDefault();
+  return false;
+}
+
+function showDialog() {
+  let portals = [];
+  let bounds = window.map.getBounds();
+
+  for (const portal of Object.values(window.portals)) {
     let ll = portal.getLatLng();
+
     if (bounds.contains(ll)) {
       portals.push(portal);
     }
   }
 
-  const container = document.createElement('div');
-  container.style.maxWidth = "1000px";
-
-  const filter = document.createElement('input');
-  filter.type = 'text';
-  filter.placeholder = "Filter by title";
-  filter.addEventListener('input', function(ev) {
-    ev.preventDefault();
-    const f = ev.target.value.toLowerCase();
-    for (const n of document.querySelectorAll('.portal-pictures-image')) {
-      const title = n.title.toLowerCase();
-      if (title.includes(f))
-        n.style.display = null;
-      else
-        n.style.display = 'none';
-    }
+  const container = jsxs("div", {
+    style: "max-width: 1000px",
+    children: [jsx("input", {
+      placeholder: "Filter by title",
+      oninput: filterOnInput
+    }), jsx("hr", {}), jsx("div", {
+      children: portals.map(portal => jsx("img", {
+        src: (portal.options.data.image || defaultImage).replace('http:', ''),
+        title: portal.options.data.title,
+        className: "imgpreview portal-pictures-image",
+        dataset: {
+          guid: portal.options.guid,
+          count: 0
+        },
+        onclick: imgOnClick
+      }))
+    })]
   });
-  container.appendChild(filter);
-  container.appendChild(document.createElement('hr'));
 
-  const div = document.createElement('div');
-  container.appendChild(div);
-
-  for (const portal of portals) {
-    const img = document.createElement("img");
-    img.src = (portal.options.data.image || defaultImage).replace("http:", "");
-    img.title = portal.options.data.title;
-    img.classList.add('imgpreview');
-    img.classList.add('portal-pictures-image');
-    img.dataset.guid = portal.options.guid;
-    img.dataset.count = 0;
-    img.addEventListener("click", function(ev) {
-      img.dataset.count++;
-      let prev = img.previousElementSibling;
-      while (prev && prev.dataset.count - img.dataset.count < 0)
-        prev = prev.previousElementSibling;
-      if (prev)
-        img.parentNode.insertBefore(img, prev.nextSibling);
-      else
-        img.parentNode.insertBefore(img, img.parentNode.firstElementChild);
-      renderPortalDetails(portal.options.guid);
-      ev.preventDefault();
-      return false;
-    }, false);
-    div.appendChild(img);
-  }
-
-  window.addHook("portalDetailsUpdated", window.plugin.portalPictures.onPortalDetailsUpdated);
-
-  dialog({
+  window.dialog({
     id: 'plugin-portal-pictures',
     html: container,
     title: 'Show portal pictures',
     width: 'auto',
     closeCallback: () => {
-      window.removeHook("portalDetailsUpdated", window.plugin.portalPictures.onPortalDetailsUpdated);
+      window.removeHook('portalDetailsUpdated', onPortalDetailsUpdated);
     }
   });
-};
+  window.addHook('portalDetailsUpdated', onPortalDetailsUpdated);
+}
 
-window.plugin.portalPictures.setup  = function() {
+function setup () {
+  window.plugin.portalPictures = {};
+  window.plugin.portalPictures.showDialog = showDialog;
   $('<style>').html('.portal-pictures-image { padding: 1px }').appendTo('head');
-  $('#toolbox').append(' <a onclick="window.plugin.portalPictures.showDialog()">Portal pictures</a>');
-};
+  $('#toolbox').append(jsx("a", {
+    onclick: showDialog,
+    children: "Portal pictures"
+  }));
+}
 
-let setup =  window.plugin.portalPictures.setup;
-
-setup.info = plugin_info; //add the script info data to the function as a property
 if(!window.bootPlugins) window.bootPlugins = [];
 window.bootPlugins.push(setup);
 // if IITC has already booted, immediately run the 'setup' function
 if(window.iitcLoaded && typeof setup === 'function') setup();
-} // wrapper end
+
+setup.info = plugin_info; //add the script info data to the function as a property
+}
+
 // inject code into site context
-var script = document.createElement('script');
 var info = {};
 if (typeof GM_info !== 'undefined' && GM_info && GM_info.script) info.script = { version: GM_info.script.version, name: GM_info.script.name, description: GM_info.script.description };
-script.appendChild(document.createTextNode('('+ wrapper +')('+JSON.stringify(info)+');'));
-(document.body || document.head || document.documentElement).appendChild(script);
 
+var script = document.createElement('script');
+// if on last IITC mobile, will be replaced by wrapper(info)
+var mobile = `script.appendChild(document.createTextNode('('+ wrapper +')('+JSON.stringify(info)+');'));
+(document.body || document.head || document.documentElement).appendChild(script);`;
+// detect if mobile
+if (mobile.startsWith('script')) {
+  script.appendChild(document.createTextNode('('+ wrapper +')('+JSON.stringify(info)+');'));
+  script.appendChild(document.createTextNode('//# sourceURL=iitc:///plugins/portals-pictures.js'));
+  (document.body || document.head || document.documentElement).appendChild(script);
+} else {
+  // mobile string
+  wrapper(info);
+}

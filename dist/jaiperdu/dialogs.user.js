@@ -1,3 +1,4 @@
+// 
 // ==UserScript==
 // @author         jaiperdu
 // @name           Dialog List
@@ -12,60 +13,55 @@
 // @grant          none
 // ==/UserScript==
 
-
 function wrapper(plugin_info) {
+
 // ensure plugin framework is there, even if iitc is not yet loaded
 if(typeof window.plugin !== 'function') window.plugin = function() {};
 
-//PLUGIN AUTHORS: writing a plugin outside of the IITC build environment? if so, delete these lines!!
-//(leaving them in place might break the 'About IITC' page or break update checks)
-plugin_info.buildName = 'lejeu';
-plugin_info.dateTimeVersion = '2022-06-30-074250';
-plugin_info.pluginId = 'dialogs';
-//END PLUGIN AUTHORS NOTE
+const W = window;
+let DIALOGS = {};
 
 function itemOnClick(ev) {
-  var id = ev.target.closest('tr').dataset.id;
-  var dialog = $(window.DIALOGS[id]);
-  dialog.dialog('moveToTop');
+  const id = ev.target.closest("tr").dataset.id;
+  const dialog = $(DIALOGS[id]);
+  dialog.dialog("moveToTop");
 }
 
 function itemOnClose(ev) {
-  var id = ev.target.closest('tr').dataset.id;
-  var dialog = $(window.DIALOGS[id]);
-  dialog.dialog('close');
+  const id = ev.target.closest("tr").dataset.id;
+  const dialog = $(DIALOGS[id]);
+  dialog.dialog("close");
 }
 
 function dialogListItem(id) {
-  var dialog = $(window.DIALOGS[id]);
-  var option = dialog.dialog('option');
-  var text = option.title;
-  var tr = document.createElement('tr');
+  const dialog = $(DIALOGS[id]);
+  const option = dialog.dialog("option");
+  const text = option.title;
+  const tr = document.createElement("tr");
   tr.dataset.id = id;
-  var title = document.createElement('td');
+  const title = document.createElement("td");
   tr.appendChild(title);
   title.textContent = text;
-  if (!dialog.is(':hidden'))
-    title.classList.add('ui-dialog-title-inactive');
-  title.addEventListener('click', itemOnClick);
-  var closeButton = document.createElement('td');
+  if (!dialog.is(":hidden")) title.classList.add("ui-dialog-title-inactive");
+  title.addEventListener("click", itemOnClick);
+  const closeButton = document.createElement("td");
   tr.appendChild(closeButton);
   closeButton.textContent = "X";
-  closeButton.addEventListener('click', itemOnClose);
+  closeButton.addEventListener("click", itemOnClose);
 
   return tr;
 }
 
 function updateList() {
-  var list = document.getElementById('dialog-list');
-  list.textContent = '';
-  Object.keys(window.DIALOGS).forEach((id) => {
+  const list = document.getElementById("dialog-list");
+  list.textContent = "";
+  Object.keys(DIALOGS).forEach((id) => {
     list.appendChild(dialogListItem(id));
   });
 }
 
-var dialogMonitor = {
-  set: function(obj, prop, valeur) {
+const dialogMonitor = {
+  set: function (obj, prop, valeur) {
     obj[prop] = valeur;
     updateList();
     return true;
@@ -74,13 +70,16 @@ var dialogMonitor = {
     delete obj[prop];
     updateList();
     return true;
-  }
+  },
 };
 
-function setup() {
-  window.DIALOGS = new Proxy(window.DIALOGS, dialogMonitor);
+function setup () {
+  DIALOGS = W.DIALOGS = new Proxy(W.DIALOGS, dialogMonitor);
 
-  $('<style>').prop('type', 'text/css').html(`
+  $("<style>")
+    .prop("type", "text/css")
+    .html(
+      `
 #dialog-list {
   padding: 3px;
 }
@@ -99,23 +98,38 @@ function setup() {
 #dialog-list tr td:last-child {
   color: red;
   font-weight: bold;
-}`).appendTo('head');
+}`
+    )
+    .appendTo("head");
 
-  var sidebar = document.getElementById('sidebar');
-  var dialogList = document.createElement('div');
+  const sidebar = document.getElementById("sidebar");
+  const dialogList = document.createElement("div");
   sidebar.appendChild(dialogList);
   dialogList.id = "dialog-list";
 }
-setup.info = plugin_info; //add the script info data to the function as a property
+
 if(!window.bootPlugins) window.bootPlugins = [];
 window.bootPlugins.push(setup);
 // if IITC has already booted, immediately run the 'setup' function
 if(window.iitcLoaded && typeof setup === 'function') setup();
-} // wrapper end
+
+setup.info = plugin_info; //add the script info data to the function as a property
+}
+
 // inject code into site context
-var script = document.createElement('script');
 var info = {};
 if (typeof GM_info !== 'undefined' && GM_info && GM_info.script) info.script = { version: GM_info.script.version, name: GM_info.script.name, description: GM_info.script.description };
-script.appendChild(document.createTextNode('('+ wrapper +')('+JSON.stringify(info)+');'));
-(document.body || document.head || document.documentElement).appendChild(script);
 
+var script = document.createElement('script');
+// if on last IITC mobile, will be replaced by wrapper(info)
+var mobile = `script.appendChild(document.createTextNode('('+ wrapper +')('+JSON.stringify(info)+');'));
+(document.body || document.head || document.documentElement).appendChild(script);`;
+// detect if mobile
+if (mobile.startsWith('script')) {
+  script.appendChild(document.createTextNode('('+ wrapper +')('+JSON.stringify(info)+');'));
+  script.appendChild(document.createTextNode('//# sourceURL=iitc:///plugins/dialogs.js'));
+  (document.body || document.head || document.documentElement).appendChild(script);
+} else {
+  // mobile string
+  wrapper(info);
+}

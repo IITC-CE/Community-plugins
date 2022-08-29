@@ -3,7 +3,7 @@
 // @author         jaiperdu
 // @name           Player Inventory
 // @category       Info
-// @version        0.3.4
+// @version        0.3.5
 // @description    View inventory and highlight portals with keys at any zoom. Can be used with the official plugins Keys and Keys on map to show the number of keys on the map.
 // @id             player-inventory@jaiperdu
 // @namespace      https://github.com/IITC-CE/ingress-intel-total-conversion
@@ -1100,7 +1100,7 @@ function displayInventory(inventory) {
       'ui-dialog-content': 'inventory-box'
     },
     buttons: {
-      Refresh: refreshInventory,
+      Refresh: () => refreshInventory(),
       Options: displayOpt
     }
   });
@@ -1115,31 +1115,39 @@ function handleInventory(data) {
     window.runHooks('pluginInventoryRefresh', {
       inventory: playerInventory.inventory
     });
+    autoRefresh();
   } else {
-    alert('Inventory empty, probably hitting rate limit, try again later');
+    return Promise.reject('empty');
   }
-
-  autoRefresh();
 }
 
-function refreshInventory() {
+function refreshInventory(auto) {
   clearTimeout(playerInventory.autoRefreshTimer);
   requestInventory().then(handleInventory).catch(e => {
-    if (e === 'no core') alert('You need to subscribe to C.O.R.E. to get your inventory from Intel Map.');else {
-      alert('Inventory: Last refresh failed. ' + e);
-      autoRefresh();
+    if (e === 'no core') {
+      alert('You need to subscribe to C.O.R.E. to get your inventory from Intel Map.');
+    } else {
+      if (!auto) {
+        if (e === 'empty') {
+          alert('Inventory empty, probably hitting rate limit, try again later');
+        } else {
+          alert('Inventory: Last refresh failed. ' + e);
+        }
+
+        autoRefresh();
+      }
     }
   });
 }
 
 function refreshIfOld() {
   const delay = playerInventory.lastRefresh + playerInventory.settings.autoRefreshDelay * 60 * 1000 - Date.now();
-  if (delay <= 0) return refreshInventory();
+  if (delay <= 0) return refreshInventory(true);
 }
 
 function autoRefresh() {
   if (!playerInventory.settings.autoRefreshActive) return;
-  playerInventory.autoRefreshTimer = setTimeout(refreshInventory, playerInventory.settings.autoRefreshDelay * 60 * 1000);
+  playerInventory.autoRefreshTimer = setTimeout(() => refreshInventory(true), playerInventory.settings.autoRefreshDelay * 60 * 1000);
 }
 
 function stopAutoRefresh() {
@@ -1239,7 +1247,7 @@ function displayOpt() {
     className: "container",
     children: [jsx("label", {
       htmlFor: "plugin-player-inventory-popup-enable",
-      children: "Auto-sync with Keys"
+      children: "Keys popup"
     }), jsx("input", {
       type: "checkbox",
       checked: playerInventory.settings.popupEnable,
@@ -1370,7 +1378,7 @@ function setupDisplay() {
       className: "inventory-box mobile",
       id: "pane-inventory",
       children: jsx("button", {
-        onclick: refreshInventory,
+        onclick: () => refreshInventory(),
         children: "Refresh"
       })
     });

@@ -306,18 +306,6 @@ Hides any portal that doesn&#39;t have 8 resonators.
 
 
   
-### [Hide portals that aren&#39;t fully deployed.](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Perringaiden/wolf-fielded-link-radius.user.js) by Perringaiden
-
-
-
-
-
-Hides any portal that doesn&#39;t have 8 resonators.
-
-*Version:* 0.2
-
-
-  
 ### [Hide portals that aren&#39;t linked or fielded.](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Perringaiden/wolf-linked-highlighter.user.js) by Perringaiden
 
 
@@ -1061,6 +1049,18 @@ Display area drone can &quot;see&quot; from currently selected portal. Manually 
 Set a location. The COMM messages you send will have the setted location.
 
 *Version:* 0.1.1.20200216.174029
+
+
+  
+### [Fielded Link Radius](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Perringaiden/wolf-fielded-link-radius.user.js) by Perringaiden
+
+
+
+
+
+Defines the area inside which a portal can link under a field.
+
+*Version:* 0.3
 
 
   

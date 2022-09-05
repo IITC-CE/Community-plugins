@@ -4,13 +4,10 @@
 // @name           Portals Gallery
 // @description    Creates the gallery of portals that can be used to solve the First Saturday passcode.
 // @category       Info
-// @version        1.0
+// @version        1.2
 // @downloadURL    https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/nerotu/portals_gallery_script.user.js
 // @updateURL      https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/nerotu/portals_gallery_script.meta.js
-// @include        https://intel.ingress.com/
-// @include        http://intel.ingress.com/
-// @match          https://intel.ingress.com/
-// @match          http://intel.ingress.com/
+// @match          https://intel.ingress.com/*
 // @grant          none
 // ==/UserScript==
 
@@ -24,7 +21,7 @@ if(typeof window.plugin !== 'function') window.plugin = function() {};
 window.plugin.portalsGallery = () => {};
 window.plugin.portalsGallery.storage = [];
 window.plugin.portalsGallery.sortmode = 't';
-
+window.plugin.portalsGallery.imagesPerRow = 3;
 /**
  * Collects the data of rendered portals
  * @public
@@ -34,7 +31,7 @@ window.plugin.portalsGallery.collect = () => {
     self.storage = [];
     for (var i in window.portals) {
         var path = portals[i].options.data;
-        if (path.title && path.image) self.storage.push({ n: path.title, p: { lt: path.latE6 / 1e6, ln: path.lngE6 / 1e6 }, u: path.image })
+        if (path.title && path.image) self.storage.push({ n: path.title, p: { lt: path.latE6 / 1e6, ln: path.lngE6 / 1e6 }, u: path.image, g: portals[i].options.guid })
     }
 }
 
@@ -44,23 +41,51 @@ window.plugin.portalsGallery.collect = () => {
  */
 window.plugin.portalsGallery.open = () => {
     var self = window.plugin.portalsGallery;
+
+    if ('iitc_gallery_row_length' in localStorage) {
+        let rowLength = localStorage['iitc_gallery_row_length']
+        if (rowLength === undefined || rowLength === 'undefined' || rowLength === null || rowLength === "null" || rowLength === ""){
+            rowLength = 3;
+            localStorage['iitc_gallery_row_length'] = rowLength;
+        }
+        window.plugin.portalsGallery.imagesPerRow = localStorage['iitc_gallery_row_length'];
+    } else {
+        console.log("not found in local storage")
+        localStorage['iitc_gallery_row_length'] = window.plugin.portalsGallery.imagesPerRow;
+    }
+
     self.collect();
+    const width = (self.imagesPerRow * 250) + 150;
     dialog({
         html: '<div id="gallery-cnt"></div>',
         title: 'Portals Gallery',
-        width: 'auto'
+        dialogClass: 'gallery-dialog',
+        width: width,
+        position: { my: 'left top', at: 'left+50 top+50'}
     });
     $('#gallery-cnt')
-        .append($('<div>', { class: 'controls' })
+        .append($('<div>', { id: 'gallery-cnt-div', class: 'controls' })
             .append($('<label>', { text: 'Search query: ' }).append($('<input>', { type: 'search', id: 'gallery-search' })))
             .append($('<label>', { text: 'Sort by: ' }).append($('<select>', { id: 'gallery-sort' })
                 .append($('<option>', { value: 't', text: 'title' }))
                 .append($('<option>', { value: 'd', text: 'distance' }))
             ))
             .append($('<label>', { class: 'sort-distance', text: 'Distance relative ' }).append($('<input>', { id: 'sort-coords', type: 'search', placeholder: 'latitiude,longitude' })))
+            .append($('<label>', { text: 'Images per row: ' }).append($('<select>', { id: 'row-length' })
+            ))
         )
         .append($('<div>', { class: 'results' }))
         .append($('<div>', { id: 'gallery' }));
+
+    for (let i = 3; i < 9; i++) {
+        let option;
+        if (i == self.imagesPerRow) {
+            option = `<option selected=selected>${i}</option>`
+        } else {
+            option = `<option>${i}</option>`
+        }
+        $('#row-length').append(option);
+    }
 
     makeTable(self.storage);
 
@@ -68,7 +93,13 @@ window.plugin.portalsGallery.open = () => {
     $('#sort-coords').bind('input paste', () => makeTable(self.storage))
     $('#gallery-sort').bind('change', e => {
         self.sortmode = $(e.target).val();
-        makeTable(self.storage)
+        makeTable(self.storage);
+    })
+    $('#row-length').bind('change', e => {
+        self.imagesPerRow = $(e.target).val();
+        makeTable(self.storage);
+        $('#gallery-cnt')[0].parentElement.parentElement.style["width"] = `${(self.imagesPerRow * 250) + 150}px`;
+        localStorage['iitc_gallery_row_length'] = self.imagesPerRow;
     })
 }
 
@@ -97,18 +128,24 @@ function makeTable(array) {
     if (self.sortmode == 't') array = byTitle(array)
     else if (self.sortmode == 'd') array = byDistance(array)
 
-    var rows = Math.ceil(array.length / 3);
+    var rows = Math.ceil(array.length / self.imagesPerRow);
     if (array.length) $('.results').text(`The gallery shows ${array.length} portals`)
     else $('.results').text('There\'re no portals in the gallery')
     for (var i = 0; i < rows; i++) {
         $('#gallery').append($('<div>', { class: 'gallery-row', id: `gallery-row-${i}` }))
-        for (var j = 0; j < 3; j++) {
-            var p = array[i * 3 + j];
+        for (var j = 0; j < self.imagesPerRow; j++) {
+            var p = array[i * self.imagesPerRow + j];
             if (!p) return;
+            const renderPortalLink = document.createElement('a');
+            const guid = p.g;
+            renderPortalLink.textContent = `${p.n}`;
+            renderPortalLink.addEventListener('click', function(e) {
+                window.renderPortalDetails(guid);
+            });
             $(`#gallery-row-${i}`).append($('<div>')
-                .append($('<img>', { src: p.u, width: 200, class: 'gallery-img' }))
+                .append($('<img>', { src: p.u, width: 250, class: 'gallery-img' }))
                 .append($('<span>', { class: 'gallery-coords', text: getCoords(p) }))
-                .append($('<a>', { class: 'gallery-link', href: `https://intel.ingress.com/intel?ll=${getCoords(p)}&z=17&pll=${getCoords(p)}`, text: p.n }))
+                .append(renderPortalLink)
             )
         }
     }
@@ -185,7 +222,8 @@ function appendStyles() {
             '} .gallery-link {' +
             'display: block;' +
             'text-align: center;' +
-            '} .sort-distance { display: block }'
+            '} .sort-distance { display: block }' +
+            '.gallery-dialog {max-width: 80%;}'
     }))
 }
 

@@ -513,7 +513,7 @@ View inventory and highlight portals with keys at any zoom. Can be used with the
 
 Creates the gallery of portals that can be used to solve the First Saturday passcode.
 
-*Version:* 1.0
+*Version:* 1.2
 
 
   

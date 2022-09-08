@@ -1,10 +1,10 @@
 // ==UserScript==
 // @author         DanielOnDiordna
 // @name           Bannergress: Add-on
-// @version        4.1.1.20220512.161200
+// @version        4.1.3.20220907.231700
 // @updateURL      https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/bannergress-plugin-addon.meta.js
 // @downloadURL    https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/bannergress-plugin-addon.user.js
-// @description    [danielondiordna-4.1.1.20220512.161200] Add a lot of extra non-standard functionality. Read the About info for all details. Filters for Done and To-Do banners, on the Map and Browse page (Sign in required). Filter Offline or Online banners from the Browse list. !!! Be aware that using these Plugin Filters will transfer very large amounts of Bannergress data !!!
+// @description    [danielondiordna-4.1.3.20220907.231700] Add a lot of extra non-standard functionality. Read the About info for all details. Filters for Done and To-Do banners, on the Map and Browse page (Sign in required). Filter Offline or Online banners from the Browse list. !!! Be aware that using these Plugin Filters will transfer very large amounts of Bannergress data !!!
 // @category       Addon
 // @id             bannergress-plugin-addon@DanielOnDiordna
 // @runAt          document-end
@@ -19,7 +19,7 @@
     'use strict';
 
     let title = 'Bannergress: Add-on';
-    let version = '4.1.1.20220512.161200';
+    let version = '4.1.3.20220907.231700';
     let author = 'DanielOnDiordna';
     let authorwebsite = 'https://softspot.nl/ingress/';
     let about = `${title}
@@ -91,6 +91,14 @@ Mobile friendly checkbox:
 
     let changelog = `
 Changelog:
+
+version 4.1.3.20220907.231700
+- fixed distance filter a bit more
+
+version 4.1.2.20220907.215300
+- fixed the passphrase warning to support any browser language
+- fixed mission total detection to support any browser language
+- fixed distance filter to support comma and dot decimals to support any browser language
 
 version 4.1.1.20220512.161200
 - fixed distance filter for missions distances in meters and not km
@@ -898,6 +906,22 @@ version 1.0.0.20220325.233500
     function applyBannerListFilters(refsettings) {
         if (!settings.enablefilters) return;
 
+        function convertDistanceToFloat(text) {
+            let distance = -1;
+            if (text.match(/,\d$/)) { // 1 decimal
+                distance = parseFloat(text.replace(/\./g,'').replace(',','.'));
+            } else if (text.match(/\.\d$/)) { // 1 decimal
+                distance = parseFloat(text.replace(/\,/g,''));
+            } else if (text.match(/,\d\d\d/)) { // 1000 seperator
+                distance = parseFloat(text.replace(/\,/g,''));
+            } else if (text.match(/\.\d\d\d/)) { // 1000 seperator
+                distance = parseFloat(text.replace(/\./g,''));
+            } else {
+                distance = parseFloat(text);
+            }
+            return distance;
+        }
+
         let bannerlists = document.querySelectorAll('.banner-list'); // mylists and browse have 1 list, map view has possibly 2 lists, left on desktop (>880px), bottom on mobile (<880px), both are created if screen is resized
         for (let bannerlist of bannerlists) {
             let items = bannerlist.querySelectorAll('.banner-list-entry');
@@ -908,8 +932,8 @@ version 1.0.0.20220325.233500
                 let partiallyoffline = !offline && item.querySelector('.warning') != null;
                 let online = !offline && !partiallyoffline;
                 let bannerinfoitemtexts = [...item.querySelectorAll('.banner-info-item')].map((el)=>{return el.innerText;}).join("\t");
-                let missions = (bannerinfoitemtexts.match(/(\d+) Missions[, ]/) ? parseInt((bannerinfoitemtexts.match(/(\d+) Missions[, ]/))[1]) : -1);
-                let distance = (bannerinfoitemtexts.match(/ ([\d.]+) km/) ? parseFloat((bannerinfoitemtexts.match(/ ([\d.]+) km/))[1]) : (bannerinfoitemtexts.match(/ ([\d.]+) m/) ? parseFloat((bannerinfoitemtexts.match(/ ([\d.]+) m/))[1]) / 1000 : -1));
+                let missions = (bannerinfoitemtexts.match(/^(\d+)/) ? parseInt((bannerinfoitemtexts.match(/^(\d+)/))[1]) : -1); // Missions
+                let distance = (bannerinfoitemtexts.match(/ ([\d\.,]+) km/) ? convertDistanceToFloat((bannerinfoitemtexts.match(/ ([\d\.,]+) km/))[1]) : (bannerinfoitemtexts.match(/ ([\d\.,]+) m/) ? convertDistanceToFloat((bannerinfoitemtexts.match(/ ([\d\.,]+) m/))[1]) / 1000 : -1));
 
                 let hide = false;
                 if ('missionscountmin' in refsettings && 'missionscountmax' in refsettings && missions >= 0) {
@@ -1502,25 +1526,75 @@ version 1.0.0.20220325.233500
 
     function setupBannerMonitor() {
         monitorquerySelectorUntilFound('.banner-info-card',function(element) {
+            // mission info can have different objectives with different positions, and can be in different languages
+            // there is no class defined for the different objectives
+            // To overcome this problem, we will call the API to get the mission data, and find the passphrase data in there
+
+            let apiurl = window.location.href.replace(/^.*\//,"https://api.bannergress.com/bnrs/");
+            let xhr = new XMLHttpRequest();
+            xhr.open('GET',apiurl);
+            xhr.onload = function() {
+                let passphrasewarning = document.createElement('div');
+                if (xhr.status != 200) {
+                    console.warn(`Error ${xhr.status}: ${xhr.statusText}`);
+                    passphrasewarning.innerText = 'passphrase details NOT found';
+                    passphrasewarning.style.backgroundColor = 'red';
+                    passphrasewarning.style.color = 'black';
+                } else { // show the result
+                    let data = JSON.parse(xhr.response);
+                    let objectivecount = {};
+                    for (let objectives of Object.values(data.missions).map((mission)=>{return mission.steps.map((step)=>{return (step.objective || "hidden");})})) {
+                        objectives.forEach(objective => {
+                            objectivecount[objective] = (objectivecount[objective] || 0) + 1;
+                        });
+                    }
+                    //console.log(data);
+                    //console.log(objectivecount);
+                    let passphraseactions = objectivecount.enterPassphrase || 0;
+                    if (passphraseactions > 0) {
+                        passphrasewarning.innerText = 'Passphrase actions: ' + passphraseactions;
+                        passphrasewarning.style.backgroundColor = 'yellow';
+                        passphrasewarning.style.color = 'black';
+                    } else {
+                        passphrasewarning.className = 'banner-info-item';
+                        passphrasewarning.innerText = 'NO passphrase actions';
+                    }
+                    console.log(passphrasewarning.innerText);
+                }
+                DOMinsertAfter(document.querySelector('.banner-card-picture-container'),passphrasewarning);
+            };
+            xhr.send();
+
+/*
             // find info-subrow with Enter Passphrase
-            let passphraseactions = 0;
+            let passphraseactions = -1;
             let infosubrows = element.querySelectorAll('.info-subrow');
             for (let cnt = 0; cnt < infosubrows.length; cnt++) {
                 if (infosubrows[cnt].querySelector('.info-subtitle')?.innerText.match(/^Enter Passphrase/)) {
                     passphraseactions = parseInt(infosubrows[cnt].querySelector('.info-subcontent').innerText);
                 }
             }
+            if (passphraseactions == -1) { // not found, maybe another language! try to get element 1 (2nd row)
+                let subcontent = document.querySelectorAll('.banner-info-card .info-subcontent');
+                if (subcontent.length > 1) {
+                    passphraseactions = parseInt(subcontent[1].innerText);
+                }
+            }
             let passphrasewarning = document.createElement('div');
-            if (passphraseactions) {
+            if (passphraseactions > 0) {
                 passphrasewarning.innerText = 'Passphrase actions: ' + passphraseactions;
                 passphrasewarning.style.backgroundColor = 'yellow';
                 passphrasewarning.style.color = 'black';
-            } else {
+            } else if (passphraseactions == 0) {
                 passphrasewarning.className = 'banner-info-item';
                 passphrasewarning.innerText = 'NO passphrase actions';
+            } else {
+                passphrasewarning.innerText = 'passphrase details NOT found';
+                passphrasewarning.style.backgroundColor = 'red';
+                passphrasewarning.style.color = 'black';
             }
             DOMinsertAfter(document.querySelector('.banner-card-picture-container'),passphrasewarning);
-
+*/
             // always show to top-menu:
             document.querySelector('.top-menu').classList.remove('hide-on-mobile');
 
@@ -1970,9 +2044,8 @@ version 1.0.0.20220325.233500
                 let backbutton = document.querySelector('.filter-and-sort-modal .back-button');
                 if (backbutton && offlinechecked == 'buttonfound') {
                     backbutton.click();
-                    let showofflinebannerslines = [...document.querySelectorAll('.filter-and-sort-modal .filter-and-sort-switch-row')].filter((el)=>{return el.querySelector('h3').innerText == 'Show offline banners'; });
-                    if (showofflinebannerslines.length) {
-                        let showofflinebannersline = showofflinebannerslines[0];
+                    let showofflinebannersline = document.querySelector('.filter-and-sort-modal .filter-and-sort-switch-row');
+                    if (showofflinebannersline) {
                         let showofflinebannerscheckbox = showofflinebannersline.querySelector('button');
                         if (showofflinebannerscheckbox) {
                             offlinechecked = JSON.parse(showofflinebannerscheckbox.getAttribute('aria-checked'));

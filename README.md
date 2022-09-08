@@ -26,10 +26,10 @@ See the [Contributing](CONTRIBUTING.md) documentation.
 
 
 
-[danielondiordna-4.1.1.20220512.161200] Add a lot of extra non-standard functionality. Read the About info for all details. Filters for Done and To-Do banners, on the Map and Browse page (Sign in required). Filter Offline or Online banners from the Browse list. !!! Be aware that using these Plugin Filters will transfer very large amounts of Bannergress data !!!
+[danielondiordna-4.1.3.20220907.231700] Add a lot of extra non-standard functionality. Read the About info for all details. Filters for Done and To-Do banners, on the Map and Browse page (Sign in required). Filter Offline or Online banners from the Browse list. !!! Be aware that using these Plugin Filters will transfer very large amounts of Bannergress data !!!
 
 *[Homepage](https://softspot.nl/ingress/plugins/documentation/bannergress-plugin-addon.user.js.html)* |
-*Version:* 4.1.1.20220512.161200
+*Version:* 4.1.3.20220907.231700
 
 
   

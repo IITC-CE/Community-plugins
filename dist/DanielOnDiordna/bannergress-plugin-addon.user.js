@@ -1,10 +1,10 @@
 // ==UserScript==
 // @author         DanielOnDiordna
 // @name           Bannergress: Add-on
-// @version        4.1.3.20220907.231700
+// @version        4.2.0.20220913.204400
 // @updateURL      https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/bannergress-plugin-addon.meta.js
 // @downloadURL    https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/bannergress-plugin-addon.user.js
-// @description    [danielondiordna-4.1.3.20220907.231700] Add a lot of extra non-standard functionality. Read the About info for all details. Filters for Done and To-Do banners, on the Map and Browse page (Sign in required). Filter Offline or Online banners from the Browse list. !!! Be aware that using these Plugin Filters will transfer very large amounts of Bannergress data !!!
+// @description    [danielondiordna-4.2.0.20220913.204400] Add a lot of extra non-standard functionality. Read the About info for all details. Filters for Done and To-Do banners, on the Map and Browse page (Sign in required). Filter Offline or Online banners from the Browse list. !!! Be aware that using these Plugin Filters will transfer very large amounts of Bannergress data !!!
 // @category       Addon
 // @id             bannergress-plugin-addon@DanielOnDiordna
 // @runAt          document-end
@@ -19,7 +19,7 @@
     'use strict';
 
     let title = 'Bannergress: Add-on';
-    let version = '4.1.3.20220907.231700';
+    let version = '4.2.0.20220913.204400';
     let author = 'DanielOnDiordna';
     let authorwebsite = 'https://softspot.nl/ingress/';
     let about = `${title}
@@ -80,6 +80,7 @@ Banner details:
 - Always show top-menu with search and sign in button
 - Added Google Maps directions link (origin your location) for each mission (grouped in 10 portals)
 - Added Google Maps waypoints only link (origin first portal) for each mission (grouped in 10 portals)
+- Added distance details in meters and a sum of all expanded missions
 
 Mobile friendly checkbox:
 - Make everything more compact, very practical for mobile users
@@ -91,6 +92,12 @@ Mobile friendly checkbox:
 
     let changelog = `
 Changelog:
+
+version 4.2.0.20220913.204400
+- added exact mission distance in meters for every expanded mission
+- added individual missions length (sum) in meters
+- added number of expanded missions and their total length (sum) in meters
+- added a calculated distance between missions
 
 version 4.1.3.20220907.231700
 - fixed distance filter a bit more
@@ -266,6 +273,8 @@ version 1.0.0.20220325.233500
     let addonfilters = {};
 
     let offlinechecked = undefined;
+
+    let missiondata = undefined;
 
     const infoicon = '<?xml version="1.0"?><svg fill="#ffffff" xmlns="http://www.w3.org/2000/svg"  viewBox="0 0 30 30" width="20px" height="20px">    <path d="M15,3C8.373,3,3,8.373,3,15c0,6.627,5.373,12,12,12s12-5.373,12-12C27,8.373,21.627,3,15,3z M16,21h-2v-7h2V21z M15,11.5 c-0.828,0-1.5-0.672-1.5-1.5s0.672-1.5,1.5-1.5s1.5,0.672,1.5,1.5S15.828,11.5,15,11.5z"/></svg>';
     const mylistsicon = `<?xml version="1.0" encoding="iso-8859-1"?><svg fill="none" width="24" height="24" version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
@@ -702,6 +711,9 @@ version 1.0.0.20220325.233500
         }
         .bannergress-add-on-checkboxarea input[type=checkbox] {
             cursor: pointer;
+            margin: 0 5px;
+        }
+        .bannergress-add-on-missiondetails {
             margin: 0 5px;
         }
         `;
@@ -1524,6 +1536,22 @@ version 1.0.0.20220325.233500
         }
     }
 
+    function updateMissionDetails() {
+        if (!missiondata) return;
+        // update details:
+        let expandedmissionslength = document.querySelector('.bannergress-add-on-expandedmissionslength');
+        if (expandedmissionslength) {
+            let expandedmissionslengthsum = [...document.querySelectorAll('.mission-card')].map((missioncard,index)=>{return (missioncard.querySelector('.mission-info') ? missiondata.missions[index].lengthMeters : 0);}).reduce((lengthMetersSum, lengthMeters) => lengthMetersSum + lengthMeters, 0);
+            expandedmissionslength.innerText = expandedmissionslengthsum;
+        }
+        // show actual mission lengths
+        [...document.querySelectorAll('.mission-card')].map((missioncard,index)=>{let firstinfo = missioncard.querySelector('.mission-info-logo-and-text'); let actuallength = missioncard.querySelector('.bannergress-add-on-actuallength'); if (firstinfo && !actuallength) { actuallength = document.createElement('div'); actuallength.className = 'mission-info-logo-and-text'; actuallength.classList.add('bannergress-add-on-actuallength'); actuallength.innerText = '(' + missiondata.missions[index].lengthMeters + ' m)'; firstinfo.parentNode.insertBefore(actuallength, firstinfo.nextSibling); } });
+        let expandedmissionstotal = document.querySelector('.bannergress-add-on-expandedmissionstotal');
+        if (expandedmissionstotal) {
+            expandedmissionstotal.innerText = [...document.querySelectorAll('.mission-card')].filter((missioncard)=>{return missioncard.querySelector('.mission-info');}).length;
+        }
+    }
+
     function setupBannerMonitor() {
         monitorquerySelectorUntilFound('.banner-info-card',function(element) {
             // mission info can have different objectives with different positions, and can be in different languages
@@ -1535,20 +1563,40 @@ version 1.0.0.20220325.233500
             xhr.open('GET',apiurl);
             xhr.onload = function() {
                 let passphrasewarning = document.createElement('div');
+                let missionlength = document.createElement('div');
+                missionlength.className = 'banner-info-item';
+                let expandedmissionslength = document.createElement('div');
+                expandedmissionslength.className = 'banner-info-item';
+                let distancebetweenmissions = document.createElement('div');
+                distancebetweenmissions.className = 'banner-info-item';
+                let missioncardlength = document.createElement('div');
+                missioncardlength.className = 'bannergress-add-on-missiondetails';
+                missioncardlength.classList.add('bannergress-add-on-missioncardlength');
                 if (xhr.status != 200) {
                     console.warn(`Error ${xhr.status}: ${xhr.statusText}`);
                     passphrasewarning.innerText = 'passphrase details NOT found';
                     passphrasewarning.style.backgroundColor = 'red';
                     passphrasewarning.style.color = 'black';
                 } else { // show the result
-                    let data = JSON.parse(xhr.response);
+                    missiondata = JSON.parse(xhr.response);
                     let objectivecount = {};
-                    for (let objectives of Object.values(data.missions).map((mission)=>{return mission.steps.map((step)=>{return (step.objective || "hidden");})})) {
+                    for (let objectives of Object.values(missiondata.missions).map((mission)=>{return mission.steps.map((step)=>{return (step.objective || "hidden");})})) {
                         objectives.forEach(objective => {
                             objectivecount[objective] = (objectivecount[objective] || 0) + 1;
                         });
                     }
-                    //console.log(data);
+                    let lengthMetersSum = Object.values(missiondata.missions).map((mission)=>{return mission.lengthMeters;}).reduce((lengthMetersSum, lengthMeters) => lengthMetersSum + lengthMeters, 0);
+                    missionlength.innerHTML = 'Individual missions length (sum): <span class="bannergress-add-on-missiondetails bannergress-add-on-missionslength">' + lengthMetersSum + '</span> m';
+
+                    let expandedMissionsLengthSum = 0;
+                    expandedmissionslength.innerHTML = '<span class="bannergress-add-on-missiondetails bannergress-add-on-expandedmissionstotal">0</span> Expanded missions. Length (sum): <span class="bannergress-add-on-missiondetails bannergress-add-on-expandedmissionslength">' + expandedMissionsLengthSum + '</span> m';
+
+                    let distancebetweenmissionsdiff = missiondata.lengthMeters - lengthMetersSum;
+                    distancebetweenmissions.innerHTML = 'Calculated distance between missions: ' + distancebetweenmissionsdiff + ' m';
+
+                    missioncardlength.innerText = '(' + missiondata.lengthMeters + ' m)';
+
+                    console.log(missiondata);
                     //console.log(objectivecount);
                     let passphraseactions = objectivecount.enterPassphrase || 0;
                     if (passphraseactions > 0) {
@@ -1562,6 +1610,10 @@ version 1.0.0.20220325.233500
                     console.log(passphrasewarning.innerText);
                 }
                 DOMinsertAfter(document.querySelector('.banner-card-picture-container'),passphrasewarning);
+                DOMinsertAfter(passphrasewarning,missionlength);
+                DOMinsertAfter(missionlength,expandedmissionslength);
+                DOMinsertAfter(expandedmissionslength,distancebetweenmissions);
+                distancebetweenmissions.nextSibling.appendChild(missioncardlength);
             };
             xhr.send();
 
@@ -1608,7 +1660,7 @@ version 1.0.0.20220325.233500
             let activetabname = activetab.innerText;
             let lasttabnumber = tabnames.indexOf(settings.bannerlasttab);
 
-            setTimeout(function() { // wait untile buttons have their click events set up
+            setTimeout(function() { // wait until buttons have their click events set up
                 if (settings.bannerurl == document.location.pathname && settings.bannerexpandlist.match(/1/) && settings.bannerlasttab != 'Missions') {
                     tabbuttons[tabnames.indexOf('Missions')].click();
                 }
@@ -1631,7 +1683,7 @@ version 1.0.0.20220325.233500
             let missions = document.querySelectorAll('.mission-card');
             if (settings.bannerurl == document.location.pathname && settings.bannerexpandlist.match(/1/)) { // only restore for same banner
                 // restore expand state
-                setTimeout(function() { // wait untile buttons have their click events set up
+                setTimeout(function() { // wait until buttons have their click events set up
                     let expandallbutton = document.querySelector('.ant-btn.bg-button.bg-button-default');
                     if (!settings.bannerexpandlist.match(/0/) && expandallbutton) {
                         expandallbutton.click();
@@ -1645,6 +1697,7 @@ version 1.0.0.20220325.233500
                             }
                         }
                     }
+                    updateMissionDetails();
                 });
             }
 
@@ -1658,6 +1711,7 @@ version 1.0.0.20220325.233500
                         settings.bannerexpandlist = JSON.stringify(expandlist);
                         storesettings();
                         createMissionsMapLink(el);
+                        updateMissionDetails();
                     });
                 },false);
             });
@@ -1671,6 +1725,7 @@ version 1.0.0.20220325.233500
                     settings.bannerexpandlist = JSON.stringify(expandlist);
                     storesettings();
                     [...document.querySelectorAll('.mission-card')].map((el)=>{createMissionsMapLink(el);});
+                    updateMissionDetails();
                 });
             },false);
         });

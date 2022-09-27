@@ -1,10 +1,10 @@
 // ==UserScript==
 // @author         DanielOnDiordna
 // @name           Bannergress: Add-on
-// @version        4.2.0.20220913.204400
+// @version        4.2.1.20220926.214200
 // @updateURL      https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/bannergress-plugin-addon.meta.js
 // @downloadURL    https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/bannergress-plugin-addon.user.js
-// @description    [danielondiordna-4.2.0.20220913.204400] Add a lot of extra non-standard functionality. Read the About info for all details. Filters for Done and To-Do banners, on the Map and Browse page (Sign in required). Filter Offline or Online banners from the Browse list. !!! Be aware that using these Plugin Filters will transfer very large amounts of Bannergress data !!!
+// @description    [danielondiordna-4.2.1.20220926.214200] Add a lot of extra non-standard functionality. Read the About info for all details. Filters for Done and To-Do banners, on the Map and Browse page (Sign in required). Filter Offline or Online banners from the Browse list. !!! Be aware that using these Plugin Filters will transfer very large amounts of Bannergress data !!!
 // @category       Addon
 // @id             bannergress-plugin-addon@DanielOnDiordna
 // @runAt          document-end
@@ -19,7 +19,7 @@
     'use strict';
 
     let title = 'Bannergress: Add-on';
-    let version = '4.2.0.20220913.204400';
+    let version = '4.2.1.20220926.214200';
     let author = 'DanielOnDiordna';
     let authorwebsite = 'https://softspot.nl/ingress/';
     let about = `${title}
@@ -80,7 +80,7 @@ Banner details:
 - Always show top-menu with search and sign in button
 - Added Google Maps directions link (origin your location) for each mission (grouped in 10 portals)
 - Added Google Maps waypoints only link (origin first portal) for each mission (grouped in 10 portals)
-- Added distance details in meters and a sum of all expanded missions
+- Added distance details in meteres and a sum of all expanded missions
 
 Mobile friendly checkbox:
 - Make everything more compact, very practical for mobile users
@@ -92,6 +92,9 @@ Mobile friendly checkbox:
 
     let changelog = `
 Changelog:
+
+version 4.2.1.20220926.214200
+- ignore new-banner and preview-banner pages
 
 version 4.2.0.20220913.204400
 - added exact mission distance in meters for every expanded mission
@@ -1558,6 +1561,8 @@ version 1.0.0.20220325.233500
             // there is no class defined for the different objectives
             // To overcome this problem, we will call the API to get the mission data, and find the passphrase data in there
 
+            if (document.location.pathname.match(/^\/(new|preview)-banner$/)) return; // ignore new-banner and preview-banner pages
+
             let apiurl = window.location.href.replace(/^.*\//,"https://api.bannergress.com/bnrs/");
             let xhr = new XMLHttpRequest();
             xhr.open('GET',apiurl);
@@ -1573,7 +1578,7 @@ version 1.0.0.20220325.233500
                 missioncardlength.className = 'bannergress-add-on-missiondetails';
                 missioncardlength.classList.add('bannergress-add-on-missioncardlength');
                 if (xhr.status != 200) {
-                    console.warn(`Error ${xhr.status}: ${xhr.statusText}`);
+                    console.warn(`Error ${xhr.status}: ${xhr.statusText}`,xhr);
                     passphrasewarning.innerText = 'passphrase details NOT found';
                     passphrasewarning.style.backgroundColor = 'red';
                     passphrasewarning.style.color = 'black';
@@ -1617,36 +1622,6 @@ version 1.0.0.20220325.233500
             };
             xhr.send();
 
-/*
-            // find info-subrow with Enter Passphrase
-            let passphraseactions = -1;
-            let infosubrows = element.querySelectorAll('.info-subrow');
-            for (let cnt = 0; cnt < infosubrows.length; cnt++) {
-                if (infosubrows[cnt].querySelector('.info-subtitle')?.innerText.match(/^Enter Passphrase/)) {
-                    passphraseactions = parseInt(infosubrows[cnt].querySelector('.info-subcontent').innerText);
-                }
-            }
-            if (passphraseactions == -1) { // not found, maybe another language! try to get element 1 (2nd row)
-                let subcontent = document.querySelectorAll('.banner-info-card .info-subcontent');
-                if (subcontent.length > 1) {
-                    passphraseactions = parseInt(subcontent[1].innerText);
-                }
-            }
-            let passphrasewarning = document.createElement('div');
-            if (passphraseactions > 0) {
-                passphrasewarning.innerText = 'Passphrase actions: ' + passphraseactions;
-                passphrasewarning.style.backgroundColor = 'yellow';
-                passphrasewarning.style.color = 'black';
-            } else if (passphraseactions == 0) {
-                passphrasewarning.className = 'banner-info-item';
-                passphrasewarning.innerText = 'NO passphrase actions';
-            } else {
-                passphrasewarning.innerText = 'passphrase details NOT found';
-                passphrasewarning.style.backgroundColor = 'red';
-                passphrasewarning.style.color = 'black';
-            }
-            DOMinsertAfter(document.querySelector('.banner-card-picture-container'),passphrasewarning);
-*/
             // always show to top-menu:
             document.querySelector('.top-menu').classList.remove('hide-on-mobile');
 

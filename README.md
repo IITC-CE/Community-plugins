@@ -131,7 +131,7 @@ Bring ameba64/ingress-items icons into IITC
 
 Show virus in the regular Comm and add a new tab with portal/player name filter and event type filter.
 
-*Version:* 0.4.6
+*Version:* 0.4.7
 
 
   
@@ -489,7 +489,7 @@ Estimate the portal decaying.
 
 View inventory and highlight portals with keys at any zoom. Can be used with the official plugins Keys and Keys on map to show the number of keys on the map.
 
-*Version:* 0.3.6
+*Version:* 0.4.0
 
 
   

@@ -2,7 +2,7 @@
 // @author         jaiperdu
 // @name           COMM Filter Tab
 // @category       COMM
-// @version        0.4.6
+// @version        0.4.7
 // @description    Show virus in the regular Comm and add a new tab with portal/player name filter and event type filter.
 // @id             comm-filter-tab@jaiperdu
 // @namespace      https://github.com/IITC-CE/ingress-intel-total-conversion
@@ -20,13 +20,13 @@ if(typeof window.plugin !== 'function') window.plugin = function() {};
 //PLUGIN AUTHORS: writing a plugin outside of the IITC build environment? if so, delete these lines!!
 //(leaving them in place might break the 'About IITC' page or break update checks)
 plugin_info.buildName = 'lejeu';
-plugin_info.dateTimeVersion = '2022-07-11-224151';
+plugin_info.dateTimeVersion = '2022-09-28-203519';
 plugin_info.pluginId = 'comm-filter-tab';
 //END PLUGIN AUTHORS NOTE
 
 
-//todo list
-//4) add checkable filtering for all/faction/alert
+// todo list
+// 4) add checkable filtering for all/faction/alert
 
 // ==============
 // chat injection
@@ -52,7 +52,7 @@ function renderPortal (portal) {
 
 function renderFactionEnt (faction) {
   var name = faction.team === 'RESISTANCE' ? 'Resistance' : 'Enlightened';
-  var spanClass = faction.team === 'RESISTANCE' ? TEAM_TO_CSS[TEAM_RES] : TEAM_TO_CSS[TEAM_ENL];
+  var spanClass = faction.team === 'RESISTANCE' ? window.TEAM_TO_CSS[window.TEAM_RES] : window.TEAM_TO_CSS[window.TEAM_ENL];
   return $('<div/>').html($('<span/>')
     .attr('class', spanClass)
     .text(name)).html();
@@ -110,8 +110,8 @@ function renderMarkup (markup) {
 };
 
 function renderTimeCell(time, classNames) {
-  var ta = unixTimeToHHmm(time);
-  var tb = unixTimeToDateTimeString(time, true);
+  var ta = window.unixTimeToHHmm(time);
+  var tb = window.unixTimeToDateTimeString(time, true);
   // add <small> tags around the milliseconds
   tb = (tb.slice(0,19)+'<small class="milliseconds">'+tb.slice(19)+'</small>').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   return '<td><time class="' + classNames + '" title="'+tb+'" data-timestamp="'+time+'">'+ta+'</time></td>';
@@ -131,7 +131,7 @@ function renderMsgRow(data) {
   var timeCell = renderTimeCell(data.time, timeClass);
 
   var nickClasses = ['nickname'];
-  if (data.player.team === TEAM_ENL || data.player.team === TEAM_RES) nickClasses.push(TEAM_TO_CSS[data.player.team]);
+  if (data.player.team === window.TEAM_ENL || data.player.team === window.TEAM_RES) nickClasses.push(window.TEAM_TO_CSS[data.player.team]);
   // highlight things said/done by the player in a unique colour (similar to @player mentions from others in the chat text itself)
   if (data.player.name === window.PLAYER.nickname) nickClasses.push('pl_nudge_me');
   var nickCell = renderNickCell(data.player.name, nickClasses.join(' '));
@@ -191,7 +191,7 @@ function parseMsgData(data) {
   var msgToPlayer = msgAlert && (isPublic || isSecure);
 
   var time = data[1];
-  var team = data[2].plext.team === 'RESISTANCE' ? TEAM_RES : TEAM_ENL;
+  var team = data[2].plext.team === 'RESISTANCE' ? window.TEAM_RES : window.TEAM_ENL;
   var auto = data[2].plext.plextType !== 'PLAYER_GENERATED';
   var systemNarrowcast = data[2].plext.plextType === 'SYSTEM_NARROWCAST';
 
@@ -206,7 +206,7 @@ function parseMsgData(data) {
 
     case 'PLAYER': // automatically generated messages
       nick = ent[1].plain;
-      team = ent[1].team === 'RESISTANCE' ? TEAM_RES : TEAM_ENL;
+      team = ent[1].team === 'RESISTANCE' ? window.TEAM_RES : window.TEAM_ENL;
       break;
 
     default:
@@ -260,7 +260,7 @@ function renderData(data, element, likelyWereOldMsgs, sortedGuids) {
   if (elm.is(':hidden')) return;
 
   // discard guids and sort old to new
-  //TODO? stable sort, to preserve server message ordering? or sort by GUID if timestamps equal?
+  // TODO? stable sort, to preserve server message ordering? or sort by GUID if timestamps equal?
   var vals = sortedGuids;
   if (vals === undefined) {
     vals = $.map(data, function(v, k) { return [[v[0], k]]; });
@@ -437,7 +437,7 @@ function reParseData (data) {
   let atPlayers = markup.filter(ent => ent[0] === 'AT_PLAYER').map(ent =>
     ({
       name: ent[1].plain.slice(1),
-      team: ent[1].team === 'RESISTANCE' ? TEAM_RES : TEAM_ENL
+      team: ent[1].team === 'RESISTANCE' ? window.TEAM_RES : window.TEAM_ENL
     })
   );
 
@@ -447,6 +447,7 @@ function reParseData (data) {
   case 'field':
   case 'destroy field':
     parse.mus = numbers[0];
+    // fallthrough
   case 'capture':
   case 'beacon':
   case 'battle':
@@ -465,6 +466,11 @@ function reParseData (data) {
     break;
   }
   if (portals.length > 0) parse.portals = portals;
+  if (parse.from && parse.to) {
+    const fromLatLng = L.latLng(parse.from.latE6 * 1e-6, parse.from.lngE6 * 1e-6);
+    const toLatLng = L.latLng(parse.to.latE6 * 1e-6, parse.to.lngE6 * 1e-6);
+    parse.dist = fromLatLng.distanceTo(toLatLng);
+  }
 
   if (parse.type === 'battle result') {
     parse.faction = markup[0][1].team;
@@ -560,6 +566,29 @@ function computeMUs (guids, data) {
   }
 }
 
+function showDistances(guids, data) {
+  for (const guid of guids) {
+    const parseData = data[guid][4];
+    const log = parseData['comm-filter'];
+    if (log.type === 'link' && log.dist && parseData.markup.length === 5) {
+      parseData.markup.push([
+        'TEXT',
+        {
+          plain:
+            ' (' +
+            (log.dist < 1000
+              ? log.dist.toFixed(0) + 'm'
+              : log.dist < 100
+              ? (log.dist / 1000).toFixed(2) + 'km'
+              : (log.dist / 1000).toFixed(0) + 'km') +
+            ')',
+        },
+      ]);
+      data[guid][2] = renderMsgRow(parseData);
+    }
+  }
+}
+
 function fixScheduledTime (guids, data) {
   for (const guid of guids) {
     const parseData = data[guid][4];
@@ -578,7 +607,7 @@ function fixScheduledTime (guids, data) {
 
 function computeHidden() {
   let hidden = [];
-  for (const [guid, prop] of commFilter.viruses) {
+  for (const prop of commFilter.viruses.values()) {
     hidden = hidden.concat(prop.guids);
   }
 
@@ -590,8 +619,8 @@ function computeHidden() {
 
     // special type
     if (commFilter.filters.type.includes('all')) show = true;
-    if (commFilter.filters.type.includes('chat all') && (d.type == 'chat' || d.type == 'chat faction')) show = true;
-    if (commFilter.filters.type.includes('chat public') && d.type == 'chat') show = true;
+    if (commFilter.filters.type.includes('chat all') && (d.type === 'chat' || d.type === 'chat faction')) show = true;
+    if (commFilter.filters.type.includes('chat public') && d.type === 'chat') show = true;
     if (commFilter.filters.type.includes('virus') && d.virus) show = true;
 
     let match = false;
@@ -638,6 +667,12 @@ function updateCSS () {
     if (d.msgToPlayer) highlights.push(guid);
   }
 
+  // Possible HL for long links
+  // for (const guid of window.chat._public.guids) {
+  //   const d = window.chat._public.data[guid][4];
+  //   if (d['comm-filter'] && d['comm-filter'].dist && d['comm-filter'].dist > 200000) highlights.push(guid);
+  // }
+
   let content = '';
   if (ada.length > 0) {
     content += ada.map((guid) => '#chat tr[data-guid="' + guid + '"] td:nth-child(3):before').join(',\n')
@@ -669,6 +704,7 @@ function reparsePublicData () {
   computeMUs(public.guids, public.data);
   findVirus(public.guids, public.data);
   fixScheduledTime(public.guids, public.data);
+  showDistances(public.guids, public.data);
 
   commFilter.hidden = computeHidden();
 
@@ -727,14 +763,14 @@ function tabCreate () {
     $('#chatfilter').scroll(function() {
       var t = $(this);
       if(t.data('ignoreNextScroll')) return t.data('ignoreNextScroll', false);
-      if(t.scrollTop() < CHAT_REQUEST_SCROLL_TOP) window.chat.requestPublic(true);
+      if(t.scrollTop() < window.CHAT_REQUEST_SCROLL_TOP) window.chat.requestPublic(true);
       if(scrollBottom(t) === 0) window.chat.requestPublic(false);
     });
 
-    if (useAndroidPanes()) {
+    if (window.useAndroidPanes()) {
       android.addPane('comm-filter-tab', 'Comm Filter', 'ic_action_view_as_list');
       window.addHook('paneChanged', function (id) {
-        if (id == 'comm-filter-tab') {
+        if (id === 'comm-filter-tab') {
           tabToogle();
         }
       })
@@ -776,6 +812,7 @@ function tabCreate () {
 
 window.plugin.commFilter = commFilter;
 
+// eslint-disable-next-line no-unused-vars
 function setup () {
   $("<style>")
     .prop("type", "text/css")

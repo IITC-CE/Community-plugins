@@ -489,7 +489,7 @@ Estimate the portal decaying.
 
 View inventory and highlight portals with keys at any zoom. Can be used with the official plugins Keys and Keys on map to show the number of keys on the map.
 
-*Version:* 0.4.0
+*Version:* 0.4.1
 
 
   

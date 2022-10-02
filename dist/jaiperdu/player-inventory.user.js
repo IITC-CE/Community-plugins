@@ -3,7 +3,7 @@
 // @author         jaiperdu
 // @name           Player Inventory
 // @category       Info
-// @version        0.4.0
+// @version        0.4.1
 // @description    View inventory and highlight portals with keys at any zoom. Can be used with the official plugins Keys and Keys on map to show the number of keys on the map.
 // @id             player-inventory@jaiperdu
 // @namespace      https://github.com/IITC-CE/ingress-intel-total-conversion
@@ -44,6 +44,11 @@ function getItemName(t) {
   return getItemsMap()[t] || t;
 }
 
+const orderedTypes = ['PORTAL_LINK_KEY', 'EMITTER_A', 'EMP_BURSTER', 'ULTRA_STRIKE', 'FLIP_CARD', 'FLIP_CARD:ADA', 'FLIP_CARD:JARVIS', 'POWER_CUBE', 'BOOSTED_POWER_CUBE', 'BOOSTED_POWER_CUBE_K', 'RES_SHIELD', 'EXTRA_SHIELD', 'TURRET', 'FORCE_AMP', 'LINK_AMPLIFIER', 'ULTRA_LINK_AMP', 'HEATSINK', 'MULTIHACK', 'TRANSMUTER_ATTACK', 'TRANSMUTER_DEFENSE', 'MEDIA', 'CAPSULE', 'INTEREST_CAPSULE', 'KEY_CAPSULE', 'KINETIC_CAPSULE', 'DRONE', 'MYSTERIOUS_ITEM_PLACEHOLDER', 'PLAYER_POWERUP', 'PLAYER_POWERUP:APEX', 'PORTAL_POWERUP', 'PORTAL_POWERUP:FRACK', 'PORTAL_POWERUP:NEMESIS', 'PORTAL_POWERUP:TOASTY', 'PORTAL_POWERUP:EXO5', 'PORTAL_POWERUP:MAGNUSRE', 'PORTAL_POWERUP:VIANOIR', 'PORTAL_POWERUP:VIALUX', 'PORTAL_POWERUP:INITIO', 'PORTAL_POWERUP:AEGISNOVA', 'PORTAL_POWERUP:OBSIDIAN', 'PORTAL_POWERUP:NIA', 'PORTAL_POWERUP:ENL', 'PORTAL_POWERUP:RES', 'PORTAL_POWERUP:MEET', 'PORTAL_POWERUP:LOOK', 'PORTAL_POWERUP:BB_BATTLE', 'PORTAL_POWERUP:BB_BATTLE_RARE', 'PORTAL_POWERUP:FW_ENL', 'PORTAL_POWERUP:FW_RES', 'PORTAL_POWERUP:BN_BLM'];
+function addIfMissing(type) {
+  if (!orderedTypes.includes(type)) orderedTypes.push(type);
+}
+
 const dontCount = ['DRONE'];
 const levelItemTypes = ['EMITTER_A', 'EMP_BURSTER', 'POWER_CUBE', 'ULTRA_STRIKE', 'MEDIA'];
 class Inventory {
@@ -56,6 +61,7 @@ class Inventory {
   }
 
   clearItem(type) {
+    addIfMissing(type);
     this.items[type] = {
       type: type,
       name: getItemName(type),
@@ -747,8 +753,6 @@ function stopAutoRefresh() {
   clearTimeout(playerInventory.autoRefreshTimer);
 }
 
-const orderedTypes = ['PORTAL_LINK_KEY', 'EMITTER_A', 'EMP_BURSTER', 'ULTRA_STRIKE', 'FLIP_CARD', 'FLIP_CARD:ADA', 'FLIP_CARD:JARVIS', 'POWER_CUBE', 'BOOSTED_POWER_CUBE', 'BOOSTED_POWER_CUBE_K', 'RES_SHIELD', 'EXTRA_SHIELD', 'TURRET', 'FORCE_AMP', 'LINK_AMPLIFIER', 'ULTRA_LINK_AMP', 'HEATSINK', 'MULTIHACK', 'TRANSMUTER_ATTACK', 'TRANSMUTER_DEFENSE', 'MEDIA', 'CAPSULE', 'INTEREST_CAPSULE', 'KEY_CAPSULE', 'KINETIC_CAPSULE', 'DRONE', 'MYSTERIOUS_ITEM_PLACEHOLDER', 'PLAYER_POWERUP', 'PLAYER_POWERUP:APEX', 'PORTAL_POWERUP', 'PORTAL_POWERUP:FRACK', 'PORTAL_POWERUP:NEMESIS', 'PORTAL_POWERUP:TOASTY', 'PORTAL_POWERUP:EXO5', 'PORTAL_POWERUP:MAGNUSRE', 'PORTAL_POWERUP:VIANOIR', 'PORTAL_POWERUP:VIALUX', 'PORTAL_POWERUP:INITIO', 'PORTAL_POWERUP:AEGISNOVA', 'PORTAL_POWERUP:OBSIDIAN', 'PORTAL_POWERUP:NIA', 'PORTAL_POWERUP:ENL', 'PORTAL_POWERUP:RES', 'PORTAL_POWERUP:MEET', 'PORTAL_POWERUP:LOOK', 'PORTAL_POWERUP:BB_BATTLE', 'PORTAL_POWERUP:BB_BATTLE_RARE', 'PORTAL_POWERUP:FW_ENL', 'PORTAL_POWERUP:FW_RES', 'PORTAL_POWERUP:BN_BLM'];
-
 function Fragment(attrs) {
   const fragment = document.createDocumentFragment();
   recursiveAppend(fragment, attrs.children);
@@ -862,7 +866,7 @@ function AllSumTable ({
           break;
 
         default:
-          beacon++;
+          beacon += inventory.countType(type);
       }
     }
   }

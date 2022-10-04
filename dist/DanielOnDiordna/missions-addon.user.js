@@ -2,10 +2,10 @@
 // @author         DanielOnDiordna
 // @name           Missions add-on
 // @category       Addon
-// @version        0.2.5.20210724.002500
+// @version        1.0.0.20221003.221800
 // @updateURL      https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/missions-addon.meta.js
 // @downloadURL    https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/missions-addon.user.js
-// @description    [danielondiordna-0.2.5.20210724.002500] Add-on to add extra functionality for the missions plugin: 1: Optionally search for all missions within visible range, not just the top 25 (be aware: using this option will increase your server requests). 2: Sort the loaded missions by title (including roman numbers). 3: Show and remove stored missions. 4: Selected mission color changed to red. 5. Displayed missions show filled start portal. 6. Banner view for stored missions. 7. Transfer missions (export/import). 8. Missions routes layer can show a colorful path. 9. Redraw opened missions after IITC reloads.
+// @description    [danielondiordna-1.0.0.20221003.221800] Add-on to add extra functionality for the missions plugin (up to version 0.3.0): 1: Optionally search for all missions within visible range, not just the top 25 (be aware: using this option will increase your server requests). 2: Sort the loaded missions by title (including roman numbers). 3: Show and remove stored missions. 4: Selected mission color changed to red. 5. Displayed missions show filled start portal. 6. Banner view for stored missions. 7. Transfer missions (export/import). 8. Missions routes layer can show a colorful path. 9. Redraw opened missions after IITC reloads.
 // @id             missions-addon@DanielOnDiordna
 // @namespace      https://softspot.nl/ingress/
 // @match          https://intel.ingress.com/*
@@ -22,63 +22,102 @@ function wrapper(plugin_info) {
     var self = window.plugin.missionsAddon;
     self.id = 'missionsAddon';
     self.title = 'Missions add-on';
-    self.version = '0.2.5.20210724.002500';
+    self.version = '1.0.0.20221003.221800';
     self.author = 'DanielOnDiordna';
     self.changelog = `
 Changelog:
 
-version 0.0.1.20191129.233100
-- first release
+version 1.0.0.20221003.221800
+- reversed the changelog order
+- added changelog button on settings help screen
+- fixed compatibility for stock Missions plugin version 0.3.0
+- added auto list refresh on map move end for pre version 0.3.0
+- added option to toggle auto refresh missions list when map is moved (default on from Missions plugin version 0.3.0)
+- changed dialog ids to be compatible with stock Missions plugin version 0.2.2 and version 0.3.0
+- changed setupShowMissionListDialog to be compatible with stock Missions plugin version 0.2.2 and version 0.3.0
+- placed the eval functions inside try catch methods to prevent crashes and handle errors
+- updated the help page to match the current list of settings
+- added button to open all missions from banner view
+- added zoom all missions from banner view
+- added 'window' in front of global functions like L and dialog
+- added curly brackets for readability
+- open settings help in a separate window aligned to the right
+- toggle colorful path option now redraws all opened missions instantly
 
-version 0.0.2.20210130.211900
-- updated plugin wrapper and userscript header formatting to match IITC-CE coding
+version 0.2.5.20210724.002500
+- prevent double plugin setup on hook iitcLoaded
 
-version 0.0.3.20210131.222200
-- load all missions for all on screen mission start portals, not just the top 25
-- store and show loaded missions until map reload or missions reload
-- improved title sort for digits without trailing zeros
+version 0.2.5.20210527.203000
+- fixed debuglayer retry bounds coloring
+- added expert setting to choose the number of scan retry attempts (default 2)
 
-version 0.0.4.20210321.211700
-- added button to show earlier selected missions
-- added button X to remove selected missions
-- Selected mission color changed to red
-- Displayed missions show filled start portal
-- Banner view for selected missions
+version 0.2.4.20210526.002100
+- changed debuglayer from LayerGroup to FeatureGroup to enable bringToBack
+- changed mission debug layer colors (yellow: split area for more then 25 missions, purple: maximum 25 missions, green: less then 25 missions, orange: retry failed scan, red: failed scan)
+- added scan dialog information about scans with 25 missions and failed scans
 
-version 0.0.4.20210322.202300
-- fix to replace http with https for image urls
+version 0.2.3.20210524.175700
+- moved declaration of missiondebuglayer up, in case openTopMissions is called to soon
 
-version 0.0.4.20210327.094100
-version 0.0.4.20210327.102600
-- improved mission title sorting mechanism, including sort by roman numbers
+version 0.2.2.20210511.225000
+- removed bug with settings menu create new mission button
 
-version 0.0.5.20210327.231300
-- improved mission finder system
-- replaced X buttons by checkbox for missions in view
-- added edit modus for banner view to remove missions
+version 0.2.1.20210501.230100
+version 0.2.1.20210501.232800
+version 0.2.1.20210501.233600
+- added an option to keep missions always on top
+- added an option to redraw opened missions after IITC reloads
+- keep active mission on top
+- on desktop open mission dialogs at the top left and stack them under eachother instead of at the screen center
 
-version 0.0.6.20210328.232800
-version 0.0.6.20210329.231200
-- minimized image download size to save on bandwidth
-- display total bounds during mission reload
-- added total banner missions time
-- added total banner missions distance
+version 0.2.0.20210501.111500
+version 0.2.0.20210501.114200
+- Missions routes layer can show a colorful path
 
-version 0.1.0.20210412.001600
-- improved dialogs
-- added setting to always find more missions
-- removed banner edit functionality
-- stop loading when map is moved or zoomed
-- do not reload when map is in same position
+version 0.1.10.20210430.001700
+- added search method settings radio buttons and an option for default search
+- fixed mission checkbox when clicking a mission title
 
-version 0.1.1.20210412.204800
-- added banner placeholders for missing missions
-- added extra dialogs
-- replace reload with rescan button
-- improved missions finder, also find missions without start portals waypoints
+version 0.1.9.20210426.234700
+- improved bounds split for mission start portals
+- hardcoded a minimum bounds size when splitting bounds areas
+- changed some dialogs
 
-version 0.1.2.20210412.233200
-- first raw version to export and import stored missions
+version 0.1.8.20210422.000500
+version 0.1.8.20210422.234900
+- added advanced option to enable or disable a color for the active mission
+- improved color setup for drawn missions (prepared for rainbow colors)
+- debug layer fill when succesfull scan
+- renamed Settings button to Add-on opt
+- fixed endless loop on small scan areas when overlapping missions were found
+- added hsl colors on debug layer to show results
+- changed replace method of mission details to retain extra buttons
+
+version 0.1.7.20210419.233500
+- injected code for mission colors into functions highlightMissionLayers and drawMission
+- added advanced option to use an alternative color for checked/completed missions
+- added expert option to not clear mission results on rescan
+
+version 0.1.6.20210418.231900
+- fixed banneredit refresh and title
+- improved missions transfer dialog
+- added fix for loadmission stock function, to handle errors
+
+version 0.1.5.20210421.190200
+- minor fix for IITC CE where runHooks iitcLoaded is executed before addHook is defined in this plugin
+
+version 0.1.5.20210416.210200
+version 0.1.5.20210417.002900
+- improved banner edit placeholder dialog
+- added mobile side pane buttons for Stored missions and Add on Settings
+- removed questionmark help buttons from settings, moved to separate help dialog, added help button on dialog titlebar
+
+version 0.1.4.20210415.232500
+- added banner editor title list to copy as placeholder
+- added information for every setting in settings dialog
+- added expert settings to enable a debug layer
+- improved missions scanning, detect map moves
+- improved dialogs if map moved
 
 version 0.1.3.20210413.235700
 version 0.1.3.20210414.070800
@@ -94,80 +133,58 @@ version 0.1.3.20210415.161000
 - improved banner edit dialog renewing
 - fixed a zoom level error with getMapZoomTileParameters
 
-version 0.1.4.20210415.232500
-- added banner editor title list to copy as placeholder
-- added information for every setting in settings dialog
-- added expert settings to enable a debug layer
-- improved missions scanning, detect map moves
-- improved dialogs if map moved
+version 0.1.2.20210412.233200
+- first raw version to export and import stored missions
 
-version 0.1.5.20210416.210200
-version 0.1.5.20210417.002900
-- improved banner edit placeholder dialog
-- added mobile side pane buttons for Stored missions and Add on Settings
-- removed questionmark help buttons from settings, moved to separate help dialog, added help button on dialog titlebar
+version 0.1.1.20210412.204800
+- added banner placeholders for missing missions
+- added extra dialogs
+- replace reload with rescan button
+- improved missions finder, also find missions without start portals waypoints
 
-version 0.1.5.20210421.190200
-- minor fix for IITC CE where runHooks iitcLoaded is executed before addHook is defined in this plugin
+version 0.1.0.20210412.001600
+- improved dialogs
+- added setting to always find more missions
+- removed banner edit functionality
+- stop loading when map is moved or zoomed
+- do not reload when map is in same position
 
-version 0.1.6.20210418.231900
-- fixed banneredit refresh and title
-- improved missions transfer dialog
-- added fix for loadmission stock function, to handle errors
+version 0.0.6.20210328.232800
+version 0.0.6.20210329.231200
+- minimized image download size to save on bandwidth
+- display total bounds during mission reload
+- added total banner missions time
+- added total banner missions distance
 
-version 0.1.7.20210419.233500
-- injected code for mission colors into functions highlightMissionLayers and drawMission
-- added advanced option to use an alternative color for checked/completed missions
-- added expert option to not clear mission results on rescan
+version 0.0.5.20210327.231300
+- improved mission finder system
+- replaced X buttons by checkbox for missions in view
+- added edit modus for banner view to remove missions
 
-version 0.1.8.20210422.000500
-version 0.1.8.20210422.234900
-- added advanced option to enable or disable a color for the active mission
-- improved color setup for drawn missions (prepared for rainbow colors)
-- debug layer fill when succesfull scan
-- renamed Settings button to Add-on opt
-- fixed endless loop on small scan areas when overlapping missions were found
-- added hsl colors on debug layer to show results
-- changed replace method of mission details to retain extra buttons
+version 0.0.4.20210327.094100
+version 0.0.4.20210327.102600
+- improved mission title sorting mechanism, including sort by roman numbers
 
-version 0.1.9.20210426.234700
-- improved bounds split for mission start portals
-- hardcoded a minimum bounds size when splitting bounds areas
-- changed some dialogs
+version 0.0.4.20210322.202300
+- fix to replace http with https for image urls
 
-version 0.1.10.20210430.001700
-- added search method settings radio buttons and an option for default search
-- fixed mission checkbox when clicking a mission title
+version 0.0.4.20210321.211700
+- added button to show earlier selected missions
+- added button X to remove selected missions
+- Selected mission color changed to red
+- Displayed missions show filled start portal
+- Banner view for selected missions
 
-version 0.2.0.20210501.111500
-version 0.2.0.20210501.114200
-- Missions routes layer can show a colorful path
+version 0.0.3.20210131.222200
+- load all missions for all on screen mission start portals, not just the top 25
+- store and show loaded missions until map reload or missions reload
+- improved title sort for digits without trailing zeros
 
-version 0.2.1.20210501.230100
-version 0.2.1.20210501.232800
-version 0.2.1.20210501.233600
-- added an option to keep missions always on top
-- added an option to redraw opened missions after IITC reloads
-- keep active mission on top
-- on desktop open mission dialogs at the top left and stack them under eachother instead of at the screen center
+version 0.0.2.20210130.211900
+- updated plugin wrapper and userscript header formatting to match IITC-CE coding
 
-version 0.2.2.20210511.225000
-- removed bug with settings menu create new mission button
-
-version 0.2.3.20210524.175700
-- moved declaration of missiondebuglayer up, in case openTopMissions is called to soon
-
-version 0.2.4.20210526.002100
-- changed debuglayer from LayerGroup to FeatureGroup to enable bringToBack
-- changed mission debug layer colors (yellow: split area for more then 25 missions, purple: maximum 25 missions, green: less then 25 missions, orange: retry failed scan, red: failed scan)
-- added scan dialog information about scans with 25 missions and failed scans
-
-version 0.2.5.20210527.203000
-- fixed debuglayer retry bounds coloring
-- added expert setting to choose the number of scan retry attempts (default 2)
-
-version 0.2.5.20210724.002500
-- prevent double plugin setup on hook iitcLoaded
+version 0.0.1.20191129.233100
+- first release
 `;
     self.namespace = 'window.plugin.' + self.id + '.';
     self.pluginname = 'plugin-' + self.id;
@@ -209,6 +226,7 @@ version 0.2.5.20210724.002500
     self.settings.keepontop = false;
     self.settings.redrawmissions = false;
     self.settings.retrymax = 2;
+    self.settings.autorefreshonmoveend = false;
 
     self.settings.searchmethoddefault = false;
     self.settings.searchmethodstartportals = true;
@@ -257,8 +275,9 @@ version 0.2.5.20210724.002500
             let placeholdertitles = JSON.parse(localStorage[self.localstorageplaceholdertitles]);
             if (typeof placeholdertitles === 'object' && placeholdertitles instanceof Object && placeholdertitles instanceof Array) { // expect an array
                 for (let cnt = 0; cnt < placeholdertitles.length; cnt++) {
-                    if (typeof placeholdertitles[cnt] == 'string' && placeholdertitles[cnt] != '' && self.placeholdertitles.indexOf(placeholdertitles[cnt]) < 0)
+                    if (typeof placeholdertitles[cnt] == 'string' && placeholdertitles[cnt] != '' && self.placeholdertitles.indexOf(placeholdertitles[cnt]) < 0) {
                         self.placeholdertitles.push(placeholdertitles[cnt]);
+                    }
                 }
             }
         } catch(e) {
@@ -275,8 +294,9 @@ version 0.2.5.20210724.002500
             let drawnmissions = JSON.parse(localStorage[self.localstoragedrawnmissions]);
             if (typeof drawnmissions === 'object' && drawnmissions instanceof Object && drawnmissions instanceof Array) { // expect an array
                 for (let cnt = 0; cnt < drawnmissions.length; cnt++) {
-                    if (typeof drawnmissions[cnt] == 'string' && drawnmissions[cnt] != '' && self.drawnmissions.indexOf(drawnmissions[cnt]) < 0)
+                    if (typeof drawnmissions[cnt] == 'string' && drawnmissions[cnt] != '' && self.drawnmissions.indexOf(drawnmissions[cnt]) < 0) {
                         self.drawnmissions.push(drawnmissions[cnt]);
+                    }
                 }
             }
         } catch(e) {
@@ -332,7 +352,7 @@ version 0.2.5.20210724.002500
     };
 
     self.getMissionPortalsInBounds = function(bounds) {
-        if (!bounds || !(bounds instanceof L.LatLngBounds)) bounds = window.map.getBounds();
+        if (!bounds || !(bounds instanceof window.L.LatLngBounds)) bounds = window.map.getBounds();
 
         let missionportals = [];
         for (let guid in window.portals) {
@@ -360,10 +380,11 @@ version 0.2.5.20210724.002500
         let subboundslist = [];
         if (self.settings.searchmethodstartportals && self.zoomlevelHasPortals()) {
             let missionportals = self.getMissionPortalsInBounds(bounds);
-            if (horizontalsplit)
+            if (horizontalsplit) {
                 missionportals = self.sortMissionPortalsByLng(missionportals);
-            else // vertical split
+            } else { // vertical split
                 missionportals = self.sortMissionPortalsByLat(missionportals);
+            }
 
             // split bounds in blocks of mission start portals
             for (let cnt = 0; cnt < missionportals.length;) {
@@ -409,7 +430,7 @@ version 0.2.5.20210724.002500
                     if (nextcnt < missionportals.length - 1) north = missionportals[nextcnt].lat + (missionportals[nextlat].lat - missionportals[nextcnt].lat) / 2;
                 }
 
-                let subbounds = new L.LatLngBounds([south,west],[north,east]);
+                let subbounds = new window.L.LatLngBounds([south,west],[north,east]);
                 let subportals = self.getMissionPortalsInBounds(subbounds);
 
                 let splitneeded = false;
@@ -454,11 +475,11 @@ version 0.2.5.20210724.002500
 
             if (width * height > 4.2558632880323265e-9) { // minimum split size
                 if (width > height) { // split horizontal
-                    subboundslist.push({bounds:new L.LatLngBounds([south,west],[north,west + width / 2])});
-                    subboundslist.push({bounds:new L.LatLngBounds([south,west + width / 2],[north,east])});
+                    subboundslist.push({bounds:new window.L.LatLngBounds([south,west],[north,west + width / 2])});
+                    subboundslist.push({bounds:new window.L.LatLngBounds([south,west + width / 2],[north,east])});
                 } else { // split vertical
-                    subboundslist.push({bounds:new L.LatLngBounds([north + height / 2,west],[north,east])});
-                    subboundslist.push({bounds:new L.LatLngBounds([south,west],[north + height / 2,east])});
+                    subboundslist.push({bounds:new window.L.LatLngBounds([north + height / 2,west],[north,east])});
+                    subboundslist.push({bounds:new window.L.LatLngBounds([south,west],[north + height / 2,east])});
                 }
             } else {
                 self.count25max++;
@@ -670,8 +691,8 @@ version 0.2.5.20210724.002500
         let buttons = {};
         buttons[(self.settings.showtextbuttons?'Close':'✖')] = function() { $(this).dialog('close'); };
 
-        dialog({
-            id: "plugin-mission-view-dialog",
+        window.dialog({
+            id: "missionsList",
             title: 'Missions in view',
             height: 'auto',
             html: container,
@@ -692,20 +713,22 @@ version 0.2.5.20210724.002500
 
     self.removehooks = function() {
         // remove hooks
-        if (window._hooks && window._hooks.mapDataRefreshEnd && window._hooks.mapDataRefreshEnd.length > 0)
+        if (window._hooks && window._hooks.mapDataRefreshEnd && window._hooks.mapDataRefreshEnd.length > 0) {
             for (let cnt = 0; cnt < window._hooks.mapDataRefreshEnd.length; cnt++) {
                 if (window._hooks.mapDataRefreshEnd[cnt].toString().match(/loadAllMissionsInBounds/)) {
                     window.removeHook('mapDataRefreshEnd',window._hooks.mapDataRefreshEnd[cnt]);
                     break;
                 }
             }
-        if (window._hooks && window._hooks.requestFinished && window._hooks.requestFinished.length > 0)
+        }
+        if (window._hooks && window._hooks.requestFinished && window._hooks.requestFinished.length > 0) {
             for (let cnt = 0; cnt < window._hooks.requestFinished.length; cnt++) {
                 if (window._hooks.requestFinished[cnt].toString().match(/mapDataRequest/)) {
                     window.removeHook('requestFinished',window._hooks.requestFinished[cnt]);
                     break;
                 }
             }
+        }
     };
 
     self.loadAllMissionsInBounds = function(bounds, callback, errorcallback) {
@@ -719,6 +742,8 @@ version 0.2.5.20210724.002500
         let status = window.mapDataRequest.getStatus();
         if (self.settings.searchmethodstartportals && self.zoomlevelHasPortals() && status.short && status.short != 'done') {
             let container = document.createElement('div');
+            container.className = self.id + 'mainmenu';
+
             container.textContent = 'Waiting until map loading status is "done"...';
             let statusarea = container.appendChild(document.createElement('div'));
             let missionstartportalsarea = container.appendChild(document.createElement('div'));
@@ -726,22 +751,22 @@ version 0.2.5.20210724.002500
             let buttons = {};
             buttons[(self.settings.showtextbuttons?'In view':'🔎')] = function() { window.plugin.missions.showMissionListDialog(self.getMissions()); };
             buttons[(self.settings.showtextbuttons?'Close':'✖')] = function() { $(this).dialog('close'); };
-            dialog({
-                id: "plugin-mission-view-dialog",
+            window.dialog({
+                id: "missionsList",
                 title: 'Missions in view - Wait',
                 height: 'auto',
                 html: container,
                 width: '400px',
                 closeCallback: function() {
-                    if (window.mapDataRequest.status.short != 'done')
+                    if (window.mapDataRequest.status.short != 'done') {
                         self.removehooks();
+                    }
                 }
             }).dialog('option', 'buttons', buttons);
 
             // add hook to update map loading status
             window.addHook('requestFinished',function() {
-                if (!statusarea)
-                    return;
+                if (!statusarea) return;
                 let status = window.mapDataRequest.getStatus();
                 statusarea.textContent = 'map: ' + status.short + (status.progress !== undefined && status.progress !== -1 ? ' ' + Math.floor(status.progress*100)+'%':'');
                 missionstartportalsarea.textContent = 'mission start portals found: ' + self.getMissionPortalsInBounds(bounds).length;
@@ -773,6 +798,8 @@ version 0.2.5.20210724.002500
         }
 
         let container = document.createElement('div');
+        container.className = self.id + 'mainmenu';
+
         container.appendChild(document.createTextNode('Default maximum of 25 missions found.'));
         container.appendChild(document.createElement('br'));
         container.appendChild(document.createTextNode('There are probably more in view.'));
@@ -811,8 +838,9 @@ version 0.2.5.20210724.002500
                     window.plugin.missions.openTopMissions(window.map.getBounds());
                 }, false);
                 buttonsarea.replaceWith(restartarea);
-            } else
+            } else {
                 self.loadAllMissionsInBounds(bounds,callback,errorcallback);
+            }
         }, false);
 
         let alwayscheckboxarea = buttonsarea.appendChild(document.createElement('label'));
@@ -827,8 +855,8 @@ version 0.2.5.20210724.002500
         },false);
 
         let buttons = self.getdialogbuttons();
-        dialog({
-            id: "plugin-mission-view-dialog",
+        window.dialog({
+            id: "missionsList",
             title: 'Missions in view - Scan',
             height: 'auto',
             html: container,
@@ -840,13 +868,15 @@ version 0.2.5.20210724.002500
         function deromanize(str) {
             str = str.toUpperCase();
             let validator = /^M*(?:D?C{0,3}|C[MD])(?:L?X{0,3}|X[CL])(?:V?I{0,3}|I[XV])$/;
-            if (!(str && validator.test(str)))
+            if (!(str && validator.test(str))) {
                 return str;
+            }
             let token = /[MDLV]|C[MD]?|X[CL]?|I[XV]?/g;
             let key = {M:1000,CM:900,D:500,CD:400,C:100,XC:90,L:50,XL:40,X:10,IX:9,V:5,IV:4,I:1};
             let num = 0, m;
-            while (m = token.exec(str))
+            while (m = token.exec(str)) {
                 num += key[m[0]];
+            }
             return num;
         }
 
@@ -917,7 +947,7 @@ version 0.2.5.20210724.002500
 
         let addplaceholderbutton = container.appendChild(document.createElement('button'));
         addplaceholderbutton.textContent = 'Add placeholder title';
-        addplaceholderbutton.title = 'You can add a placeholder title to fill up the banner for a mission missing (not found/stored yet).\nPlaceholder titles are automatically removed when you download and store the mission later on.';
+        addplaceholderbutton.title = 'You can add a placeholder title to fill up the banner for a missing mission (not found/stored yet).\nPlaceholder titles are automatically removed when you download and store the mission later on.';
         addplaceholderbutton.id = self.id + 'placeholderbutton';
         addplaceholderbutton.lasttitle = '';
         let oldplaceholderbutton = document.getElementById(self.id + 'placeholderbutton');
@@ -927,8 +957,9 @@ version 0.2.5.20210724.002500
             e.preventDefault();
 
             let suggestion = (addplaceholderbutton.lasttitle? addplaceholderbutton.lasttitle : (bannermissions && bannermissions.length > 0?bannermissions[0].title:'') );
-            if (titlesarea.selectionStart !== undefined && titlesarea.selectionStart != titlesarea.selectionEnd)
+            if (titlesarea.selectionStart !== undefined && titlesarea.selectionStart != titlesarea.selectionEnd) {
                 suggestion = titlesarea.value.substring(titlesarea.selectionStart, titlesarea.selectionEnd).replace(/\n.*$/s,'');
+            }
             let placeholdertitle = prompt('Enter a (missing) mission title to use as placeholder:',suggestion);
             if (typeof placeholdertitle == 'string') {
                 placeholdertitle = placeholdertitle.trim();
@@ -955,7 +986,7 @@ version 0.2.5.20210724.002500
         container.appendChild(document.createElement('br'));
 
         let table = container.appendChild(document.createElement('table'));
-        table.className = self.pluginname + '-banner-summary';
+        table.className = self.id + '-banner-summary';
 
         bannermissions = self.sortmissions(bannermissions).reverse(); // reverse sort, switched a and b
         for (let rowcnt = 0; rowcnt < bannermissions.length; rowcnt += 6) {
@@ -965,14 +996,15 @@ version 0.2.5.20210724.002500
                 let cell = row.appendChild(document.createElement('td'));
                 cell.style.position = 'relative';
                 let img = cell.appendChild(document.createElement('img'));
-                if (mission.placeholdertitle)
+                if (mission.placeholdertitle) {
                     img.src = mission.image;
-                else
+                } else {
                     img.src = mission.image.replace('http:','https:').replace(/=[swh]\d+(|\-[cp])$/,'') + '=s50-c'; // fix for http urls, download max 50x50 image
+                }
                 img.title = (mission.placeholdertitle?'Placeholder: ':'') + mission.title;
 
                 let txt = cell.appendChild(document.createElement('span'));
-                txt.className = self.pluginname + '-banner-edit-buttons';
+                txt.className = self.id + '-banner-edit-buttons';
 
                 let deleteButton = txt.appendChild(document.createElement('span'));
                 deleteButton.textContent = 'X';
@@ -991,15 +1023,15 @@ version 0.2.5.20210724.002500
 
         if (typeof oldcontainer == 'object' && oldcontainer instanceof HTMLElement) {
             oldcontainer.replaceWith(container);
-            document.getElementById('dialog-plugin-mission-view-dialog').parentElement.getElementsByClassName('ui-dialog-title')[0].textContent = 'Stored Missions Banner Edit - ' + missions.length;
+            document.getElementById('dialog-missionsList').parentElement.getElementsByClassName('ui-dialog-title')[0].textContent = 'Stored Missions Banner Edit - ' + missions.length;
             return;
         }
 
         let buttons = self.getdialogbuttons();
-        dialog({
+        window.dialog({
             title: 'Stored Missions Banner Edit - ' + missions.length,
             html: container,
-            id: "plugin-mission-view-dialog",
+            id: "missionsList",
             minWidth: 360,
             height: 'auto'
         }).dialog('option', 'buttons', buttons);
@@ -1026,10 +1058,11 @@ version 0.2.5.20210724.002500
         }
         function distance(len) {
             if (len > 0) {
-                if (len > 1000)
+                if (len > 1000) {
                     len = Math.round(len / 100) / 10 + 'km';
-                else
+                } else {
                     len = Math.round(len * 10) / 10 + 'm';
+                }
             } else {
                 len = 'unknown';
             }
@@ -1038,7 +1071,7 @@ version 0.2.5.20210724.002500
 
         let container = document.createElement('div');
         let table = container.appendChild(document.createElement('table'));
-        table.className = self.pluginname + '-banner-summary';
+        table.className = self.id + '-banner-summary';
 
         let medianCompletionTimeMs_total = 0;
         let waypoints_length = 0;
@@ -1054,7 +1087,7 @@ version 0.2.5.20210724.002500
                 var len = mission.waypoints.filter(function(waypoint) {
                     return !!waypoint.portal;
                 }).map(function(waypoint) {
-                    return L.latLng(waypoint.portal.latE6/1E6, waypoint.portal.lngE6/1E6);
+                    return window.L.latLng(waypoint.portal.latE6/1E6, waypoint.portal.lngE6/1E6);
                 }).map(function(latlng1, i, latlngs) {
                     if(i == 0) return 0;
                     var latlng2 = latlngs[i - 1];
@@ -1071,12 +1104,13 @@ version 0.2.5.20210724.002500
             if (missiontitles.indexOf(self.placeholdertitles[cnt]) >= 0) {
                 self.placeholdertitles.splice(cnt,1); // remove placeholdertitles if mission with same name is stored
                 self.storePlaceholders();
-            } else
+            } else {
                 bannermissions.push({
                     placeholdertitle: true,
                     title: self.placeholdertitles[cnt],
                     image: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAAAAAA7VNdtAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAAAmJLR0QA/4ePzL8AAAAHdElNRQflBAwOJxIW6dfOAAAC4klEQVRIx43VW08bRxQH8P85M3vDC8TGCBbiNk1pkjZJJVLlIlUqqdRP0Y+ZfoE+9AYoiNAqihBNGqKEVhBfkMFe786cPnCz2RWeeZmHOT/9NdI5M/RP7WerBI6Le41veKP1HVlyFf2FBxus1w+fwtFwP3myvssUrHUcDfeTx6t7EQtcDfeTx6sfQstwNScZoQXD0ZwLMNzMhQDDyQyJEzLWDItTMsaMiDNypRkV5+TMGBonLghEgrXOUyqYy2KIACgzBTFCpMQUxWhK0ZSIUVK4T5m4RIARQ70SUSBAsNb53rMEgLJGiQADRAQCAAJAgmCtdU9AIDN1Z/3f0NJJCYhO92dkrGghghgNZEpE930SIqMwYChYJUbEFwMlBh40ZZ9+1vnzVus/qi1tGNydl532E70TdQ+Wt8JHE83N6cbW1H0+eDl3m19Wr+9tE5OtdqJGJRK7mNR7X84/fx2H4U6rFnJNP+z8Ed2nGRNE29c/9/V2d/bDfD1nUD4XtAg2nnzxCdc3m7ubCL6opl99a6tmq7txLTBE2dutOancirMbWZcZoj7+9tHL+rMzC7OVtJarKnd/fR/8vYnUj9OqGAwENJ2rg1+aQPtQqx/zxeP3Ormhk3dvouj1cn1psrk0O5g83L/5Kvx6Zumv9HbtuLE4/8K7We/W3yx2j+gnW8ER4nhg29lE5SBO0j0d62PKB1OHg1p9vxVd43bstY8mpnXT6wf2iJ6RAcMahiJrtcnJT6vBPhEZDmZ2ERgj2ohS1oi2LGCGKAUoX2sIaeEgTBdWfCiCpjT5wcvZ88nzWcjzSZNiMCACiIgAEIB6yaPVt1oAAf3eWSEDwcmhQCDFHjt9d09/j7BsTrlMnHdi6WzzVaLc8JWi1PDVoszwGFFieJwoGh4rCobHi8uGHcQlwy5i1LCTGDHsJoYNO4ohw67iwjD3F9zEueGeY8aZWWFaXV53FQAofVij7Pm7yFkAyB/8D26O+q45FJqpAAAAJXRFWHRkYXRlOmNyZWF0ZQAyMDIxLTA0LTEyVDE0OjM4OjQzKzAwOjAwkPtYggAAACV0RVh0ZGF0ZTptb2RpZnkAMjAyMS0wNC0xMlQxNDozODo0MyswMDowMOGm4D4AAAAASUVORK5CYII='
                 });
+            }
         }
         bannermissions = self.sortmissions(bannermissions).reverse(); // reverse sort, switched a and b
 
@@ -1087,18 +1121,20 @@ version 0.2.5.20210724.002500
                 let cell = row.appendChild(document.createElement('td'));
                 cell.style.position = 'relative';
                 let img = cell.appendChild(document.createElement('img'));
-                if (mission.placeholdertitle)
+                if (mission.placeholdertitle) {
                     img.src = mission.image;
-                else
+                } else {
                     img.src = mission.image.replace('http:','https:').replace(/=[swh]\d+(|\-[cp])$/,'') + '=s50-c'; // fix for http urls, download max 50x50 image
+                }
                 img.title = (mission.placeholdertitle?'Placeholder: ':'') + mission.title;
                 if (mission.medianCompletionTimeMs) img.title += '\n' + msToTime(mission.medianCompletionTimeMs);
                 if (mission.waypoints_length) img.title += '\n' + distance(mission.waypoints_length);
 
                 img.style.cursor = 'pointer';
                 img.addEventListener('click', function() {
-                    if (!mission.placeholdertitle)
+                    if (!mission.placeholdertitle) {
                         window.plugin.missions.openMission(mission.guid);
+                    }
                 }, false);
             }
         }
@@ -1115,17 +1151,37 @@ version 0.2.5.20210724.002500
         let distanceimg = totallength.insertBefore(document.createElement('img'), totallength.firstChild);
         distanceimg.src = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABIAAAASAQMAAABsABwUAAAABlBMVEUAAACy+/gnk9HpAAAAAXRSTlMAQObYZgAAABVJREFUCNdjYEADB9Dg//8QjA7RAAB2VBF9TkATUAAAAABJRU5ErkJggg==';
 
+        container.appendChild(document.createElement('br'));
+        let drawmissions = container.appendChild(document.createElement('button'));
+        drawmissions.textContent = "Draw all missions";
+        drawmissions.addEventListener('click', function(e) {
+            e.preventDefault();
+            for (let cnt = bannermissions.length - 1; cnt >= 0; cnt--) { // reverse
+                if (!bannermissions[cnt].placeholdertitle) {
+                    window.plugin.missions.openMission(bannermissions[cnt].guid);
+                }
+            }
+        },false);
+        let zoommissions = container.appendChild(document.createElement('button'));
+        zoommissions.textContent = "Zoom to view all missions";
+        zoommissions.addEventListener('click', function(e) {
+            e.preventDefault();
+            let allmissionwaypoints = { waypoints: [] };
+            for (let cnt = 0; cnt < bannermissions.length; cnt++) {
+                allmissionwaypoints.waypoints = allmissionwaypoints.waypoints.concat(bannermissions[cnt].waypoints);
+            }
+            window.plugin.missions.zoomToMission(allmissionwaypoints);
+        },false);
+
         let author = container.appendChild(document.createElement('div'));
-        author.style.marginTop = '14px';
-        author.style.fontStyle = 'italic';
-        author.style.fontSize = 'smaller';
+        author.className = self.id + 'author';
         author.textContent = self.title + ' version ' + self.version + ' by ' + self.author;
 
         let buttons = self.getdialogbuttons('Banner view');
-        dialog({
+        window.dialog({
             title: 'Stored Missions Banner View - ' + missions.length,
             html: container,
-            id: "plugin-mission-view-dialog",
+            id: "missionsList",
             minWidth: 360,
             height: 'auto'
         }).dialog('option', 'buttons', buttons);
@@ -1140,15 +1196,16 @@ version 0.2.5.20210724.002500
         if (typeof loadguid == 'string' && loadguid != '') {
             importstatusarea.textContent = 'Importing: ' + (total - missionguids.length) + '/' + total;
             setTimeout(function() { window.plugin.missions.loadMission(loadguid,function(mission) { let missions = self.getMissions(true); exportbutton.textContent = 'Export stored missions: ' + missions.length; self.loadMissionsList(missionguids,total,importstatusarea,exportbutton,false); },function(error) { importstatusarea.textContent += ' Failed'; if (failonerror === false) missionguids.unshift(loadguid); self.loadMissionsList(missionguids,total,importstatusarea,exportbutton,true); }); },20);
-        }
-        else
+        } else {
             importstatusarea.textContent = 'Import ready: ' + total;
+        }
     };
 
     self.missionsTransfer = function() {
         let missions = self.getMissions(true);
 
         let container = document.createElement('div');
+        container.className = self.id + 'mainmenu';
         container.style.textAlign = 'center';
 
         let exportbutton = container.appendChild(document.createElement('button'));
@@ -1203,10 +1260,10 @@ version 0.2.5.20210724.002500
         container.appendChild(document.createElement('br'));
 
         let buttons = self.getdialogbuttons('Transfer');
-        dialog({
+        window.dialog({
             title: 'Stored Missions Transfer',
             html: container,
-            id: "plugin-mission-view-dialog",
+            id: "missionsList",
             width: 'auto',
             height: 'auto'
         }).dialog('option', 'buttons', buttons);
@@ -1245,10 +1302,10 @@ version 0.2.5.20210724.002500
         }, false);
 
         let buttons = self.getdialogbuttons('Confirm rescan');
-        dialog({
+        window.dialog({
             title: 'Missions in view',
             html: container,
-            id: "plugin-mission-view-dialog",
+            id: "missionsList",
             minWidth: 360,
             height: 'auto'
         }).dialog('option', 'buttons', buttons);
@@ -1257,7 +1314,7 @@ version 0.2.5.20210724.002500
     self.setupOpenTopMissions = function() {
         // replace stock missions function:
         window.plugin.missions.openTopMissions = function(bounds) {
-            if (self.subboundsloading  || self.subboundslist.length > 0) { // already running
+            if (self.subboundsloading || self.subboundslist.length > 0) { // already running
                 self.showprogressDialog();
                 return;
             }
@@ -1270,16 +1327,17 @@ version 0.2.5.20210724.002500
             }
 
             let buttons = self.getdialogbuttons('Scan');
-            dialog({
+            window.dialog({
                 title: 'Missions in view',
                 html: 'Loading top missions for current view<br><br>Please wait...',
-                id: "plugin-mission-view-dialog",
+                id: "missionsList",
                 minWidth: 360,
                 height: 'auto'
             }).dialog('option', 'buttons', buttons);
 
-            if (self.settings.cleardebuglayeronscan)
+            if (self.settings.cleardebuglayeronscan) {
                 self.cleardebuglayer();
+            }
             self.count25 = 0;
             self.count25max = 0;
             self.countretries = 0;
@@ -1334,22 +1392,27 @@ version 0.2.5.20210724.002500
 
         if (self.settings.showtransferbutton) buttons[(self.settings.showtextbuttons?'Transfer':'🔀')] = function() { self.missionsTransfer(); };
 
-        if (self.settings.showbannerbutton)
-            if (currentdialog == 'Banner view')
+        if (self.settings.showbannerbutton) {
+            if (currentdialog == 'Banner view') {
                 buttons[(self.settings.showtextbuttons?'Banner edit':'⚬⚬⚬🧰')] = function() { self.bannerEdit(); };
-            else
+            } else {
                 buttons[(self.settings.showtextbuttons?'Banner view':'⚬⚬⚬')] = function() { self.bannerDisplay(); };
+            }
+        }
 
-        if (self.settings.showstoredbutton)
-            if (currentdialog == 'Stored')
-                buttons[(self.settings.showtextbuttons?'Clear stored':'☑⛔')] = function() { self.clearStored(function() { window.plugin.missions.showMissionListDialog([],true); }); };
-            else
-                buttons[(self.settings.showtextbuttons?'Stored':'☑')] = function() { window.plugin.missions.showMissionListDialog(self.getMissions(true),true); };
+        if (self.settings.showstoredbutton) {
+            if (currentdialog == 'Stored') {
+                buttons[(self.settings.showtextbuttons?'Clear stored':'☑⛔')] = function() { self.clearStored(function() { window.plugin.missions.showMissionListDialog([],"Missions stored"); }); };
+            } else {
+                buttons[(self.settings.showtextbuttons?'Stored':'☑')] = function() { window.plugin.missions.showMissionListDialog(self.getMissions(true),"Missions stored"); };
+            }
+        }
 
-        if (currentdialog == 'In view')
+        if (currentdialog == 'In view') {
             buttons[(self.settings.showtextbuttons?'Rescan':'🔎↻')] = function() { window.plugin.missions.openTopMissions(); };
-        else
+        } else {
             buttons[(self.settings.showtextbuttons?'In view':'🔎')] = function() { window.plugin.missions.showMissionListDialog(self.getMissions()); };
+        }
 
         if (self.settings.showcreatenewbutton) buttons[(self.settings.showtextbuttons?'Create new mission':'➕')] = function() { open('//missions.ingress.com','_blank').focus(); };
 
@@ -1362,52 +1425,95 @@ version 0.2.5.20210724.002500
     self.showhelpdialog = function() {
         let container = document.createElement('div');
 
-        container.appendChild(document.createElement('div')).textContent = 'Basic settings:';
-        container.appendChild(document.createElement('div')).textContent = '- Show traditonal text buttons (instead of icons)';
-        container.appendChild(document.createElement('div')).innerHTML = 'Dialog buttons at the bottom are traditonally text buttons.\nIf there are a lot of buttons to read it can become unclear.\nDisable this option to show icons for your buttons.\nBe aware that unicode icons differ between phones and desktops.'.replace(/\n/g,'<br>\n');
-        container.appendChild(document.createElement('div')).textContent = '- Show button "Create new mission" ➕';
-        container.appendChild(document.createElement('div')).innerHTML = 'The missions plugin shows a button to open the mission creator website.\nYou can disable this button if you never intend to create a new mission'.replace(/\n/g,'<br>\n');
-        container.appendChild(document.createElement('div')).textContent = '- Default search (top 25 missions)';
-        container.appendChild(document.createElement('div')).innerHTML = 'The standard missions plugin stops after 1 search and returns a maximum of 25 missions inside the visible area.'.replace(/\n/g,'<br>\n');
-        container.appendChild(document.createElement('div')).textContent = '- Keep splitting in even areas if 25 missions found';
-        container.appendChild(document.createElement('div')).innerHTML = 'This add on can keep searching smaller areas until less then 25 missions are found. All found missions from the smaller areas are combined in one list.'.replace(/\n/g,'<br>\n');
-        container.appendChild(document.createElement('div')).textContent = '- At portal zoomlevel split area by mission startportals';
-        container.appendChild(document.createElement('div')).innerHTML = 'At portal zoomlevel it can be more efficient (less areas of maximum 25 missions) to split the area up by using small groups of mission startportals. At higher zoom levels it will automatically use the even area split method.'.replace(/\n/g,'<br>\n');
-        container.appendChild(document.createElement('hr'));
-        container.appendChild(document.createElement('div')).textContent = self.title + ' - Advanced settings:';
-        container.appendChild(document.createElement('div')).textContent = '- Show button "Stored" missions ☑';
-        container.appendChild(document.createElement('div')).innerHTML = 'Enable this option to access your stored missions.\nIf you click the mission title the details are automatically stored in your IITC.\nWith this option enabled, there is also a download button displayed.\nYou can also clear (all) stored missions.'.replace(/\n/g,'<br>\n');
-        container.appendChild(document.createElement('div')).textContent = '- Show download icons ☑ (disable for checkboxes)';
-        container.appendChild(document.createElement('div')).innerHTML = 'Enable this option to show icons to download missions.\nDisable this option to see checkboxes (on desktop you can use tab and spacebar to toggle checkboxes by keyboard).'.replace(/\n/g,'<br>\n');
-        container.appendChild(document.createElement('div')).textContent = '- Show button "Banner view" ⚬⚬⚬';
-        container.appendChild(document.createElement('div')).innerHTML = 'Stored missions can form a banner (lines of 6 missions). Enable this option to access the Banner viewer.\nYou can also edit the Banner to easily remove missions and add placeholder titles for missing missions.\nPlaceholder titles are automatically removed when you download and store the mission later on.'.replace(/\n/g,'<br>\n');
-        container.appendChild(document.createElement('div')).textContent = '- Show button "Transfer" 🔀';
-        container.appendChild(document.createElement('div')).innerHTML = 'Enable this option to access a rough missions transfer dialog.\nYou can export/import lists of mission id\'s.\nThis way you can store and share missions and banners between ' + self.title + ' plugin users.'.replace(/\n/g,'<br>\n');
-        container.appendChild(document.createElement('div')).textContent = '- Always automatically try to find more then default 25';
-        container.appendChild(document.createElement('div')).innerHTML = 'During the first scan, the screen bounds are used.\nIf there are 25 missions found, the screen bounds are split up into smaller areas (groups of maximum 15 mission start portals are used) to scan until less then 25 missions are found.'.replace(/\n/g,'<br>\n');
-        container.appendChild(document.createElement('div')).textContent = '- Alternative color for checked/completed missions';
-        container.appendChild(document.createElement('div')).innerHTML = 'Click on a mission image to set a checkmark for that mission. Enable this option to give the checked/completed missions on the map another color.'.replace(/\n/g,'<br>\n');
-        container.appendChild(document.createElement('hr'));
-        container.appendChild(document.createElement('div')).textContent = self.title + ' - Expert settings:';
-        container.appendChild(document.createElement('div')).textContent = '- Enable layer ' + self.missiondebuglayertitle;
-        container.appendChild(document.createElement('div')).innerHTML = 'If you want to visualize the scanning areas, you can enable the debug layer.\nYou can toggle layer visibility in the layer chooser sidepane.\nPurple bounds are scans with less then 25 missions.\nRed bounds are scans with 25 scans.'.replace(/\n/g,'<br>\n');
-        container.appendChild(document.createElement('div')).textContent = '- Clear layer ' + self.missiondebuglayertitle + ' on every scan';
-        container.appendChild(document.createElement('div')).innerHTML = 'Enable this option to keep all scanned areas visible. Overlapping areas will be scanned again.'.replace(/\n/g,'<br>\n');
-        container.appendChild(document.createElement('div')).textContent = '- Do not clear mission results on rescan';
-        container.appendChild(document.createElement('div')).innerHTML = 'Keep this disabled to clear the list of missions in view when hitting rescan. With this option enabled, be aware that your "in view" list will also contain missions out of view.'.replace(/\n/g,'<br>\n');
+        container.innerHTML = `Basic settings:
+        - Show traditonal text buttons (instead of icons) (default on)
+        Dialog buttons at the bottom are traditonally text buttons.
+        If there are a lot of buttons it can become unclear.
+        Disable this option to show unicode icons for your buttons.
+        Be aware that unicode icons differ between phones and desktops.
+        - Show button "Create new mission" ➕ (default on)
+        The missions plugin shows a button to open the mission creator website.
+        You can disable this button if you never intend to create a new mission.
+        - Auto refresh missions list when map is moved
+        - Default mission search (top 25 missions)
+        The standard missions plugin stops after 1 search and returns a maximum of 25 missions inside the visible area.
+        - Keep splitting in even areas if 25 missions found
+        This add on can keep searching smaller areas until less then 25 missions are found. All found missions from the smaller areas are combined in one list. It continues until the area has a minimum size.
+        - At portal zoomlevel split area by mission startportals
+        At portal zoomlevel it can be more efficient (less areas of maximum 25 missions) to split the area up by using small groups of mission startportals. It continues until a single portal has 25 or less missions. At higher zoom levels it will automatically use the even area split method.
+        <hr>
+        ${self.title} - Advanced settings:
+        - Show button "Stored" missions ☑ (default off)
+        Enable this option to access your stored missions (cache).
+        If you click the mission title the details are automatically stored in your IITC storage.
+        With this option enabled, there is also a download button displayed.
+        You can also clear (all) stored missions.
+        - Show download icons ⇓/☑ (disable for checkboxes) (default off)
+        Enable this option to show icons to download missions.
+        Disable this option to see checkboxes (on desktop you can use tab and spacebar to toggle checkboxes by keyboard).
+        - Show button "Banner view" ⚬⚬⚬ (default off)
+        Stored missions can form a banner (lines of 6 missions). Enable this option to access the Banner viewer.
+        You can also edit the Banner to easily remove missions and add placeholder titles for missing missions.
+        Placeholder titles are automatically removed when you download and store the mission later on.
+        - Show button "Transfer" 🔀 (default off)
+        Enable this option to access a missions transfer dialog.
+        You can export/import lists of mission id's.
+        This way you can store and share missions and banners between ${self.title} plugin users.
+        - Always automatically try to find more then default 25
+        During the first scan, the screen bounds are used.
+        Enable this option to automatically continue if a search method for finding more then default 25 missions is selected.
+        - Apply active mission color (default on)
+        Enable this option to color the active (selected) mission red.
+        - Alternative color for checked/completed missions (default off)
+        Click on a mission image to set a checkmark for that mission. Enable this option to give the checked/completed missions on the map another color.
+        - Show routes as a colorful path (default off)
+        Enable this option to apply a rainbow color for visible missions with a clear background.
+        - Keep drawn missions on top (default off)
+        By default missions are drawn behind portals and links/fields. Enable this option to show missions on top of other layers.
+        <hr>
+        ${self.title} - Expert settings:
+        - Enable layer ${self.missiondebuglayertitle} (default off)
+        If you want to visualize the scanning areas, you can enable the debug layer.
+        You can toggle layer visibility in the layer chooser sidepane.
+        Purple bounds are scans with less then 25 missions.
+        Red bounds are scans with 25 scans.
+        - Clear layer ${self.missiondebuglayertitle} on every scan (default on)
+        Enable this option to keep all scanned areas visible. Overlapping areas will be scanned again.
+        - Do not clear mission results on rescan (default off)
+        Keep this disabled to clear the list of missions in view when hitting rescan. With this option enabled, be aware that your "in view" list will also contain missions out of view.
+        - Redraw opened missions after IITC reload (default off)
+        By default opened missions are lost when IITC reloads. Enable this option to redraw all opened missions.
+        - Maximum scan retry (default 2)
+        When scanning for missions, there could be an error. You can change the retry count (0 = fail after first attempt)
+        `.replace(/([^>])\n/g,'$1<br>\n');
 
-        let buttons = self.getdialogbuttons();
-        dialog({
+        let changelogbutton = container.appendChild(document.createElement('button'));
+        changelogbutton.style.display = 'block';
+        changelogbutton.textContent = 'Changelog';
+        changelogbutton.addEventListener('click', function(e) {
+            e.preventDefault();
+            alert(self.changelog);
+        }, false);
+
+        let author = container.appendChild(document.createElement('div'));
+        author.className = self.id + 'author';
+        author.textContent = self.title + ' version ' + self.version + ' by ' + self.author;
+
+        let buttons = {};
+        buttons[(self.settings.showtextbuttons?'Close':'✖')] = function() { $(this).dialog('close'); };
+        window.dialog({
             title: self.title + ' - Settings Help',
             html: container,
-            id: "plugin-mission-view-dialog",
+            id: "missionsList-help",
             minWidth: 360,
-            height: 'auto'
+            height: 'auto',
+            position: { my: "right top", at: "right top", of: document.body }
         }).dialog('option', 'buttons', buttons);
     };
 
     self.settingsdialog = function() {
         let container = document.createElement('div');
+        container.className = self.id + 'settingsmenu';
 
         let hiddenautofocusinput = container.appendChild(document.createElement('input')); // added to prevent auto focus on first element
         hiddenautofocusinput.type = 'hidden';
@@ -1434,8 +1540,6 @@ version 0.2.5.20210724.002500
             self.settingsdialog();
         },false);
 
-        container.appendChild(document.createElement('br'));
-
         let newmissioncheckboxarea = container.appendChild(document.createElement('label'));
         let newmissioncheckbox = newmissioncheckboxarea.appendChild(document.createElement('input'));
         newmissioncheckbox.type = 'checkbox';
@@ -1448,7 +1552,17 @@ version 0.2.5.20210724.002500
             self.settingsdialog();
         },false);
 
-        container.appendChild(document.createElement('br'));
+        let autorefreshcheckboxarea = container.appendChild(document.createElement('label'));
+        let autorefreshcheckbox = autorefreshcheckboxarea.appendChild(document.createElement('input'));
+        autorefreshcheckbox.type = 'checkbox';
+        autorefreshcheckbox.checked = self.settings.autorefreshonmoveend;
+        autorefreshcheckboxarea.appendChild(document.createTextNode('Auto refresh missions list when map is moved'));
+        autorefreshcheckbox.addEventListener('change', function(e) {
+            e.preventDefault();
+            self.settings.autorefreshonmoveend = this.checked;
+            window.plugin.missions.autoRefreshOnMoveEnd = self.settings.autorefreshonmoveend;
+            self.storesettings();
+        },false);
 
         let searchmethod0radioarea = container.appendChild(document.createElement('label'));
         let searchmethod0radio = searchmethod0radioarea.appendChild(document.createElement('input'));
@@ -1458,12 +1572,9 @@ version 0.2.5.20210724.002500
         searchmethod0radioarea.appendChild(document.createTextNode('Default mission search (top 25 missions)'));
         searchmethod0radio.addEventListener('change', function(e) {
             e.preventDefault();
-            console.log('searchmethod0radio',this.checked);
             self.settings.searchmethoddefault = this.checked;
             self.storesettings();
         },false);
-
-        container.appendChild(document.createElement('br'));
 
         let searchmethod1radioarea = container.appendChild(document.createElement('label'));
         let searchmethod1radio = searchmethod1radioarea.appendChild(document.createElement('input'));
@@ -1473,13 +1584,10 @@ version 0.2.5.20210724.002500
         searchmethod1radioarea.appendChild(document.createTextNode('Keep splitting in even areas if 25 missions found'));
         searchmethod1radio.addEventListener('change', function(e) {
             e.preventDefault();
-            console.log('searchmethod1radio',this.checked);
             self.settings.searchmethodstartportals = !this.checked;
             if (this.checked) self.settings.searchmethoddefault = false;
             self.storesettings();
         },false);
-
-        container.appendChild(document.createElement('br'));
 
         let searchmethod2radioarea = container.appendChild(document.createElement('label'));
         let searchmethod2radio = searchmethod2radioarea.appendChild(document.createElement('input'));
@@ -1489,7 +1597,6 @@ version 0.2.5.20210724.002500
         searchmethod2radioarea.appendChild(document.createTextNode('At portal zoomlevel split area by mission startportals'));
         searchmethod2radio.addEventListener('change', function(e) {
             e.preventDefault();
-            console.log('searchmethod2radio',this.checked);
             self.settings.searchmethodstartportals = this.checked;
             if (this.checked) self.settings.searchmethoddefault = false;
             self.storesettings();
@@ -1497,7 +1604,6 @@ version 0.2.5.20210724.002500
 
         container.appendChild(document.createElement('hr'));
         container.appendChild(document.createTextNode(self.title + ' - Advanced settings:'));
-        container.appendChild(document.createElement('br'));
 
         let showstoredcheckboxarea = container.appendChild(document.createElement('label'));
         let showstoredcheckbox = showstoredcheckboxarea.appendChild(document.createElement('input'));
@@ -1512,20 +1618,16 @@ version 0.2.5.20210724.002500
             self.settingsdialog();
         },false);
 
-        container.appendChild(document.createElement('br'));
-
         let showstorediconarea = container.appendChild(document.createElement('label'));
         let showstoredicon = showstorediconarea.appendChild(document.createElement('input'));
         showstoredicon.type = 'checkbox';
         showstoredicon.checked = self.settings.showstoredicon;
-        showstorediconarea.appendChild(document.createTextNode('Show download icons ☑ (disable for checkboxes)'));
+        showstorediconarea.appendChild(document.createTextNode('Show download icons ⇓/☑ (disable for checkboxes)'));
         showstoredicon.addEventListener('change', function(e) {
             e.preventDefault();
             self.settings.showstoredicon = this.checked;
             self.storesettings();
         },false);
-
-        container.appendChild(document.createElement('br'));
 
         let showbannercheckboxarea = container.appendChild(document.createElement('label'));
         let showbannercheckbox = showbannercheckboxarea.appendChild(document.createElement('input'));
@@ -1539,8 +1641,6 @@ version 0.2.5.20210724.002500
             self.settingsdialog();
         },false);
 
-        container.appendChild(document.createElement('br'));
-
         let showtransfercheckboxarea = container.appendChild(document.createElement('label'));
         let showtransfercheckbox = showtransfercheckboxarea.appendChild(document.createElement('input'));
         showtransfercheckbox.type = 'checkbox';
@@ -1553,8 +1653,6 @@ version 0.2.5.20210724.002500
             self.settingsdialog();
         },false);
 
-        container.appendChild(document.createElement('br'));
-
         let alwayscheckboxarea = container.appendChild(document.createElement('label'));
         let alwayscheckbox = alwayscheckboxarea.appendChild(document.createElement('input'));
         alwayscheckbox.type = 'checkbox';
@@ -1565,8 +1663,6 @@ version 0.2.5.20210724.002500
             self.settings.alwaysfindmore = this.checked;
             self.storesettings();
         },false);
-
-        container.appendChild(document.createElement('br'));
 
         let activemissioncolorcheckboxarea = container.appendChild(document.createElement('label'));
         let activemissioncolorcheckbox = activemissioncolorcheckboxarea.appendChild(document.createElement('input'));
@@ -1581,8 +1677,6 @@ version 0.2.5.20210724.002500
             window.plugin.missions.highlightMissionLayers();
         },false);
 
-        container.appendChild(document.createElement('br'));
-
         let colorcheckedmissionscheckboxarea = container.appendChild(document.createElement('label'));
         let colorcheckedmissionscheckbox = colorcheckedmissionscheckboxarea.appendChild(document.createElement('input'));
         colorcheckedmissionscheckbox.type = 'checkbox';
@@ -1596,8 +1690,6 @@ version 0.2.5.20210724.002500
             window.plugin.missions.highlightMissionLayers();
         },false);
 
-        container.appendChild(document.createElement('br'));
-
         let colorfulpathcheckboxarea = container.appendChild(document.createElement('label'));
         let colorfulpathcheckbox = colorfulpathcheckboxarea.appendChild(document.createElement('input'));
         colorfulpathcheckbox.type = 'checkbox';
@@ -1608,10 +1700,13 @@ version 0.2.5.20210724.002500
             self.settings.colorfulpath = this.checked;
             self.storesettings();
 
-            window.plugin.missions.highlightMissionLayers();
+            // redraw opened missions by guid
+            for (let guid in window.plugin.missions.drawnMarkers) {
+                window.plugin.missions.removeMissionLayers(window.plugin.missions.drawnMarkers[guid]);
+                window.plugin.missions.drawnMarkers[guid] = window.plugin.missions.drawMission(window.plugin.missions.cacheByMissionGuid[guid].data);
+            }
+            // window.plugin.missions.highlightMissionLayers();
         },false);
-
-        container.appendChild(document.createElement('br'));
 
         let keepontopcheckboxarea = container.appendChild(document.createElement('label'));
         let keepontopcheckbox = keepontopcheckboxarea.appendChild(document.createElement('input'));
@@ -1628,15 +1723,12 @@ version 0.2.5.20210724.002500
 
         container.appendChild(document.createElement('hr'));
         container.appendChild(document.createTextNode(self.title + ' - Expert settings:'));
-        container.appendChild(document.createElement('br'));
 
         let debugcheckboxarea = container.appendChild(document.createElement('label'));
         let debugcheckbox = debugcheckboxarea.appendChild(document.createElement('input'));
         debugcheckbox.type = 'checkbox';
         debugcheckbox.checked = self.settings.enabledebuglayer;
         debugcheckboxarea.appendChild(document.createTextNode('Enable layer ' + self.missiondebuglayertitle));
-
-        container.appendChild(document.createElement('br'));
 
         let debugclearcheckboxarea = container.appendChild(document.createElement('label'));
         let debugclearcheckbox = debugclearcheckboxarea.appendChild(document.createElement('input'));
@@ -1662,6 +1754,7 @@ version 0.2.5.20210724.002500
             self.settings.enabledebuglayer = this.checked;
             self.storesettings();
             debugclearcheckbox.disabled = (!self.settings.enabledebuglayer);
+            debugclearbutton.disabled = (!self.settings.enabledebuglayer);
             let layerexists = (window.layerChooser._layers.map(function(l) { return (l.overlay?l.layer:undefined); }).indexOf(self.missiondebuglayer) >= 0);
             if (self.settings.enabledebuglayer) {
                 if (!layerexists) window.addLayerGroup(self.missiondebuglayertitle, self.missiondebuglayer, true);
@@ -1669,8 +1762,6 @@ version 0.2.5.20210724.002500
                 if (layerexists) window.removeLayerGroup(self.missiondebuglayer);
             }
         },false);
-
-        container.appendChild(document.createElement('br'));
 
         let keepresultsonscancheckboxarea = container.appendChild(document.createElement('label'));
         let keepresultsonscancheckbox = keepresultsonscancheckboxarea.appendChild(document.createElement('input'));
@@ -1682,8 +1773,6 @@ version 0.2.5.20210724.002500
             self.settings.keepresultsonscan = this.checked;
             self.storesettings();
         },false);
-
-        container.appendChild(document.createElement('br'));
 
         let redrawmissionscheckboxarea = container.appendChild(document.createElement('label'));
         let redrawmissionscheckbox = redrawmissionscheckboxarea.appendChild(document.createElement('input'));
@@ -1699,14 +1788,13 @@ version 0.2.5.20210724.002500
             if (self.settings.redrawmissions) {
                 window.plugin.missions.missionLayer.eachLayer(function(layer) {
                     let guid = layer.options.guid;
-                    if (self.drawnmissions.indexOf(guid) < 0)
+                    if (self.drawnmissions.indexOf(guid) < 0) {
                         self.drawnmissions.push(guid);
+                    }
                 }, this);
             }
             self.storedrawnmissions();
         },false);
-
-        container.appendChild(document.createElement('br'));
 
         let retryselectionarea = container.appendChild(document.createElement('label'));
         retryselectionarea.appendChild(document.createTextNode('Maximum scan retry: '));
@@ -1725,16 +1813,14 @@ version 0.2.5.20210724.002500
         },false);
 
         let author = container.appendChild(document.createElement('div'));
-        author.style.marginTop = '14px';
-        author.style.fontStyle = 'italic';
-        author.style.fontSize = 'smaller';
+        author.className = self.id + 'author';
         author.textContent = self.title + ' version ' + self.version + ' by ' + self.author;
 
         let buttons = self.getdialogbuttons();
-        dialog({
+        window.dialog({
             title: self.title + ' - Settings',
             html: container,
-            id: "plugin-mission-view-dialog",
+            id: "missionsList",
             minWidth: 360,
             height: 'auto'
         }).dialog('option', 'buttons', buttons);
@@ -1755,18 +1841,20 @@ version 0.2.5.20210724.002500
             self.showhelpdialog();
         },false);
 
-        document.getElementById('dialog-' + "plugin-mission-view-dialog").parentElement.prepend(helpbuttonarea);
+        document.getElementById('dialog-' + "missionsList").parentElement.prepend(helpbuttonarea);
     };
 
     self.clearStored = function(callback) {
         let missionscount = Object.keys(window.plugin.missions.cacheByMissionGuid).length;
-        if (missionscount > 0)
+        if (missionscount > 0) {
             if (confirm('Are you sure to clear all ' + missionscount + ' stored missions?')) {
                 window.plugin.missions.cacheByMissionGuid = {};
                 window.plugin.missions.storeCache();
-                if (typeof callback == 'function')
+                if (typeof callback == 'function') {
                     callback();
+                }
             }
+        }
     };
 
     self.replaceMissionsWithCachedDetails = function(missions) {
@@ -1780,10 +1868,11 @@ version 0.2.5.20210724.002500
 
     self.getMissions = function(getstored) {
         let missions = [];
-        if (getstored)
+        if (getstored) {
             missions = Object.keys(window.plugin.missions.cacheByMissionGuid).map(function(guid) { return window.plugin.missions.cacheByMissionGuid[guid].data; });
-        else
+        } else {
             missions = self.replaceMissionsWithCachedDetails(self.missions);
+        }
 
         return self.sortmissions(missions);
     };
@@ -1795,28 +1884,52 @@ version 0.2.5.20210724.002500
         // replace the renderMissionList call by a container object, to use the container when closing the dialog to stop download of mission images
         // add extra menu buttons under the dialog
 
-        var showMissionListDialog_string = window.plugin.missions.showMissionListDialog.toString();
-        showMissionListDialog_string = showMissionListDialog_string.replace('(missions)','(missions,showstored)');
-        showMissionListDialog_string = showMissionListDialog_string.replace('this.renderMissionList(missions)','container');
-        showMissionListDialog_string = showMissionListDialog_string.replace('dialog(','let container = window.plugin.missions.renderMissionList(missions);\n        dialog(');
-        showMissionListDialog_string = showMissionListDialog_string.replace('height:',
-            'id: "plugin-mission-view-dialog",\n' +
-            '        title: (showstored === true?"Missions stored: ":"Missions in view: ") + missions.length,\n' +
-            '        closeCallback: function() {\n' +
-            '            // cancel loading images on dialog\n' +
-            '            for (let cnt = 0, total = container.getElementsByTagName("img").length; cnt < total; cnt++) {\n' +
-            '                container.getElementsByTagName("img")[cnt].src = "";\n' +
-            '            }\n' +
-            '        },\n' +
-            '        height:');
-        showMissionListDialog_string = showMissionListDialog_string.replace('dialog','let thisdialog = dialog');
-        showMissionListDialog_string = showMissionListDialog_string.replace(
-            '});',
-            "});\n" +
-            "        let buttons = " + self.namespace + "getdialogbuttons((showstored === true?'Stored':'In view'));\n" +
-            "        thisdialog.dialog('option','buttons',buttons);");
+        let showMissionListDialog_string = window.plugin.missions.showMissionListDialog.toString();
+        showMissionListDialog_string = showMissionListDialog_string.replace('function(missions)','function(missions, caption)'); // 0.2.2 compatible
 
-        eval('window.plugin.missions.showMissionListDialog = ' + showMissionListDialog_string + ';');
+        showMissionListDialog_string = showMissionListDialog_string.replaceAll('this.renderMissionList(missions)','container'); // 0.2.2 and 0.3.0 compatible
+        showMissionListDialog_string = showMissionListDialog_string.replace('{','{\nlet container = window.plugin.missions.renderMissionList(missions);'); // 0.2.2 and 0.3.0 compatible
+
+        if (!showMissionListDialog_string.match(/id:/)) { // 0.2.2
+            showMissionListDialog_string = showMissionListDialog_string.replace(
+                'height:',
+                'id: "missionsList",\n' +
+                'title: (caption ? caption + ": " : "Missions in view: ") + missions.length,\n' +
+                'height:');
+        } else { // 0.3.0
+            showMissionListDialog_string = showMissionListDialog_string.replaceAll('title: caption','title: (caption ? caption + ": " : "Missions in view: ") + missions.length');
+        }
+        showMissionListDialog_string = showMissionListDialog_string.replace(
+            'collapseCallback:',
+            'closeCallback: function() {\n' +
+            '    // cancel loading images on dialog\n' +
+            '    for (let cnt = 0, total = container.getElementsByTagName("img").length; cnt < total; cnt++) {\n' +
+            '        container.getElementsByTagName("img")[cnt].src = "";\n' +
+            '    }\n' +
+            '},\n' +
+            'collapseCallback:');
+
+        if (!showMissionListDialog_string.match(/buttons:/)) { // 0.2.2
+            showMissionListDialog_string = showMissionListDialog_string.replace('dialog({','let thisdialog = dialog({');
+            showMissionListDialog_string = showMissionListDialog_string.replace(
+                '});',
+                "});\n" +
+                "        let buttons = " + self.namespace + "getdialogbuttons((caption == 'Missions stored'?'Stored':'In view'));\n" +
+                "        thisdialog.dialog('option','buttons',buttons);");
+        } else { // 0.3.0
+            showMissionListDialog_string = showMissionListDialog_string.replace(
+                /(\t\$\(openDialog\))/,
+                "\tlet buttons = " + self.namespace + "getdialogbuttons((caption == 'Missions stored'?'Stored':'In view'));\n" +
+                "\t\t$(openDialog).dialog('option','buttons',buttons);\n\t$1");
+        }
+
+        showMissionListDialog_string = showMissionListDialog_string.replace("this.resizeMissionList()","window.plugin.missions.resizeMissionList()");
+
+        try {
+            eval('window.plugin.missions.showMissionListDialog = ' + showMissionListDialog_string + ';');
+        } catch(e) {
+            console.warn('IITC plugin eval failure: ' + self.namespace + 'setupShowMissionListDialog showMissionListDialog');
+        }
     };
 
     self.setupRenderMissionList = function() {
@@ -1837,7 +1950,7 @@ version 0.2.5.20210724.002500
         storebutton.textContent = (self.settings.showtextbuttons ? 'Stored' : '☑');
         storebutton.addEventListener('click', function(e) {
             e.preventDefault();
-            window.plugin.missions.showMissionListDialog(self.getMissions(true),true);
+            window.plugin.missions.showMissionListDialog(self.getMissions(true),"Missions stored");
         }, false);
         buttons[0].replaceWith(storebutton);
 
@@ -1846,10 +1959,11 @@ version 0.2.5.20210724.002500
         inviewbutton.textContent = (self.settings.showtextbuttons ? 'Missions in view' : '🔎');
         inviewbutton.addEventListener('click', function(e) {
             e.preventDefault();
-            if (self.missions.length > 0)
+            if (self.missions.length > 0) {
                 window.plugin.missions.showMissionListDialog(self.getMissions()); // new action
-            else
+            } else {
                 window.plugin.missions.openTopMissions(); // default action
+            }
         }, false);
         buttons[buttons.length-1].parentNode.insertBefore(inviewbutton,buttons[buttons.length-1].nextSibling); // insertAfter
 
@@ -1873,7 +1987,11 @@ version 0.2.5.20210724.002500
         loadMission_string = loadMission_string.replace(/(\s)(callback\()/sg,"$1if (typeof callback == 'function') $2"); // add a check for valid function
         loadMission_string = loadMission_string.replace(/function\(\)/sg,"function(requestObject,error,errorThrown)"); // add a fix for missing error variable
         loadMission_string = loadMission_string.replace(/if \(errorcallback\)/sg,"if (typeof errorcallback == 'function')"); // add a check for valid function
-        eval('window.plugin.missions.loadMission = ' + loadMission_string + ';');
+        try {
+            eval('window.plugin.missions.loadMission = ' + loadMission_string + ';');
+        } catch(e) {
+            console.warn('IITC plugin eval failure: ' + self.namespace + 'setupLoadMission');
+        }
     };
 
     self.hsl2rgb = function(h,s,l) {
@@ -1884,10 +2002,11 @@ version 0.2.5.20210724.002500
         return [f(0)*255,f(8)*255,f(4)*255];
     };
     self.getMissionColor = function(guid,active,missions) {
-        if (typeof active == 'undefined') // check if guid is active
+        if (typeof active == 'undefined') { // check if guid is active
             active = (guid && guid == self.missionactiveguid);
-        else if (active === true) // set active guid
+        } else if (active === true) { // set active guid
             self.missionactiveguid = guid;
+        }
 
         if (!guid || !window.plugin.missions.cacheByMissionGuid[guid]) return (active && self.settings.activemissioncolor ? window.plugin.missions.MISSION_COLOR_ACTIVE : window.plugin.missions.MISSION_COLOR);
         if (active && self.settings.activemissioncolor) return window.plugin.missions.MISSION_COLOR_ACTIVE;
@@ -1908,6 +2027,9 @@ version 0.2.5.20210724.002500
     };
     self.setupDrawMission = function() {
         var drawMission_string = window.plugin.missions.drawMission.toString();
+
+        // replace internal plugin variable by fixed value
+        drawMission_string = drawMission_string.replace('MissionOrder.NonSequential','2'); // version 0.3.0
 
         // add mission guid to every layer options:
         drawMission_string = drawMission_string.replace(/(\s+)(interactive)/gs,'$1guid: mission.guid,$1$2');
@@ -1942,7 +2064,11 @@ version 0.2.5.20210724.002500
         // add background code:
         drawMission_string = drawMission_string.replace(/(\s+)(var latlngs)/,'$1' + drawMissionBackground_string + '$1$2');
 
-        eval('window.plugin.missions.drawMission = ' + drawMission_string + ';');
+        try {
+            eval('window.plugin.missions.drawMission = ' + drawMission_string + ';');
+        } catch(e) {
+            console.warn('IITC plugin eval failure: ' + self.namespace + 'setupDrawMission');
+        }
     };
     self.setupHighlightMissionLayers = function() {
         let highlightMissionLayers_string = window.plugin.missions.highlightMissionLayers.toString();
@@ -1959,27 +2085,44 @@ version 0.2.5.20210724.002500
         highlightMissionLayers_string = highlightMissionLayers_string.replace(/layer\.bringToFront\(\);/s,'activelayers.push(layer);');
         highlightMissionLayers_string = highlightMissionLayers_string.replace(/(\s+)(\})$/s,'$1    for (let cnt = 0; cnt < activelayers.length; cnt++) {$1        activelayers[cnt].bringToFront();$1    }$1$2');
 
-        eval('window.plugin.missions.highlightMissionLayers = ' + highlightMissionLayers_string + ';');
+        try {
+            eval('window.plugin.missions.highlightMissionLayers = ' + highlightMissionLayers_string + ';');
+        } catch(e) {
+            console.warn('IITC plugin eval failure: ' + self.namespace + 'setupHighlightMissionLayers');
+        }
     };
 
     self.setupMissionLayer = function() {
         // replace
         window.removeLayerGroup(window.plugin.missions.missionLayer);
-		window.plugin.missions.missionLayer = new L.FeatureGroup(); // a FeatureGroup has the option bringToFront/bringToBack for the whole group of layers
+		window.plugin.missions.missionLayer = new window.L.FeatureGroup(); // a FeatureGroup has the option bringToFront/bringToBack for the whole group of layers
 		window.addLayerGroup('Mission portals and routes', window.plugin.missions.missionLayer, true);
     };
 
     self.setupShowMissionDialog = function() {
         let showMissionDialog_string = window.plugin.missions.showMissionDialog.toString();
+
+        // store mission guid when openening the mission (when setting redrawmissions is enabled)
+        showMissionDialog_string = showMissionDialog_string.replace(/(\s+)(var me)/s,'$1if (' + self.namespace + 'settings.redrawmissions) {$1if (' + self.namespace + 'drawnmissions.indexOf(mission.guid) < 0) {$1' + self.namespace + 'drawnmissions.push(mission.guid); ' + self.namespace + 'storedrawnmissions();$1}$1}$1$2');
+
+        // removed stored mission guid when closing the mission (when setting redrawmissions is enabled)
+        showMissionDialog_string = showMissionDialog_string.replace(/(\s+)(this|me)(\.removeMissionLayers)/gs,'$1if (' + self.namespace + 'settings.redrawmissions) {$1let cnt = ' + self.namespace + 'drawnmissions.indexOf(mission.guid);$1if (cnt >= 0) {$1' + self.namespace + 'drawnmissions.splice(cnt,1);$1' + self.namespace + 'storedrawnmissions();$1}$1}$1$2$3');
+
+        // remember last opened dialog, to position the next dialog just under the previous dialog
+        showMissionDialog_string = showMissionDialog_string.replace(/\{(\s+)(window\.dialog|dialog)/s,'{$1this.lastdialog = $2');
         // place the dialog at top left, or just below the last dialog
-
-        showMissionDialog_string = showMissionDialog_string.replace(/(\s+)(var me)/s,'$1if (' + self.namespace + 'settings.redrawmissions) { if (' + self.namespace + 'drawnmissions.indexOf(mission.guid) < 0) { ' + self.namespace + 'drawnmissions.push(mission.guid); ' + self.namespace + 'storedrawnmissions(); } }$1$2');
-
-        showMissionDialog_string = showMissionDialog_string.replace(/(\s+)(this|me)(\.removeMissionLayers)/gs,'$1if (' + self.namespace + 'settings.redrawmissions) { let cnt = ' + self.namespace + 'drawnmissions.indexOf(mission.guid); if (cnt >= 0) { ' + self.namespace + 'drawnmissions.splice(cnt,1); ' + self.namespace + 'storedrawnmissions(); } }$1$2$3');
-
-        showMissionDialog_string = showMissionDialog_string.replace(/\{(\s+)(dialog)/s,'{$1this.lastdialog = $2');
         showMissionDialog_string = showMissionDialog_string.replace(/(\s+)(height)/s,'$1position: { my: "left top", at: "left top", of: this.lastdialog || document.body },$1$2');
-        eval('window.plugin.missions.showMissionDialog = ' + showMissionDialog_string + ';');
+
+        // store drawn markers, to enable replace when choosing a different display (setting colorfulpath)
+        showMissionDialog_string = showMissionDialog_string.replace('var markers','if (!("drawnMarkers" in me)) me.drawnMarkers = {}; me.drawnMarkers[mission.guid]');
+        showMissionDialog_string = showMissionDialog_string.replaceAll('markers','me.drawnMarkers[mission.guid]');
+        showMissionDialog_string = showMissionDialog_string.replaceAll(/(removeMissionLayers.*;)/g,'$1\n\t\tdelete me.drawnMarkers[mission.guid];');
+
+        try {
+            eval('window.plugin.missions.showMissionDialog = ' + showMissionDialog_string + ';');
+        } catch(e) {
+            console.warn('IITC plugin eval failure: ' + self.namespace + 'setupShowMissionDialog');
+        }
     };
 
 
@@ -2010,7 +2153,7 @@ version 0.2.5.20210724.002500
     self.modifyMissionListItem = function(renderedmissionobject,guid) {
         if (!self.settings.showstoredbutton) return renderedmissionobject;
 
-        let storedmission = (window.plugin.missions.cacheByMissionGuid[guid] != undefined);
+        let storedmission = (guid in window.plugin.missions.cacheByMissionGuid);
 
         let toggleStored = document.createElement('label');
         toggleStored.style.position = 'absolute';
@@ -2039,13 +2182,13 @@ version 0.2.5.20210724.002500
             toggleStoredCheckbox.addEventListener('change', function(e) {
                 e.preventDefault();
                 toggleStoredIcon.textContent = '⏳';
-                self.toggleStoredListItem(guid,toggleStoredCheckbox.checked,function() { let storedmission = (window.plugin.missions.cacheByMissionGuid[guid] != undefined); toggleStoredIcon.textContent = (storedmission ? '☑' : '⇓');});
+                self.toggleStoredListItem(guid,toggleStoredCheckbox.checked,function() { let storedmission = (guid in window.plugin.missions.cacheByMissionGuid); toggleStoredIcon.textContent = (storedmission ? '☑' : '⇓');});
             }, false);
         } else {
             toggleStoredCheckbox.addEventListener('change', function(e) {
                 e.preventDefault();
                 toggleStoredCheckbox.disabled = true;
-                self.toggleStoredListItem(guid,toggleStoredCheckbox.checked,function() { let storedmission = (window.plugin.missions.cacheByMissionGuid[guid] != undefined); toggleStoredCheckbox.checked = storedmission; toggleStoredCheckbox.disabled = false; });
+                self.toggleStoredListItem(guid,toggleStoredCheckbox.checked,function() { let storedmission = (guid in window.plugin.missions.cacheByMissionGuid); toggleStoredCheckbox.checked = storedmission; toggleStoredCheckbox.disabled = false; });
             }, false);
         }
 
@@ -2064,20 +2207,22 @@ version 0.2.5.20210724.002500
                 window.plugin.missions.cacheByMissionGuid[data.mission.guid].data.image = newimage;
                 window.plugin.missions.storeCache();
                 data.mission.image = newimage;
-                $('#dialog-plugin-mission-view-dialog [data-mission_mid="' + data.mission.guid + '"] img')[0].src = newimage;
+                if ($('#dialog-plugin-mission-view-dialog [data-mission_mid="' + data.mission.guid + '"] img').length > 0) {
+                    $('#dialog-missionsList [data-mission_mid="' + data.mission.guid + '"] img')[0].src = newimage;
+                }
             }
-            // $('#dialog-plugin-mission-view-dialog [data-mission_mid="' + data.mission.guid + '"]').replaceWith(self.modifyMissionListItem(window.plugin.missions.renderMissionSummary(data.mission),data.mission.guid));
+            // $('#dialog-missionsList [data-mission_mid="' + data.mission.guid + '"]').replaceWith(self.modifyMissionListItem(window.plugin.missions.renderMissionSummary(data.mission),data.mission.guid));
 
             let renderedDetails = window.plugin.missions.renderMissionSummary(data.mission).innerHTML.replace(/^.*?(<span|<br)/s,'$1');
-            $('#dialog-plugin-mission-view-dialog [data-mission_mid="' + data.mission.guid + '"] > span.plugin-mission-info').remove();
-            $('#dialog-plugin-mission-view-dialog [data-mission_mid="' + data.mission.guid + '"] > br').replaceWith(renderedDetails);
+            $('#dialog-missionsList [data-mission_mid="' + data.mission.guid + '"] > span.plugin-mission-info').remove();
+            $('#dialog-missionsList [data-mission_mid="' + data.mission.guid + '"] > br').replaceWith(renderedDetails);
 
             if (self.settings.showstoredbutton)
                 if (self.settings.showstoredicon) {
-                    $('#dialog-plugin-mission-view-dialog [data-mission_mid="' + data.mission.guid + '"] span.' + self.id + '-iconstored').first().text('☑');
-                    $('#dialog-plugin-mission-view-dialog [data-mission_mid="' + data.mission.guid + '"] input.' + self.id + '-checkboxstored').first().prop('checked',true);
+                    $('#dialog-missionsList [data-mission_mid="' + data.mission.guid + '"] span.' + self.id + '-iconstored').first().text('☑');
+                    $('#dialog-missionsList [data-mission_mid="' + data.mission.guid + '"] input.' + self.id + '-checkboxstored').first().prop('checked',true);
                 } else {
-                    $('#dialog-plugin-mission-view-dialog [data-mission_mid="' + data.mission.guid + '"] input.' + self.id + '-checkboxstored').first().prop('checked',true);
+                    $('#dialog-missionsList [data-mission_mid="' + data.mission.guid + '"] input.' + self.id + '-checkboxstored').first().prop('checked',true);
                 }
         },0);
     };
@@ -2093,8 +2238,9 @@ version 0.2.5.20210724.002500
                 updated = true;
             }
         }
-        if (updated)
+        if (updated) {
             window.plugin.missions.storeCache();
+        }
     };
 
     self.cleardebuglayer = function() {
@@ -2121,7 +2267,7 @@ version 0.2.5.20210724.002500
         let layer = self.missiondebugobjects[id];
         if (!layer) {
             let latLngs = [bounds.getSouthWest(),bounds.getNorthEast()];
-            layer = new L.Rectangle(latLngs,options);
+            layer = new window.L.Rectangle(latLngs,options);
             self.missiondebugobjects[id] = layer;
             self.missiondebuglayer.addLayer(layer);
         } else {
@@ -2151,18 +2297,53 @@ version 0.2.5.20210724.002500
             return;
         }
 
+        var sheet = document.createElement('style');
+        sheet.innerHTML = `
+        .${self.id}mainmenu > button { display: block; min-width: 180px; margin: 5px; cursor: pointer; margin-left: auto; margin-right: auto; }
+        .${self.id}mainmenu > button:disabled { color: #bbb; cursor: default; }
+        .${self.id}mainmenu > label { user-select: none; }
+        .${self.id}settingsmenu button { cursor: pointer; }
+        .${self.id}settingsmenu button:disabled { color: #bbb; cursor: default; }
+        .${self.id}settingsmenu > label { display: block; user-select: none; }
+
+        .${self.id}author { margin-top: 14px; font-style: italic; font-size: smaller; }
+
+        .${self.id}-banner-summary img { width: 50px; }
+        .${self.id}-banner-edit-buttons { cursor: pointer; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); }
+        .${self.id}-banner-edit-buttons span { color: black; font-size: 2em; margin-left: 1px; }
+        `;
+        document.body.appendChild(sheet);
+
         window.addHook('plugin-missions-mission-changed', function(data) { window.plugin.missions.highlightMissionLayers(); });
         window.addHook('plugin-missions-loaded-mission', self.updateMissionListItem);
+
+        // init before restore settings
+        if (!('autoRefreshOnMoveEnd' in window.plugin.missions)) { // pre version 0.3.0 had no auto refresh
+            window.plugin.missions.autoRefreshOnMoveEnd = false;
+            window.plugin.missions.onMoveEnd = function() {
+                if (window.plugin.missions.autoRefreshOnMoveEnd) {
+                    if (window.DIALOGS['dialog-missionsList']) {
+                        window.plugin.missions.openTopMissions();
+                    }
+                }
+            }
+            window.map.on('moveend', window.plugin.missions.onMoveEnd, window.plugin.missions);
+        }
+        self.settings.autorefreshonmoveend = window.plugin.missions?.autoRefreshOnMoveEnd || self.settings.autorefreshonmoveend; // default true from Missions version 0.3.0
 
         self.restoresettings();
         self.restorePlaceholders();
         self.restoredrawnmissions();
 
+        // update missions plugin value with stored setting
+        window.plugin.missions.autoRefreshOnMoveEnd = self.settings.autorefreshonmoveend;
+
         window.plugin.missions.MISSION_COLOR_ACTIVE = '#FF0000'; //'#7f7f00',
 
-        self.missiondebuglayer = new L.FeatureGroup(); // LayerGroup
-        if (self.settings.enabledebuglayer)
+        self.missiondebuglayer = new window.L.FeatureGroup(); // LayerGroup
+        if (self.settings.enabledebuglayer) {
             window.addLayerGroup(self.missiondebuglayertitle, self.missiondebuglayer, true);
+        }
 
         self.setupOpenTopMissions();
         self.setupShowMissionListDialog();
@@ -2179,7 +2360,7 @@ version 0.2.5.20210724.002500
         if (self.settings.redrawmissions) {
             for (let cnt = 0; cnt < self.drawnmissions.length; cnt++) {
                 let guid = self.drawnmissions[cnt];
-                if (window.plugin.missions.cacheByMissionGuid[guid]) {
+                if (guid in window.plugin.missions.cacheByMissionGuid) {
                     let mission = window.plugin.missions.cacheByMissionGuid[guid].data;
                     window.plugin.missions.showMissionDialog(mission);
                 }
@@ -2192,14 +2373,13 @@ version 0.2.5.20210724.002500
         // bring to front, if option enabled and map is active, and do this a moment later, after all portals are brought to front
         window.addHook('mapDataRefreshEnd', function() { setTimeout(function() { if (self.settings.keepontop && window.plugin.missions.missionLayer._map) { window.plugin.missions.missionLayer.bringToFront(); window.plugin.missions.highlightMissionLayers(); } },100); });
 
-        $('<style>').prop('type', 'text/css').html('.' + self.pluginname + '-banner-summary img { width: 50px; } .' + self.pluginname + '-banner-edit-buttons { cursor: pointer; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); } .' + self.pluginname + '-banner-edit-buttons span { color: black; font-size: 2em; margin-left: 1px; }').appendTo('head');
-
         console.log('IITC plugin loaded: ' + self.title + ' version ' + self.version);
     };
 
     var setup = function() {
         (window.iitcLoaded?self.setup():window.addHook('iitcLoaded',self.setup));
     };
+    setup.priority = 'lowest'; // plugin Missions 0.3.0 is set to low, this plugin must be even lower
 
     setup.info = plugin_info; //add the script info data to the function as a property
     if(!window.bootPlugins) window.bootPlugins = [];

@@ -2,10 +2,10 @@
 // @author         DanielOnDiordna
 // @name           Missions add-on
 // @category       Addon
-// @version        1.0.0.20221003.221800
+// @version        1.1.0.20221005.214400
 // @updateURL      https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/missions-addon.meta.js
 // @downloadURL    https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/missions-addon.user.js
-// @description    [danielondiordna-1.0.0.20221003.221800] Add-on to add extra functionality for the missions plugin (up to version 0.3.0): 1: Optionally search for all missions within visible range, not just the top 25 (be aware: using this option will increase your server requests). 2: Sort the loaded missions by title (including roman numbers). 3: Show and remove stored missions. 4: Selected mission color changed to red. 5. Displayed missions show filled start portal. 6. Banner view for stored missions. 7. Transfer missions (export/import). 8. Missions routes layer can show a colorful path. 9. Redraw opened missions after IITC reloads.
+// @description    [danielondiordna-1.1.0.20221005.214400] Add-on to add extra functionality for the missions plugin (up to version 0.3.0): 1: Optionally search for all missions within visible range, not just the top 25 (be aware: using this option will increase your server requests). 2: Sort the loaded missions by title (including roman numbers). 3: Show and remove stored missions. 4: Selected mission color changed to red. 5. Displayed missions show filled start portal. 6. Banner view for stored missions. 7. Transfer missions (export/import). 8. Missions routes layer can show a colorful path. 9. Redraw opened missions after IITC reloads.
 // @id             missions-addon@DanielOnDiordna
 // @namespace      https://softspot.nl/ingress/
 // @match          https://intel.ingress.com/*
@@ -22,10 +22,15 @@ function wrapper(plugin_info) {
     var self = window.plugin.missionsAddon;
     self.id = 'missionsAddon';
     self.title = 'Missions add-on';
-    self.version = '1.0.0.20221003.221800';
+    self.version = '1.1.0.20221005.214400';
     self.author = 'DanielOnDiordna';
     self.changelog = `
 Changelog:
+
+version 1.1.0.20221005.214400
+- fixed a path redraw issue when opening an already opened mission again
+- hardcode replace function showMissionListDialog because stock plugin Missions version 0.3.0 has too many (unneeded) changes
+- this also the fixed the Bannergress plugin (which now needs the Add-on to work properly with stock plugin Missions version 0.3.0)
 
 version 1.0.0.20221003.221800
 - reversed the changelog order
@@ -1884,52 +1889,84 @@ version 0.0.1.20191129.233100
         // replace the renderMissionList call by a container object, to use the container when closing the dialog to stop download of mission images
         // add extra menu buttons under the dialog
 
-        let showMissionListDialog_string = window.plugin.missions.showMissionListDialog.toString();
-        showMissionListDialog_string = showMissionListDialog_string.replace('function(missions)','function(missions, caption)'); // 0.2.2 compatible
+        //let showMissionListDialog_string = window.plugin.missions.showMissionListDialog.toString();
+        //if (showMissionListDialog_string.match('dialog-missionsList')) {
 
-        showMissionListDialog_string = showMissionListDialog_string.replaceAll('this.renderMissionList(missions)','container'); // 0.2.2 and 0.3.0 compatible
-        showMissionListDialog_string = showMissionListDialog_string.replace('{','{\nlet container = window.plugin.missions.renderMissionList(missions);'); // 0.2.2 and 0.3.0 compatible
+        // function showMissionListDialog from Missions 0.3.0 has too many changes
+        // replace the complete function back to Missions 0.2.2 including add-on modifications
+        window.plugin.missions.showMissionListDialog = function(missions, caption) {
+            let container = this.renderMissionList(missions);
+            let thisdialog = dialog({
+                html: container,
+                id: "missionsList",
+                title: (caption ? caption + ": " : "Missions in view: ") + missions.length,
+                height: 'auto',
+                width: '400px',
+                closeCallback: function() {
+                    // cancel loading images on dialog
+                    for (let cnt = 0, total = container.getElementsByTagName("img").length; cnt < total; cnt++) {
+                        container.getElementsByTagName("img")[cnt].src = "";
+                    }
+                },
+                collapseCallback: this.collapseFix,
+                expandCallback: this.collapseFix,
+            }).dialog('option', 'buttons', {
+                'Create new mission': function() { open('//missions.ingress.com'); },
+                'OK': function() { $(this).dialog('close'); },
+            });
+            let buttons = window.plugin.missionsAddon.getdialogbuttons((caption == 'Missions stored'?'Stored':'In view'));
+            thisdialog.dialog('option','buttons',buttons);
+        };
 
-        if (!showMissionListDialog_string.match(/id:/)) { // 0.2.2
+        /*
+        } else {
+            showMissionListDialog_string = showMissionListDialog_string.replace('function(missions)','function(missions, caption)'); // 0.2.2 compatible
+
+            showMissionListDialog_string = showMissionListDialog_string.replaceAll('this.renderMissionList(missions)','container'); // 0.2.2 and 0.3.0 compatible
+            showMissionListDialog_string = showMissionListDialog_string.replace('{','{\nlet container = this.renderMissionList(missions);'); // 0.2.2 and 0.3.0 compatible
+
+            if (!showMissionListDialog_string.match(/id:/)) { // 0.2.2
+                showMissionListDialog_string = showMissionListDialog_string.replace(
+                    'height:',
+                    'id: "missionsList",\n' +
+                    'title: (caption ? caption + ": " : "Missions in view: ") + missions.length,\n' +
+                    'height:');
+            } else { // 0.3.0
+                showMissionListDialog_string = showMissionListDialog_string.replaceAll('title: caption','title: (caption ? caption + ": " : "Missions in view: ") + missions.length');
+            }
             showMissionListDialog_string = showMissionListDialog_string.replace(
-                'height:',
-                'id: "missionsList",\n' +
-                'title: (caption ? caption + ": " : "Missions in view: ") + missions.length,\n' +
-                'height:');
-        } else { // 0.3.0
-            showMissionListDialog_string = showMissionListDialog_string.replaceAll('title: caption','title: (caption ? caption + ": " : "Missions in view: ") + missions.length');
-        }
-        showMissionListDialog_string = showMissionListDialog_string.replace(
-            'collapseCallback:',
-            'closeCallback: function() {\n' +
-            '    // cancel loading images on dialog\n' +
-            '    for (let cnt = 0, total = container.getElementsByTagName("img").length; cnt < total; cnt++) {\n' +
-            '        container.getElementsByTagName("img")[cnt].src = "";\n' +
-            '    }\n' +
-            '},\n' +
-            'collapseCallback:');
+                'collapseCallback:',
+                'closeCallback: function() {\n' +
+                '    // cancel loading images on dialog\n' +
+                '    for (let cnt = 0, total = container.getElementsByTagName("img").length; cnt < total; cnt++) {\n' +
+                '        container.getElementsByTagName("img")[cnt].src = "";\n' +
+                '    }\n' +
+                '},\n' +
+                'collapseCallback:');
 
-        if (!showMissionListDialog_string.match(/buttons:/)) { // 0.2.2
-            showMissionListDialog_string = showMissionListDialog_string.replace('dialog({','let thisdialog = dialog({');
-            showMissionListDialog_string = showMissionListDialog_string.replace(
-                '});',
-                "});\n" +
-                "        let buttons = " + self.namespace + "getdialogbuttons((caption == 'Missions stored'?'Stored':'In view'));\n" +
-                "        thisdialog.dialog('option','buttons',buttons);");
-        } else { // 0.3.0
-            showMissionListDialog_string = showMissionListDialog_string.replace(
-                /(\t\$\(openDialog\))/,
-                "\tlet buttons = " + self.namespace + "getdialogbuttons((caption == 'Missions stored'?'Stored':'In view'));\n" +
-                "\t\t$(openDialog).dialog('option','buttons',buttons);\n\t$1");
-        }
+            if (!showMissionListDialog_string.match(/buttons:/)) { // 0.2.2
+                showMissionListDialog_string = showMissionListDialog_string.replace('dialog({','let thisdialog = dialog({');
+                showMissionListDialog_string = showMissionListDialog_string.replace(
+                    '});',
+                    "});\n" +
+                    "        let buttons = " + self.namespace + "getdialogbuttons((caption == 'Missions stored'?'Stored':'In view'));\n" +
+                    "        thisdialog.dialog('option','buttons',buttons);");
+            } else { // 0.3.0
+                showMissionListDialog_string = showMissionListDialog_string.replace(
+                    /(\t\$\(openDialog\))/,
+                    "\tlet buttons = " + self.namespace + "getdialogbuttons((caption == 'Missions stored'?'Stored':'In view'));\n" +
+                    "\t\t$(openDialog).dialog('option','buttons',buttons);\n\t$1");
+            }
 
-        showMissionListDialog_string = showMissionListDialog_string.replace("this.resizeMissionList()","window.plugin.missions.resizeMissionList()");
+            showMissionListDialog_string = showMissionListDialog_string.replace("this.resizeMissionList()","window.plugin.missions.resizeMissionList()");
 
-        try {
-            eval('window.plugin.missions.showMissionListDialog = ' + showMissionListDialog_string + ';');
-        } catch(e) {
-            console.warn('IITC plugin eval failure: ' + self.namespace + 'setupShowMissionListDialog showMissionListDialog');
+            try {
+                eval('window.plugin.missions.showMissionListDialog = ' + showMissionListDialog_string + ';');
+            } catch(e) {
+                console.warn('IITC plugin eval failure: ' + self.namespace + 'setupShowMissionListDialog showMissionListDialog');
+            }
         }
+        */
     };
 
     self.setupRenderMissionList = function() {
@@ -2114,9 +2151,10 @@ version 0.0.1.20191129.233100
         showMissionDialog_string = showMissionDialog_string.replace(/(\s+)(height)/s,'$1position: { my: "left top", at: "left top", of: this.lastdialog || document.body },$1$2');
 
         // store drawn markers, to enable replace when choosing a different display (setting colorfulpath)
-        showMissionDialog_string = showMissionDialog_string.replace('var markers','if (!("drawnMarkers" in me)) me.drawnMarkers = {}; me.drawnMarkers[mission.guid]');
+        // first close previous dialog if same mission is redrawn
+        showMissionDialog_string = showMissionDialog_string.replace('var markers','$(window.DIALOGS["dialog-plugin-mission-details-" + mission.guid.replace(/\\./g, "_")]).dialog("close");\n\tif (!("drawnMarkers" in me)) me.drawnMarkers = {};\n\tme.drawnMarkers[mission.guid]');
         showMissionDialog_string = showMissionDialog_string.replaceAll('markers','me.drawnMarkers[mission.guid]');
-        showMissionDialog_string = showMissionDialog_string.replaceAll(/(removeMissionLayers.*;)/g,'$1\n\t\tdelete me.drawnMarkers[mission.guid];');
+        showMissionDialog_string = showMissionDialog_string.replaceAll(/(removeMissionLayers.*;)/g,'$1\n\tdelete me.drawnMarkers[mission.guid];');
 
         try {
             eval('window.plugin.missions.showMissionDialog = ' + showMissionDialog_string + ';');

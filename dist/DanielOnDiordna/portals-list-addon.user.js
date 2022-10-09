@@ -2,10 +2,10 @@
 // @author         DanielOnDiordna
 // @name           Portals list add-on
 // @category       Addon
-// @version        0.0.7.20210724.002500
+// @version        1.0.0.20221008.234100
 // @updateURL      https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/portals-list-addon.meta.js
 // @downloadURL    https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/portals-list-addon.user.js
-// @description    [danielondiordna-0.0.7.20210724.002500] Add-on to only display portals for visible/enabled layers, a fix for Unclaimed/Placeholder Portals, added level filters and load portal details.
+// @description    [danielondiordna-1.0.0.20221008.234100] Add-on to only display portals for visible/enabled layers, a fix for Unclaimed/Placeholder Portals, added level filters and load portal details.
 // @id             portals-list-addon@DanielOnDiordna
 // @namespace      https://softspot.nl/ingress/
 // @match          https://intel.ingress.com/*
@@ -22,24 +22,34 @@ function wrapper(plugin_info) {
     var self = window.plugin.portalslistAddon;
     self.id = 'portalslistAddon';
     self.title = 'Portals list add-on';
-    self.version = '0.0.7.20210724.002500';
+    self.version = '1.0.0.20221008.234100';
     self.author = 'DanielOnDiordna';
     self.changelog = `
 Changelog:
 
-version 0.0.1.20191114.115600
-- first release
+version 1.0.0.20221008.234100
+- reversed the changelog order
+- fixed the neutral portals layer detection
+- added error checking when replacing strings
+- added error checking when running the eval
+- fixed load details button by replacing display hidden with display none
+- fixed support for stock plugin Portals list version 0.4.0
 
-version 0.0.2.2020109.001300
-- added a fix for portals with an undefined title, level and health
+version 0.0.7.20210724.002500
+- prevent double plugin setup on hook iitcLoaded
 
-version 0.0.3.2020125.003100
-- added loading of more portal details columns like shields, resonators, mods, owner
+version 0.0.7.20210711.210800
+- fixed row number for loaded portal details
+- fixed problem that would filter away all neutral portals
+- neutral portals now show no shields, resonators, mods and owne
+- details for neutral portals are not loaded anymore
 
-version 0.0.4.20200308.232600
-- replaced a lot of code to speed up the table updates
-- added a stop loading button
-- limit loading details to new details only
+version 0.0.6.20210621.234600
+- added level filter checkboxes
+- changed filtering for visible layers
+
+version 0.0.5.20210421.190200
+- minor fix for IITC CE where runHooks iitcLoaded is executed before addHook is defined in this plugin
 
 version 0.0.5.20210204.231200
 - changed title from 'show list of portals add-on' to 'Portals list add-on' to match IITC-CE plugin name
@@ -48,26 +58,24 @@ version 0.0.5.20210204.231200
 - portal table displayed with fixed title and made scrollable
 - updated plugin wrapper and userscript header formatting to match IITC-CE coding
 
-version 0.0.5.20210421.190200
-- minor fix for IITC CE where runHooks iitcLoaded is executed before addHook is defined in this plugin
+version 0.0.4.20200308.232600
+- replaced a lot of code to speed up the table updates
+- added a stop loading button
+- limit loading details to new details only
 
-version 0.0.6.20210621.234600
-- added level filter checkboxes
-- changed filtering for visible layers
+version 0.0.3.2020125.003100
+- added loading of more portal details columns like shields, resonators, mods, owner
 
-version 0.0.7.20210711.210800
-- fixed row number for loaded portal details
-- fixed problem that would filter away all neutral portals
-- neutral portals now show no shields, resonators, mods and owne
-- details for neutral portals are not loaded anymore
+version 0.0.2.2020109.001300
+- added a fix for portals with an undefined title, level and health
 
-version 0.0.7.20210724.002500
-- prevent double plugin setup on hook iitcLoaded
+version 0.0.1.20191114.115600
+- first release
 `;
     self.namespace = 'window.plugin.' + self.id + '.';
     self.pluginname = 'plugin-' + self.id;
 
-    self.unclaimedlayername = 'Unclaimed/Placeholder'; // Value will be retreived from window.setupMap
+    self.unclaimedlayername = 'Unclaimed/Placeholder Portals'; // Value will be retreived from window.setupMap
     self.enllayername = 'Enlightened';
     self.reslayername = 'Resistance';
     self.levellayername = 'Level '; // Value will be retreived from window.setupMap
@@ -99,6 +107,7 @@ version 0.0.7.20210724.002500
         };
     self.filterlevel = [];
     self.countlevel = [];
+    self.filterreversed = false;
 
     self.gettotalshielding = function(guid,htmlformatting) {
         if (!self.portaldetails[guid]) return (htmlformatting?(window.portals[guid] && window.portals[guid].options.team != TEAM_NONE ? 'unknown' : ''):-1);
@@ -183,13 +192,12 @@ version 0.0.7.20210724.002500
     };
 
     self.loaddetails = function() {
-        var visiblebounds = map.getBounds();
         self.requestlist = {};
 
         // create guid list of visible portal rows
         for (let cnt = 2; cnt < $('#portalslist TR').length; cnt++) {
             let guid = $('#portalslist TR:eq(' + cnt + ')').attr('guid');
-            if (guid && !self.portaldetails[guid] && (!(guid in window.portals) || window.portals[guid] && window.portals[guid].options.team != TEAM_NONE)) {
+            if (guid && !self.portaldetails[guid] && (!(guid in window.portals) || window.portals[guid] && window.portals[guid].options.team != window.TEAM_NONE)) {
                 self.requestlist[guid] = window.portals[guid];
             }
         }
@@ -203,9 +211,8 @@ version 0.0.7.20210724.002500
         }
 
         // update list:
-        $('#portalslist').empty().append(window.plugin.portalslist.portalTable(window.plugin.portalslist.sortBy, window.plugin.portalslist.sortOrder, window.plugin.portalslist.filter));
+        $('#portalslist').empty().append(window.plugin.portalslist.portalTable(window.plugin.portalslist.sortBy, window.plugin.portalslist.sortOrder, window.plugin.portalslist.filter, self.filterreversed));
 
-        //console.log('loaddetails',self.requestlist);
         self.requestid = undefined;
         self.loadnext();
     };
@@ -221,7 +228,7 @@ version 0.0.7.20210724.002500
         }
         self.requestlist = {};
 
-        $('#portalslist').empty().append(window.plugin.portalslist.portalTable(window.plugin.portalslist.sortBy, window.plugin.portalslist.sortOrder, window.plugin.portalslist.filter));
+        $('#portalslist').empty().append(window.plugin.portalslist.portalTable(window.plugin.portalslist.sortBy, window.plugin.portalslist.sortOrder, window.plugin.portalslist.filter, self.filterreversed));
     };
 
     self.loadnext = function() {
@@ -291,20 +298,47 @@ version 0.0.7.20210724.002500
         let neutraldisplayed = window.isLayerGroupDisplayed(self.unclaimedlayername);
         let enldisplayed = window.isLayerGroupDisplayed(self.enllayername);
         let resdisplayed = window.isLayerGroupDisplayed(self.reslayername);
-        if (neutraldisplayed && resdisplayed && enldisplayed) {
-            window.plugin.portalslist.filter = 0;
-        } else if (neutraldisplayed && !resdisplayed && !enldisplayed) {
-            window.plugin.portalslist.filter = 1;
-        } else if (!neutraldisplayed && resdisplayed && enldisplayed) {
-            window.plugin.portalslist.filter = -1;
-        } else if (!neutraldisplayed && resdisplayed && !enldisplayed) {
-            window.plugin.portalslist.filter = 2;
-        } else if (neutraldisplayed && !resdisplayed && enldisplayed) {
-            window.plugin.portalslist.filter = -2;
-        } else if (!neutraldisplayed && !resdisplayed && enldisplayed) {
-            window.plugin.portalslist.filter = 3;
-        } else if (neutraldisplayed && resdisplayed && !enldisplayed) {
-            window.plugin.portalslist.filter = -3;
+
+        if (window.plugin.portalslist.portalTable.toString().match('reversed')) {
+            if (neutraldisplayed && resdisplayed && enldisplayed) {
+                window.plugin.portalslist.filter = 0;
+                self.filterreversed = false;
+            } else if (neutraldisplayed && !resdisplayed && !enldisplayed) {
+                window.plugin.portalslist.filter = 1;
+                self.filterreversed = false;
+            } else if (!neutraldisplayed && resdisplayed && enldisplayed) {
+                window.plugin.portalslist.filter = 1;
+                self.filterreversed = true;
+            } else if (!neutraldisplayed && resdisplayed && !enldisplayed) {
+                window.plugin.portalslist.filter = 2;
+                self.filterreversed = false;
+            } else if (neutraldisplayed && !resdisplayed && enldisplayed) {
+                window.plugin.portalslist.filter = 2;
+                self.filterreversed = true;
+            } else if (!neutraldisplayed && !resdisplayed && enldisplayed) {
+                window.plugin.portalslist.filter = 3;
+                self.filterreversed = false;
+            } else if (neutraldisplayed && resdisplayed && !enldisplayed) {
+                window.plugin.portalslist.filter = 3;
+                self.filterreversed = true;
+            }
+        } else {
+            // method before 0.4.0 had negative and positive filter values:
+            if (neutraldisplayed && resdisplayed && enldisplayed) {
+                window.plugin.portalslist.filter = 0;
+            } else if (neutraldisplayed && !resdisplayed && !enldisplayed) {
+                window.plugin.portalslist.filter = 1;
+            } else if (!neutraldisplayed && resdisplayed && enldisplayed) {
+                window.plugin.portalslist.filter = -1;
+            } else if (!neutraldisplayed && resdisplayed && !enldisplayed) {
+                window.plugin.portalslist.filter = 2;
+            } else if (neutraldisplayed && !resdisplayed && enldisplayed) {
+                window.plugin.portalslist.filter = -2;
+            } else if (!neutraldisplayed && !resdisplayed && enldisplayed) {
+                window.plugin.portalslist.filter = 3;
+            } else if (neutraldisplayed && resdisplayed && !enldisplayed) {
+                window.plugin.portalslist.filter = -3;
+            }
         }
 
         self.filterlevel = [];
@@ -329,30 +363,57 @@ version 0.0.7.20210724.002500
             return;
         }
 
-        let unclaimedlayernamematches = window.setupMap.toString().match(/i === 0 \? \'([^']+)\'[^']+\'([^']+)\'[^']+\'([^']+)\'/); // find the exact name for the unclaimed portals layer, and level layer
-        // expect: var t = (i === 0 ? 'Unclaimed/Placeholder' : 'Level ' + i) + ' Portals';
-        if (unclaimedlayernamematches) {
-            self.unclaimedlayername = unclaimedlayernamematches[1] + unclaimedlayernamematches[3];
-            self.levellayername = unclaimedlayernamematches[2];
-            self.portallayername = unclaimedlayernamematches[3];
+        // get the actual layer names for Unclaimed and Level portals
+        let overlaylayers = window.layerChooser._layers;
+        if (!(overlaylayers instanceof Array)) { // IITC 0.26
+            overlaylayers = Object.keys(window.layerChooser._layers).map((el)=>{return window.layerChooser._layers[el]});
         }
+        self.unclaimedlayername = overlaylayers.filter((el)=>{return el.overlay})[0].name; // the first overlay layer is always for Unclaimed/Placeholder Portals
+        let layermatches = overlaylayers.filter((el)=>{return el.overlay})[1].name.match(/^(.*)1(.*)$/);
+        if (layermatches) { // the second overlay layer is always for Level 1 Portals
+            self.levellayername = layermatches[1];
+            self.portallayername = layermatches[2];
+        }
+
         if (window.TEAM_NAMES) self.enllayername = window.TEAM_NAMES[window.TEAM_ENL];
         if (window.TEAM_NAMES) self.reslayername = window.TEAM_NAMES[window.TEAM_RES];
 
         let getPortalsString = window.plugin.portalslist.getPortals.toString();
         // disable skipping ghost portals
-        getPortalsString = getPortalsString.replace('if (!portal.options.data.title)','if (false && !portal.options.data.title)');
+        if (getPortalsString == (getPortalsString = getPortalsString.replace(/(if \()(!portal\.options\.data\.title\))/,'$1false && $2'))) { // older version
+            if (getPortalsString == (getPortalsString = getPortalsString.replace(/(if \()(!\('title' in portal\.options\.data\)\))/,'$1false && $2'))) { // newer versions
+                // oldest version did not have this filter
+                // console.log(self.title + ' - ERROR: replace if title failed');
+            }
+        }
+
         // add portal guid as an attribute, to be used for replacing data in the table
-        getPortalsString = getPortalsString.replace('obj.row = row;','row.setAttribute("guid", portal.options.guid);\n    obj.row = row;');
-        getPortalsString = getPortalsString.replace(/(.*switch)/,'    ' + self.namespace + 'countlevel[portal.options.level]++;\n$1');
-        eval('window.plugin.portalslist.getPortals = ' + getPortalsString + ';');
+        if (getPortalsString == (getPortalsString = getPortalsString.replace('obj.row = row;','row.setAttribute("guid", portal.options.guid);\n    obj.row = row;'))) {
+            console.log(self.title + ' - ERROR: replace obj.row failed');
+        }
+        if (getPortalsString == (getPortalsString = getPortalsString.replace(/(.*switch)/,'    ' + self.namespace + 'countlevel[portal.options.level]++;\n$1'))) {
+            console.log(self.title + ' - ERROR: replace switch failed');
+        }
+        try {
+            eval('window.plugin.portalslist.getPortals = ' + getPortalsString + ';');
+        } catch(e) {
+            console.log(self.title + ' - ERROR: eval getPortals failed',e,getPortalsString);
+        }
 
         let getPortalLinkString = window.plugin.portalslist.getPortalLink.toString();
         // fix undefined titles and make the title smaller
-        getPortalLinkString = getPortalLinkString.replace('link.textContent = portal.options.data.title;','link.textContent = (portal.options.data.title ? portal.options.data.title : "[undefined]");\n  if (link.textContent.length > 30) {\n    link.title = link.textContent;\n    link.textContent = link.textContent.substring(0,27) + \'...\';\n  }\n');
+        if (getPortalLinkString == (getPortalLinkString = getPortalLinkString.replace('link.textContent = portal.options.data.title;','link.textContent = (portal.options.data.title ? portal.options.data.title : "[undefined]");\n  if (link.textContent.length > 30) {\n    link.title = link.textContent;\n    link.textContent = link.textContent.substring(0,27) + \'...\';\n  }\n'))) {
+            console.log(self.title + ' - ERROR: replace link.textContent failed');
+        }
         // show leading spaces in a title
-        getPortalLinkString = getPortalLinkString.replace('("a");','("a");\n  link.style.whiteSpace = "pre";');
-        eval('window.plugin.portalslist.getPortalLink = ' + getPortalLinkString + ';');
+        if (getPortalLinkString == (getPortalLinkString = getPortalLinkString.replace('("a");','("a");\n  link.style.whiteSpace = "pre";'))) {
+            console.log(self.title + ' - ERROR: replace a failed');
+        }
+        try {
+            eval('window.plugin.portalslist.getPortalLink = ' + getPortalLinkString + ';');
+        } catch(e) {
+            console.log(self.title + ' - ERROR: eval getPortalLink failed',e,getPortalLinkString);
+        }
 
         // Fix columns value and format functions to support ghost portals:
         for (let cnt = 0; cnt < window.plugin.portalslist.fields.length; cnt++) {
@@ -361,46 +422,49 @@ version 0.0.7.20210724.002500
             } else if (window.plugin.portalslist.fields[cnt].title == "Level") {
                 window.plugin.portalslist.fields[cnt].value = function(portal) { return (portal.options.data.level ? portal.options.data.level : -1); };
                 let formatString = window.plugin.portalslist.fields[cnt].format.toString().replace('{','{\n     value = (value == -1?"?":value);');
-                eval('window.plugin.portalslist.fields[' + cnt + '].format = ' + formatString + ';');
+                try {
+                    eval('window.plugin.portalslist.fields[' + cnt + '].format = ' + formatString + ';');
+                } catch(e) {
+                    console.log(self.title + ' - ERROR: eval portalslist.fields[' + cnt + '].format failed',e,formatString);
+                }
             } else if (window.plugin.portalslist.fields[cnt].title == "Health") {
                 window.plugin.portalslist.fields[cnt].value = function(portal) { return (portal.options.data.health ? portal.options.data.health : -1); };
                 let formatString = window.plugin.portalslist.fields[cnt].format.toString().replace('{','{\n     value = (value == -1?"?":value);');
-                eval('window.plugin.portalslist.fields[' + cnt + '].format = ' + formatString + ';');
+                try {
+                    eval('window.plugin.portalslist.fields[' + cnt + '].format = ' + formatString + ';');
+                } catch(e) {
+                    console.log(self.title + ' - ERROR: eval portalslist.fields[' + cnt + '].format failed',e,formatString);
+                }
             } else if (window.plugin.portalslist.fields[cnt].title == "AP") {
                 window.plugin.portalslist.fields[cnt].sortValue = function(value, portal) { return (Number.isNaN(value.enemyAp) ? -1 : value.enemyAp); }
                 let formatString = window.plugin.portalslist.fields[cnt].format.toString().replace('{','{\n      for (let i in value) {\n        value[i] = (Number.isNaN(value[i])?"?":value[i]);\n      };');
-                eval('window.plugin.portalslist.fields[' + cnt + '].format = ' + formatString + ';');
+                try {
+                    eval('window.plugin.portalslist.fields[' + cnt + '].format = ' + formatString + ';');
+                } catch(e) {
+                    console.log(self.title + ' - ERROR: eval portalslist.fields[' + cnt + '].format failed',e,formatString);
+                }
             }
         }
 
         // make dialog wider to fit extra columns and extra buttons
         let displayPLString = window.plugin.portalslist.displayPL.toString();
-        displayPLString = displayPLString.replace(/(.+getPortals.+)/,'  ' + self.namespace + 'initialize();\n\n$1');
-        displayPLString = displayPLString.replace(/(Nothing to show!)/,'$1 <a onclick="if (window.useAndroidPanes()) { \$(\\\'#portalslist\\\').remove(); } window.plugin.portalslist.displayPL()">Refresh</a>');
-        displayPLString = displayPLString.replace('width: 700','width: 900'); /*,\n' +
-                                                  '   buttons: [\n' +
-                                                  '    {\n' +
-                                                  '      text: "Load details",\n' +
-                                                  '      click: function() {\n' +
-                                                  '        ' + self.namespace + 'loaddetails();\n' +
-                                                  '      }\n' +
-                                                  '    },\n' +
-                                                  '    {\n' +
-                                                  '      text: "Stop loading",\n' +
-                                                  '      click: function() {\n' +
-                                                  '        ' + self.namespace + 'stoploaddetails();\n' +
-                                                  '      }\n' +
-                                                  '    },\n' +
-                                                  '    {\n' +
-                                                  '      text: "OK",\n' +
-                                                  '      click: function() {\n' +
-                                                  '        $( this ).dialog( "close" );\n' +
-                                                  '      }\n' +
-                                                  '    }\n' +
-                                                  '  ]');
-                                                  */
-        // console.log(displayPLString);
-        eval('window.plugin.portalslist.displayPL = ' + displayPLString + ';');
+        displayPLString = displayPLString.replace(/(false\))/,self.namespace + 'filterreversed)'); // for version 0.4.0
+        if (displayPLString == (displayPLString = displayPLString.replace(/(.+getPortals.+)/,'  ' + self.namespace + 'initialize();\n\n$1'))) {
+            console.log(self.title + ' - ERROR: replace getPortals failed');
+        }
+        if (displayPLString == (displayPLString = displayPLString.replace(/(Nothing to show!)/,'$1 <a onclick="if (window.useAndroidPanes()) { \$(\\\'#portalslist\\\').remove(); } window.plugin.portalslist.displayPL()">Refresh</a>'))) {
+            console.log(self.title + ' - ERROR: replace nothing to show failed');
+        }
+        if (displayPLString == (displayPLString = displayPLString.replace('width: 700','width: 900'))) {
+            console.log(self.title + ' - ERROR: replace width failed');
+        }
+
+        try {
+            eval('window.plugin.portalslist.displayPL = ' + displayPLString + ';');
+        } catch(e) {
+            console.log(self.title + ' - ERROR: eval getPortalLink failed',e,displayPLString);
+        }
+
         // modification max-width: 1000px
         $('<style>').prop('type', 'text/css').html('.ui-dialog-portalslist { max-width: 1000px }').appendTo('head');
 
@@ -422,16 +486,16 @@ version 0.0.7.20210724.002500
 
             self.loadbutton.addEventListener('click', function(e) {
                 e.preventDefault();
-                self.loaddetails();
-                self.loadbutton.style.display = 'hidden';
+                self.loadbutton.style.display = 'none';
                 self.stopbuttonarea.style.display = 'inline';
+                self.loaddetails();
             },false);
 
             stopbutton.addEventListener('click', function(e) {
                 e.preventDefault();
-                self.stoploaddetails();
-                self.stopbuttonarea.style.display = 'hidden';
+                self.stopbuttonarea.style.display = 'none';
                 self.loadbutton.style.display = 'inline';
+                self.stoploaddetails();
             },false);
         };
 
@@ -456,7 +520,7 @@ version 0.0.7.20210724.002500
                     button.addEventListener('change', function(e) {
                         e.preventDefault();
                         self.filterlevel[level] = button.checked;
-                        $('#portalslist').empty().append(window.plugin.portalslist.portalTable(window.plugin.portalslist.sortBy, window.plugin.portalslist.sortOrder, window.plugin.portalslist.filter));
+                        $('#portalslist').empty().append(window.plugin.portalslist.portalTable(window.plugin.portalslist.sortBy, window.plugin.portalslist.sortOrder, window.plugin.portalslist.filter, self.filterreversed));
                     },false);
                 }
             }
@@ -470,16 +534,44 @@ version 0.0.7.20210724.002500
             });
         };
 
-        portalTableString = portalTableString.replace(/(var table)/,'portals = ' + self.namespace + 'filterLevels(portals);\n  $1');
-        portalTableString = portalTableString.replace(/(.*\$\('\#portalslist'\).+)/,'if (i == 0) {\n       for (let level = 0; level <= 8; level++) {\n         ' + self.namespace + 'filterlevel[level] = true;\n         }\n       };\n      $1');
+        if (portalTableString.match('reversed')) {
+            if (portalTableString == (portalTableString = portalTableString.replace(/(reversed\) \{)/,'$1\n  ' + self.namespace + 'filterreversed = reversed;'))) {
+                console.log(self.title + ' - ERROR: replace reversed failed');
+            }
+        }
+        if (portalTableString == (portalTableString = portalTableString.replace(/(var container)/,'portals = ' + self.namespace + 'filterLevels(portals);\n  $1'))) {
+            console.log(self.title + ' - ERROR: replace var table failed');
+        }
+        if (portalTableString == (portalTableString = portalTableString.replace(/(.*\$\('\#portalslist'\).+)/,'      if (i == 0) {\n       for (let level = 0; level <= 8; level++) {\n         ' + self.namespace + 'filterlevel[level] = true;\n         }\n       };\n$1'))) {
+            console.log(self.title + ' - ERROR: replace #portalslist failed');
+        }
 
-        portalTableString = portalTableString.replace(/(var container.*)/,"$1\n    let hiddenautofocusinput = document.createElement('input');\n    hiddenautofocusinput.type = 'hidden';\n    hiddenautofocusinput.autofocus = 'autofocus';    container.append(hiddenautofocusinput);\n");
-        portalTableString = portalTableString.replace("table.className = 'portals';","table.className = 'portals';\n  table.setAttribute('style', 'display: block; overflow-y: auto; max-height: 588px;');");
-        portalTableString = portalTableString.replace(/(cell = row.appendChild\(document.createElement\('th'\)\);)/gs,"let th = document.createElement('th');\n  th.setAttribute('style','position: sticky; top: 0px;');\n  cell = row.appendChild(th);\n  //$1");
+        if (portalTableString == (portalTableString = portalTableString.replace(/(var container.*)/,"$1\n    let hiddenautofocusinput = document.createElement('input');\n    hiddenautofocusinput.type = 'hidden';\n    hiddenautofocusinput.autofocus = 'autofocus';\n    container.append(hiddenautofocusinput);\n"))) {
+            console.log(self.title + ' - ERROR: replace container failed');
+        }
+        if (portalTableString == (portalTableString = portalTableString.replace("table.className = 'portals';","table.className = 'portals';\n  table.setAttribute('style', 'display: block; overflow-y: auto; max-height: calc(100vh - 265px);');"))) {
+            console.log(self.title + ' - ERROR: replace table.className failed');
+        }
+        if (portalTableString == (portalTableString = portalTableString.replaceAll(/(cell = row.appendChild\(document.createElement\('th'\)\);)/gs,"let th = document.createElement('th');\n  th.setAttribute('style','position: sticky; top: 0px;');\n  cell = row.appendChild(th);\n  //$1"))) {
+            console.log(self.title + ' - ERROR: replace row.appendChild failed');
+        }
+        if (portalTableString != (portalTableString = portalTableString.replace('var let','let'))) { // correct for a var cell line in version 0.4.0
+            // this must be 0.4.0, handle differently:
+            if (portalTableString == (portalTableString = portalTableString.replace(/(\}\);)(\s+var tableDiv =)/s,"$1\n  var cell = filters.appendChild(document.createElement('div'));\n  cell.style.gridRow = 2;\n  " + self.namespace + "appendLoadButton(cell,true);\n  let tbl = document.createElement('table');\n  container.append(tbl);\n  row = tbl.insertRow(-1);\n  " + self.namespace + "appendLevelRow(row,true);$2"))) {
+                console.log(self.title + ' - ERROR: replace table failed');
+            }
+        } else {
 //        portalTableString = portalTableString.replace(/(\}\);)(\s+table =)/s,"$1\n  cell = row.insertCell(-1);\n  cell.innerHTML = '" + '<a href="#" onclick="' + self.namespace + 'loaddetails(); return false;" style="display: inline;">Load details</a><a href="#" onclick="' + self.namespace + 'stoploaddetails(); return false;" style="display: none;">Stop loading</a>' + "';$2");
-        portalTableString = portalTableString.replace(/(\}\);)(\s+table =)/s,"$1\n  cell = row.insertCell(-1);\n  " + self.namespace + "appendLoadButton(cell);\n  row = table.insertRow(-1);\n  " + self.namespace + "appendLevelRow(row);$2");
+            if (portalTableString == (portalTableString = portalTableString.replace(/(\}\);)(\s+table =)/s,"$1\n  cell = row.insertCell(-1);\n  " + self.namespace + "appendLoadButton(cell);\n  row = table.insertRow(-1);\n  " + self.namespace + "appendLevelRow(row);$2"))) {
+                console.log(self.title + ' - ERROR: replace table failed');
+            }
+        }
 
-        eval('window.plugin.portalslist.portalTable = ' + portalTableString + ';');
+        try {
+            eval('window.plugin.portalslist.portalTable = ' + portalTableString + ';');
+        } catch(e) {
+            console.log(self.title + ' - ERROR: eval portalTable failed',e,portalTableString);
+        }
 
         /*
         if (window.useAndroidPanes()) {
@@ -491,8 +583,14 @@ version 0.0.7.20210724.002500
 
         // create a new getPortalObj function, using the getPortals function details, to enable updating the portals list table rows:
         let getPortalObjString = window.plugin.portalslist.getPortals.toString();
-        getPortalObjString = getPortalObjString.replace('()','(guid)').replace(/\{.*?var obj/s,'{\n    var portal = window.portals[guid];\n    var obj').replace(/window\.plugin\.portalslist\.listPortals.*/s,'return obj;\n}');
-        eval(self.namespace + 'getPortalObj = ' + getPortalObjString + ';');
+        if (getPortalObjString == (getPortalObjString = getPortalObjString.replace('()','(guid)').replace(/\{.*?var obj/s,'{\n    var portal = window.portals[guid];\n    var obj').replace(/window\.plugin\.portalslist\.listPortals.*/s,'return obj;\n}'))) {
+            console.log(self.title + ' - ERROR: replace guid failed');
+        }
+        try {
+            eval(self.namespace + 'getPortalObj = ' + getPortalObjString + ';');
+        } catch(e) {
+            console.log(self.title + ' - ERROR: eval getPortalObj failed',e,getPortalObjString);
+        }
 
         // add extra columns
         window.plugin.portalslist.fields.push({

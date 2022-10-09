@@ -99,9 +99,9 @@ See the [Contributing](CONTRIBUTING.md) documentation.
 
 
 
-[danielondiordna-0.0.7.20210724.002500] Add-on to only display portals for visible/enabled layers, a fix for Unclaimed/Placeholder Portals, added level filters and load portal details.
+[danielondiordna-1.0.0.20221008.234100] Add-on to only display portals for visible/enabled layers, a fix for Unclaimed/Placeholder Portals, added level filters and load portal details.
 
-*Version:* 0.0.7.20210724.002500
+*Version:* 1.0.0.20221008.234100
 
 
   

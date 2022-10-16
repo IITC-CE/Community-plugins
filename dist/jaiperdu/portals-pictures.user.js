@@ -59,51 +59,40 @@ function jsx(tagName, attrs) {
 const jsxs = jsx;
 
 const defaultImage = 'https://fevgames.net/wp-content/uploads/2018/11/FS-Onyx.png';
-
 function onPortalDetailsUpdated(e) {
   const img = document.querySelector('.portal-pictures-image[data-guid="' + e.guid + '"]');
-
   if (img) {
     img.src = (e.portalData.image || defaultImage).replace('http:', '');
     img.title = e.portalData.title;
   }
 }
-
 function filterOnInput(ev) {
   ev.preventDefault();
   const f = ev.target.value.toLowerCase();
-
   for (const n of document.querySelectorAll('.portal-pictures-image')) {
     const title = n.title.toLowerCase();
     if (title.includes(f)) n.style.display = null;else n.style.display = 'none';
   }
 }
-
 function imgOnClick(ev) {
   const img = ev.target;
   img.dataset.count++;
   let prev = img.previousElementSibling;
-
   while (prev && prev.dataset.count - img.dataset.count < 0) prev = prev.previousElementSibling;
-
   if (prev) img.parentNode.insertBefore(img, prev.nextSibling);else img.parentNode.insertBefore(img, img.parentNode.firstElementChild);
   window.renderPortalDetails(img.dataset.guid);
   ev.preventDefault();
   return false;
 }
-
 function showDialog() {
   let portals = [];
   let bounds = window.map.getBounds();
-
   for (const portal of Object.values(window.portals)) {
     let ll = portal.getLatLng();
-
     if (bounds.contains(ll)) {
       portals.push(portal);
     }
   }
-
   const container = jsxs("div", {
     style: "max-width: 1000px",
     children: [jsx("input", {
@@ -122,7 +111,6 @@ function showDialog() {
       }))
     })]
   });
-
   window.dialog({
     id: 'plugin-portal-pictures',
     html: container,
@@ -134,7 +122,6 @@ function showDialog() {
   });
   window.addHook('portalDetailsUpdated', onPortalDetailsUpdated);
 }
-
 function setup () {
   window.plugin.portalPictures = {};
   window.plugin.portalPictures.showDialog = showDialog;

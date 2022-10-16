@@ -55,11 +55,9 @@ class Inventory {
   constructor(name) {
     this.name = name;
     this.keys = new Map(); // guid => {counts: caps => count}
-
     this.medias = new Map();
     this.clear();
   }
-
   clearItem(type) {
     addIfMissing(type);
     this.items[type] = {
@@ -70,7 +68,6 @@ class Inventory {
       total: 0
     };
   }
-
   clear() {
     this.keys.clear();
     this.medias.clear();
@@ -79,12 +76,10 @@ class Inventory {
     this.count = 0;
     this.keyLockersCount = 0;
   }
-
   getItem(type) {
     if (!(type in this.items)) this.clearItem(type);
     return this.items[type];
   }
-
   addCapsule(capsule) {
     const data = {
       name: capsule.name,
@@ -97,7 +92,6 @@ class Inventory {
     this.capsules[capsule.name] = data;
     if (capsule.type === 'KEY_CAPSULE') this.keyLockersCount += capsule.size;
     this.addItem(capsule);
-
     for (const item of capsule.content) {
       this.addItem(item);
       if (item.type === 'PORTAL_LINK_KEY') data.keys[item.guid] = item;else if (item.type === 'MEDIA') data.medias[item.mediaId] = item;else {
@@ -112,7 +106,6 @@ class Inventory {
       }
     }
   }
-
   addItem(item) {
     const cat = this.getItem(item.type);
     const lr = '' + (cat.leveled ? item.level : item.rarity);
@@ -124,24 +117,19 @@ class Inventory {
     count.total = (count.total || 0) + item.count;
     cat.total += item.count;
     if (!dontCount.includes(item.type)) this.count += item.count;
-
     if (item.type === 'PORTAL_LINK_KEY') {
       this.addKey(item);
     } else if (item.type === 'MEDIA') {
       this.addMedia(item);
     }
   }
-
   countType(type, levelRarity) {
     const cat = this.getItem(type);
-
     if (levelRarity !== undefined) {
       return cat.counts[levelRarity] ? cat.counts[levelRarity].total : 0;
     }
-
     return cat.total;
   }
-
   addMedia(media) {
     if (!this.medias.has(media.mediaId)) this.medias.set(media.mediaId, {
       mediaId: media.mediaId,
@@ -155,12 +143,10 @@ class Inventory {
     current.count.set(media.capsule, entry + (media.count || 1));
     current.total += media.count || 1;
   }
-
   countKey(guid) {
     if (!this.keys.has(guid)) return 0;
     return this.keys.get(guid).total;
   }
-
   addKey(key) {
     if (!this.keys.has(key.guid)) this.keys.set(key.guid, {
       guid: key.guid,
@@ -175,7 +161,6 @@ class Inventory {
     current.count.set(key.capsule, entry + (key.count || 1));
     current.total += key.count || 1;
   }
-
   onHand() {
     const data = {
       name: this.name,
@@ -184,10 +169,8 @@ class Inventory {
       medias: {},
       items: {}
     };
-
     for (const key of this.keys.values()) {
       const count = key.count.get(this.name);
-
       if (count) {
         // @ts-ignore: type/capsule missing
         data.keys[key.guid] = {
@@ -200,14 +183,11 @@ class Inventory {
         data.size += count;
       }
     }
-
     for (const type in this.items) {
       if (type === 'PORTAL_LINK_KEY') continue;
       const item = this.getItem(type);
-
       for (const k in item.counts) {
         const count = item.counts[k][this.name];
-
         if (count) {
           if (!data.items[type]) data.items[type] = {
             type: type,
@@ -219,10 +199,8 @@ class Inventory {
         }
       }
     }
-
     return data;
   }
-
 }
 
 function parsePortalLocation(location) {
@@ -667,11 +645,9 @@ function exportToKeys() {
   if (!window.plugin.keys) return;
   [window.plugin.keys.KEY, window.plugin.keys.UPDATE_QUEUE].forEach(mapping => {
     const data = {};
-
     for (const [guid, key] of playerInventory.inventory.keys) {
       data[guid] = key.total;
     }
-
     window.plugin.keys[mapping.field] = data;
     window.plugin.keys.storeLocal(mapping);
   });
@@ -692,17 +668,14 @@ function localeCompare(a, b) {
 
 function setupCSS() {
   let colorStyle = '';
-
   if (playerInventory.settings.lvlColorEnable) {
     window.COLORS_LVL.forEach((c, i) => {
       colorStyle += `.level_L${i}{ color: ${c} }`;
     });
-
     for (const r in window.COLORS_MOD) {
       colorStyle += `.rarity_${shortenRarity(r)} { color: ${window.COLORS_MOD[r]} }`;
     }
   }
-
   const style = document.head.querySelector('#player-inventory-css') || document.createElement('style');
   style.id = 'player-inventory-css';
   style.textContent = css_248z + colorStyle;
@@ -722,7 +695,6 @@ function handleInventory(data) {
     return Promise.reject('empty');
   }
 }
-
 function refreshInventory(auto) {
   clearTimeout(playerInventory.autoRefreshTimer);
   requestInventory().then(handleInventory).catch(e => {
@@ -735,7 +707,6 @@ function refreshInventory(auto) {
         } else {
           alert('Inventory: Last refresh failed. ' + e);
         }
-
         autoRefresh();
       }
     }
@@ -824,15 +795,12 @@ function createAllTable({
   inventory
 }) {
   const table = jsx("table", {});
-
   for (const type of orderedTypes) {
     const total = inventory.countType(type);
     if (total === 0) continue;
     const item = inventory.items[type];
-
     for (const i in item.counts) {
       const num = inventory.countType(type, i);
-
       if (num > 0) {
         table.append(jsx(ItemRow, {
           item: item,
@@ -842,7 +810,6 @@ function createAllTable({
       }
     }
   }
-
   return table;
 }
 
@@ -854,7 +821,6 @@ function AllSumTable ({
   const inventoryCount = inventory.items['PORTAL_LINK_KEY'].counts['VERY_COMMON'][inventory.name] || 0;
   const otherCount = total - inventoryCount - inventory.keyLockersCount;
   let beacon = 0;
-
   for (const type in inventory.items) {
     if (type.startsWith('PORTAL_POWERUP')) {
       switch (type) {
@@ -864,13 +830,11 @@ function AllSumTable ({
         case 'PORTAL_POWERUP:FW_ENL':
         case 'PORTAL_POWERUP:FW_RES':
           break;
-
         default:
           beacon += inventory.countType(type);
       }
     }
   }
-
   return jsxs("div", {
     children: [jsxs("table", {
       children: [jsxs("tr", {
@@ -1193,7 +1157,6 @@ function CapsuleTable ({
       })]
     })), orderedTypes.map(type => {
       const item = capsule.items[type];
-
       if (item) {
         return Object.keys(item.count).map(i => jsx(ItemRow, {
           count: item.count[i],
@@ -1210,7 +1173,6 @@ function InventoryTables ({
 }) {
   const inventoryCount = inventory.count - inventory.keyLockersCount;
   const keyInInventory = inventory.keys.size > 0 ? inventory.items['PORTAL_LINK_KEY'].counts['VERY_COMMON'][inventory.name] || 0 : 0;
-
   const container = jsxs("div", {
     className: "container",
     children: [jsx("b", {
@@ -1229,7 +1191,6 @@ function InventoryTables ({
       })
     })]
   });
-
   if (inventory.keys.size > 0) {
     container.append(jsxs(Fragment, {
       children: [jsx("b", {
@@ -1242,7 +1203,6 @@ function InventoryTables ({
       })]
     }));
   }
-
   if (inventory.medias.size > 0) {
     container.append(jsxs(Fragment, {
       children: [jsx("b", {
@@ -1255,7 +1215,6 @@ function InventoryTables ({
       })]
     }));
   }
-
   const onHand = inventory.onHand();
   container.append(jsxs(Fragment, {
     children: [jsxs("b", {
@@ -1278,20 +1237,16 @@ function InventoryTables ({
   const keyLockers = capsulesName.filter(name => inventory.capsules[name].type === 'KEY_CAPSULE');
   const quantums = capsulesName.filter(name => inventory.capsules[name].type === 'INTEREST_CAPSULE');
   const commonCapsules = capsulesName.filter(name => inventory.capsules[name].type === 'CAPSULE');
-
   for (const names of [keyLockers, quantums, commonCapsules]) {
     for (const name of names) {
       const capsule = inventory.capsules[name];
-
       if (capsule.size > 0) {
         const displayName = mapping[name] ? `${mapping[name]} [${name}]` : name;
         const typeName = getItemName(capsule.type);
         const size = capsule.size;
-
         const head = jsx("b", {
           children: `${typeName}: ${displayName} (${size})`
         });
-
         container.append(jsxs(Fragment, {
           children: [head, jsxs("div", {
             className: "capsule",
@@ -1323,7 +1278,6 @@ function InventoryTables ({
       }
     }
   }
-
   return container;
 }
 
@@ -1350,13 +1304,11 @@ function Options () {
       id: "plugin-player-inventory-autorefresh-enable",
       onchange: ev => {
         playerInventory.settings.autoRefreshActive = ev.target.checked === 'true' || (ev.target.checked === 'false' ? false : ev.target.checked);
-
         if (playerInventory.settings.autoRefreshActive) {
           autoRefresh();
         } else {
           stopAutoRefresh();
         }
-
         storeSettings(playerInventory.settings);
       }
     }), jsx("label", {
@@ -1416,28 +1368,22 @@ function Options () {
       }
     })]
   });
-
   return container;
 }
-
 function exportToClipboard() {
   const data = [];
-
   for (const key of playerInventory.inventory.keys.values()) {
     for (const [capsule, num] of key.count) {
       data.push([key.title, key.latLng[0].toFixed(6), key.latLng[1].toFixed(6), capsule, num].join('\t'));
     }
   }
-
   const shared = data.join('\n');
-
   const content = jsx("textarea", {
     onclick: () => {
       content.select();
     },
     children: shared
   });
-
   if (typeof android !== 'undefined' && android && android.shareString) android.shareString(shared);else {
     window.dialog({
       title: 'Keys',
@@ -1447,23 +1393,19 @@ function exportToClipboard() {
     });
   }
 }
-
 function displayNameMapping() {
   const capsules = playerInventory.inventory.capsules;
   const mapping = playerInventory.settings.capsuleNameMap;
   const capsulesName = Object.keys(capsules).sort();
   const text = [];
-
   for (const name of capsulesName) {
     if (mapping[name]) text.push(`${name}: ${mapping[name]}`);
   }
-
   const container = jsx("textarea", {
     className: "container",
     placeholder: "AAAAAAAA: Name of AAAAAAAA\\nBBBBBBBB: Name of BBBBBBBB\\n...",
     value: text.join('\n')
   });
-
   window.dialog({
     title: 'Inventory Capsule Names',
     id: 'inventory-names',
@@ -1472,15 +1414,12 @@ function displayNameMapping() {
       text: 'Set',
       click: () => {
         const lines = container.value.trim().split('\n');
-
         for (const line of lines) {
           const m = line.trim().match(/^([0-9A-F]{8})\s*:\s*(.*)$/);
-
           if (m) {
             mapping[m[1]] = m[2];
           }
         }
-
         storeSettings(playerInventory.settings);
       }
     }, {
@@ -1496,7 +1435,6 @@ function buildInventoryHTML(inventory) {
   const container = jsx(InventoryTables, {
     inventory: inventory
   });
-
   $(container).accordion({
     header: 'b',
     heightStyle: 'fill',
@@ -1504,23 +1442,18 @@ function buildInventoryHTML(inventory) {
   });
   return container;
 }
-
 function fillPane(inventory) {
   const oldContainer = playerInventory.pane.querySelector('.container');
   if (oldContainer) playerInventory.pane.removeChild(oldContainer);
   playerInventory.pane.appendChild(buildInventoryHTML(inventory));
 }
-
 function getTitle() {
   let title = 'Inventory';
-
   if (playerInventory.lastRefresh) {
     title = title + ' (' + new Date(playerInventory.lastRefresh).toLocaleTimeString() + ')';
   }
-
   return title;
 }
-
 function displayInventory(inventory) {
   const container = buildInventoryHTML(inventory);
   playerInventory.dialog = window.dialog({
@@ -1539,10 +1472,8 @@ function displayInventory(inventory) {
   });
   refreshIfOld();
 }
-
 function displayOpt() {
   const container = jsx(Options, {});
-
   window.dialog({
     title: 'Inventory Opt',
     id: 'inventory-opt',
@@ -1551,10 +1482,8 @@ function displayOpt() {
     height: 'auto'
   });
 }
-
 function setupDisplay() {
   playerInventory.dialog = null;
-
   if (window.useAndroidPanes()) {
     android.addPane('playerInventory', 'Inventory', 'ic_action_view_as_list');
     window.addHook('paneChanged', function (pane) {
@@ -1587,9 +1516,9 @@ function setupDisplay() {
       children: "Inventory"
     }));
   }
-} // iitc setup
+}
 
-
+// iitc setup
 function setup () {
   // Dummy inventory
   playerInventory.inventory = new Inventory();
@@ -1620,12 +1549,10 @@ function setup () {
     if (playerInventory.settings.autoSyncKeys) {
       exportToKeys();
     }
-
     if (playerInventory.dialog) {
       playerInventory.dialog.html(buildInventoryHTML(data.inventory));
       playerInventory.dialog.dialog('option', 'title', getTitle());
     }
-
     if (playerInventory.pane) {
       fillPane(data.inventory);
       const button = playerInventory.pane.querySelector('button');
@@ -1636,10 +1563,8 @@ function setup () {
   window.addHook('portalSelected', data => {
     // {selectedPortalGuid: guid, unselectedPortalGuid: oldPortalGuid}
     if (!playerInventory.settings.popupEnable) return;
-
     if (data.selectedPortalGuid && data.selectedPortalGuid !== data.unselectedPortalGuid) {
       const total = playerInventory.inventory.countKey(data.selectedPortalGuid);
-
       if (total > 0) {
         createPopup(data.selectedPortalGuid);
       }
@@ -1649,7 +1574,6 @@ function setup () {
     // {guid: guid, portal: portal, portalDetails: details, portalData: data}
     if (!playerInventory.settings.keysSidebarEnable) return;
     const total = playerInventory.inventory.countKey(data.guid);
-
     if (total > 0) {
       const key = playerInventory.inventory.keys.get(data.guid);
       const mapping = playerInventory.settings.capsuleNameMap;

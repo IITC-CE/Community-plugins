@@ -2,10 +2,10 @@
 // @author         DanielOnDiordna
 // @name           Missions add-on
 // @category       Addon
-// @version        1.1.0.20221005.214400
+// @version        1.1.1.20221027.234600
 // @updateURL      https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/missions-addon.meta.js
 // @downloadURL    https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/missions-addon.user.js
-// @description    [danielondiordna-1.1.0.20221005.214400] Add-on to add extra functionality for the missions plugin (up to version 0.3.0): 1: Optionally search for all missions within visible range, not just the top 25 (be aware: using this option will increase your server requests). 2: Sort the loaded missions by title (including roman numbers). 3: Show and remove stored missions. 4: Selected mission color changed to red. 5. Displayed missions show filled start portal. 6. Banner view for stored missions. 7. Transfer missions (export/import). 8. Missions routes layer can show a colorful path. 9. Redraw opened missions after IITC reloads.
+// @description    [danielondiordna-1.1.1.20221027.234600] Add-on to add extra functionality for the missions plugin (up to version 0.3.0): 1: Optionally search for all missions within visible range, not just the top 25 (be aware: using this option will increase your server requests). 2: Sort the loaded missions by title (including roman numbers). 3: Show and remove stored missions. 4: Selected mission color changed to red. 5. Displayed missions show filled start portal. 6. Banner view for stored missions. 7. Transfer missions (export/import). 8. Missions routes layer can show a colorful path. 9. Redraw opened missions after IITC reloads.
 // @id             missions-addon@DanielOnDiordna
 // @namespace      https://softspot.nl/ingress/
 // @match          https://intel.ingress.com/*
@@ -22,10 +22,13 @@ function wrapper(plugin_info) {
     var self = window.plugin.missionsAddon;
     self.id = 'missionsAddon';
     self.title = 'Missions add-on';
-    self.version = '1.1.0.20221005.214400';
+    self.version = '1.1.1.20221027.234600';
     self.author = 'DanielOnDiordna';
     self.changelog = `
 Changelog:
+
+version 1.1.1.20221027.234600
+- fixed an error with 'this' in the showMissionListDialog function
 
 version 1.1.0.20221005.214400
 - fixed a path redraw issue when opening an already opened mission again
@@ -1895,7 +1898,7 @@ version 0.0.1.20191129.233100
         // function showMissionListDialog from Missions 0.3.0 has too many changes
         // replace the complete function back to Missions 0.2.2 including add-on modifications
         window.plugin.missions.showMissionListDialog = function(missions, caption) {
-            let container = this.renderMissionList(missions);
+            let container = window.plugin.missions.renderMissionList(missions);
             let thisdialog = dialog({
                 html: container,
                 id: "missionsList",
@@ -1903,16 +1906,13 @@ version 0.0.1.20191129.233100
                 height: 'auto',
                 width: '400px',
                 closeCallback: function() {
-                    // cancel loading images on dialog
+                    // cancel loading images when dialog is closed
                     for (let cnt = 0, total = container.getElementsByTagName("img").length; cnt < total; cnt++) {
                         container.getElementsByTagName("img")[cnt].src = "";
                     }
                 },
-                collapseCallback: this.collapseFix,
-                expandCallback: this.collapseFix,
-            }).dialog('option', 'buttons', {
-                'Create new mission': function() { open('//missions.ingress.com'); },
-                'OK': function() { $(this).dialog('close'); },
+                collapseCallback: window.plugin.missions.collapseFix,
+                expandCallback: window.plugin.missions.collapseFix,
             });
             let buttons = window.plugin.missionsAddon.getdialogbuttons((caption == 'Missions stored'?'Stored':'In view'));
             thisdialog.dialog('option','buttons',buttons);

@@ -713,10 +713,10 @@ Add one or more player markers and his ranges (hack/deploy range and xmp ranges)
 
 
 
-Pokemon Go tools over IITC. News on https://twitter.com/PogoCells
+Pokemon Go tools over IITC.
 
-*[Homepage](https://gitlab.com/AlfonsoML/pogo-s2/)* |
-*Version:* 0.100
+*[Homepage](https://alfonsoml-s.github.io/pogo-s2/)* |
+*Version:* 0.101
 
 
   

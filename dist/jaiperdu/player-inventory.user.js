@@ -3,7 +3,7 @@
 // @author         jaiperdu
 // @name           Player Inventory
 // @category       Info
-// @version        0.4.1
+// @version        0.4.3
 // @description    View inventory and highlight portals with keys at any zoom. Can be used with the official plugins Keys and Keys on map to show the number of keys on the map.
 // @id             player-inventory@jaiperdu
 // @namespace      https://github.com/IITC-CE/ingress-intel-total-conversion
@@ -617,7 +617,11 @@ function portalKeyHighlight(data) {
         weight: 2 * Math.sqrt(window.portalMarkerScale()),
         dashArray: '',
       });
-    } else if (window.map.getZoom() < 15 && data.portal.options.team === window.TEAM_NONE && !window.portalDetail.isFresh(guid))
+    } else if (
+      window.map.getZoom() < 15 &&
+      data.portal.options.team === window.TEAM_NONE &&
+      !window.portalDetail.isFresh(guid)
+    )
       // injected without intel data
       data.portal.setStyle({ color: 'red', fillColor: 'gray' });
     else data.portal.setStyle({ color: 'red' });
@@ -798,7 +802,7 @@ function createAllTable({
   for (const type of orderedTypes) {
     const total = inventory.countType(type);
     if (total === 0) continue;
-    const item = inventory.items[type];
+    const item = inventory.getItem(type);
     for (const i in item.counts) {
       const num = inventory.countType(type, i);
       if (num > 0) {
@@ -817,8 +821,8 @@ const C_R_VR = ['COMMON', 'RARE', 'VERY_RARE'];
 function AllSumTable ({
   inventory
 }) {
-  const total = inventory.items['PORTAL_LINK_KEY'].total;
-  const inventoryCount = inventory.items['PORTAL_LINK_KEY'].counts['VERY_COMMON'][inventory.name] || 0;
+  const total = inventory.getItem('PORTAL_LINK_KEY').total;
+  const inventoryCount = total ? inventory.getItem('PORTAL_LINK_KEY').counts['VERY_COMMON'][inventory.name] || 0 : 0;
   const otherCount = total - inventoryCount - inventory.keyLockersCount;
   let beacon = 0;
   for (const type in inventory.items) {
@@ -1172,7 +1176,7 @@ function InventoryTables ({
   inventory
 }) {
   const inventoryCount = inventory.count - inventory.keyLockersCount;
-  const keyInInventory = inventory.keys.size > 0 ? inventory.items['PORTAL_LINK_KEY'].counts['VERY_COMMON'][inventory.name] || 0 : 0;
+  const keyInInventory = inventory.keys.size > 0 ? inventory.getItem('PORTAL_LINK_KEY').counts['VERY_COMMON'][inventory.name] || 0 : 0;
   const container = jsxs("div", {
     className: "container",
     children: [jsx("b", {

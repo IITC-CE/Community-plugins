@@ -2,7 +2,7 @@
 // @author         Perringaiden
 // @name           Highlight field anchors that need recharging
 // @category       Highlighter
-// @version        0.3
+// @version        0.4
 // @description    Use the portal fill color to denote if the portal needs recharging and how much. Yellow: above 85%. Orange: above 50%. Red: above 15%. Magenta: below 15%.
 // @id             wolf-recharge@Perringaiden
 // @updateURL      https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Perringaiden/wolf-recharge.meta.js
@@ -23,10 +23,12 @@ function wrapper(plugin_info) {
         var d = data.portal.options.data;
         var health = d.health;
         var guid = data.portal.options.ent[0];
-                
+
         if (conditional(guid)) {
-            if(health !== undefined && data.portal.options.team != TEAM_NONE && health < 100 && conditional(guid)) {
+            if(health !== undefined && data.portal.options.team != TEAM_NONE && health < 100) {
                 var color,fill_opacity;
+
+
                 if (health > 95) {
                     color = 'yellow';
                     fill_opacity = (1-health/100)*.50 + .50;
@@ -44,6 +46,16 @@ function wrapper(plugin_info) {
                 var params = {fillColor: color, fillOpacity: fill_opacity};
                 data.portal.setStyle(params);
             }
+        } else {
+
+            var style = {};
+
+
+            style.fillOpacity = 0.0;
+            style.radius = 0.1;
+            style.opacity = 0.0;
+
+            data.portal.setStyle(style);
         }
     }
 

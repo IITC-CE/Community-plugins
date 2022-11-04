@@ -326,7 +326,7 @@ Hides any portal that doesn&#39;t have a link or field from it.
 
 Use the portal fill color to denote if the portal needs recharging and how much. Yellow: above 85%. Orange: above 50%. Red: above 15%. Magenta: below 15%.
 
-*Version:* 0.3
+*Version:* 0.4
 
 
   

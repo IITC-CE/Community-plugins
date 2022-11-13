@@ -1144,9 +1144,9 @@ Export portals from bookmarks, current view or polygon
 
 
 
-[0.2.3] Shows small box with a basic portal information. This is similar to mobile info.
+[0.3.1] Shows small box with a basic portal information. This is similar to mobile info.
 
-*Version:* 0.2.3
+*Version:* 0.3.1
 
 
   

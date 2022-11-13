@@ -4,8 +4,8 @@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @name           Short portal info
 // @category       Misc
-// @version        0.2.3
-// @description    [0.2.3] Shows small box with a basic portal information. This is similar to mobile info.
+// @version        0.3.1
+// @description    [0.3.1] Shows small box with a basic portal information. This is similar to mobile info.
 // @updateURL      https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/eccenux/short-portal-info.meta.js
 // @downloadURL    https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/eccenux/short-portal-info.user.js
 // @include        https://*.ingress.com/intel*
@@ -44,10 +44,10 @@ var pluginCss = `
 		padding-left: .5em;
 	}
 
-	#shortportalinfo .mod-list:empty {
+	#updatestatus .mod-list:empty {
 		display: none;
 	}
-	#shortportalinfo .mod-list {
+	#updatestatus .mod-list {
 		position: absolute;
 		left: 0;
 		height: 2em;
@@ -57,7 +57,7 @@ var pluginCss = `
 		border: 1px solid #20A8B1;
 		border-bottom-style: none;
 	}
-	#shortportalinfo .mod-list span {
+	#updatestatus .mod-list span {
 		background-color: rgba(60, 134, 191, 0.3);
 		display: inline-block;
 		border: 1px solid black;
@@ -257,21 +257,37 @@ function renderResonators(details) {
 */
 function updatePortalInfo(data) {
 	var guid = data.selectedPortalGuid;
-	var html = renderPortal(guid);
-	$('#shortportalinfo').html(html);
+    if(isSmartphone()) {
+        var details = window.portalDetail.get(guid);
+        if (!details) {
+            return '';
+        }
+        var isNeutral = details.resCount == 0 ? true : false;
+        if(!isNeutral) {
+            var html = renderMods(details);
+        }
+        $('#shortportalinfo').html(html);
+    } else {
+        var html = renderPortal(guid);
+        $('#shortportalinfo').html(html);
+    }
 }
 
 //PLUGIN SETUP //////////////////////////////////////////////////////////
 
 var setup = function() {
-	if(isSmartphone()) return;
+	//if(isSmartphone()) return;
 	
 	// html
-	$('#updatestatus').prepend('<div id="shortportalinfo"></div>').css('width', '550px');
-	$('#shortportalinfo').click(function(){
-		$('#sidebartoggle').click();
-	});
-	
+    if(isSmartphone()) {
+        $('#updatestatus').prepend('<div id="shortportalinfo"></div>');
+    } else {
+        $('#updatestatus').prepend('<div id="shortportalinfo"></div>').css('width', '550px');
+        $('#shortportalinfo').click(function(){
+            $('#sidebartoggle').click();
+        });
+    }
+
 	// css
 	var css = document.createElement("style");
 	css.type = "text/css";

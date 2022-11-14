@@ -2,7 +2,7 @@
 // @author         jaiperdu
 // @name           Portals pictures
 // @category       Info
-// @version        0.1.3
+// @version        0.1.4
 // @description    Show portal pictures in a dialog
 // @id             portals-pictures@jaiperdu
 // @namespace      https://github.com/IITC-CE/ingress-intel-total-conversion

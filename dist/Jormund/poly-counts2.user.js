@@ -3,34 +3,30 @@
 // @id             poly-counts2@Jormund
 // @name           Poly Counts 2
 // @category       Info
-// @version        2.1.0.201911115.2102
+// @version        2.2.1.20221114.0010
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Jormund/poly-counts2.meta.js
 // @downloadURL    https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Jormund/poly-counts2.user.js
-// @description    [2019-11-15-2102] Display a list of all localized portals by level and faction.
-// @include        https://ingress.com/intel*
-// @include        http://ingress.com/intel*
-// @include        https://*.ingress.com/intel*
-// @include        http://*.ingress.com/intel*
-// @include        https://intel.ingress.com/*
+// @description    [2022-11-14-0010] Counts portals by level and faction inside polygons or search result.
 // @match          https://intel.ingress.com/*
+// @match          https://intel-x.ingress.com/*
 // @match          https://*.ingress.com/intel*
-// @match          http://*.ingress.com/intel*
 // @grant          none
 // ==/UserScript==
 
 //improvements on carb.poly-counts.user.js
 
 //Changelog
-/*
-    2.1.0   Fix error with IITC-CE, MultiPolygon doesn't exist in Leaflet 1.4
-    2.0.3   Activate on intel.ingress.com, changed download url to github
-    2.0.2   Distinguish placeholders from other portals
-    2.0.1   Use same algorithm as layer-count (better approximation of "curved" edges), still not an exact solution for GeodesicPolygons. Handle holes.
-    2.0.0   Activate on ingress.com (without www)
-    1.0.0   Count in search result when available, drawn items otherwise (last version by @Carbncl)
-    0.0.1   Modified portal counts to filter in drawn polys
-*/
+//2.2.1 Removed some logs
+//2.2.0 Handle Machina faction
+//2.1.1 Activate on intel - x.ingress.com
+//2.1.0 Fix error with IITC-CE, MultiPolygon doesn't exist in Leaflet 1.4
+//2.0.3 Activate on intel.ingress.com, changed download url to github
+//2.0.2 Distinguish placeholders from other portals
+//2.0.1 Use same algorithm as layer-count (better approximation of "curved" edges), still not an exact solution for GeodesicPolygons. Handle holes.
+//2.0.0 Activate on ingress.com (without www)
+//1.0.0 Count in search result when available, drawn items otherwise (last version by @Carbncl)
+//0.0.1 Modified portal counts to filter in drawn polys
 
 function wrapper(plugin_info) {
     // ensure plugin framework is there, even if iitc is not yet loaded
@@ -41,9 +37,9 @@ function wrapper(plugin_info) {
         BAR_HEIGHT: 180,
         BAR_WIDTH: 25,
         BAR_PADDING: 5,
-        RADIUS_INNER: 70,
-        RADIUS_OUTER: 100,
-        CENTER_X: 200,
+        RADIUS_INNER: 60,
+        RADIUS_OUTER: 80,
+        CENTER_X: 220,
         CENTER_Y: 100
     };
 
@@ -178,12 +174,15 @@ function wrapper(plugin_info) {
         self.work.enlP = 0; //ENL portal count
         self.work.resP = 0; //RES portal count
         self.work.neuP = 0; //neutral portal count
+        self.work.macP = 0; //machina portal count
 
         self.work.PortalsEnl = []; //ENL portal count by level
         self.work.PortalsRes = []; //RES portal count by level
+        self.work.PortalsMac = []; //Machina portal count by level
         for (var level = window.MAX_PORTAL_LEVEL; level >= 0; level--) {
             self.work.PortalsEnl[level] = 0;
             self.work.PortalsRes[level] = 0;
+            self.work.PortalsMac[level] = 0;
         }
 
         self.work.searchItems = []; //data about shapes that will be searched for portals
@@ -207,7 +206,7 @@ function wrapper(plugin_info) {
                 }
                 else {
                     //should not happen
-                    console.log('Bookmark Under Draw : unknown drawn item type');
+                    console.log('Poly counts 2 : unknown drawn item type');
                 }
             });
         }
@@ -232,12 +231,12 @@ function wrapper(plugin_info) {
             total = -1;
         }
         else {
-            console.log('Bookmark Under Draw :' + self.work.searchItems.length + ' shapes found');
+            console.log('Poly counts 2 :' + self.work.searchItems.length + ' shapes found');
 
             //var work = self.work;
             var input = window.portals;
 
-            console.log("portals:" + input.length);
+            //console.log("portals:" + input.length);
             $.each(input, function (guid, portal) {
                 var point = portal.getLatLng();
                 var found = false;
@@ -246,19 +245,19 @@ function wrapper(plugin_info) {
                         case 'circle':
                             if (self.pointIsInCircle(point, searchItem)) {
                                 found = true;
-                                console.log("in circle:" + point.lat + "," + point.lng);
+                                //console.log("in circle:" + point.lat + "," + point.lng);
                                 return false; //breaks the $.each
                             }
                             break;
                         case 'polygon':
                             if (self.pointIsInPolygon(point, searchItem)) {
                                 found = true;
-                                console.log("in polygon:" + point.lat + "," + point.lng);
+                                //console.log("in polygon:" + point.lat + "," + point.lng);
                                 return false; //breaks the $.each
                             }
                             break;
                         default:
-                            console.log('Bookmark Under Draw ERROR : invalid draw type (' + searchItem.type + ')');
+                            console.log('Poly counts 2 ERROR : invalid draw type (' + searchItem.type + ')');
                             return true; //continue the $.each
                             break;
                     };
@@ -277,14 +276,25 @@ function wrapper(plugin_info) {
                             self.work.enlP++;
                             self.work.PortalsEnl[level]++;
                             break;
+                        //case window.TEAM_MACHINA:
+                        //    self.work.macP++;
+                        //    self.work.PortalsMac[level]++;
+                        //    break;
                         default:
-                            self.work.neuP++;
+                            if (window.plugin.polyCounts2.machina_exists && team == window.TEAM_MACHINA) {
+                                self.work.macP++;
+                                self.work.PortalsMac[level]++;
+                                break;
+                            }
+                            else {
+                                self.work.neuP++;
+                            }
                             break;
                     }
                 }
             });
 
-            total = self.work.neuP + self.work.enlP + self.work.resP;
+            total = self.work.neuP + self.work.enlP + self.work.resP + self.work.macP;
         }
         //get portals informations from IITC
         var z = map.getZoom();
@@ -293,7 +303,7 @@ function wrapper(plugin_info) {
         var hasPortals = tileParam.hasPortals || false;
         var counts = '';
         if (total > 0) {
-            counts += '<table><tr><th></th><th class="enl">Enlightened</th><th class="res">Resistance</th></tr>';
+            counts += '<table><tr><th></th><th class="enl">Enlightened</th><th class="res">Resistance</th><th class="mac">Machina</th></tr>';
             for (var level = window.MAX_PORTAL_LEVEL; level >= 0; level--) {
                 if (level > 0) {
                     counts += '<tr><td class="L' + level + '">Level ' + level + '</td>';
@@ -301,18 +311,25 @@ function wrapper(plugin_info) {
                 else {
                     counts += '<tr><td class="L' + level + '">Placeholders</td>';
                 }
-                if (!hasPortals && self.work.PortalsEnl[level] == 0 && self.work.PortalsRes[level] == 0 && level > 0) {
-                    counts += '<td colspan="2">zoom in to see portals level</td>';
+                if (!hasPortals && level > 0
+                    && self.work.PortalsEnl[level] == 0 && self.work.PortalsRes[level] == 0 && self.work.PortalsMac[level] == 0) {
+                    counts += '<td colspan="' + window.plugin.polyCounts2.machina_exists ? 3 : 2 + '">zoom in to see portals level</td>';
                 }
-                //else if (level > 0 || (level = 0 && (self.work.PortalsEnl[level] != 0 || self.work.PortalsRes[level] != 0))) {
+                //else if (we have some portals) {
                 else {
-                    counts += '<td class="enl">' + self.work.PortalsEnl[level] + '</td><td class="res">' + self.work.PortalsRes[level] + '</td>';
+                    counts += '<td class="enl">' + self.work.PortalsEnl[level] + '</td>' +
+                        '<td class="res">' + self.work.PortalsRes[level] + '</td>';
+                    if (window.plugin.polyCounts2.machina_exists)
+                        counts += '<td class="mac">' + self.work.PortalsMac[level] + '</td>';
                 }
 
                 counts += '</tr>';
             }
 
-            counts += '<tr><th>Total:</th><td class="enl">' + self.work.enlP + '</td><td class="res">' + self.work.resP + '</td></tr>';
+            counts += '<tr><th>Total:</th><td class="enl">' + self.work.enlP + '</td><td class="res">' + self.work.resP + '</td>';
+            if (window.plugin.polyCounts2.machina_exists)
+                '<td class="mac">' + self.work.macP + '</td>'
+            counts += '</tr>';
 
             counts += '<tr><td>Neutral:</td><td colspan="2">';
             if (!hasPortals)
@@ -323,13 +340,15 @@ function wrapper(plugin_info) {
 
             var svg = $('<svg width="300" height="200">').css('margin-top', 10);
 
-            self.work.all = self.work.PortalsRes.map(function (val, i) { return val + self.work.PortalsEnl[i] });
+            self.work.all = self.work.PortalsRes.map(function (val, i) { return val + self.work.PortalsEnl[i] + self.work.PortalsMac[i] });
             self.work.all[0] += self.work.neuP;
 
             // bar graphs
-            self.makeBar(self.work.PortalsEnl, 'Enl', COLORS[2], 0).appendTo(svg);
+            self.makeBar(self.work.PortalsEnl, 'Enl', COLORS[window.TEAM_ENL], 0).appendTo(svg);
             self.makeBar(self.work.all, 'All', '#FFFFFF', 1 * (self.BAR_WIDTH + self.BAR_PADDING)).appendTo(svg);
-            self.makeBar(self.work.PortalsRes, 'Res', COLORS[1], 2 * (self.BAR_WIDTH + self.BAR_PADDING)).appendTo(svg);
+            self.makeBar(self.work.PortalsRes, 'Res', COLORS[window.TEAM_RES], 2 * (self.BAR_WIDTH + self.BAR_PADDING)).appendTo(svg);
+            if (window.plugin.polyCounts2.machina_exists)
+                self.makeBar(self.work.PortalsMac, 'Mac', COLORS[window.TEAM_MACHINA], 3 * (self.BAR_WIDTH + self.BAR_PADDING)).appendTo(svg);
 
             // pie graph
             var g = $('<g>')
@@ -337,9 +356,15 @@ function wrapper(plugin_info) {
                 .appendTo(svg);
 
             // inner parts - factions
-            self.makePie(0, self.work.resP / total, COLORS[1]).appendTo(g);
+            self.makePie(0, self.work.resP / total, COLORS[window.TEAM_RES]).appendTo(g);
             self.makePie(self.work.resP / total, (self.work.neuP + self.work.resP) / total, COLORS[0]).appendTo(g);
-            self.makePie((self.work.neuP + self.work.resP) / total, 1, COLORS[2]).appendTo(g);
+            if (window.plugin.polyCounts2.machina_exists) {
+                self.makePie((self.work.neuP + self.work.resP) / total, (self.work.neuP + self.work.resP + self.work.enlP) / total, COLORS[window.TEAM_ENL]).appendTo(g);
+                self.makePie((self.work.neuP + self.work.resP + self.work.enlP) / total, 1, COLORS[window.TEAM_MACHINA]).appendTo(g);
+            }
+            else {
+                self.makePie((self.work.neuP + self.work.resP) / total, 1, COLORS[window.TEAM_ENL]).appendTo(g);
+            }
 
             // outer part - levels
             var angle = 0;
@@ -363,6 +388,17 @@ function wrapper(plugin_info) {
                 var diff = self.work.PortalsEnl[i] / total;
                 self.makeRing(angle, angle + diff, COLORS_LVL[i]).appendTo(g);
                 angle += diff;
+            }
+
+            if (window.plugin.polyCounts2.machina_exists) {
+                for (var i = 0; i < self.work.PortalsMac.length; i++) {
+                    if (!self.work.PortalsMac[i])
+                        continue;
+
+                    var diff = self.work.PortalsMac[i] / total;
+                    self.makeRing(angle, angle + diff, COLORS_LVL[i]).appendTo(g);
+                    angle += diff;
+                }
             }
 
             // black line from center to top
@@ -405,9 +441,7 @@ function wrapper(plugin_info) {
             counts += 'Total portals:' + total; //should not happen
         }
 
-        //TODO: intel doesn't filter density anymore, it's based on link length
-        // I've only seen the backend reduce the portals returned for L4+ or further out zoom levels - but this could change
-        // UPDATE: now seen for L2+ in dense areas (map zoom level 14 or lower)
+        //intel doesn't filter density anymore, it's based on link length but the point is we warn about the zoom
         var minPortalLevel = 0;
         if (typeof getMinPortalLevel == 'function')//original IITC 0.26.0.20170108.21732
             minPortalLevel = getMinPortalLevel();
@@ -577,6 +611,7 @@ function wrapper(plugin_info) {
             '#polyCounts2 table td, #polyCounts2 table th {border-bottom: 1px solid #0b314e; padding:3px; color:white; background-color:#1b415e}' +
             '#polyCounts2 table tr.res th {  background-color: #005684; }' +
             '#polyCounts2 table tr.enl th {  background-color: #017f01; }' +
+            '#polyCounts2 table tr.mac th {  background-color: #D30000; }' +
             '#polyCounts2 table th { text-align: center;}' +
             '#polyCounts2 table td { text-align: center;}' +
             '#polyCounts2 table td.L0 { background-color: #000000 !important;}' +
@@ -591,6 +626,14 @@ function wrapper(plugin_info) {
             '#polyCounts2 table td:nth-child(1) { text-align: left;}' +
             '#polyCounts2 table th:nth-child(1) { text-align: left;}' +
             '</style>');
+
+        //backward compatibility for intel.ingress.com
+        if (typeof window.TEAM_MACHINA == "undefined") {
+            window.plugin.polyCounts2.machina_exists = false;
+        }
+        else {
+            window.plugin.polyCounts2.machina_exists = true;
+        }
     };
 
     // PLUGIN END //////////////////////////////////////////////////////////

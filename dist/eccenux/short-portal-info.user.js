@@ -4,8 +4,8 @@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @name           Short portal info
 // @category       Misc
-// @version        0.3.1
-// @description    [0.3.1] Shows small box with a basic portal information. This is similar to mobile info.
+// @version        0.3.3
+// @description    [0.3.3] Shows small box with a basic portal information. This is similar to mobile info.
 // @updateURL      https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/eccenux/short-portal-info.meta.js
 // @downloadURL    https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/eccenux/short-portal-info.user.js
 // @include        https://*.ingress.com/intel*
@@ -37,6 +37,15 @@ var pluginCss = `
 		position: relative;
 		box-sizing: border-box;
 	}
+	@media screen and (max-width: 650px) {
+		#shortportalinfo {
+			width: auto;
+			max-width: 90vw;
+			position: absolute;
+			right: 0;
+			top: -2em;
+		}
+	}
 	#shortportalinfo .basicinfo {
 		text-overflow: ellipsis;
 		white-space: nowrap;
@@ -48,14 +57,23 @@ var pluginCss = `
 		display: none;
 	}
 	#updatestatus .mod-list {
-		position: absolute;
-		left: 0;
-		height: 2em;
-		top: calc(-2em - 4px);
 		box-sizing: border-box;
-		background-color: rgba(8, 48, 78, 0.9);
-		border: 1px solid #20A8B1;
-		border-bottom-style: none;
+	}
+	@media screen and (min-width: 651px) {
+		#updatestatus .mod-list {
+			position: absolute;
+			left: 0;
+			top: calc(-2em - 4px);
+			background-color: rgba(8, 48, 78, 0.9);
+			border: 1px solid #20A8B1;
+			border-bottom-style: none;
+		}
+	}
+	@media screen and (max-width: 650px) {
+		#updatestatus .mod-list {
+			background-color: #262c32;
+			padding: 1px;
+		}
 	}
 	#updatestatus .mod-list span {
 		background-color: rgba(60, 134, 191, 0.3);
@@ -111,6 +129,22 @@ var pluginCss = `
 		background-color: #00c5ff !important;
 	}
 `;
+
+/**
+	Render portal for the short info.
+*/
+function renderPortalMobile(guid) {
+	var details = window.portalDetail.get(guid);
+	if (!details) {
+		return '';
+	}
+	var html = '';
+	var isNeutral = details.resCount == 0 ? true : false;
+	if(!isNeutral) {
+		html += renderMods(details);
+	}
+	return html;
+}
 
 /**
 	Render portal for the short info.
@@ -258,14 +292,7 @@ function renderResonators(details) {
 function updatePortalInfo(data) {
 	var guid = data.selectedPortalGuid;
     if(isSmartphone()) {
-        var details = window.portalDetail.get(guid);
-        if (!details) {
-            return '';
-        }
-        var isNeutral = details.resCount == 0 ? true : false;
-        if(!isNeutral) {
-            var html = renderMods(details);
-        }
+		var html = renderPortalMobile(guid);
         $('#shortportalinfo').html(html);
     } else {
         var html = renderPortal(guid);

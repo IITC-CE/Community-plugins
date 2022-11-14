@@ -116,7 +116,7 @@ See the [Contributing](CONTRIBUTING.md) documentation.
 
 Bring ameba64/ingress-items icons into IITC
 
-*Version:* 0.1.1
+*Version:* 0.1.2
 
 
   
@@ -499,9 +499,9 @@ View inventory and highlight portals with keys at any zoom. Can be used with the
 
 
 
-[2019-11-15-2102] Display a list of all localized portals by level and faction.
+[2022-11-14-0010] Counts portals by level and faction inside polygons or search result.
 
-*Version:* 2.1.0.201911115.2102
+*Version:* 2.2.1.20221114.0010
 
 
   
@@ -525,7 +525,7 @@ Creates the gallery of portals that can be used to solve the First Saturday pass
 
 Show portal pictures in a dialog
 
-*Version:* 0.1.3
+*Version:* 0.1.4
 
 
   
@@ -650,9 +650,9 @@ Shows drone flight distance between portals
 
 
 
-[danielondiordna-1.0.1.20211108.225200] This plugin gives you free choice to style colors and opacity for portals, links and fields.
+[danielondiordna-2.0.0.20221114.003600] This plugin gives you free choice to style colors and opacity for portals, links (width) and fields, including the new Machina portals and links.
 
-*Version:* 1.0.1.20211108.225200
+*Version:* 2.0.0.20221114.003600
 
 
   
@@ -1144,9 +1144,9 @@ Export portals from bookmarks, current view or polygon
 
 
 
-[0.3.1] Shows small box with a basic portal information. This is similar to mobile info.
+[0.3.3] Shows small box with a basic portal information. This is similar to mobile info.
 
-*Version:* 0.3.1
+*Version:* 0.3.3
 
 
   

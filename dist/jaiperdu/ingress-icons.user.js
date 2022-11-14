@@ -2,7 +2,7 @@
 // @author         jaiperdu
 // @name           Ingress Icons
 // @category       Appearance
-// @version        0.1.1
+// @version        0.1.2
 // @description    Bring ameba64/ingress-items icons into IITC
 // @id             ingress-icons@jaiperdu
 // @namespace      https://github.com/IITC-CE/ingress-intel-total-conversion
@@ -21,15 +21,12 @@ if(typeof window.plugin !== 'function') window.plugin = function() {};
 //PLUGIN AUTHORS: writing a plugin outside of the IITC build environment? if so, delete these lines!!
 //(leaving them in place might break the 'About IITC' page or break update checks)
 plugin_info.buildName = 'lejeu';
-plugin_info.dateTimeVersion = '2022-06-30-074250';
+plugin_info.dateTimeVersion = '2022-11-13-184151';
 plugin_info.pluginId = 'ingress-icons';
 //END PLUGIN AUTHORS NOTE
 
-
 function getModList(d) {
   var mods = [];
-  var modsTitle = [];
-  var modsColor = [];
 
   for (var i = 0; i < 4; i++) {
     var mod = d.mods[i];
@@ -38,7 +35,7 @@ function getModList(d) {
       name: '',
       class: 'mod_free_slot',
       tooltip: '',
-    }
+    };
 
     if (mod) {
       // all mods seem to follow the same pattern for the data structure
@@ -46,22 +43,26 @@ function getModList(d) {
 
       item.name = mod.name || '(unknown mod)';
 
-      item.class = mod.name.toLowerCase().replace('(-)', 'minus').replace('(+)', 'plus').replace(/[^a-z]/g, '_');
+      item.class = mod.name
+        .toLowerCase()
+        .replace('(-)', 'minus')
+        .replace('(+)', 'plus')
+        .replace(/[^a-z]/g, '_');
 
       if (mod.rarity) {
-        item.name = mod.rarity.capitalize().replace(/_/g,' ') + ' ' + item.name;
+        item.name = mod.rarity.capitalize().replace(/_/g, ' ') + ' ' + item.name;
         item.class = item.class + ' ' + mod.rarity.toLowerCase();
       }
 
       item.tooltip = item.name + '\n';
       if (mod.owner) {
-        item.tooltip += 'Installed by: '+ mod.owner + '\n';
+        item.tooltip += 'Installed by: ' + mod.owner + '\n';
       }
 
       if (mod.stats) {
         item.tooltip += 'Stats:';
         for (var key in mod.stats) {
-          if (!mod.stats.hasOwnProperty(key)) continue;
+          if (!(key in mod.stats)) continue;
           var val = mod.stats[key];
 
           // if (key === 'REMOVAL_STICKINESS' && val == 0) continue;  // stat on all mods recently - unknown meaning, not displayed in stock client
@@ -76,7 +77,7 @@ function getModList(d) {
           else if (key === 'REMOVAL_STICKINESS' && val > 100) val = (val/10000)+'%'; // an educated guess
           // else display unmodified. correct for shield mitigation and multihack - unknown for future/other mods
 
-          item.tooltip += '\n+' +  val + ' ' + key.capitalize().replace(/_/g,' ');
+          item.tooltip += '\n+' + val + ' ' + key.capitalize().replace(/_/g, ' ');
         }
       }
     }
@@ -90,7 +91,7 @@ function getModList(d) {
 function getModDetails(d) {
   var t = '';
   getModList(d).forEach(function (item) {
-    t += '<span'+(item.tooltip.length ? ' title="'+item.tooltip+'"' : '')+' class="'+item.class+'"></span>'
+    t += '<span' + (item.tooltip.length ? ' title="' + item.tooltip + '"' : '') + ' class="' + item.class + '"></span>';
   });
 
   return t;
@@ -101,18 +102,20 @@ function updateMobile(data) {
   if (el) el.remove();
 
   var guid = data.selectedPortalGuid;
-  if(!window.portals[guid]) return;
+  if (!window.portals[guid]) return;
 
   var details = window.portalDetail.get(guid);
   var t = '';
-  getModList(details).forEach(function (item) {
-    t += '<div'+(item.tooltip.length ? ' title="'+item.tooltip+'"' : '')+' class="'+item.class+'"></div>'
-  });
+  if (details) {
+    getModList(details).forEach(function (item) {
+      t += '<div' + (item.tooltip.length ? ' title="' + item.tooltip + '"' : '') + ' class="' + item.class + '"></div>';
+    });
+  }
 
-  $('#updatestatus').prepend('<div class="mods">'+t+'</div>');
+  $('#updatestatus').prepend('<div class="mods">' + t + '</div>');
 }
 
-var setup = function () {
+function setup() {
   $('<style>').prop('type', 'text/css').html('\
 #portaldetails .mods span {\
 	background-size: cover;\
@@ -211,7 +214,7 @@ var setup = function () {
 }').appendTo('head');
 
   window.getModDetails = getModDetails;
-  if (isSmartphone()) window.addHook('portalSelected', updateMobile);
+  if (window.isSmartphone()) window.addHook('portalSelected', updateMobile);
 }
 
 setup.info = plugin_info; //add the script info data to the function as a property

@@ -2,13 +2,14 @@
 // @author         DanielOnDiordna
 // @name           Free Styler
 // @category       Layer
-// @version        1.0.1.20211108.225200
+// @version        2.0.0.20221114.003600
 // @updateURL      https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/freestyler.meta.js
 // @downloadURL    https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/freestyler.user.js
-// @description    [danielondiordna-1.0.1.20211108.225200] This plugin gives you free choice to style colors and opacity for portals, links and fields.
+// @description    [danielondiordna-2.0.0.20221114.003600] This plugin gives you free choice to style colors and opacity for portals, links (width) and fields, including the new Machina portals and links.
 // @id             freestyler@DanielOnDiordna
 // @namespace      https://softspot.nl/ingress/
 // @match          https://intel.ingress.com/*
+// @match          https://intel-x.ingress.com/*
 // @grant          none
 // ==/UserScript==
 
@@ -22,10 +23,13 @@ function wrapper(plugin_info) {
     var self = window.plugin.freestyler;
     self.id = 'freestyler';
     self.title = 'Free Styler';
-    self.version = '1.0.1.20211108.225200';
+    self.version = '2.0.0.20221114.003600';
     self.author = 'DanielOnDiordna';
     self.changelog = `
 Changelog:
+
+version 2.0.0.20221114.003600
+- added support for the new Machina portals and links
 
 version 1.0.1.20211108.225200
 - added window.TEAM_NAMES array for IITC-me support
@@ -51,7 +55,8 @@ version 1.0.0.20211103.230600
     self.profiles = {};
     self.spectrumoptions = {};
     self.spectrumopacityoptions = {};
-    self.TEAM_SELECTED = 3;
+    self.TEAM_MACHINA = 3;
+    self.TEAM_SELECTED = 4;
 
     function isObject(element) {
         return (typeof element == 'object' && element instanceof Object && !(element instanceof Array));
@@ -69,6 +74,23 @@ version 1.0.0.20211103.230600
                 }
             }
         }
+
+        // add MACHINA values if missing
+        if (target.linkcolor.length < self.defaultsettings.linkcolor.length) target.linkcolor.push(self.defaultsettings.linkcolor[self.TEAM_MACHINA]);
+        if (target.linkweight.length < self.defaultsettings.linkweight.length) target.linkweight.push(self.defaultsettings.linkweight[self.TEAM_MACHINA]);
+        if (target.linkopacity.length < self.defaultsettings.linkopacity.length) target.linkopacity.push(self.defaultsettings.linkopacity[self.TEAM_MACHINA]);
+        if (target.portalcolor.length < self.defaultsettings.portalcolor.length) {
+            let selectedportalcolor = target.portalcolor[3]; // old TEAM_SELECTED value was 3, moved to 4 when TEAM_MACHINA was added
+            target.portalcolor[3] = self.defaultsettings.portalcolor[self.TEAM_MACHINA];
+            target.portalcolor.push(selectedportalcolor);
+        }
+        if (target.portalopacity.length < self.defaultsettings.portalopacity.length) {
+            let selectedportalopacity = target.portalopacity[3]; // old TEAM_SELECTED value was 3, moved to 4 when TEAM_MACHINA was added
+            target.portalopacity[3] = self.defaultsettings.portalopacity[self.TEAM_MACHINA];
+            target.portalopacity.push(selectedportalopacity);
+        }
+        if (target.portalfillcolor.length < self.defaultsettings.portalfillcolor.length) target.portalfillcolor.push(self.defaultsettings.portalfillcolor[self.TEAM_MACHINA]);
+        if (target.portalfillopacity.length < self.defaultsettings.portalfillopacity.length) target.portalfillopacity.push(self.defaultsettings.portalfillopacity[self.TEAM_MACHINA]);
     }
 
     self.restoresettings = function() {
@@ -109,13 +131,16 @@ version 1.0.0.20211103.230600
             return;
         }
 
+        let portalteam = portal.options.team; // 0 = NEUTRAL, 1 = RES, 2 = ENL
+        if (portalteam == 0 && portal.options.data.resCount > 0) portalteam = self.TEAM_MACHINA; // 3 = MACHINA
+
         let styleOptions = window.getMarkerStyleOptions(portal.options);
         styleOptions = {
             ...styleOptions,
-            color: self.settings.portalcolor[portal.options.team],
-            opacity: self.settings.portalopacity[portal.options.team],
-            fillColor: self.settings.portalfillcolor[portal.options.team],
-            fillOpacity: self.settings.portalfillopacity[portal.options.team]
+            color: self.settings.portalcolor[portalteam],
+            opacity: self.settings.portalopacity[portalteam],
+            fillColor: self.settings.portalfillcolor[portalteam],
+            fillOpacity: self.settings.portalfillopacity[portalteam]
         };
         portal.setStyle(styleOptions);
 
@@ -133,12 +158,16 @@ version 1.0.0.20211103.230600
         if (!link.options.hasOwnProperty('faked')) {
             link.options.faked = link.options.weight == 1;
         }
+
+        let linkteam = link.options.team; // 0 = NEUTRAL, 1 = RES, 2 = ENL
+        if (linkteam == 0) linkteam = self.TEAM_MACHINA; // 3 = MACHINA
+
         let settings = JSON.parse(JSON.stringify((!self.settings.enabled?self.defaultsettings:self.settings))); // hard copy
         link.setStyle(
             {
-                weight: settings.linkweight[link.options.team] / (link.options.faked?2:1),
-                color: settings.linkcolor[link.options.team],
-                opacity: settings.linkopacity[link.options.team]
+                weight: settings.linkweight[linkteam] / (link.options.faked?2:1),
+                color: settings.linkcolor[linkteam],
+                opacity: settings.linkopacity[linkteam]
             }
         );
     };
@@ -160,14 +189,22 @@ version 1.0.0.20211103.230600
             return;
         }
         for (let portalguid in window.portals) {
-            if (typeof team == "undefined" || window.portals[portalguid].options.team == team) {
+
+            let portalteam = window.portals[portalguid].options.team; // 0 = NEUTRAL, 1 = RES, 2 = ENL
+            if (portalteam == 0 && window.portals[portalguid].options.data.resCount > 0) portalteam = self.TEAM_MACHINA; // 3 = MACHINA
+
+            if (typeof team == "undefined" || portalteam == team) {
                 self.applyPortalStyle(window.portals[portalguid]);
             }
         }
     };
     self.updateLinks = function(team) {
         for (let linkguid in window.links) {
-            if (typeof team == "undefined" || window.links[linkguid].options.team == team) {
+
+            let linkteam = window.links[linkguid].options.team; // 0 = NEUTRAL, 1 = RES, 2 = ENL
+            if (linkteam == 0) linkteam = self.TEAM_MACHINA; // 3 = MACHINA
+
+            if (typeof team == "undefined" || linkteam == team) {
                 self.applyLinkStyle(window.links[linkguid]);
             }
         }
@@ -247,7 +284,7 @@ version 1.0.0.20211103.230600
         let container = document.createElement('div');
 
         container.innerHTML = [
-            'With this plugin you are free to style all colors and opacity (alpha/visibility) for every portal, link and field. Portals have a separate color and opacity setting for the edge and the fill center. Links width can be changed. There are ofcourse no link and field settings for Neutral faction.',
+            'With this plugin you are free to style all colors and opacity (alpha/visibility) for every portal, link and field. Portals have a separate color and opacity setting for the edge and the fill center. Links width can be changed. There are ofcourse no link and field settings for Neutral faction, but there are Machina portals and links now.',
             '',
             'By default all colors for portals, links and fields are the same within each faction.',
             'This can make it confusing to spot portals under a multilayer field.',
@@ -307,8 +344,8 @@ version 1.0.0.20211103.230600
         });
 
         let tbody = table.appendChild(document.createElement('tbody'));
-        (window.teamStringToId(window.PLAYER.team) == window.TEAM_RES?[window.TEAM_NAMES[window.TEAM_RES],window.TEAM_NAMES[window.TEAM_ENL],window.TEAM_NAMES[window.TEAM_NONE],'Selected']:[window.TEAM_NAMES[window.TEAM_ENL],window.TEAM_NAMES[window.TEAM_RES],window.TEAM_NAMES[window.TEAM_NONE],'Selected']).forEach(function(rowtext) {
-            let team = (rowtext == "Selected"?self.TEAM_SELECTED : window.teamStringToId(rowtext[0]));
+        (window.teamStringToId(window.PLAYER.team) == window.TEAM_RES?[window.TEAM_NAMES[window.TEAM_RES],window.TEAM_NAMES[window.TEAM_ENL],window.TEAM_NAMES[window.TEAM_NONE],'Machina','Selected']:[window.TEAM_NAMES[window.TEAM_ENL],window.TEAM_NAMES[window.TEAM_RES],window.TEAM_NAMES[window.TEAM_NONE],'Machina','Selected']).forEach(function(rowtext) {
+            let team = (rowtext == "Selected" ? self.TEAM_SELECTED : (rowtext == "Machina" ? self.TEAM_MACHINA : window.teamStringToId(rowtext[0])));
             let tr = tbody.appendChild(document.createElement('tr'));
             ['Faction:','Portals:','fill:','Links:','Fields:'].forEach(function(columntext) {
                 let td = tr.appendChild(document.createElement('td'));
@@ -377,7 +414,7 @@ version 1.0.0.20211103.230600
                         }
                         break;
                     case 'Fields:':
-                        if (team != window.TEAM_NONE && team != self.TEAM_SELECTED) {
+                        if (team != window.TEAM_NONE && team != self.TEAM_SELECTED && team != self.TEAM_MACHINA) {
                             let inputfieldcolor = td.appendChild(document.createElement('input'));
                             let inputfieldopacity = td.appendChild(document.createElement('input'));
                             $(inputfieldcolor).spectrum2($.extend(true,self.spectrumoptions,{
@@ -3478,15 +3515,15 @@ See http://bgrins.github.io/spectrum/themes/ for instructions.
         } catch(e) {}
         self.defaultsettings = {
             enabled: true,
-            fieldcolor: JSON.parse(JSON.stringify(window.COLORS)), // hard copy
-            portalcolor: JSON.parse(JSON.stringify([...window.COLORS,window.COLOR_SELECTED_PORTAL])), // hard copy
-            portalfillcolor: JSON.parse(JSON.stringify(window.COLORS)), // hard copy
-            linkcolor: JSON.parse(JSON.stringify(window.COLORS)), // hard copy
-            linkweight: [0,defaultlinkweight,defaultlinkweight],
+            fieldcolor: [...window.COLORS], // hard copy
+            portalcolor: [...window.COLORS,'#ff0028',window.COLOR_SELECTED_PORTAL], // hard copy
+            portalfillcolor: [...window.COLORS,'#ff0028'], // hard copy
+            linkcolor: [...window.COLORS,'#ff0028'], // hard copy
+            linkweight: [0,defaultlinkweight,defaultlinkweight,defaultlinkweight],
             fieldopacity: [0,defaultfieldopacity,defaultfieldopacity],
-            portalopacity: [defaultportaloptions.opacity,defaultportaloptions.opacity,defaultportaloptions.opacity,defaultportaloptions.opacity],
-            portalfillopacity: [defaultportaloptions.fillOpacity,defaultportaloptions.fillOpacity,defaultportaloptions.fillOpacity],
-            linkopacity: [0,defaultlinkopacity,defaultlinkopacity],
+            portalopacity: [defaultportaloptions.opacity,defaultportaloptions.opacity,defaultportaloptions.opacity,defaultportaloptions.opacity,defaultportaloptions.opacity],
+            portalfillopacity: [defaultportaloptions.fillOpacity,defaultportaloptions.fillOpacity,defaultportaloptions.fillOpacity,defaultportaloptions.fillOpacity],
+            linkopacity: [0,defaultlinkopacity,defaultlinkopacity,defaultlinkopacity],
             selectedprofile: ''
         };
         self.settings = JSON.parse(JSON.stringify(self.defaultsettings)); // hard copy

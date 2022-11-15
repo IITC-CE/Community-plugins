@@ -2,10 +2,10 @@
 // @author         DanielOnDiordna
 // @name           Free Styler
 // @category       Layer
-// @version        2.0.0.20221114.003600
+// @version        2.0.1.20221114.112200
 // @updateURL      https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/freestyler.meta.js
 // @downloadURL    https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/freestyler.user.js
-// @description    [danielondiordna-2.0.0.20221114.003600] This plugin gives you free choice to style colors and opacity for portals, links (width) and fields, including the new Machina portals and links.
+// @description    [danielondiordna-2.0.1.20221114.112200] This plugin gives you free choice to style colors and opacity for portals, links (width) and fields, including the new Machina portals and links.
 // @id             freestyler@DanielOnDiordna
 // @namespace      https://softspot.nl/ingress/
 // @match          https://intel.ingress.com/*
@@ -23,10 +23,13 @@ function wrapper(plugin_info) {
     var self = window.plugin.freestyler;
     self.id = 'freestyler';
     self.title = 'Free Styler';
-    self.version = '2.0.0.20221114.003600';
+    self.version = '2.0.1.20221114.112200';
     self.author = 'DanielOnDiordna';
     self.changelog = `
 Changelog:
+
+version 2.0.1.20221114.112200
+- fixed detection and marking of Machina link placeholder portals when zoomed out to link view
 
 version 2.0.0.20221114.003600
 - added support for the new Machina portals and links
@@ -122,7 +125,26 @@ version 1.0.0.20211103.230600
         localStorage[self.localstorageprofiles] = JSON.stringify(self.profiles);
     };
 
-    self.applyPortalStyle = function(portal,selected) {
+    self.isMachinaPortal = function(portal) {
+        if (portal.options.team == window.TEAM_ENL || portal.options.team == window.TEAM_RES) return false;
+        if (portal.options.data.resCount > 0) return true;
+        if (portal.options.data.resCount === 0) return false;
+        // only if resCount is undefined, check all links for matching origin or destination match
+
+        // Be aware: a placeholder portal is always drawn before the link is drawn, so most of the time there is no link yet to check for a match, unless the portal has multiple links
+        let portallatlng = portal.getLatLng();
+        let machinalinkplaceholderfound = false;
+        for (let id in window.links) {
+            let link = window.links[id];
+            if (portal.options.guid == link.options.data.oGuid || portal.options.guid == link.options.data.dGuid) {
+                machinalinkplaceholderfound = true;
+                break;
+            }
+        }
+        return machinalinkplaceholderfound;
+    };
+
+    self.applyPortalStyle = function(portal,selected,teamoverride) {
         if (!portal || !portal.setStyle) return;
 
         if (typeof selected != 'boolean') selected = (portal.options.guid === window.selectedPortal);
@@ -131,8 +153,8 @@ version 1.0.0.20211103.230600
             return;
         }
 
-        let portalteam = portal.options.team; // 0 = NEUTRAL, 1 = RES, 2 = ENL
-        if (portalteam == 0 && portal.options.data.resCount > 0) portalteam = self.TEAM_MACHINA; // 3 = MACHINA
+        let portalteam = (typeof teamoverride == 'number' ? teamoverride : portal.options.team); // 0 = NEUTRAL, 1 = RES, 2 = ENL
+        if (portalteam != self.TEAM_MACHINA && self.isMachinaPortal(portal)) portalteam = self.TEAM_MACHINA; // 3 = MACHINA
 
         let styleOptions = window.getMarkerStyleOptions(portal.options);
         styleOptions = {
@@ -142,6 +164,7 @@ version 1.0.0.20211103.230600
             fillColor: self.settings.portalfillcolor[portalteam],
             fillOpacity: self.settings.portalfillopacity[portalteam]
         };
+
         portal.setStyle(styleOptions);
 
         window.highlightPortal(portal);
@@ -170,6 +193,12 @@ version 1.0.0.20211103.230600
                 opacity: settings.linkopacity[linkteam]
             }
         );
+        if (linkteam == self.TEAM_MACHINA) {
+            // update the portal placeholders
+            // placeholders portals are drawn before the link itself is drawn; and the link is even drawn after the hook is executed
+            self.applyPortalStyle(window.portals[link.options.data.oGuid],undefined,linkteam);
+            self.applyPortalStyle(window.portals[link.options.data.dGuid],undefined,linkteam);
+        }
     };
     self.applyFieldStyle = function(field) {
         if (!field || !field.setStyle) return;
@@ -184,7 +213,7 @@ version 1.0.0.20211103.230600
     self.updatePortals = function(team) {
         if (team == self.TEAM_SELECTED) {
             if (window.selectedPortal in window.portals) {
-                self.applyPortalStyle(window.portals[window.selectedPortal]);
+                self.applyPortalStyle(window.portals[window.selectedPortal],true);
             }
             return;
         }
@@ -3569,7 +3598,7 @@ See http://bgrins.github.io/spectrum/themes/ for instructions.
         window.addHook('portalAdded',function(data) { if (data && data.portal && (data.portal instanceof Object)) self.applyPortalStyle(data.portal); }); // {portal: marker, previousData: previousData}
         window.addHook('linkAdded',function(data) { if (data && data.link && (data.link instanceof window.L.GeodesicPolyline)) self.applyLinkStyle(data.link); }); // {link: poly}
         window.addHook('fieldAdded',function(data) { if (data && data.field && (data.field instanceof window.L.GeodesicPolygon)) self.applyFieldStyle(data.field); }); // {field: poly}
-        window.addHook('portalSelected',function(data) { if (data && data.selectedPortalGuid && data.selectedPortalGuid in window.portals) self.applyPortalStyle(window.portals[data.selectedPortalGuid]); }); // {selectedPortalGuid: guid, unselectedPortalGuid: oldPortalGuid}
+        window.addHook('portalSelected',function(data) { if (data && data.selectedPortalGuid && data.selectedPortalGuid in window.portals) self.applyPortalStyle(window.portals[data.selectedPortalGuid],true); }); // {selectedPortalGuid: guid, unselectedPortalGuid: oldPortalGuid}
 
         //add options menu
         let toolboxlink = document.getElementById('toolbox').appendChild(document.createElement('a'));

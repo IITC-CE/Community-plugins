@@ -4,8 +4,8 @@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @name           Short portal info
 // @category       Misc
-// @version        0.3.3
-// @description    [0.3.3] Shows small box with a basic portal information. This is similar to mobile info.
+// @version        0.3.4
+// @description    [0.3.4] Shows small box with a basic portal information. This is similar to mobile info.
 // @updateURL      https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/eccenux/short-portal-info.meta.js
 // @downloadURL    https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/eccenux/short-portal-info.user.js
 // @include        https://*.ingress.com/intel*

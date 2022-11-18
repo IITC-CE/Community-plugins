@@ -2,10 +2,10 @@
 // @author         DanielOnDiordna
 // @name           Free Styler
 // @category       Layer
-// @version        2.0.1.20221114.112200
+// @version        2.1.0.20221117.195900
 // @updateURL      https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/freestyler.meta.js
 // @downloadURL    https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/freestyler.user.js
-// @description    [danielondiordna-2.0.1.20221114.112200] This plugin gives you free choice to style colors and opacity for portals, links (width) and fields, including the new Machina portals and links.
+// @description    [danielondiordna-2.1.0.20221117.195900] This plugin gives you free choice to style colors and opacity for portals, links (width) and fields, including the new Machina portals and links.
 // @id             freestyler@DanielOnDiordna
 // @namespace      https://softspot.nl/ingress/
 // @match          https://intel.ingress.com/*
@@ -23,10 +23,15 @@ function wrapper(plugin_info) {
     var self = window.plugin.freestyler;
     self.id = 'freestyler';
     self.title = 'Free Styler';
-    self.version = '2.0.1.20221114.112200';
+    self.version = '2.1.0.20221117.195900';
     self.author = 'DanielOnDiordna';
     self.changelog = `
 Changelog:
+
+version 2.1.0.20221117.195900
+- renamed Machina to U̶͚̓̍N̴̖̈K̠͔̍͑̂͜N̞̥͋̀̉Ȯ̶̹͕̀W̶̢͚͑̚͝Ṉ̨̟̒̅ (as being used from IITC 0.34)
+- added declaration of window.TEAM_MAC if missing (available from IITC 0.34)
+- added extra values for window.TEAM_NAMES, window.COLORS if missing (available from IITC 0.34)
 
 version 2.0.1.20221114.112200
 - fixed detection and marking of Machina link placeholder portals when zoomed out to link view
@@ -58,7 +63,6 @@ version 1.0.0.20211103.230600
     self.profiles = {};
     self.spectrumoptions = {};
     self.spectrumopacityoptions = {};
-    self.TEAM_MACHINA = 3;
     self.TEAM_SELECTED = 4;
 
     function isObject(element) {
@@ -79,21 +83,21 @@ version 1.0.0.20211103.230600
         }
 
         // add MACHINA values if missing
-        if (target.linkcolor.length < self.defaultsettings.linkcolor.length) target.linkcolor.push(self.defaultsettings.linkcolor[self.TEAM_MACHINA]);
-        if (target.linkweight.length < self.defaultsettings.linkweight.length) target.linkweight.push(self.defaultsettings.linkweight[self.TEAM_MACHINA]);
-        if (target.linkopacity.length < self.defaultsettings.linkopacity.length) target.linkopacity.push(self.defaultsettings.linkopacity[self.TEAM_MACHINA]);
+        if (target.linkcolor.length < self.defaultsettings.linkcolor.length) target.linkcolor.push(self.defaultsettings.linkcolor[window.TEAM_MAC]);
+        if (target.linkweight.length < self.defaultsettings.linkweight.length) target.linkweight.push(self.defaultsettings.linkweight[window.TEAM_MAC]);
+        if (target.linkopacity.length < self.defaultsettings.linkopacity.length) target.linkopacity.push(self.defaultsettings.linkopacity[window.TEAM_MAC]);
         if (target.portalcolor.length < self.defaultsettings.portalcolor.length) {
-            let selectedportalcolor = target.portalcolor[3]; // old TEAM_SELECTED value was 3, moved to 4 when TEAM_MACHINA was added
-            target.portalcolor[3] = self.defaultsettings.portalcolor[self.TEAM_MACHINA];
+            let selectedportalcolor = target.portalcolor[3]; // old TEAM_SELECTED value was 3, moved to 4 when TEAM_MAC was added
+            target.portalcolor[3] = self.defaultsettings.portalcolor[window.TEAM_MAC];
             target.portalcolor.push(selectedportalcolor);
         }
         if (target.portalopacity.length < self.defaultsettings.portalopacity.length) {
-            let selectedportalopacity = target.portalopacity[3]; // old TEAM_SELECTED value was 3, moved to 4 when TEAM_MACHINA was added
-            target.portalopacity[3] = self.defaultsettings.portalopacity[self.TEAM_MACHINA];
+            let selectedportalopacity = target.portalopacity[3]; // old TEAM_SELECTED value was 3, moved to 4 when TEAM_MAC was added
+            target.portalopacity[3] = self.defaultsettings.portalopacity[window.TEAM_MAC];
             target.portalopacity.push(selectedportalopacity);
         }
-        if (target.portalfillcolor.length < self.defaultsettings.portalfillcolor.length) target.portalfillcolor.push(self.defaultsettings.portalfillcolor[self.TEAM_MACHINA]);
-        if (target.portalfillopacity.length < self.defaultsettings.portalfillopacity.length) target.portalfillopacity.push(self.defaultsettings.portalfillopacity[self.TEAM_MACHINA]);
+        if (target.portalfillcolor.length < self.defaultsettings.portalfillcolor.length) target.portalfillcolor.push(self.defaultsettings.portalfillcolor[window.TEAM_MAC]);
+        if (target.portalfillopacity.length < self.defaultsettings.portalfillopacity.length) target.portalfillopacity.push(self.defaultsettings.portalfillopacity[window.TEAM_MAC]);
     }
 
     self.restoresettings = function() {
@@ -127,6 +131,7 @@ version 1.0.0.20211103.230600
 
     self.isMachinaPortal = function(portal) {
         if (portal.options.team == window.TEAM_ENL || portal.options.team == window.TEAM_RES) return false;
+        if (portal.options.team == window.TEAM_MAC) return true; // works from IITC 0.34
         if (portal.options.data.resCount > 0) return true;
         if (portal.options.data.resCount === 0) return false;
         // only if resCount is undefined, check all links for matching origin or destination match
@@ -154,7 +159,7 @@ version 1.0.0.20211103.230600
         }
 
         let portalteam = (typeof teamoverride == 'number' ? teamoverride : portal.options.team); // 0 = NEUTRAL, 1 = RES, 2 = ENL
-        if (portalteam != self.TEAM_MACHINA && self.isMachinaPortal(portal)) portalteam = self.TEAM_MACHINA; // 3 = MACHINA
+        if (portalteam != window.TEAM_MAC && self.isMachinaPortal(portal)) portalteam = window.TEAM_MAC; // 3 = MACHINA
 
         let styleOptions = window.getMarkerStyleOptions(portal.options);
         styleOptions = {
@@ -183,7 +188,7 @@ version 1.0.0.20211103.230600
         }
 
         let linkteam = link.options.team; // 0 = NEUTRAL, 1 = RES, 2 = ENL
-        if (linkteam == 0) linkteam = self.TEAM_MACHINA; // 3 = MACHINA
+        if (linkteam == 0) linkteam = window.TEAM_MAC; // 3 = MACHINA
 
         let settings = JSON.parse(JSON.stringify((!self.settings.enabled?self.defaultsettings:self.settings))); // hard copy
         link.setStyle(
@@ -193,7 +198,7 @@ version 1.0.0.20211103.230600
                 opacity: settings.linkopacity[linkteam]
             }
         );
-        if (linkteam == self.TEAM_MACHINA) {
+        if (linkteam == window.TEAM_MAC) {
             // update the portal placeholders
             // placeholders portals are drawn before the link itself is drawn; and the link is even drawn after the hook is executed
             self.applyPortalStyle(window.portals[link.options.data.oGuid],undefined,linkteam);
@@ -220,7 +225,7 @@ version 1.0.0.20211103.230600
         for (let portalguid in window.portals) {
 
             let portalteam = window.portals[portalguid].options.team; // 0 = NEUTRAL, 1 = RES, 2 = ENL
-            if (portalteam == 0 && window.portals[portalguid].options.data.resCount > 0) portalteam = self.TEAM_MACHINA; // 3 = MACHINA
+            if (portalteam == 0 && window.portals[portalguid].options.data.resCount > 0) portalteam = window.TEAM_MAC; // 3 = MACHINA
 
             if (typeof team == "undefined" || portalteam == team) {
                 self.applyPortalStyle(window.portals[portalguid]);
@@ -231,7 +236,7 @@ version 1.0.0.20211103.230600
         for (let linkguid in window.links) {
 
             let linkteam = window.links[linkguid].options.team; // 0 = NEUTRAL, 1 = RES, 2 = ENL
-            if (linkteam == 0) linkteam = self.TEAM_MACHINA; // 3 = MACHINA
+            if (linkteam == 0) linkteam = window.TEAM_MAC; // 3 = MACHINA
 
             if (typeof team == "undefined" || linkteam == team) {
                 self.applyLinkStyle(window.links[linkguid]);
@@ -373,8 +378,8 @@ version 1.0.0.20211103.230600
         });
 
         let tbody = table.appendChild(document.createElement('tbody'));
-        (window.teamStringToId(window.PLAYER.team) == window.TEAM_RES?[window.TEAM_NAMES[window.TEAM_RES],window.TEAM_NAMES[window.TEAM_ENL],window.TEAM_NAMES[window.TEAM_NONE],'Machina','Selected']:[window.TEAM_NAMES[window.TEAM_ENL],window.TEAM_NAMES[window.TEAM_RES],window.TEAM_NAMES[window.TEAM_NONE],'Machina','Selected']).forEach(function(rowtext) {
-            let team = (rowtext == "Selected" ? self.TEAM_SELECTED : (rowtext == "Machina" ? self.TEAM_MACHINA : window.teamStringToId(rowtext[0])));
+        (window.teamStringToId(window.PLAYER.team) == window.TEAM_RES?[window.TEAM_NAMES[window.TEAM_RES],window.TEAM_NAMES[window.TEAM_ENL],window.TEAM_NAMES[window.TEAM_NONE],window.TEAM_NAMES[window.TEAM_MAC],'Selected']:[window.TEAM_NAMES[window.TEAM_ENL],window.TEAM_NAMES[window.TEAM_RES],window.TEAM_NAMES[window.TEAM_NONE],window.TEAM_NAMES[window.TEAM_MAC],'Selected']).forEach(function(rowtext) {
+            let team = (rowtext == "Selected" ? self.TEAM_SELECTED : (rowtext == window.TEAM_NAMES[window.TEAM_MAC] ? window.TEAM_MAC : window.teamStringToId(rowtext[0])));
             let tr = tbody.appendChild(document.createElement('tr'));
             ['Faction:','Portals:','fill:','Links:','Fields:'].forEach(function(columntext) {
                 let td = tr.appendChild(document.createElement('td'));
@@ -443,7 +448,7 @@ version 1.0.0.20211103.230600
                         }
                         break;
                     case 'Fields:':
-                        if (team != window.TEAM_NONE && team != self.TEAM_SELECTED && team != self.TEAM_MACHINA) {
+                        if (team != window.TEAM_NONE && team != self.TEAM_SELECTED && team != window.TEAM_MAC) {
                             let inputfieldcolor = td.appendChild(document.createElement('input'));
                             let inputfieldopacity = td.appendChild(document.createElement('input'));
                             $(inputfieldcolor).spectrum2($.extend(true,self.spectrumoptions,{
@@ -3521,6 +3526,9 @@ See http://bgrins.github.io/spectrum/themes/ for instructions.
         }
 
         if (!window.TEAM_NAMES) window.TEAM_NAMES = ['Neutral', 'Resistance', 'Enlightened']; // IITC-me support
+        if (!window.TEAM_MAC) window.TEAM_MAC = 3; // IITC 0.34 support
+        if (window.TEAM_NAMES.length <= 3) window.TEAM_NAMES.push('U̶͚̓̍N̴̖̈K̠͔̍͑̂͜N̞̥͋̀̉Ȯ̶̹͕̀W̶̢͚͑̚͝Ṉ̨̟̒̅'); // add machina
+        if (window.COLORS.length <= 3) window.COLORS.push('#FF0028'); // none, res, enl, mac
 
         // settings and spectrumoptions need to be setup here
         let defaultlinkopacity = 1;
@@ -3542,12 +3550,13 @@ See http://bgrins.github.io/spectrum/themes/ for instructions.
         try {
             defaultportaloptions = window.getMarkerStyleOptions({level:undefined,team:undefined});
         } catch(e) {}
+
         self.defaultsettings = {
             enabled: true,
-            fieldcolor: [...window.COLORS], // hard copy
-            portalcolor: [...window.COLORS,'#ff0028',window.COLOR_SELECTED_PORTAL], // hard copy
-            portalfillcolor: [...window.COLORS,'#ff0028'], // hard copy
-            linkcolor: [...window.COLORS,'#ff0028'], // hard copy
+            fieldcolor: [...window.COLORS],
+            portalcolor: [...window.COLORS,window.COLOR_SELECTED_PORTAL],
+            portalfillcolor: [...window.COLORS],
+            linkcolor: [...window.COLORS],
             linkweight: [0,defaultlinkweight,defaultlinkweight,defaultlinkweight],
             fieldopacity: [0,defaultfieldopacity,defaultfieldopacity],
             portalopacity: [defaultportaloptions.opacity,defaultportaloptions.opacity,defaultportaloptions.opacity,defaultportaloptions.opacity,defaultportaloptions.opacity],

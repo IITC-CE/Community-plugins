@@ -650,9 +650,9 @@ Shows drone flight distance between portals
 
 
 
-[danielondiordna-2.0.1.20221114.112200] This plugin gives you free choice to style colors and opacity for portals, links (width) and fields, including the new Machina portals and links.
+[danielondiordna-2.1.0.20221117.195900] This plugin gives you free choice to style colors and opacity for portals, links (width) and fields, including the new Machina portals and links.
 
-*Version:* 2.0.1.20221114.112200
+*Version:* 2.1.0.20221117.195900
 
 
   

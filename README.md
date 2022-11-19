@@ -4,8 +4,8 @@ A collection of amazing plugins made by community.
 
 There are now 112 plugins from 31 authors in the collection.
 
-> Note: You must install IITC-CE on your [desktop](https://iitc.app/download_desktop.html)
-or [mobile device](https://iitc.app/download_desktop.html) to use IITC plugins.
+> Note: You must install IITC-CE on your [desktop](https://iitc.app/download_desktop)
+or [mobile device](https://iitc.app/download_mobile) to use IITC plugins.
 
 > IITC is a browser add-on that modifies the Ingress intel map. It is faster than the standard site, and offers many more features. It is available for desktop browsers, such as Firefox and Chrome, and as a mobile application.
 
@@ -489,7 +489,7 @@ Estimate the portal decaying.
 
 View inventory and highlight portals with keys at any zoom. Can be used with the official plugins Keys and Keys on map to show the number of keys on the map.
 
-*Version:* 0.4.3
+*Version:* 0.4.4
 
 
   

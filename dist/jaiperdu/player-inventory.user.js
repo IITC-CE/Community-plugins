@@ -3,7 +3,7 @@
 // @author         jaiperdu
 // @name           Player Inventory
 // @category       Info
-// @version        0.4.3
+// @version        0.4.4
 // @description    View inventory and highlight portals with keys at any zoom. Can be used with the official plugins Keys and Keys on map to show the number of keys on the map.
 // @id             player-inventory@jaiperdu
 // @namespace      https://github.com/IITC-CE/ingress-intel-total-conversion
@@ -610,10 +610,11 @@ function injectKeys(data) {
 function portalKeyHighlight(data) {
   const guid = data.portal.options.guid;
   if (playerInventory.inventory.keys.has(guid)) {
+    const color = playerInventory.settings.highlightColor;
     // place holder
     if (data.portal.options.team !== window.TEAM_NONE && data.portal.options.level === 0) {
       data.portal.setStyle({
-        color: 'red',
+        color: color,
         weight: 2 * Math.sqrt(window.portalMarkerScale()),
         dashArray: '',
       });
@@ -623,8 +624,8 @@ function portalKeyHighlight(data) {
       !window.portalDetail.isFresh(guid)
     )
       // injected without intel data
-      data.portal.setStyle({ color: 'red', fillColor: 'gray' });
-    else data.portal.setStyle({ color: 'red' });
+      data.portal.setStyle({ color: color, fillColor: 'gray' });
+    else data.portal.setStyle({ color: color });
   }
 }
 
@@ -659,7 +660,7 @@ function exportToKeys() {
   window.plugin.keys.delaySync();
 }
 
-var css_248z = ".inventory-box .container {\n  width: max-content;\n}\n\n.inventory-box .ui-accordion-header {\n  color: #ffce00;\n  background: rgba(0, 0, 0, 0.7);\n}\n\n.inventory-box .ui-accordion-header,\n.inventory-box .ui-accordion-content {\n  border: 1px solid rgba(255, 255, 255, 0.2);\n  margin-top: -1px;\n  display: block;\n  line-height: 1.4rem;\n}\n\n.inventory-box .ui-accordion-header:before {\n  font-size: 18px;\n  margin-right: 2px;\n  content: '⊞';\n}\n\n.inventory-box .ui-accordion-header-active:before {\n  content: '⊟';\n}\n\n.inventory-box table {\n  width: 100%;\n}\n\n.inventory-box table tr {\n  background: rgba(0, 0, 0, 0.3);\n}\n\n.inventory-box table tr:nth-child(2n + 1) {\n  background: rgba(0, 0, 0, 0.6);\n}\n\n.inventory-box .sum tr th {\n  white-space: nowrap;\n  width: max-content;\n}\n\n.inventory-box .sum tr:nth-child(2n) th {\n  text-decoration: underline dotted;\n  font-weight: normal;\n}\n\n.inventory-box .sum tr {\n  text-align: center;\n}\n\n.inventory-box .all tr td:nth-child(2),\n.inventory-box .keys tr td:nth-child(2),\n.inventory-box .medias tr td:nth-child(2),\n.inventory-box .capsule tr td:nth-child(2) {\n  text-align: center;\n}\n\n.inventory-box .all tr td:last-child,\n.inventory-box .keys tr td:last-child,\n.inventory-box .medias tr td:last-child,\n.inventory-box .capsule tr td:last-child {\n  text-align: left;\n}\n\n.inventory-box .all tr td:first-child,\n.inventory-box .keys tr td:first-child,\n.inventory-box .medias tr td:first-child,\n.inventory-box .capsule tr td:first-child {\n  text-align: right;\n  width: 2em;\n}\n\n.inventory-box td {\n  padding-left: 0.3rem;\n  padding-right: 0.3rem;\n}\n\n.inventory-box .sum tr td span {\n  white-space: nowrap;\n}\n\n#dialog-inventory.inventory-box {\n  padding-right: 16px;\n}\n\n.inventory-box.mobile {\n  position: absolute;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n  overflow: auto;\n  padding: 0;\n}\n.inventory-box.mobile .container {\n  width: unset;\n}\n\n.inventory-box.mobile button {\n  width: 100%;\n}\n\n.inventory-box .edit-name-icon {\n  margin-top: -18px;\n  position: absolute;\n  right: 20px;\n}\n\n.inventory-box .edit-name-input {\n  display: none;\n  width: 100%;\n}\n\n/* popup */\n.inventory-keys {\n  width: max-content;\n}\n\n#dialog-inventory-opt .container {\n  display: grid;\n  grid-template-columns: auto auto;\n  grid-gap: 0.5em;\n}\n\n#dialog-inventory-opt button {\n  grid-column: 1/3;\n  padding: 0.3rem 1em;\n}\n\n#dialog-inventory-opt input {\n  margin-left: auto;\n  margin-top: auto;\n  margin-bottom: auto;\n}\n\n#dialog-inventory-names textarea.container {\n  width: 100%;\n  height: 100%;\n}\n\n#randdetails .inventory-details {\n  vertical-align: top;\n}\n";
+var css_248z = ".inventory-box .container {\n  width: max-content;\n}\n\n.inventory-box .ui-accordion-header {\n  color: #ffce00;\n  background: rgba(0, 0, 0, 0.7);\n}\n\n.inventory-box .ui-accordion-header,\n.inventory-box .ui-accordion-content {\n  border: 1px solid rgba(255, 255, 255, 0.2);\n  margin-top: -1px;\n  display: block;\n  line-height: 1.4rem;\n}\n\n.inventory-box .ui-accordion-header:before {\n  font-size: 18px;\n  margin-right: 2px;\n  content: '⊞';\n}\n\n.inventory-box .ui-accordion-header-active:before {\n  content: '⊟';\n}\n\n.inventory-box table {\n  width: 100%;\n}\n\n.inventory-box table tr {\n  background: rgba(0, 0, 0, 0.3);\n}\n\n.inventory-box table tr:nth-child(2n + 1) {\n  background: rgba(0, 0, 0, 0.6);\n}\n\n.inventory-box .sum tr th {\n  white-space: nowrap;\n  width: max-content;\n}\n\n.inventory-box .sum tr:nth-child(2n) th {\n  text-decoration: underline dotted;\n  font-weight: normal;\n}\n\n.inventory-box .sum tr {\n  text-align: center;\n}\n\n.inventory-box .all tr td:nth-child(2),\n.inventory-box .keys tr td:nth-child(2),\n.inventory-box .medias tr td:nth-child(2),\n.inventory-box .capsule tr td:nth-child(2) {\n  text-align: center;\n}\n\n.inventory-box .all tr td:last-child,\n.inventory-box .keys tr td:last-child,\n.inventory-box .medias tr td:last-child,\n.inventory-box .capsule tr td:last-child {\n  text-align: left;\n}\n\n.inventory-box .all tr td:first-child,\n.inventory-box .keys tr td:first-child,\n.inventory-box .medias tr td:first-child,\n.inventory-box .capsule tr td:first-child {\n  text-align: right;\n  width: 2em;\n}\n\n.inventory-box td {\n  padding-left: 0.3rem;\n  padding-right: 0.3rem;\n}\n\n.inventory-box .sum tr td span {\n  white-space: nowrap;\n}\n\n#dialog-inventory.inventory-box {\n  padding-right: 16px;\n}\n\n.inventory-box.mobile {\n  position: absolute;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n  overflow: auto;\n  padding: 0;\n}\n.inventory-box.mobile .container {\n  width: unset;\n}\n\n.inventory-box.mobile button {\n  width: 100%;\n}\n\n.inventory-box .edit-name-icon {\n  margin-top: -18px;\n  position: absolute;\n  right: 20px;\n}\n\n.inventory-box .edit-name-input {\n  display: none;\n  width: 100%;\n}\n\n/* popup */\n.inventory-keys {\n  width: max-content;\n}\n\n#dialog-inventory-opt .container {\n  display: grid;\n  grid-template-columns: auto auto;\n  grid-gap: 0.5em;\n}\n\n#dialog-inventory-opt button {\n  grid-column: 1/3;\n  padding: 0.3rem 1em;\n}\n\n#dialog-inventory-opt input {\n  margin-left: auto;\n  margin-top: auto;\n  margin-bottom: auto;\n}\n\n#dialog-inventory-opt input[type=color] {\n  height: 100%;\n}\n\n#dialog-inventory-names textarea.container {\n  width: 100%;\n  height: 100%;\n}\n\n#randdetails .inventory-details {\n  vertical-align: top;\n}\n";
 
 function shortenRarity(v) {
   return v.split('_').map(a => a[0]).join('');
@@ -1370,6 +1371,17 @@ function Options () {
         setupCSS();
         storeSettings(playerInventory.settings);
       }
+    }), jsx("label", {
+      children: "Highlighter Color"
+    }), jsx("input", {
+      type: "color",
+      value: playerInventory.settings.highlightColor,
+      onchange: ev => {
+        playerInventory.settings.highlightColor = ev.target.value || '#ff0000';
+        storeSettings(playerInventory.settings);
+        // @ts-ignore
+        window.resetHighlightedPortals();
+      }
     })]
   });
   return container;
@@ -1536,7 +1548,8 @@ function setup () {
     autoSyncKeys: false,
     keysSidebarEnable: false,
     capsuleNameMap: {},
-    lvlColorEnable: true
+    lvlColorEnable: true,
+    highlightColor: '#ff0000'
   };
   $.extend(playerInventory.settings, loadSettings());
   setupCSS();

@@ -3,11 +3,11 @@
 // @id              basemap-seznam@xificurk
 // @name            Seznam map tiles
 // @category        Map Tiles
-// @version         0.1.3.20200105.155450
+// @version         0.1.3.20221129.170632
 // @namespace       https://github.com/xificurk/iitc-plugins
 // @updateURL       https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/xificurk/basemap-seznam.meta.js
 // @downloadURL     https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/xificurk/basemap-seznam.user.js
-// @description     [xificurk-2020-01-05-155450] Seznam map tiles.
+// @description     [xificurk-2022-11-29-170632] Seznam map tiles.
 // @issueTracker    https://github.com/xificurk/iitc-plugins/issues
 // @homepageURL     https://github.com/xificurk/iitc-plugins
 // @include         https://intel.ingress.com/*
@@ -34,7 +34,7 @@ if(typeof window.plugin !== 'function') window.plugin = function() {};
 //PLUGIN AUTHORS: writing a plugin outside of the IITC build environment? if so, delete these lines!!
 //(leaving them in place might break the 'About IITC' page or break update checks)
 plugin_info.buildName = 'xificurk';
-plugin_info.dateTimeVersion = '20200105.155450';
+plugin_info.dateTimeVersion = '20221129.170632';
 plugin_info.pluginId = 'basemap-seznam';
 //END PLUGIN AUTHORS NOTE
 
@@ -45,14 +45,14 @@ plugin_info.pluginId = 'basemap-seznam';
 var setup = function() {
   var attribution = '<a href="https://mapy.cz"><img src="https://mapy.cz/img/logo-small.svg"/></a>© Seznam.cz,a.s, © Přispěvatelé <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>, © NASA';
 
-  var baseLayer = new L.TileLayer('https://m{s}.mapserver.mapy.cz/base-m/{z}-{x}-{y}.png', {
+  var baseLayer = new L.TileLayer('https://mapserver.mapy.cz/base-m/{z}-{x}-{y}.png', {
     attribution: attribution,
     subdomains: '1234',
     maxNativeZoom: 18,
     maxZoom: 22
   });
 
-  var hikingLayer = new L.TileLayer('https://m{s}.mapserver.mapy.cz/turist-m/{z}-{x}-{y}.png', {
+  var hikingLayer = new L.TileLayer('https://mapserver.mapy.cz/turist-m/{z}-{x}-{y}.png', {
     attribution: attribution,
     subdomains: '1234',
     maxNativeZoom: 18,

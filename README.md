@@ -499,9 +499,9 @@ View inventory and highlight portals with keys at any zoom. Can be used with the
 
 
 
-[2022-11-14-0010] Counts portals by level and faction inside polygons or search result.
+[2022-11-30-2310] Counts portals by level and faction inside polygons or search result.
 
-*Version:* 2.2.1.20221114.0010
+*Version:* 2.2.4.20221130.2310
 
 
   

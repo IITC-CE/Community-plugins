@@ -221,7 +221,7 @@ Hide all UI for screenshot.
 
 Saves the current enabled layers (base, overlays and hightlighter). Restore it just a click.
 
-*Version:* 0.1.2.20200216.174029
+*Version:* 0.1.3
 
 
   

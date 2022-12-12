@@ -1,2 +1,3 @@
 updateURL: https://softspot.nl/ingress/plugins/iitc-plugin-portals-list-addon.meta.js
 downloadURL: https://softspot.nl/ingress/plugins/iitc-plugin-portals-list-addon.user.js
+depends: portals-list@teo96

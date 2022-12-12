@@ -1,2 +1,3 @@
 updateURL: https://softspot.nl/ingress/plugins/iitc-plugin-bookmarks-addon.meta.js
 downloadURL: https://softspot.nl/ingress/plugins/iitc-plugin-bookmarks-addon.user.js
+depends: bookmarks@ZasoGD

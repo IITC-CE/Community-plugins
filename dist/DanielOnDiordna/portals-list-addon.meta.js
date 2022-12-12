@@ -8,6 +8,7 @@
 // @description    [danielondiordna-1.0.0.20221008.234100] Add-on to only display portals for visible/enabled layers, a fix for Unclaimed/Placeholder Portals, added level filters and load portal details.
 // @id             portals-list-addon@DanielOnDiordna
 // @namespace      https://softspot.nl/ingress/
+// @depends        portals-list@teo96
 // @match          https://intel.ingress.com/*
 // @grant          none
 // ==/UserScript==

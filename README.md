@@ -41,6 +41,7 @@ See the [Contributing](CONTRIBUTING.md) documentation.
 
 [danielondiordna-0.0.8.20210802.234100] Bookmark plugin add-on, to replace the default yellow marker by a color marker (color change requires colorpicker or drawtools), and show bookmark names (layer), including optional scaling. Modified export file with timestamp in text/plain format. Also an option for bookmarks export to kml file format (for google maps). Integrated Spectrum Colorpicker 1.8.1
 
+*Depends*: [bookmarks@ZasoGD](#)  |
 *Version:* 0.0.8.20210802.234100
 
 
@@ -53,6 +54,7 @@ See the [Contributing](CONTRIBUTING.md) documentation.
 
 [danielondiordna-1.1.1.20221027.234600] Add-on to add extra functionality for the missions plugin (up to version 0.3.0): 1: Optionally search for all missions within visible range, not just the top 25 (be aware: using this option will increase your server requests). 2: Sort the loaded missions by title (including roman numbers). 3: Show and remove stored missions. 4: Selected mission color changed to red. 5. Displayed missions show filled start portal. 6. Banner view for stored missions. 7. Transfer missions (export/import). 8. Missions routes layer can show a colorful path. 9. Redraw opened missions after IITC reloads.
 
+*Depends*: [missions@jonatkins](#)  |
 *Version:* 1.1.1.20221027.234600
 
 
@@ -77,6 +79,7 @@ See the [Contributing](CONTRIBUTING.md) documentation.
 
 [danielondiordna-1.0.0.20210724.002500] Change Pan Control to pan whole screens
 
+*Depends*: [pan-control@fragger](#)  |
 *Version:* 1.0.0.20210724.002500
 
 
@@ -89,6 +92,7 @@ See the [Contributing](CONTRIBUTING.md) documentation.
 
 [danielondiordna-1.0.2.20211011.231300] Add-on to the player tracker plugin: Adjust history limit of 3 hours to another value. Toggle name labels, last action time, toggle/adjust player colors, focus on players, display 1 single player. Integrated Marker Label plugin and Spectrum Colorpicker 1.8.1 plugin.
 
+*Depends*: [player-activity-tracker@breunigs](#)  |
 *Version:* 1.0.2.20211011.231300
 
 
@@ -101,6 +105,7 @@ See the [Contributing](CONTRIBUTING.md) documentation.
 
 [danielondiordna-1.0.0.20221008.234100] Add-on to only display portals for visible/enabled layers, a fix for Unclaimed/Placeholder Portals, added level filters and load portal details.
 
+*Depends*: [portals-list@teo96](#)  |
 *Version:* 1.0.0.20221008.234100
 
 
@@ -245,6 +250,8 @@ Saves the current enabled layers (base, overlays and hightlighter). Restore it j
 
 [danielondiordna-0.0.5.20210724.002500] Easily add or remove bookmarks for all portals within visible range per team. This plugin requires the Bookmarks plugin and optionally the Bookmarks add-on (to enable color bookmarks).
 
+*Depends*: [bookmarks@ZasoGD](#)  |
+*Recommends*: [bookmarks-add-on@danielondiordna](#)  |
 *Version:* 0.0.5.20210724.002500
 
 
@@ -287,6 +294,7 @@ Add an image to your map.
 
 Import KML/GPX/Geojson/TCX into DrawTools
 
+*Depends*: [draw-tools@breunigs](#)  |
 *Version:* 1.0.1
 
 
@@ -415,6 +423,7 @@ Estimate the portal decaying.
 
 Quickly replace one portal with another in Draw Tools
 
+*Depends*: [draw-tools@breunigs](#)  |
 *Version:* 1.0.7
 
 
@@ -501,6 +510,7 @@ View inventory and highlight portals with keys at any zoom. Can be used with the
 
 [2022-11-30-2310] Counts portals by level and faction inside polygons or search result.
 
+*Depends*: [draw-tools@breunigs](#)  |
 *Version:* 2.2.4.20221130.2310
 
 
@@ -570,7 +580,7 @@ Exports portals in the format for http://www.ingress-maxfield.com/ and allow dir
   
 ### [Ingress Portal CSV Export](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/zetaphor/ingress_export.user.js) by Zetaphor
 
-
+**Anti-features:** **[scraper](/CONTRIBUTING.md#anti-features)** **[export](/CONTRIBUTING.md#anti-features)** 
 
 
 
@@ -615,6 +625,7 @@ Simulate the destruction of portal links: hide its links and fields.
 
 Edit and improve Draw tools.
 
+*Depends*: [draw-tools@breunigs](#)  |
 *Version:* 0.1.10.20210103.185428
 
 
@@ -820,12 +831,13 @@ Shows under field throw range at 500m
   
 ### [Unique Portal History](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/uniqueportalhistory.user.js) by DanielOnDiordna
 
-
+**Anti-features:** **[scraper](/CONTRIBUTING.md#anti-features)** 
 
 
 
 [danielondiordna-2.1.0.20220711.235400] Show your personal unique portal history for Visited, Captured or Scout Controlled portals with layers. Choose your own colors. Place bookmarks. Invert results! Add three extra Portals List plugin columns. Requires CORE subscription.
 
+*Depends*: [portalhistorysupport@DanielOnDiordna](#portal-history-support-for-all-iitc-versions-(with-cache)-by-danielondiordna)  |
 *Version:* 2.1.0.20220711.235400
 
 
@@ -868,6 +880,7 @@ Place markers on the map for your candidates in Wayfarer.
 
 Create link prolongations.
 
+*Recommends*: [draw-tools@breunigs](#) [draw-tools-plus@zaso](#) [bookmarks@ZasoGD](#) [font-awesome@zaso](#)  |
 *Version:* 0.1.1.20200216.174029
 
 
@@ -948,6 +961,7 @@ GL layer
 
 Advanced version of Player Tracker
 
+*Depends*: [player-activity-tracker@breunigs](#)  |
 *Version:* 0.0.1
 
 
@@ -1323,7 +1337,7 @@ Append a pocket box containing some restricted details of the selected portal.
   
 ### [See More](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/see-more.user.js) by DanielOnDiordna
 
-
+**Anti-features:** **[highLoad](/CONTRIBUTING.md#anti-features)** 
 
 
 
@@ -1347,7 +1361,7 @@ Append a pocket box containing some restricted details of the selected portal.
   
 ### [Zoom Override](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/zoom-override.user.js) by DanielOnDiordna
 
-
+**Anti-features:** **[highLoad](/CONTRIBUTING.md#anti-features)** 
 
 
 

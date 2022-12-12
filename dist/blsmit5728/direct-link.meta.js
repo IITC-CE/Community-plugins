@@ -8,6 +8,7 @@
 // @downloadURL    https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/blsmit5728/direct-link.user.js
 // @description    Direct Link
 // @runAt          document-start
+// @category       Misc
 // @match          *://*.ingress.com/intel*
 // @match          *://*.ingress.com/mission/*
 // @match          *://mission-author-dot-betaspike.appspot.com/*

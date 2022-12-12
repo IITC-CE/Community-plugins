@@ -8,6 +8,7 @@
 // @namespace      https://github.com/IITC-CE/ingress-intel-total-conversion
 // @downloadURL    https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Zaso/link-prolongation.user.js
 // @updateURL      https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Zaso/link-prolongation.meta.js
+// @recommends     draw-tools@breunigs|draw-tools-plus@zaso|bookmarks@ZasoGD|font-awesome@zaso
 // @match          https://intel.ingress.com/*
 // @grant          none
 // ==/UserScript==

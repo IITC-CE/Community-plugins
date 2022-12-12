@@ -7,6 +7,7 @@
 // @version        1.0.7
 // @updateURL      https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Loskir/dt-replace-portal.meta.js
 // @downloadURL    https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Loskir/dt-replace-portal.user.js
+// @depends        draw-tools@breunigs
 // @match          https://intel.ingress.com/*
 // @grant          none
 // ==/UserScript==

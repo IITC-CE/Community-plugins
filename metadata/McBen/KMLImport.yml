@@ -1,2 +1,3 @@
 updateURL: https://github.com/McBen/IITCPlugin_KMLImport/raw/main/dist/iitc_plugin_KMLImport.meta.js
 downloadURL: https://github.com/McBen/IITCPlugin_KMLImport/raw/main/dist/iitc_plugin_KMLImport.user.js
+depends: draw-tools@breunigs

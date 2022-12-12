@@ -1,2 +1,3 @@
 updateURL: https://softspot.nl/ingress/plugins/iitc-plugin-pan-control-add-on.meta.js
 downloadURL: https://softspot.nl/ingress/plugins/iitc-plugin-pan-control-add-on.user.js
+depends: pan-control@fragger

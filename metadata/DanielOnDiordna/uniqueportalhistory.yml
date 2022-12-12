@@ -1,2 +1,5 @@
 updateURL: https://softspot.nl/ingress/plugins/iitc-plugin-uniqueportalhistory.meta.js
 downloadURL: https://softspot.nl/ingress/plugins/iitc-plugin-uniqueportalhistory.user.js
+depends: portalhistorysupport@DanielOnDiordna
+antiFeatures:
+  - scraper

@@ -1,2 +1,3 @@
 updateURL: https://softspot.nl/ingress/plugins/iitc-plugin-player-tracker-addon.meta.js
 downloadURL: https://softspot.nl/ingress/plugins/iitc-plugin-player-tracker-addon.user.js
+depends: player-activity-tracker@breunigs

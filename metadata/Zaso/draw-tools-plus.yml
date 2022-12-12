@@ -1,2 +1,3 @@
 updateURL: https://github.com/MysticJay/ZasoItems.CE/raw/master/draw-tools-plus.user.js
 downloadURL: https://github.com/MysticJay/ZasoItems.CE/raw/master/draw-tools-plus.user.js
+depends: draw-tools@breunigs

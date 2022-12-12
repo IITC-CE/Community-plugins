@@ -1,2 +1,4 @@
 updateURL: https://softspot.nl/ingress/plugins/iitc-plugin-see-more.meta.js
 downloadURL: https://softspot.nl/ingress/plugins/iitc-plugin-see-more.user.js
+antiFeatures:
+  - highLoad

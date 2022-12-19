@@ -226,7 +226,7 @@ Hide all UI for screenshot.
 
 Saves the current enabled layers (base, overlays and hightlighter). Restore it just a click.
 
-*Version:* 0.1.3
+*Version:* 0.1.4
 
 
   
@@ -881,7 +881,7 @@ Place markers on the map for your candidates in Wayfarer.
 Create link prolongations.
 
 *Recommends*: [draw-tools@breunigs](#) [draw-tools-plus@zaso](#) [bookmarks@ZasoGD](#) [font-awesome@zaso](#)  |
-*Version:* 0.1.1.20200216.174029
+*Version:* 0.1.2
 
 
   

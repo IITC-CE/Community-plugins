@@ -1,7 +1,7 @@
 // ==UserScript==
 // @author         @Chyld314 @DanielOndiordna
 // @name           IMATTC
-// @version        1.12.2.20220808.203900
+// @version        1.12.3.20230108.203000
 // @updateURL      https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/imattc.meta.js
 // @downloadURL    https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/imattc.user.js
 // @description    Ingress Mission Authoring Tool Total Conversion, adding categories for missions, show banner preview, export json, download images, and more.
@@ -19,9 +19,12 @@
 // removed from the Tampermonkey headers:
 // @require      https://code.jquery.com/ui/1.10.4/jquery-ui.min.js
 
-var imattcversion = "1.12.2.20220808.203900";
+var imattcversion = "1.12.3.20230108.203000";
 var changelog = `
 Changelog:
+
+version 1.12.3.20230108.203000
+- fixed Preview Images rows when using browser zoom
 
 version 1.12.2.20220808.203900
 - fixed category selector for new missions to remember category title instead of index
@@ -202,7 +205,15 @@ Latest updates by DanielOndiordna: https://softspot.nl/ingress/#iitc-plugin-imat
     + ".banner-preview .modal-body {background-color: #222;}"
     + ".banner-preview .row {display: flex; flex-direction: row-reverse; flex-wrap:wrap-reverse!important}"
 //  + ".banner-preview img {border-radius: 50%;border: 3px solid goldenrod;}"
-    + ".banner-preview .col-xs-2 {padding-bottom: 8px;}";
+    + ".banner-preview .col-xs-2 {padding-bottom: 8px;}"
+    + `
+    .editor .footer-buttons {
+        position: absolute;
+        bottom: 10px;
+        right: 20px;
+    }
+    `;
+
 
     newCssRules += ".mission-list-item-published {background-image: none; background: #001a00; border-color: darkgreen;color: lightgreen;}"
         + ".list .mission .mission-title-published {color: lightgreen;}"
@@ -1097,6 +1108,8 @@ function init() {
                 checkboxmovebuttoncount.parentElement.disabled = (checkedcount == 0);
             }
         };
+        missionScope.submitCheckedMissions = function() {
+        };
         missionScope.clickButton2CheckedMissions = function(missionListState) {
             let buttontitle = missionScope.missionListStates[missionListState].BUTTON2.title;
             let missionguids = [...document.querySelectorAll('.dropup .checkboxesDisplayed:checked')].filter((el)=>{return el.parentElement.querySelector('a[ng-click^=button2Clicked]').innerText == buttontitle;}).map((el)=>{return parseInt(el.parentElement.querySelector('a[ng-click^=button2Clicked]').getAttribute('ng-click').match(/missions\[(\d+)\]/)[1]);}).map((num)=>{return missionScope.missions[num].mission_guid});
@@ -1608,7 +1621,7 @@ function init() {
                             }
                             bannerelements = bannerelements.join('');
                             bannerModal += `
-<div style="width: 818px; transform: scale(1); border: 1px solid #5afbea; margin: 0 auto;">
+<div style="width: 818px; transform: scale(1); outline: 1px solid #5afbea; margin: 0 auto;">
 <div style="position: absolute; top: 0; left: 0; height: 100%; width: 100%; pointer-events: none; background: url(${smallmask}) left top; background-size: 136px;"></div>
 <div style="background-color: black; display: inline-block; line-height: 0;">${bannerelements}</div>
 </div>`;
@@ -1805,6 +1818,7 @@ function init() {
                 for (let id in missionScope.missionListStates) {
                     buttonContent += "<button ng-click='clickButton2CheckedMissions(\"" + id + "\")' data-toggle='modal' class='checkboxedmissionsbutton' style='display: none' title='" + missionScope.missionListStates[id].BUTTON2.description + "'>" + missionScope.missionListStates[id].BUTTON2.title + "<span class=\"" + id + "\"></span>...</button>";
                 }
+                buttonContent += "<button ng-click='submitCheckedMissions()' data-toggle='modal' class='checkboxedmissionsbutton' style='display: none' title='Submit mission'>Submit<span class=\"SUBMIT\"></span>...</button>";
 
                 //tally up available missions, and missions in draft states
                 var draftMissions = w.$filter('filter')(missionScope.missions, {missionListState: "DRAFT"}, true).length;

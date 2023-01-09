@@ -2,10 +2,10 @@
 // @author         DanielOnDiordna
 // @name           Maps Route Planner
 // @category       Navigate
-// @version        2.0.1.20220516.085200
+// @version        2.1.0.20230108.201200
 // @updateURL      https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/maps-route-planner.meta.js
 // @downloadURL    https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/maps-route-planner.user.js
-// @description    [danielondiordna-2.0.1.20220516.085200] Plan a route with multiple portals (max 9 waypoints) and open Google Maps to start your navigation.
+// @description    [danielondiordna-2.1.0.20230108.201200] Plan a route with multiple portals (max 9 waypoints) and open Google Maps to start your navigation.
 // @id             maps-route-planner@DanielOnDiordna
 // @namespace      https://softspot.nl/ingress/
 // @homepageURL    https://softspot.nl/ingress/plugins/documentation/iitc-plugin-maps-route-planner.user.js.html
@@ -23,10 +23,13 @@ function wrapper(plugin_info) {
     var self = window.plugin.mapsrouteplanner;
     self.id = 'mapsrouteplanner';
     self.title = 'Maps Route Planner';
-    self.version = '2.0.1.20220516.085200';
+    self.version = '2.1.0.20230108.201200';
     self.author = 'DanielOnDiordna';
     self.changelog = `
 Changelog:
+
+version 2.1.0.20230108.201200
+- maps button will now setup a route to a single portal when no route is planned
 
 version 2.0.1.20220516.085200
 - modified file export format from application/json to text/plain
@@ -266,6 +269,10 @@ version 1.0.0.20220407.231800
         let latlngwaypoints = [];
         for (let guid in self.waypoints) {
             let latlng = self.waypoints[guid].latlng;
+            latlngwaypoints.push(latlng.lat + "," + latlng.lng);
+        }
+        if (!latlngwaypoints.length && window.selectedPortal) {
+            let latlng = window.portals[window.selectedPortal].getLatLng();
             latlngwaypoints.push(latlng.lat + "," + latlng.lng);
         }
         if (latlngwaypoints.length > 0) {
@@ -515,7 +522,7 @@ version 1.0.0.20220407.231800
             }
         });
         $("input[name=" + self.id + "-import-button]").on('click', function (evt) {
-            window.L.FileListLoader.loadFiles({accept:'text/*,application/json'}) // application/json
+            window.L.FileListLoader.loadFiles({accept:'application/json,text/plain'}) // application/json
                 .on('load',function (e) {
                 try {
                     self.import(e.reader.result);

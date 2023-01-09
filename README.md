@@ -1225,7 +1225,7 @@ Add a To Do List.
 
 Ingress Mission Authoring Tool Total Conversion, adding categories for missions, show banner preview, export json, download images, and more.
 
-*Version:* 1.12.2.20220808.203900
+*Version:* 1.12.3.20230108.203000
 
 
   
@@ -1238,10 +1238,10 @@ Ingress Mission Authoring Tool Total Conversion, adding categories for missions,
 
 
 
-[danielondiordna-2.0.1.20220516.085200] Plan a route with multiple portals (max 9 waypoints) and open Google Maps to start your navigation.
+[danielondiordna-2.1.0.20230108.201200] Plan a route with multiple portals (max 9 waypoints) and open Google Maps to start your navigation.
 
 *[Homepage](https://softspot.nl/ingress/plugins/documentation/iitc-plugin-maps-route-planner.user.js.html)* |
-*Version:* 2.0.1.20220516.085200
+*Version:* 2.1.0.20230108.201200
 
 
   

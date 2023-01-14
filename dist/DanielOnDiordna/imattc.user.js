@@ -1,7 +1,7 @@
 // ==UserScript==
 // @author         @Chyld314 @DanielOndiordna
 // @name           IMATTC
-// @version        1.12.3.20230108.203000
+// @version        1.12.4.20230113.110500
 // @updateURL      https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/imattc.meta.js
 // @downloadURL    https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/imattc.user.js
 // @description    Ingress Mission Authoring Tool Total Conversion, adding categories for missions, show banner preview, export json, download images, and more.
@@ -19,9 +19,12 @@
 // removed from the Tampermonkey headers:
 // @require      https://code.jquery.com/ui/1.10.4/jquery-ui.min.js
 
-var imattcversion = "1.12.3.20230108.203000";
+var imattcversion = "1.12.4.20230113.110500";
 var changelog = `
 Changelog:
+
+version 1.12.4.20230113.110500
+- hide the not-working submit button displayed with the checkboxes buttons (not implemented yet)
 
 version 1.12.3.20230108.203000
 - fixed Preview Images rows when using browser zoom
@@ -1818,7 +1821,7 @@ function init() {
                 for (let id in missionScope.missionListStates) {
                     buttonContent += "<button ng-click='clickButton2CheckedMissions(\"" + id + "\")' data-toggle='modal' class='checkboxedmissionsbutton' style='display: none' title='" + missionScope.missionListStates[id].BUTTON2.description + "'>" + missionScope.missionListStates[id].BUTTON2.title + "<span class=\"" + id + "\"></span>...</button>";
                 }
-                buttonContent += "<button ng-click='submitCheckedMissions()' data-toggle='modal' class='checkboxedmissionsbutton' style='display: none' title='Submit mission'>Submit<span class=\"SUBMIT\"></span>...</button>";
+                // buttonContent += "<button ng-click='submitCheckedMissions()' data-toggle='modal' class='checkboxedmissionsbutton' style='display: none' title='Submit mission'>Submit<span class=\"SUBMIT\"></span>...</button>";
 
                 //tally up available missions, and missions in draft states
                 var draftMissions = w.$filter('filter')(missionScope.missions, {missionListState: "DRAFT"}, true).length;

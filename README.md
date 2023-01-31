@@ -942,11 +942,11 @@ GL layer
 
 
 
-[xificurk-2022-11-29-170632] Seznam map tiles.
+[xificurk-2023-01-30-201555] Seznam map tiles.
 
 *[Homepage](https://github.com/xificurk/iitc-plugins)* |
 *[Issue tracker](https://github.com/xificurk/iitc-plugins/issues)* |
-*Version:* 0.1.3.20221129.170632
+*Version:* 0.2.0.20230130.201555
 
 
   

@@ -356,11 +356,11 @@ Use the portal fill color to denote if the portal needs recharging and how much.
 
 ![preview](https://raw.githubusercontent.com/xificurk/iitc-plugins/master/images/portal-highlighter-uniques-opacity.png)
 
-[xificurk-2021-02-07-174711] Use stroke and fill opacity to denote player&#39;s unique visits and captures. Requires uniques plugin.
+[xificurk-2023-03-04-150308] Use stroke and fill opacity to denote player&#39;s unique visits and captures. Requires uniques plugin.
 
 *[Homepage](https://github.com/xificurk/iitc-plugins)* |
 *[Issue tracker](https://github.com/xificurk/iitc-plugins/issues)* |
-*Version:* 0.2.1.20210207.174711
+*Version:* 0.2.1.20230304.150308
 
 
   

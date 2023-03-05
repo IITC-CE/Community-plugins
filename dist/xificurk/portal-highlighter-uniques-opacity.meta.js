@@ -3,11 +3,11 @@
 // @id              portal-highlighter-uniques-opacity@xificurk
 // @name            Highlight unique visits/captures using opacity
 // @category        Highlighter
-// @version         0.2.1.20210207.174711
+// @version         0.2.1.20230304.150308
 // @namespace       https://github.com/xificurk/iitc-plugins
 // @updateURL       https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/xificurk/portal-highlighter-uniques-opacity.meta.js
 // @downloadURL     https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/xificurk/portal-highlighter-uniques-opacity.user.js
-// @description     [xificurk-2021-02-07-174711] Use stroke and fill opacity to denote player's unique visits and captures. Requires uniques plugin.
+// @description     [xificurk-2023-03-04-150308] Use stroke and fill opacity to denote player's unique visits and captures. Requires uniques plugin.
 // @issueTracker    https://github.com/xificurk/iitc-plugins/issues
 // @homepageURL     https://github.com/xificurk/iitc-plugins
 // @preview         https://raw.githubusercontent.com/xificurk/iitc-plugins/master/images/portal-highlighter-uniques-opacity.png

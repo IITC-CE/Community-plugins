@@ -511,7 +511,7 @@ View inventory and highlight portals with keys at any zoom. Can be used with the
 [2022-11-30-2310] Counts portals by level and faction inside polygons or search result.
 
 *Depends*: [draw-tools@breunigs](#)  |
-*Version:* 2.2.4.20221130.2310
+*Version:* 2.2.5.20221130.2310
 
 
   

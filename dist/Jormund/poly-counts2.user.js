@@ -3,7 +3,7 @@
 // @id             poly-counts2@Jormund
 // @name           Poly Counts 2
 // @category       Info
-// @version        2.2.4.20221130.2310
+// @version        2.2.5.20221130.2310
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Jormund/poly-counts2.meta.js
 // @downloadURL    https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Jormund/poly-counts2.user.js
@@ -18,6 +18,7 @@
 //improvements on carb.poly-counts.user.js
 
 //Changelog
+//2.2.5 Try fixing autoupdate
 //2.2.4 Fix missing total for Machina and total in title
 //2.2.3 Fix name was changed from TEAM_MACHINA to TEAM_MAC
 //2.2.2 Fix backward compatibility with IITC without TEAM_MACHINA

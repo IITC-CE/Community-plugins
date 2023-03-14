@@ -1238,10 +1238,10 @@ Ingress Mission Authoring Tool Total Conversion, adding categories for missions,
 
 
 
-[danielondiordna-2.1.0.20230108.201200] Plan a route with multiple portals (max 9 waypoints) and open Google Maps to start your navigation.
+[danielondiordna-2.1.1.20230307.232000] Plan a route with multiple portals (max 9 waypoints) and open Google Maps to start your navigation.
 
 *[Homepage](https://softspot.nl/ingress/plugins/documentation/iitc-plugin-maps-route-planner.user.js.html)* |
-*Version:* 2.1.0.20230108.201200
+*Version:* 2.1.1.20230307.232000
 
 
   

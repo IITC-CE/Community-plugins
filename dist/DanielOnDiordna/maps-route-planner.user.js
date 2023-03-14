@@ -2,10 +2,10 @@
 // @author         DanielOnDiordna
 // @name           Maps Route Planner
 // @category       Navigate
-// @version        2.1.0.20230108.201200
+// @version        2.1.1.20230307.232000
 // @updateURL      https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/maps-route-planner.meta.js
 // @downloadURL    https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/maps-route-planner.user.js
-// @description    [danielondiordna-2.1.0.20230108.201200] Plan a route with multiple portals (max 9 waypoints) and open Google Maps to start your navigation.
+// @description    [danielondiordna-2.1.1.20230307.232000] Plan a route with multiple portals (max 9 waypoints) and open Google Maps to start your navigation.
 // @id             maps-route-planner@DanielOnDiordna
 // @namespace      https://softspot.nl/ingress/
 // @homepageURL    https://softspot.nl/ingress/plugins/documentation/iitc-plugin-maps-route-planner.user.js.html
@@ -23,10 +23,13 @@ function wrapper(plugin_info) {
     var self = window.plugin.mapsrouteplanner;
     self.id = 'mapsrouteplanner';
     self.title = 'Maps Route Planner';
-    self.version = '2.1.0.20230108.201200';
+    self.version = '2.1.1.20230307.232000';
     self.author = 'DanielOnDiordna';
     self.changelog = `
 Changelog:
+
+version 2.1.1.20230307.232000
+- fixed storing origin setting
 
 version 2.1.0.20230108.201200
 - maps button will now setup a route to a single portal when no route is planned
@@ -656,6 +659,7 @@ version 1.0.0.20220407.231800
         container.querySelector("input[name=" + self.id + "-origin-radio][value='" + self.settings.origin + "']").checked = true;
         $("input[name=" + self.id + "-origin-radio]").on('click', function (evt) {
             self.settings.origin = this.value;
+            self.storesettings();
             self.updateMenu();
         });
         $("input[name=" + self.id + "-zoom-button]").on('click', function (evt) {

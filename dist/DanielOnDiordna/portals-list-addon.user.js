@@ -2,10 +2,10 @@
 // @author         DanielOnDiordna
 // @name           Portals list add-on
 // @category       Addon
-// @version        1.0.0.20221008.234100
+// @version        1.1.0.20230321.232000
 // @updateURL      https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/portals-list-addon.meta.js
 // @downloadURL    https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/portals-list-addon.user.js
-// @description    [danielondiordna-1.0.0.20221008.234100] Add-on to only display portals for visible/enabled layers, a fix for Unclaimed/Placeholder Portals, added level filters and load portal details.
+// @description    [danielondiordna-1.1.0.20230321.232000] Add-on to only display portals for visible/enabled layers, a fix for Unclaimed/Placeholder Portals, added level filters and load portal details.
 // @id             portals-list-addon@DanielOnDiordna
 // @namespace      https://softspot.nl/ingress/
 // @depends        portals-list@teo96
@@ -23,18 +23,27 @@ function wrapper(plugin_info) {
     var self = window.plugin.portalslistAddon;
     self.id = 'portalslistAddon';
     self.title = 'Portals list add-on';
-    self.version = '1.0.0.20221008.234100';
+    self.version = '1.1.0.20230321.232000';
     self.author = 'DanielOnDiordna';
     self.changelog = `
 Changelog:
 
-version 1.0.0.20221008.234100
+version 1.1.0.20230321.232000
+- added Machina support when loading details
+- added updating faction totals when loading details
+- added updating history totals when loading details for Portals list version 0.4.0
+- added updating level selectors when loading details
+- improved continue loading details on failures
+- fixed the footnotes dialog
+
+version 1.0.0.20221010.154100
 - reversed the changelog order
 - fixed the neutral portals layer detection
 - added error checking when replacing strings
 - added error checking when running the eval
 - fixed load details button by replacing display hidden with display none
 - fixed support for stock plugin Portals list version 0.4.0
+- moved the footnotes into a dialog
 
 version 0.0.7.20210724.002500
 - prevent double plugin setup on hook iitcLoaded
@@ -81,10 +90,12 @@ version 0.0.1.20191114.115600
     self.reslayername = 'Resistance';
     self.levellayername = 'Level '; // Value will be retreived from window.setupMap
     self.portallayername = ' Portals'; // Value will be retreived from window.setupMap
+    self.machinaname = 'U̶͚̓̍N̴̖̈K̠͔̍͑̂͜N̞̥͋̀̉Ȯ̶̹͕̀W̶̢͚͑̚͝Ṉ̨̟̒̅ ';
 
     self.portaldetails = {};
     self.requestlist = {};
     self.requestid = undefined;
+    self.requestmaxretries = 3;
 
     self.ownercolor = 'black';
     self.shortmodnames =
@@ -111,29 +122,29 @@ version 0.0.1.20191114.115600
     self.filterreversed = false;
 
     self.gettotalshielding = function(guid,htmlformatting) {
-        if (!self.portaldetails[guid]) return (htmlformatting?(window.portals[guid] && window.portals[guid].options.team != TEAM_NONE ? 'unknown' : ''):-1);
-        var details = self.portaldetails[guid];
-        var linkInfo = window.getPortalLinks(guid);
-        var linkCount = linkInfo.in.length + linkInfo.out.length;
-        var mitigationDetails = window.getPortalMitigationDetails(details,linkCount);
-        var totalshielding = mitigationDetails.shields + mitigationDetails.links;
-        return totalshielding;
+        if (!self.portaldetails[guid]) return (htmlformatting?(window.portals[guid] && (self.isMachinaPortal(window.portals[guid]) || window.portals[guid].options.team != window.TEAM_NONE) ? 'unknown' : ''):-1);
+        let details = self.portaldetails[guid];
+        let linkInfo = window.getPortalLinks(guid);
+        let linkCount = linkInfo.in.length + linkInfo.out.length;
+        let mitigationDetails = window.getPortalMitigationDetails(details,linkCount);
+        let totalshielding = mitigationDetails.shields + mitigationDetails.links;
+        return Math.round(totalshielding);
     };
 
     self.getresonatorstring = function(guid,htmlformatting,highlightowner) {
-        if (!self.portaldetails[guid]) return (self.requestlist[guid]?'(loading)':(window.portals[guid] && window.portals[guid].options.team != TEAM_NONE ? '(unknown)' : '--------') );
+        if (!self.portaldetails[guid]) return (self.requestlist[guid]?'(loading)':(window.portals[guid] && (self.isMachinaPortal(window.portals[guid]) || window.portals[guid].options.team != window.TEAM_NONE) ? '(unknown)' : '--------') );
 
         if (!highlightowner) highlightowner = window.PLAYER.nickname;
-        var resonators = self.portaldetails[guid].resonators;
-        var portalowner = self.getportalowner(guid);
+        let resonators = self.portaldetails[guid].resonators;
+        let portalowner = self.getportalowner(guid);
 
         resonators = resonators.sort(function(b,a) {return (a.level + a.owner > b.level + b.owner) ? 1 : ((b.level + b.owner > a.level + a.owner) ? -1 : 0);}); // sort by resonator level resonator[owner,level]
 
-        var resolist = [];
+        let resolist = [];
         for (let cnt=0; cnt<8; cnt++) {
-            var resonator = '-';
+            let resonator = '-';
             if (cnt < resonators.length && resonators[cnt]) {
-                //var nrg = parseInt(resonators[cnt].energy);
+                //let nrg = parseInt(resonators[cnt].energy);
                 resonator = parseInt(resonators[cnt].level); // level
                 let resonatorowner = resonators[cnt].owner;
                 if (htmlformatting) {
@@ -151,14 +162,14 @@ version 0.0.1.20191114.115600
     };
 
     self.getmodstring = function(guid,htmlformatting,highlightowner) {
-        if (!self.portaldetails[guid]) return (self.requestlist[guid]?'(loading)':(window.portals[guid] && window.portals[guid].options.team != TEAM_NONE ? '(unknown)' : ''));
+        if (!self.portaldetails[guid]) return (self.requestlist[guid]?'(loading)':(window.portals[guid] && (self.isMachinaPortal(window.portals[guid]) || window.portals[guid].options.team != window.TEAM_NONE) ? '(unknown)' : ''));
 
         if (!highlightowner) highlightowner = window.PLAYER.nickname;
-        var mods = self.portaldetails[guid].mods;
+        let mods = self.portaldetails[guid].mods;
         if (mods.length === 0) return '(empty)';
-        var portalowner = self.getportalowner(guid);
+        let portalowner = self.getportalowner(guid);
 
-        var modslist = [];
+        let modslist = [];
         for (let cnt=0; cnt<4; cnt++) {
             let mod = '';
             if (cnt < mods.length && mods[cnt]) {
@@ -179,57 +190,124 @@ version 0.0.1.20191114.115600
         return modslist.join(' ');
     };
 
-    self.getportalowner = function(guid,htmlformatting,highlightowner) {
-        if (!self.portaldetails[guid]) return (self.requestlist[guid]?'(loading)':(window.portals[guid] && window.portals[guid].options.team != TEAM_NONE ? '(unknown)' : '-'));
+    self.getportalowner = function(guid) {
+        if (guid in window.portals) {
+            if (self.isMachinaPortal(window.portals[guid])) return self.machinaname;
+            if (window.portals[guid].options.team == window.TEAM_NONE) return '-';
+        }
 
-        var owner = self.portaldetails[guid].owner;
-        if (!htmlformatting) return owner;
+        return self.portaldetails[guid]?.owner || window.portals[guid]?.options?.data.owner || 'unknown';
+    };
 
-        if (!highlightowner) highlightowner = window.PLAYER.nickname;
+    self.getportalownerhtml = function(guid) {
+        if (guid in self.requestlist) return (guid in self.portaldetails ? '(updating)' : '(loading)');
+        if (guid in window.portals && self.isMachinaPortal(window.portals[guid])) return self.machinaname;
 
-        owner = '<span' + (owner === highlightowner?' style="color:' + self.ownercolor + '"':'') + (self.requestlist[guid]?' title="(updating)"':'') + '>' + owner + '</span>';
-        if (self.requestlist[guid]) owner = '<i>' + owner + '</i>';
+        if (!(guid in self.portaldetails)) return (window.portals[guid] && window.portals[guid].options.team != window.TEAM_NONE ? '(unknown)' : '-');
+
+        let owner = self.portaldetails[guid].owner || '-'; // use - if unknown
+        if (owner === window.PLAYER.nickname) owner = `<span style="color:${self.ownercolor}">${owner}</span>`;
         return owner;
+    };
+
+    self.isMachinaPortal = function(portal) {
+        if (!portal?.options) return false;
+        if (portal.options.team == window.TEAM_ENL || portal.options.team == window.TEAM_RES) return false;
+        if (portal.options.data.resCount > 0) return true;
+        if (portal.options.data.resCount === 0) return false;
+        // only if resCount is undefined, check all links for matching origin or destination match
+
+        // Be aware: a placeholder portal is allways drawn before the link is drawn, so most of the time there is no link yet to check for a match, unless the portal has multiple links
+        let portallatlng = portal.getLatLng();
+        let machinalinkplaceholderfound = false;
+        for (let id in window.links) {
+            let link = window.links[id];
+            if (portal.options.guid == link.options.data.oGuid || portal.options.guid == link.options.data.dGuid) {
+                machinalinkplaceholderfound = true;
+                break;
+            }
+        }
+        return machinalinkplaceholderfound;
     };
 
     self.loaddetails = function() {
         self.requestlist = {};
 
-        // create guid list of visible portal rows
-        for (let cnt = 2; cnt < $('#portalslist TR').length; cnt++) {
-            let guid = $('#portalslist TR:eq(' + cnt + ')').attr('guid');
-            if (guid && !self.portaldetails[guid] && (!(guid in window.portals) || window.portals[guid] && window.portals[guid].options.team != window.TEAM_NONE)) {
-                self.requestlist[guid] = window.portals[guid];
+        // parse guid list of visible portal rows
+        let skipped = {};
+        let neutral = {};
+        for (const guid of [...document.querySelectorAll('#portalslist TR[guid]')].map((el)=>{return el.getAttribute('guid');})) {
+            if (guid in self.portaldetails) {
+                skipped[guid] = self.requestmaxretries;
+            } else if (!(guid in window.portals) || guid in window.portals && (self.isMachinaPortal(window.portals[guid]) || window.portals[guid]?.options.team == window.TEAM_ENL || window.portals[guid]?.options.team == window.TEAM_RES)) {
+                // add only if not already loaded, and not in portals, or in portals and not team_none
+                self.requestlist[guid] = self.requestmaxretries;
+                self.updatePortalsListRow(guid);
+            } else {
+                neutral[guid] = self.requestmaxretries;
             }
         }
 
-        // update portal list
-        for (let cnt = 0; cnt < window.plugin.portalslist.listPortals.length; cnt++) {
-            let guid = window.plugin.portalslist.listPortals[cnt].portal.options.guid;
-            if (self.requestlist[guid]) {
-                window.plugin.portalslist.listPortals[cnt] = self.getPortalObj(guid);
+        if (Object.keys(self.requestlist).length == 0 && Object.keys(neutral).length == 0 && Object.keys(skipped).length > 0) {
+            if (confirm('All details already loaded. Do you want to reload all details again?')) {
+                neutral = {};
+                for (let guid in skipped) {
+                    if (!(guid in window.portals) || guid in window.portals && (self.isMachinaPortal(window.portals[guid]) || window.portals[guid]?.options.team == window.TEAM_ENL || window.portals[guid]?.options.team == window.TEAM_RES)) {
+                        // add only if not already loaded, and not in portals, or in portals and not team_none
+                        self.requestlist[guid] = self.requestmaxretries;
+                        self.updatePortalsListRow(guid);
+                    } else {
+                        neutral[guid] = self.requestmaxretries;
+                    }
+                }
             }
         }
 
-        // update list:
-        $('#portalslist').empty().append(window.plugin.portalslist.portalTable(window.plugin.portalslist.sortBy, window.plugin.portalslist.sortOrder, window.plugin.portalslist.filter, self.filterreversed));
+        self.requestlist = {...self.requestlist,...neutral}; // handle all neutral last
+        for (let guid in neutral) {
+            self.updatePortalsListRow(guid);
+        }
 
         self.requestid = undefined;
-        self.loadnext();
+        setTimeout(self.loadnext);
     };
 
     self.stoploaddetails = function() {
-        // update portal list
-        for (let cnt = 0; cnt < window.plugin.portalslist.listPortals.length; cnt++) {
-            let guid = window.plugin.portalslist.listPortals[cnt].portal.options.guid;
-            if (self.requestlist[guid]) {
-                delete(self.requestlist[guid]);
-                window.plugin.portalslist.listPortals[cnt] = self.getPortalObj(guid);
-            }
-        }
-        self.requestlist = {};
+        clearTimeout(self.loadfailtimerid);
+        self.loadfailtimerid = 0;
 
-        $('#portalslist').empty().append(window.plugin.portalslist.portalTable(window.plugin.portalslist.sortBy, window.plugin.portalslist.sortOrder, window.plugin.portalslist.filter, self.filterreversed));
+        // restore portal list
+        for (const guid in self.requestlist) {
+            delete(self.requestlist[guid]);
+            self.updatePortalsListRow(guid);
+        }
+
+        self.requestlist = {};
+        self.requestid = undefined;
+    };
+
+    self.loadfail = function() {
+        self.requestlist[self.requestid]--;
+        if (self.requestlist[self.requestid] > 0) {
+            console.log(self.title + " - Load portal details failed (retry " + (self.requestmaxretries - self.requestlist[self.requestid]) + "/" + self.requestmaxretries + ")",self.requestid);
+            // place element at the end of the object, try again later:
+            let retriesleft = self.requestlist[self.requestid];
+            delete(self.requestlist[self.requestid]);
+            self.requestlist[self.requestid] = retriesleft;
+
+            self.requestid = undefined;
+            setTimeout(self.loadnext);
+            return;
+        }
+        console.log(self.title + " - Load portal details failed (after " + self.requestmaxretries + " retries)",self.requestid);
+        self.stopbuttonarea.style.display = 'none';
+        self.loadbutton.style.display = 'inline';
+        self.stoploaddetails();
+        window.dialog({
+            html: "Load portal details failed for guid:<br>\n" + self.requestid + "<br>\n<br>\nYou can press 'Load details' to try again.",
+            title: self.title,
+            id: "portalslist-loadfail"
+        });
     };
 
     self.loadnext = function() {
@@ -244,54 +322,55 @@ version 0.0.1.20191114.115600
         self.loaddetailsarea.textContent = ' (' + Object.keys(self.requestlist).length + ')';
 
         self.requestid = Object.keys(self.requestlist)[0];
+
+        if (self.loadfailtimerid) {
+            clearTimeout(self.loadfailtimerid);
+            self.loadfailtimerid = 0;
+        }
+        self.loadfailtimerid = setTimeout(function() { self.loadfailtimerid = 0; self.loadfail(); },1000);
+
         window.portalDetail.request(self.requestid);
     };
 
     self.storedetails = function(data) {
-        if (!(data instanceof Object)) return;
+        if (!(data instanceof Object) || !('guid' in data) || !('details' in data)) return;
 
-        //console.log('storedetails',data.details);
+        if (data.guid == self.requestid && self.loadfailtimerid) {
+            clearTimeout(self.loadfailtimerid);
+            self.loadfailtimerid = 0;
+        }
+
         self.portaldetails[data.guid] = data.details; // plain storage of all details
         delete(self.requestlist[data.guid]); // delete before executing getPortalObj
 
-        // update table row
-        let guid = data.guid;
+        self.updatePortalsListRow(data.guid);
 
-        // find row with this guid
-        let rowcnt = -1;
-        let rownum = -1;
-        for (let cnt = 2; cnt < $('#portalslist TR').length; cnt++) {
-            if (guid == $('#portalslist TR:eq(' + cnt + ')').attr('guid')) {
-                rowcnt = cnt - 2; // fix row number
-                rownum = cnt;
-                break;
-            }
-        }
-
-        let objcnt = -1;
-        if (rowcnt >= 0) {
-            // find list item with this guid
-            for (let cnt = 0; cnt < window.plugin.portalslist.listPortals.length; cnt++) {
-                if (guid == window.plugin.portalslist.listPortals[cnt].portal.options.guid) {
-                    // update list item
-                    window.plugin.portalslist.listPortals[cnt] = self.getPortalObj(guid);
-                    objcnt = cnt;
-                    break;
-                }
-            }
-        }
-
-        if (objcnt >= 0) {
-            // update this row
-            let row = window.plugin.portalslist.listPortals[objcnt].row;
-            //console.log(guid,found,i,rowcnt,row);
-            row.cells[0].textContent = rowcnt; // fix row number
-            $('#portalslist TR:eq(' + rownum + ')').replaceWith(row);
-        }
-
-        if (data.guid == self.requestid) {
+        if (data.guid == self.requestid) { // only load next if this guid was the last request
             self.requestid = undefined;
-            self.loadnext();
+            setTimeout(self.loadnext);
+        }
+    };
+
+    self.updatePortalsListRow = function(guid) {
+        // update table row
+        let listindex = window.plugin.portalslist.listPortals.findIndex((el)=>{return el.portal.options.guid == guid});
+        if (listindex >= 0) {
+            // update list item
+            window.plugin.portalslist.listPortals[listindex] = self.getPortalObj(guid);
+            if (window.plugin.portalslist.listPortals[listindex].row.classList.contains(window.TEAM_TO_CSS[window.TEAM_NONE]) && self.isMachinaPortal(window.portals[guid])) {
+                window.plugin.portalslist.listPortals[listindex].row.classList.replace(window.TEAM_TO_CSS[window.TEAM_NONE],self.id + '-mac');
+            }
+            let tablerow = document.querySelector('#portalslist TR[guid="' + guid + '"]');
+            if (tablerow) {
+                // update this row
+                let row = window.plugin.portalslist.listPortals[listindex].row;
+                row.cells[0].textContent = tablerow.rowIndex;
+                tablerow.replaceWith(row);
+            }
+            // update header counts
+            self.updateCountsRow();
+            // update filterlevel, countlevel
+            self.updateLevelRow();
         }
     };
 
@@ -347,7 +426,7 @@ version 0.0.1.20191114.115600
         self.filterlevel[0] = neutraldisplayed;
         for (let level = 1; level <= 8; level++) {
             self.filterlevel[level] = window.isLayerGroupDisplayed(self.levellayername + level + self.portallayername);
-            self.countlevel[level] = '';
+            self.countlevel[level] = 0;
         }
     };
 
@@ -395,6 +474,7 @@ version 0.0.1.20191114.115600
         if (getPortalsString == (getPortalsString = getPortalsString.replace(/(.*switch)/,'    ' + self.namespace + 'countlevel[portal.options.level]++;\n$1'))) {
             console.log(self.title + ' - ERROR: replace switch failed');
         }
+        getPortalsString = getPortalsString.replaceAll('data.history.','data?.history?.'); // fix Missions 0.4.0 error
         try {
             eval('window.plugin.portalslist.getPortals = ' + getPortalsString + ';');
         } catch(e) {
@@ -449,15 +529,29 @@ version 0.0.1.20191114.115600
 
         // make dialog wider to fit extra columns and extra buttons
         let displayPLString = window.plugin.portalslist.displayPL.toString();
-        displayPLString = displayPLString.replace(/(false\))/,self.namespace + 'filterreversed)'); // for version 0.4.0
+        displayPLString = displayPLString.replace(/(, false\))/,', ' + self.namespace + 'filterreversed)'); // for version 0.4.0
         if (displayPLString == (displayPLString = displayPLString.replace(/(.+getPortals.+)/,'  ' + self.namespace + 'initialize();\n\n$1'))) {
             console.log(self.title + ' - ERROR: replace getPortals failed');
         }
         if (displayPLString == (displayPLString = displayPLString.replace(/(Nothing to show!)/,'$1 <a onclick="if (window.useAndroidPanes()) { \$(\\\'#portalslist\\\').remove(); } window.plugin.portalslist.displayPL()">Refresh</a>'))) {
             console.log(self.title + ' - ERROR: replace nothing to show failed');
         }
-        if (displayPLString == (displayPLString = displayPLString.replace('width: 700','width: 900'))) {
+        if (displayPLString == (displayPLString = displayPLString.replace('width: 700','width: 960'))) {
             console.log(self.title + ' - ERROR: replace width failed');
+        }
+        if (!displayPLString.match('macP') && displayPLString == (displayPLString = displayPLString.replace(/(neuP = 0;)/,'$1\n  window.plugin.portalslist.macP = 0;'))) {
+            console.log(self.title + ' - ERROR: add macP failed');
+        }
+
+        if (displayPLString == (displayPLString = displayPLString.replace(/(list =)/,`for (let item of window.plugin.portalslist.listPortals) {
+      if (item.portal.options.team == window.TEAM_NONE && item.row.classList.contains(window.TEAM_TO_CSS[window.TEAM_NONE]) && ${self.namespace}isMachinaPortal(item.portal)) {
+        item.row.classList.replace(window.TEAM_TO_CSS[window.TEAM_NONE],'${self.id}-mac');
+        window.plugin.portalslist.neuP--;
+        window.plugin.portalslist.macP++;
+      }
+    }
+    $1`))) {
+            console.log(self.title + ' - ERROR: insert machine class failed');
         }
 
         try {
@@ -500,10 +594,123 @@ version 0.0.1.20191114.115600
             },false);
         };
 
+        self.updateCountsRow = function() {
+            let resP = 0;
+            let enlP = 0;
+            let macP = 0;
+            let neuP = 0;
+            let visitedP = 0;
+            let capturedP = 0;
+            let scoutControlledP = 0;
+            for (let listitem of window.plugin.portalslist.listPortals) {
+                switch (listitem.portal.options.team) {
+                    case window.TEAM_RES:
+                        resP++;
+                        break;
+                    case window.TEAM_ENL:
+                        enlP++;
+                        break;
+                    case window.TEAM_MAC:
+                        macP++;
+                        break;
+                    default:
+                        neuP++;
+                }
+                if (listitem.portal.options.data.history?.visited) visitedP++;
+                if (listitem.portal.options.data.history?.captured) capturedP++;
+                if (listitem.portal.options.data.history?.scoutControlled) scoutControlledP++;
+            }
+
+            let total = window.plugin.portalslist.listPortals.length;
+            if (resP != window.plugin.portalslist.resP) {
+                let el = document.querySelector('.filters .count.filterRes') || document.querySelectorAll('.filter .filterRes')?.[1];
+                if (el) {
+                    window.plugin.portalslist.resP = resP;
+                    el.childNodes[0].textContent = `${resP} (${Math.round(resP/total*100)}%)`;
+                }
+            }
+            if (enlP != window.plugin.portalslist.enlP) {
+                let el = document.querySelector('.filters .count.filterEnl') || document.querySelectorAll('.filter .filterEnl')?.[1];
+                if (el) {
+                    window.plugin.portalslist.enlP = enlP;
+                    el.childNodes[0].textContent = `${enlP} (${Math.round(enlP/total*100)}%)`;
+                }
+            }
+            if (macP != window.plugin.portalslist.macP) {
+                let el = document.querySelector('.filters .count.filterUnk') || document.querySelectorAll('.filter .filterU̶͚')?.[1];
+                if (el) {
+                    window.plugin.portalslist.macP = macP;
+                    el.childNodes[0].textContent = `${macP} (${Math.round(macP/total*100)}%)`;
+                }
+            }
+            if (neuP != window.plugin.portalslist.neuP) {
+                let el = document.querySelector('.filters .count.filterNeu') || document.querySelectorAll('.filter .filterNeu')?.[1];
+                if (el) {
+                    window.plugin.portalslist.neuP = neuP;
+                    el.childNodes[0].textContent = `${neuP} (${Math.round(neuP/total*100)}%)`;
+                }
+            }
+
+            if (visitedP != window.plugin.portalslist.visitedP) {
+                let el = document.querySelector('.filters .count.filterVis') || document.querySelectorAll('.filter .filterVis')?.[1];
+                if (el) {
+                    window.plugin.portalslist.visitedP = visitedP;
+                    el.childNodes[0].textContent = `${visitedP} (${Math.round(visitedP/total*100)}%)`;
+                }
+            }
+            if (capturedP != window.plugin.portalslist.capturedP) {
+                let el = document.querySelector('.filters .count.filterCap') || document.querySelectorAll('.filter .filterCap')?.[1];
+                if (el) {
+                    window.plugin.portalslist.capturedP = capturedP;
+                    el.childNodes[0].textContent = `${capturedP} (${Math.round(capturedP/total*100)}%)`;
+                }
+            }
+            if (scoutControlledP != window.plugin.portalslist.scoutControlledP) {
+                let el = document.querySelector('.filters .count.filterSco') || document.querySelectorAll('.filter .filterSco')?.[1];
+                if (el) {
+                    window.plugin.portalslist.scoutControlledP = scoutControlledP;
+                    el.childNodes[0].textContent = `${scoutControlledP} (${Math.round(scoutControlledP/total*100)}%)`;
+                }
+            }
+        };
+
+        self.updateLevelRow = function() {
+            let levelrow = document.querySelector('.levelrow');
+            if (!levelrow) return;
+
+            let newcountlevel = [];
+            for (let level = 1; level <= 8; level++) {
+                newcountlevel[level] = 0;
+            }
+            for (let listitem of window.plugin.portalslist.listPortals) {
+                newcountlevel[listitem.portal.options.level]++;
+            }
+
+            for (let level = 1; level <= 8; level++) {
+                if (self.countlevel[level] == newcountlevel[level]) continue;
+                self.countlevel[level] = newcountlevel[level];
+                let levelcell = levelrow.querySelector(`.levelcell${level}`);
+                let buttonarea = levelcell.querySelector('label');
+                let button = levelcell.querySelector('input[type=checkbox]');
+                buttonarea.childNodes[1].textContent = 'L' + level + (self.countlevel[level] > 0 ? ' x' + self.countlevel[level] : '');
+                if (self.countlevel[level] <= 0) {
+                    button.checked = false;
+                    button.disabled = true;
+                    buttonarea.disabled = true;
+                } else {
+                    button.checked = self.filterlevel[level];
+                    button.disabled = false;
+                    buttonarea.disabled = false;
+                }
+            }
+        };
+
         self.appendLevelRow = function(row) {
+            row.className = 'levelrow';
             if(!window.useAndroidPanes()) row.insertCell(-1);
             for (let level = 1; level <= 8; level++) {
                 let cell = row.insertCell(-1);
+                cell.className = `levelcell${level}`;
                 cell.style.textAlign = 'unset';
                 let buttonarea = cell.appendChild(document.createElement('label'));
                 buttonarea.style.display = 'block';
@@ -518,16 +725,17 @@ version 0.0.1.20191114.115600
                     buttonarea.disabled = true;
                 } else {
                     button.checked = self.filterlevel[level];
-                    button.addEventListener('change', function(e) {
-                        e.preventDefault();
-                        self.filterlevel[level] = button.checked;
-                        $('#portalslist').empty().append(window.plugin.portalslist.portalTable(window.plugin.portalslist.sortBy, window.plugin.portalslist.sortOrder, window.plugin.portalslist.filter, self.filterreversed));
-                    },false);
                 }
+                button.addEventListener('change', function(e) {
+                    e.preventDefault();
+                    self.filterlevel[level] = button.checked;
+                    $('#portalslist').empty().append(window.plugin.portalslist.portalTable(window.plugin.portalslist.sortBy, window.plugin.portalslist.sortOrder, window.plugin.portalslist.filter, self.filterreversed));
+                },false);
             }
         };
 
         let portalTableString = window.plugin.portalslist.portalTable.toString();
+
         // do not display portals in the list, when the layer is disabled:
         self.filterLevels = function(portals) {
             return portals.filter(function(obj) {
@@ -550,7 +758,7 @@ version 0.0.1.20191114.115600
         if (portalTableString == (portalTableString = portalTableString.replace(/(var container.*)/,"$1\n    let hiddenautofocusinput = document.createElement('input');\n    hiddenautofocusinput.type = 'hidden';\n    hiddenautofocusinput.autofocus = 'autofocus';\n    container.append(hiddenautofocusinput);\n"))) {
             console.log(self.title + ' - ERROR: replace container failed');
         }
-        if (portalTableString == (portalTableString = portalTableString.replace("table.className = 'portals';","table.className = 'portals';\n  table.setAttribute('style', 'display: block; overflow-y: auto; max-height: calc(100vh - 265px);');"))) {
+        if (portalTableString == (portalTableString = portalTableString.replace("table.className = 'portals';","table.className = 'portals';\n  table.setAttribute('style', 'display: block; overflow-y: auto; max-height: calc(100vh - 57px - 24px - 2px - 51px - 52px);');"))) { // from css source: .ui-dialog-content (100vh - 57px - 24px - 2px) - filters clientHeight (desktop)
             console.log(self.title + ' - ERROR: replace table.className failed');
         }
         if (portalTableString == (portalTableString = portalTableString.replaceAll(/(cell = row.appendChild\(document.createElement\('th'\)\);)/gs,"let th = document.createElement('th');\n  th.setAttribute('style','position: sticky; top: 0px;');\n  cell = row.appendChild(th);\n  //$1"))) {
@@ -558,7 +766,7 @@ version 0.0.1.20191114.115600
         }
         if (portalTableString != (portalTableString = portalTableString.replace('var let','let'))) { // correct for a var cell line in version 0.4.0
             // this must be 0.4.0, handle differently:
-            if (portalTableString == (portalTableString = portalTableString.replace(/(\}\);)(\s+var tableDiv =)/s,"$1\n  var cell = filters.appendChild(document.createElement('div'));\n  cell.style.gridRow = 2;\n  " + self.namespace + "appendLoadButton(cell,true);\n  let tbl = document.createElement('table');\n  container.append(tbl);\n  row = tbl.insertRow(-1);\n  " + self.namespace + "appendLevelRow(row,true);$2"))) {
+            if (portalTableString == (portalTableString = portalTableString.replace(/(\}\);)(\s+var tableDiv =)/s,"$1\n  var cell = filters.appendChild(document.createElement('div'));\n  cell.style.gridRow = 2;\n  " + self.namespace + "appendLoadButton(cell,true);\n  let tbl = document.createElement('table');\n  tbl.className = 'levelfilters';\n  container.append(tbl);\n  row = tbl.insertRow(-1);\n  " + self.namespace + "appendLevelRow(row,true);$2"))) {
                 console.log(self.title + ' - ERROR: replace table failed');
             }
         } else {
@@ -566,6 +774,27 @@ version 0.0.1.20191114.115600
             if (portalTableString == (portalTableString = portalTableString.replace(/(\}\);)(\s+table =)/s,"$1\n  cell = row.insertCell(-1);\n  " + self.namespace + "appendLoadButton(cell);\n  row = table.insertRow(-1);\n  " + self.namespace + "appendLevelRow(row);$2"))) {
                 console.log(self.title + ' - ERROR: replace table failed');
             }
+        }
+
+        /*
+        container.append('<div class="disclaimer">Click on portals table headers to sort by that column. '
+        + 'Click on <b>All, Neutral, Resistance, Enlightened</b> to only show portals owner by that faction or on the number behind the factions to show all but those portals.</div>');
+        */
+        self.disclaimerdialog = function(disclaimertext) {
+            disclaimertext += `<p>${self.title} extra's:<br>
+                Extra columns for portal details: shields, resonators, mods and owner.<br>
+                Click on Level checkboxes to filter by portal level.<br>
+                Click on Load details to load shield, resonator, mods and owner information for every portal (visible in the list).</p>
+                <span style="font-style: italic; font-size: smaller">${self.title} version ${self.version} by ${self.author}</span>`;
+            window.dialog({
+                html: disclaimertext,
+                id: "portalslistdisclaimer",
+                title: "Portals list information"
+            });
+        };
+
+        if (portalTableString == (portalTableString = portalTableString.replace(/(container.append\((['`])<div class="disclaimer")>(.*?)(<\/div>['`]\);)/s,'$1 style="cursor: pointer;" onclick="' + self.namespace + 'disclaimerdialog(\\$2$3\\$2)">Click here for more information$4'))) {
+            console.log(self.title + ' - ERROR: replace disclaimer failed:',portalTableString);
         }
 
         try {
@@ -584,8 +813,31 @@ version 0.0.1.20191114.115600
 
         // create a new getPortalObj function, using the getPortals function details, to enable updating the portals list table rows:
         let getPortalObjString = window.plugin.portalslist.getPortals.toString();
-        if (getPortalObjString == (getPortalObjString = getPortalObjString.replace('()','(guid)').replace(/\{.*?var obj/s,'{\n    var portal = window.portals[guid];\n    var obj').replace(/window\.plugin\.portalslist\.listPortals.*/s,'return obj;\n}'))) {
-            console.log(self.title + ' - ERROR: replace guid failed');
+        if (getPortalObjString == (getPortalObjString = getPortalObjString.replace('()','(guid)').replace(/\{.*?var obj/s,`{
+    let portal = window.plugin.portalslist.listPortals.find((el)=>{return el.portal.options.guid == guid})?.portal; // recycle existing data
+    if (guid in window.portals) { // update data or options if changed
+        for (let key of ['team','level']) {
+            if (key in window.portals[guid].options && portal.options[key] != window.portals[guid].options[key]) portal.options[key] = window.portals[guid].options[key];
+        }
+        for (let key of ['title','health','level','resCount','team']) {
+            if (key in window.portals[guid].options.data && portal.options.data[key] != window.portals[guid].options.data[key]) portal.options.data[key] = window.portals[guid].options.data[key];
+        }
+        if (!('history' in portal.options.data)) {
+            portal.options.data.history = {
+                captured: false,
+                scoutControlled: false,
+                visited: false,
+                _raw: 0
+            };
+        }
+        if ('history' in window.portals[guid].options.data) {
+            for (let key of ['captured','scoutControlled','visited','_raw']) {
+                if (key in window.portals[guid].options.data.history && portal.options.data.history[key] != window.portals[guid].options.data.history[key]) portal.options.data.history[key] = window.portals[guid].options.data.history[key];
+            }
+        }
+    }
+    let obj`).replace(/window\.plugin\.portalslist\.listPortals\.push.*/s,'return obj;\n}'))) {
+            console.log(self.title + ' - ERROR: replace guid/var obj/return failed');
         }
         try {
             eval(self.namespace + 'getPortalObj = ' + getPortalObjString + ';');
@@ -643,7 +895,7 @@ version 0.0.1.20191114.115600
             format: function(cell, portal, guid) {
                 $(cell)
                     .append($('<span>')
-                            .html(self.getportalowner(guid,true))
+                            .html(self.getportalownerhtml(guid))
                             .attr({
                     "class": "value",
                 }));
@@ -652,10 +904,11 @@ version 0.0.1.20191114.115600
 
         window.addHook('portalDetailLoaded', function(data) { self.storedetails(data); });
 
-        $('head').append(
-            '<style>' +
-            '.portalslistbutton { padding: 5px; margin-top: 3px; margin-bottom: 3px; margin-left: 5px; margin-right: 5px; border: 2px outset #20A8B1; white-space: nowrap; display: inline-block;}'+
-            '</style>');
+        let stylesheet = document.head.appendChild(document.createElement('style'));
+        stylesheet.innerHTML = `
+.portalslistbutton { padding: 5px; margin-top: 3px; margin-bottom: 3px; margin-left: 5px; margin-right: 5px; border: 2px outset #20A8B1; white-space: nowrap; display: inline-block;}
+tr.${self.id}-mac td { background-color: #a00!important; }
+`;
 
         console.log('IITC plugin loaded: ' + self.title + ' version ' + self.version);
     };

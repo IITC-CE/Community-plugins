@@ -2,10 +2,10 @@
 // @author         DanielOnDiordna
 // @name           Free Styler
 // @category       Layer
-// @version        2.1.0.20221117.195900
+// @version        2.2.0.20230320.000500
 // @updateURL      https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/freestyler.meta.js
 // @downloadURL    https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/freestyler.user.js
-// @description    [danielondiordna-2.1.0.20221117.195900] This plugin gives you free choice to style colors and opacity for portals, links (width) and fields, including the new Machina portals and links.
+// @description    [danielondiordna-2.2.0.20230320.000500] This plugin gives you free choice to style colors and opacity for portals, links (width) and fields, including the new Machina portals and links.
 // @id             freestyler@DanielOnDiordna
 // @namespace      https://softspot.nl/ingress/
 // @match          https://intel.ingress.com/*
@@ -23,10 +23,16 @@ function wrapper(plugin_info) {
     var self = window.plugin.freestyler;
     self.id = 'freestyler';
     self.title = 'Free Styler';
-    self.version = '2.1.0.20221117.195900';
+    self.version = '2.2.0.20230320.000500';
     self.author = 'DanielOnDiordna';
     self.changelog = `
 Changelog:
+
+version 2.2.0.20230320.000500
+- changed the menu buttons to be more clear about what they do
+- added a restoreProfile function which can be called from other plugins if needed
+- added change of settings detection
+- added more clear messages and dialogs
 
 version 2.1.0.20221117.195900
 - renamed Machina to U̶͚̓̍N̴̖̈K̠͔̍͑̂͜N̞̥͋̀̉Ȯ̶̹͕̀W̶̢͚͑̚͝Ṉ̨̟̒̅ (as being used from IITC 0.34)
@@ -116,6 +122,30 @@ version 1.0.0.20211103.230600
         localStorage[self.localstoragesettings] = JSON.stringify(self.settings);
     };
 
+    self.settingsChanged = function(selectedprofile) {
+        // check if settings are changed for selected profile
+        if (!selectedprofile) selectedprofile = self.settings.selectedprofile;
+        if (!selectedprofile) return true;
+        let storedsettings;
+        if (isObject(selectedprofile)) {
+            storedsettings = selectedprofile;
+        } else {
+            if (!(selectedprofile in self.profiles)) return true;
+            storedsettings = JSON.parse(self.profiles[selectedprofile]);
+        }
+        for (let key in self.settings) {
+            if (self.settings[key] instanceof Array) {
+                if (!(key in storedsettings)) return true;
+                if (!(storedsettings[key] instanceof Array)) return true;
+                for (let index in self.settings[key]) {
+                    if (!(index in storedsettings[key])) return true;
+                    if (storedsettings[key][index] != self.settings[key][index]) return true;
+                }
+            }
+        }
+        return false;
+    };
+
     self.restoreprofiles = function() {
         if (typeof localStorage[self.localstorageprofiles] != 'string' || localStorage[self.localstorageprofiles] == '') return;
         try {
@@ -132,7 +162,11 @@ version 1.0.0.20211103.230600
     self.isMachinaPortal = function(portal) {
         if (portal.options.team == window.TEAM_ENL || portal.options.team == window.TEAM_RES) return false;
         if (portal.options.team == window.TEAM_MAC) return true; // works from IITC 0.34
-        if (portal.options.data.resCount > 0) return true;
+        if (portal.options.data.resCount > 0) {
+            // portal.options.team = window.TEAM_MAC;
+            portal.options.level = parseInt(portal.options.ent[2][4]);
+            return true;
+        }
         if (portal.options.data.resCount === 0) return false;
         // only if resCount is undefined, check all links for matching origin or destination match
 
@@ -143,6 +177,8 @@ version 1.0.0.20211103.230600
             let link = window.links[id];
             if (portal.options.guid == link.options.data.oGuid || portal.options.guid == link.options.data.dGuid) {
                 machinalinkplaceholderfound = true;
+                // portal.options.team = window.TEAM_MAC;
+                portal.options.level = parseInt(portal.options.ent[2][4]);
                 break;
             }
         }
@@ -286,6 +322,11 @@ version 1.0.0.20211103.230600
         if (!data) return;
         try {
             let settings = JSON.parse(data);
+            if (!self.settingsChanged(settings)) {
+                alert("Import\n\nThe imported settings are the same as the current settings.");
+                return;
+            }
+            if (self.settingsChanged() && !confirm("Import\n\nThe current settings are not stored in a profile.\nAre you sure you want to replace the current settings?")) return;
             let oldsettings_enabled = self.settings.enabled;
             let oldsettings_selectedprofile = self.settings.selectedprofile;
             parseSettings(settings,self.settings);
@@ -295,8 +336,7 @@ version 1.0.0.20211103.230600
             self.updatePortals();
             self.updateFields();
             self.updateLinks();
-            self.menu();
-            showNotification("Profile imported successfully");
+            showNotification("Settings imported successfully");
         } catch(e) {
             showNotification("Import profile\n\nRestoring profile settings failed.");
         }
@@ -308,31 +348,58 @@ version 1.0.0.20211103.230600
         delete(exportdata.selectedprofile);
         let data = JSON.stringify(exportdata);
         navigator.clipboard.writeText(data).then(function() {
-            showNotification('Profile copied to your clipboard');
+            showNotification('Current settings copied to your clipboard');
         }, function() {
-            prompt('Select and copy this profile data:',data);
+            prompt('Select and copy these settings:',data);
         });
+    };
+
+    self.loaddefaultsettings = function() {
+        let oldsettings_enabled = self.settings.enabled;
+        let oldsettings_selectedprofile = self.settings.selectedprofile;
+        self.settings = JSON.parse(JSON.stringify(self.defaultsettings)); // hard copy
+        self.settings.enabled = oldsettings_enabled;
+        self.settings.selectedprofile = oldsettings_selectedprofile;
+        self.storesettings();
+        self.updatePortals();
+        self.updateFields();
+        self.updateLinks();
+    };
+
+    self.restoreProfile = function(profile) {
+        if (!(profile in self.profiles)) return;
+        try {
+            let settings = JSON.parse(self.profiles[profile]);
+            parseSettings(settings,self.settings);
+            self.settings.enabled = true;
+            self.settings.selectedprofile = profile;
+            self.storesettings();
+            self.updatePortals();
+            self.updateFields();
+            self.updateLinks();
+        } catch(e) {
+            showNotification("Selected profile: " + profile + "\n\nRestoring profile settings failed.");
+        }
+        self.updateMenu();
     };
 
     self.about = function() {
         let container = document.createElement('div');
 
-        container.innerHTML = [
-            'With this plugin you are free to style all colors and opacity (alpha/visibility) for every portal, link and field. Portals have a separate color and opacity setting for the edge and the fill center. Links width can be changed. There are ofcourse no link and field settings for Neutral faction, but there are Machina portals and links now.',
-            '',
-            'By default all colors for portals, links and fields are the same within each faction.',
-            'This can make it confusing to spot portals under a multilayer field.',
-            'Now you are free to create your own settings profile.',
-            '',
-            'You can store multiple profiles, so you can switch between profiles.',
-            'You can also export (to clipboard), share and import (paste) profiles.',
-            '',
-            'Highlighters can still alter the style of portals.',
-            ''].join("<br>\n");
+        container.innerHTML = `
+<p>With this plugin you are free to style all colors and opacity (alpha/visibility) for every portal, link and field. Portals have a separate color and opacity setting for the edge and the fill center. Links width can be changed. There are ofcourse no link and field settings for Neutral faction, but there are Machina portals and links now.</p>
 
-        let author = container.appendChild(document.createElement('div'));
-        author.className = self.id + 'author';
-        author.textContent = self.title + ' version ' + self.version + ' by ' + self.author;
+<p>By default all colors for portals, links and fields are the same within each faction.<br>
+This can make it confusing to spot portals under a multilayer field.<br>
+Now you are free to create your own settings profile.</p>
+
+<p>You can store multiple profiles, so you can switch between profiles.<br>
+You can also export (to clipboard), share and import (paste) your settings.</p>
+
+<p>Highlighters can still alter the style of portals.</p>
+
+<div class="${self.id}author">${self.title} version ${self.version} by ${self.author}</div>
+`;
 
         window.dialog({
             html: container,
@@ -344,6 +411,12 @@ version 1.0.0.20211103.230600
             'Changelog': function() { alert(self.changelog); },
             'Close': function() { $(this).dialog('close'); },
         });
+    };
+
+    self.updateMenu = function() {
+        if (`dialog-${self.id}` in window.DIALOGS) {
+            self.menu();
+        }
     };
 
     self.menu = function() {
@@ -467,10 +540,36 @@ version 1.0.0.20211103.230600
             });
         });
 
+        let defaultsbutton = container.appendChild(document.createElement('button'));
+        defaultsbutton.textContent = 'Load defaults...';
+        defaultsbutton.addEventListener('click', function (e) {
+            e.preventDefault();
+            if (!self.settingsChanged(self.defaultsettings)) {
+                alert("Load defaults\n\nThe current settings are already the same as the default values.");
+                return;
+            }
+            if (self.settingsChanged() && !confirm("Load defaults\n\nThe current settings are not stored in a profile.\nAre you sure you want to replace your settings with the default values?")) return;
+            self.loaddefaultsettings();
+            self.menu();
+        }, false);
+        let importbutton = container.appendChild(document.createElement('button'));
+        importbutton.textContent = 'Import...';
+        importbutton.style.marginLeft = '5px';
+        importbutton.addEventListener('click', function (e) {
+            e.preventDefault();
+            self.import();
+            self.menu();
+        }, false);
+        let exportbutton = container.appendChild(document.createElement('button'));
+        exportbutton.textContent = 'Export...';
+        exportbutton.style.marginLeft = '5px';
+        exportbutton.addEventListener('click', function (e) {
+            e.preventDefault();
+            self.export();
+        }, false);
+
         let profilearea = container.appendChild(document.createElement('div'));
         profilearea.textContent = 'Profiles:';
-        profilearea.style.display = 'flex';
-        profilearea.style.flexDirection = 'row';
         let profileselect = profilearea.appendChild(document.createElement('select'));
         profileselect.style.marginLeft = '5px';
         profileselect.style.width = '100%';
@@ -478,6 +577,7 @@ version 1.0.0.20211103.230600
         if (Object.keys(self.profiles).length == 0) {
             profileselect.disabled = true;
             let profileoption = profileselect.appendChild(document.createElement('option'));
+            profileoption.value = '';
             profileoption.textContent = '(nothing stored)';
         }
         for (let profile in self.profiles) {
@@ -486,35 +586,60 @@ version 1.0.0.20211103.230600
             profileoption.textContent = profile;
             profileoption.selected = profile == self.settings.selectedprofile;
         }
+
+        profilearea.appendChild(document.createElement('br'));
+
         let profileopenbutton = profilearea.appendChild(document.createElement('button'));
         profileopenbutton.style.marginLeft = '5px';
-        profileopenbutton.textContent = 'Restore';
+        profileopenbutton.textContent = 'Restore...';
         profileopenbutton.disabled = Object.keys(self.profiles).length == 0;
         profileopenbutton.addEventListener('click', function (e) {
             e.preventDefault();
-            if (!profileselect.value || !confirm("Selected profile: " + profileselect.value + "\n\nAre you sure you want to replace your settings with the selected profile values?")) return;
-            try {
-                let settings = JSON.parse(self.profiles[profileselect.value]);
-                parseSettings(settings,self.settings);
-                self.settings.enabled = enablecheckbox.checked;
-                self.settings.selectedprofile = profileselect.value;
-                self.storesettings();
-                self.updatePortals();
-                self.updateFields();
-                self.updateLinks();
-                self.menu();
-            } catch(e) {
-                showNotification("Selected profile: " + profileselect.value + "\n\nRestoring profile settings failed.");
+            if (!profileselect.value) return;
+            if (!self.settingsChanged(profileselect.value)) {
+                alert("Restore\n\nSelected profile: " + profileselect.value + "\n\nThe current settings are already the same as the selected profile.");
+                if (self.settings.selectedprofile != profileselect.value) {
+                    self.settings.selectedprofile = profileselect.value;
+                    self.storesettings();
+                }
+                return;
             }
+            if (!confirm("Restore\n\nSelected profile: " + profileselect.value + "\n\nAre you sure you want to replace all settings with the stored values?")) return;
+            self.restoreProfile(profileselect.value);
+        }, false);
+        let profileupdatebutton = profilearea.appendChild(document.createElement('button'));
+        profileupdatebutton.style.marginLeft = '5px';
+        profileupdatebutton.style.minWidth = '25px';
+        profileupdatebutton.textContent = 'Save...';
+        profileupdatebutton.addEventListener('click', function (e) {
+            e.preventDefault();
+            if (profileselect.value && !self.settingsChanged(profileselect.value)) {
+                alert("Save\n\nSelected profile: " + profileselect.value + "\n\nNothing changed");
+                return;
+            }
+            let profile = (profileselect.value ? (confirm("Save\n\nSelected profile: " + profileselect.value + "\n\nSave and overwrite existing profile?") ? profileselect.value : undefined) : prompt("Enter a new profile name: ") );
+            if (!profile) return;
+            self.profiles[profile] = JSON.stringify(self.settings);
+            self.settings.selectedprofile = profile;
+            self.storesettings();
+            self.storeprofiles();
+            self.updatePortals();
+            self.updateFields();
+            self.updateLinks();
+            self.menu();
         }, false);
         let profileaddbutton = profilearea.appendChild(document.createElement('button'));
         profileaddbutton.style.marginLeft = '5px';
         profileaddbutton.style.minWidth = '25px';
-        profileaddbutton.textContent = '+';
+        profileaddbutton.textContent = 'Save as...';
         profileaddbutton.addEventListener('click', function (e) {
             e.preventDefault();
-            let profile = prompt("Selected profile: " + profileselect.value + "\n\nEnter a new profile name, or overwrite existing: ",self.settings.selectedprofile);
+            let profile = prompt("Enter a new profile name: ");
             if (!profile) return;
+            if (profile in self.profiles) {
+                alert('Save as\n\nNew profile name: ' + profile + "\n\nProfile already exists. To replace, select profile name and use the Save button.");
+                return;
+            }
             self.profiles[profile] = JSON.stringify(self.settings);
             self.settings.selectedprofile = profile;
             self.storesettings();
@@ -527,11 +652,11 @@ version 1.0.0.20211103.230600
         let profiledelbutton = profilearea.appendChild(document.createElement('button'));
         profiledelbutton.style.marginLeft = '5px';
         profiledelbutton.style.minWidth = '25px';
-        profiledelbutton.textContent = '-';
+        profiledelbutton.textContent = 'Delete...';
         profiledelbutton.disabled = Object.keys(self.profiles).length == 0;
         profiledelbutton.addEventListener('click', function (e) {
             e.preventDefault();
-            if (!profileselect.value || !confirm("Selected profile: " + profileselect.value + "\n\nAre you sure you want to delete the stored profile?")) return;
+            if (!profileselect.value || !confirm("Delete\n\nSelected profile: " + profileselect.value + "\n\nAre you sure you want to delete this profile?")) return;
             delete(self.profiles[profileselect.value]);
             self.settings.selectedprofile = '';
             self.storesettings();
@@ -542,33 +667,20 @@ version 1.0.0.20211103.230600
             self.menu();
         }, false);
 
-        let defaultsbutton = container.appendChild(document.createElement('button'));
-        defaultsbutton.textContent = 'Load defaults';
-        defaultsbutton.addEventListener('click', function (e) {
-            e.preventDefault();
-            if (!confirm("Selected profile: Default\n\nAre you sure you want to replace your settings with the default values?")) return;
-            self.settings = JSON.parse(JSON.stringify(self.defaultsettings)); // hard copy
-            self.settings.enabled = enablecheckbox.checked;
-            self.settings.selectedprofile = profileselect.value;
-            self.storesettings();
-            self.updatePortals();
-            self.updateFields();
-            self.updateLinks();
-            self.menu();
-        }, false);
-
         let author = container.appendChild(document.createElement('div'));
         author.className = self.id + 'author';
         author.textContent = self.title + ' version ' + self.version + ' by ' + self.author;
 
+        if (window.useAndroidPanes()) window.show("map");
+
+        let position = (`dialog-${self.id}` in window.DIALOGS ? $(window.DIALOGS[`dialog-${self.id}`]).dialog('option','position') : { my: "center", at: "middle" });
         window.dialog({
             html: container,
             id: self.id,
             title: self.title,
-            width: 'auto'
+            width: 'auto',
+            position: position
         }).dialog('option', 'buttons', {
-            'Import': function() { self.import(); },
-            'Export': function() { self.export(); },
             'About': function() { self.about(); },
             'Close': function() { $(this).dialog('close'); }
         });
@@ -577,14 +689,14 @@ version 1.0.0.20211103.230600
     self.setupSetMarkerStyle = function() {
         // make sure the self.applyPortalStyle is executed instead of setMarkerStyle
         let setMarkerStyle_string = window.setMarkerStyle.toString();
-        setMarkerStyle_string = setMarkerStyle_string.replace(/\{/,'{\n  if (' + self.namespace + 'settings.enabled) {\n    ' + self.namespace + 'applyPortalStyle(marker,selected);\n    return;\n  }');
+        setMarkerStyle_string = setMarkerStyle_string.replace(/\{/,`{\n  if (${self.namespace}settings.enabled) {\n    ${self.namespace}applyPortalStyle(marker,selected);\n    return;\n  }`);
         eval('window.setMarkerStyle = ' + setMarkerStyle_string + ';');
     };
 
     self.setupResetHighlightedPortals = function() {
         // replace the setMarkerStyle call with self.applyPortalStyle
         let resetHighlightedPortals_string = window.resetHighlightedPortals.toString();
-        resetHighlightedPortals_string = resetHighlightedPortals_string.replace(/(setMarkerStyle.*?;)/,self.namespace + 'applyPortalStyle(portal);');
+        resetHighlightedPortals_string = resetHighlightedPortals_string.replace(/(setMarkerStyle.*?;)/,`${self.namespace}applyPortalStyle(portal);`);
         eval('window.resetHighlightedPortals = ' + resetHighlightedPortals_string + ';');
     };
 
@@ -3618,19 +3730,20 @@ See http://bgrins.github.io/spectrum/themes/ for instructions.
         }, false);
 
         var stylesheet = document.body.appendChild(document.createElement('style'));
-        stylesheet.innerHTML = '';
-        stylesheet.innerHTML += '.' + self.id + 'menu a { display:block; color:#ffce00; border:1px solid #ffce00; padding:3px 0; margin:10px auto; width:80%; text-align:center; background:rgba(8,48,78,.9); }';
-        stylesheet.innerHTML += '.' + self.id + 'menu button { min-width: unset; width: fit-content; cursor: pointer; }';
-        stylesheet.innerHTML += '.' + self.id + 'menu button:disabled { color: #bbb; cursor: default; }';
-        stylesheet.innerHTML += '.' + self.id + 'menu label { user-select: none; }';
-        stylesheet.innerHTML += '.' + self.id + 'author { margin-top: 14px; font-style: italic; font-size: smaller; }';
-        stylesheet.innerHTML += '.' + self.id + 'notificationwrapper{position:absolute;top:20px;width:100%;display:flex;justify-content:center;}';
-        stylesheet.innerHTML += '.' + self.id + 'notification{z-index: 10000;background-color: #383838;color: #F0F0F0;font-family: Calibri;font-size: 20px;padding:10px;text-align:center;border-radius: 2px;-webkit-box-shadow: 0px 0px 24px -1px rgba(56, 56, 56, 1);-moz-box-shadow: 0px 0px 24px -1px rgba(56, 56, 56, 1);box-shadow: 0px 0px 24px -1px rgba(56, 56, 56, 1);}';
+        stylesheet.innerHTML = `
+.${self.id}menu a { display:block; color:#ffce00; border:1px solid #ffce00; padding:3px 0; margin:10px auto; width:80%; text-align:center; background:rgba(8,48,78,.9); }
+.${self.id}menu button { min-width: unset; width: fit-content; cursor: pointer; }
+.${self.id}menu button:disabled { color: #bbb; cursor: default; }
+.${self.id}menu label { user-select: none; }
+.${self.id}author { margin-top: 14px; font-style: italic; font-size: smaller; }
+.${self.id}notificationwrapper{position:absolute;top:20px;width:100%;display:flex;justify-content:center;}
+.${self.id}notification{z-index: 10000;background-color: #383838;color: #F0F0F0;font-family: Calibri;font-size: 20px;padding:10px;text-align:center;border-radius: 2px;-webkit-box-shadow: 0px 0px 24px -1px rgba(56, 56, 56, 1);-moz-box-shadow: 0px 0px 24px -1px rgba(56, 56, 56, 1);box-shadow: 0px 0px 24px -1px rgba(56, 56, 56, 1);}
+`;
 
         let notificationwrapper = document.body.appendChild(document.createElement('div'));
-        notificationwrapper.className = self.id + 'notificationwrapper';
+        notificationwrapper.className = `${self.id}notificationwrapper`;
         let notificationobject = notificationwrapper.appendChild(document.createElement('div'));
-        notificationobject.className = self.id + 'notification';
+        notificationobject.className = `${self.id}notification`;
         notificationobject.style.display = 'none';
 
         console.log('IITC plugin loaded: ' + self.title + ' version ' + self.version);

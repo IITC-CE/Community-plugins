@@ -920,7 +920,7 @@ Print labels as an overlay of intel layer
 
 GL layer
 
-*Version:* 0.1.0
+*Version:* 0.1.1
 
 
   

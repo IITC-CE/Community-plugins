@@ -2,7 +2,7 @@
 // @author         jaiperdu
 // @name           Glify layer
 // @category       Map Tiles
-// @version        0.1.0
+// @version        0.1.1
 // @description    GL layer
 // @id             glify-layer@jaiperdu
 // @namespace      https://github.com/IITC-CE/ingress-intel-total-conversion
@@ -20,7 +20,7 @@ if(typeof window.plugin !== 'function') window.plugin = function() {};
 //PLUGIN AUTHORS: writing a plugin outside of the IITC build environment? if so, delete these lines!!
 //(leaving them in place might break the 'About IITC' page or break update checks)
 plugin_info.buildName = 'lejeu';
-plugin_info.dateTimeVersion = '2022-06-30-074250';
+plugin_info.dateTimeVersion = '2023-05-04-122411';
 plugin_info.pluginId = 'glify-layer';
 //END PLUGIN AUTHORS NOTE
 
@@ -38,6 +38,7 @@ function onPortalSelected(data) {
 var colors = {
   E: {r: 0, g: 1, b: 0, a: .5},
   R: {r: 0, g: 0, b: 1, a: .5},
+  M: {r: 1, g: 0, b: 0, a: .5},
   N: {r: 1, g: .4, b: 0, a: .5},
 };
 
@@ -83,7 +84,7 @@ function showCache() {
           pane: "cache",
           data: portals.map((p) => [p.latE6/1e6, p.lngE6/1e6, p.guid]),
           size: 10,
-          color: (i) => colors[portals[i].team || "N"],
+          color: (i) => colors[portals[i].team] || colors['N'],
           click: (e, feature) => {
             var guid = feature[2];
             if (guid in window.portals) {

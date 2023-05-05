@@ -2,7 +2,7 @@
 // @author         jaiperdu
 // @name           Glify layer
 // @category       Map Tiles
-// @version        0.1.0
+// @version        0.1.1
 // @description    GL layer
 // @id             glify-layer@jaiperdu
 // @namespace      https://github.com/IITC-CE/ingress-intel-total-conversion

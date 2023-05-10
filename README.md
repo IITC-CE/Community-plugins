@@ -2,7 +2,7 @@
 
 A collection of amazing plugins made by community.
 
-There are now 112 plugins from 31 authors in the collection.
+There are now 113 plugins from 31 authors in the collection.
 
 > Note: You must install IITC-CE on your [desktop](https://iitc.app/download_desktop)
 or [mobile device](https://iitc.app/download_mobile) to use IITC plugins.
@@ -390,6 +390,18 @@ Highlighter for unique visited/captured/scout controlled portals
   
 
 ## Info
+  
+### [Agent profile link](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/xMAXIMx/agent-profile-link.user.js) by xMAXIMx
+
+
+
+
+
+Adds agent profile link in search bar of IITC
+
+*Version:* 0.1
+
+
   
 ### [Check Point Timer](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Zaso/check-point-timer.user.js) by Zaso
 

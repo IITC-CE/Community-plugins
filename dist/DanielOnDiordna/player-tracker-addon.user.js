@@ -2,10 +2,10 @@
 // @author         DanielOnDiordna
 // @name           Player Tracker add-on
 // @category       Addon
-// @version        1.0.2.20211011.231300
+// @version        1.3.0.20230514.005600
 // @updateURL      https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/player-tracker-addon.meta.js
 // @downloadURL    https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/player-tracker-addon.user.js
-// @description    [danielondiordna-1.0.2.20211011.231300] Add-on to the player tracker plugin: Adjust history limit of 3 hours to another value. Toggle name labels, last action time, toggle/adjust player colors, focus on players, display 1 single player. Integrated Marker Label plugin and Spectrum Colorpicker 1.8.1 plugin.
+// @description    [danielondiordna-1.3.0.20230514.005600] Add-on to the player tracker plugin: Adjust history limit of 3 hours to another value. Toggle name labels, last action time, toggle/adjust player colors, focus on players, display 1 single player. Integrated Marker Label plugin and Spectrum Colorpicker 1.8.1 plugin. Supports Machina U̶͚̓̍N̴̖̈K̠͔̍͑̂͜N̞̥͋̀̉Ȯ̶̹͕̀W̶̢͚͑̚͝Ṉ̨̟̒̅' player.
 // @id             player-tracker-addon@DanielOnDiordna
 // @namespace      https://softspot.nl/ingress/
 // @depends        player-activity-tracker@breunigs
@@ -23,23 +23,47 @@ function wrapper(plugin_info) {
     var self = window.plugin.playerTrackerAddon;
     self.id = 'playerTrackerAddon';
     self.title = 'Player Tracker add-on';
-    self.version = '1.0.2.20211011.231300';
+    self.version = '1.3.0.20230514.005600';
     self.author = 'DanielOnDiordna';
     self.changelog = `
 Changelog:
 
-version 0.0.1.20181030.212900
-- intel URL changed from www.ingress.com to *.ingress.com
+version 1.3.0.20230514.005600
+- added Machina U̶͚̓̍N̴̖̈K̠͔̍͑̂͜N̞̥͋̀̉Ȯ̶̹͕̀W̶̢͚͑̚͝Ṉ̨̟̒̅' icons, player tracker layer and colors
+- reversed the changelog order to show last changes at the top
 
-version 0.0.1.20181018.104200
-- added plugin version on menu
-- added option list to set maximum events to display (default 10)
-- added choice to display date and time instead of default 'ago'
+version 1.2.0.20220319.231800
+- added new option to hide the "on your portal" actions, which can interfere when viewing remote locations
 
-version 0.0.2.20190915.135600
-- fix for ago display for iOS users
-- modified defaults for new users: show labels, apply random colors
-- changed menu order and modified some menu labels to make it more clear
+version 1.0.2.20211011.231300
+- added new option to hide the date from the label if it is today, if show date+time is set
+- properly replaced the playerTracker publicChatDataAvailable handleData hook
+- fixed a console warning about a missing color during updateplayerlist when the menu is not visible
+- reformatted the settings menu
+
+version 1.0.1.20210724.002500
+- prevent double plugin setup on hook iitcLoaded
+
+version 1.0.1.20210421.190200
+- minor fix for IITC CE where runHooks iitcLoaded is executed before addHook is defined in this plugin
+
+version 1.0.1.20210328.000100
+- added click event to player tracker icons while name labels are enabled to show history
+- changed default settings values
+
+version 1.0.0.20210119.225600
+- changed description header
+
+version 1.0.0.20210119.201900
+- integrated marker label plugin code, no need anymore for the separate plugin
+- integrated Spectrum Colorpicker 1.8.1 plugin code, no need anymore for the separate plugin
+- updated plugin wrapper and userscript header formatting to match IITC-CE coding
+
+version 0.0.13.20200131.220500
+- problem solved, added better processNewData fix
+
+version 0.0.12.20200130.172600
+- problem solved, added processNewData fix
 
 version 0.0.3.20200130.160000
 version 0.0.4.20200130.160000
@@ -52,35 +76,18 @@ version 0.0.10.20200130.160000
 version 0.0.11.20200130.160000
 - debugging for IITC CE purposes
 
-version 0.0.12.20200130.172600
-- problem solved, added processNewData fix
+version 0.0.2.20190915.135600
+- fix for ago display for iOS users
+- modified defaults for new users: show labels, apply random colors
+- changed menu order and modified some menu labels to make it more clear
 
-version 0.0.13.20200131.220500
-- problem solved, added better processNewData fix
+version 0.0.1.20181018.104200
+- added plugin version on menu
+- added option list to set maximum events to display (default 10)
+- added choice to display date and time instead of default 'ago'
 
-version 1.0.0.20210119.201900
-- integrated marker label plugin code, no need anymore for the separate plugin
-- integrated Spectrum Colorpicker 1.8.1 plugin code, no need anymore for the separate plugin
-- updated plugin wrapper and userscript header formatting to match IITC-CE coding
-
-version 1.0.0.20210119.225600
-- changed description header
-
-version 1.0.1.20210328.000100
-- added click event to player tracker icons while name labels are enabled to show history
-- changed default settings values
-
-version 1.0.1.20210421.190200
-- minor fix for IITC CE where runHooks iitcLoaded is executed before addHook is defined in this plugin
-
-version 1.0.1.20210724.002500
-- prevent double plugin setup on hook iitcLoaded
-
-version 1.0.2.20211011.231300
-- added new option to hide the date from the label if it is today, if show date+time is set
-- properly replaced the playerTracker publicChatDataAvailable handleData hook
-- fixed a console warning about a missing color during updateplayerlist when the menu is not visible
-- reformatted the settings menu
+version 0.0.1.20181030.212900
+- intel URL changed from www.ingress.com to *.ingress.com
 `;
     self.namespace = 'window.plugin.' + self.id + '.';
     self.pluginname = 'plugin-' + self.id;
@@ -94,7 +101,8 @@ version 1.0.2.20211011.231300
         showlastaction: true,
         maxdisplayevents: 10,
         showdatetime: true,
-        hidedatetoday: false
+        hidedatetoday: false,
+        hideonyourportalactions: false
     };
     self.displayselectedplayer = false;
     self.selectedplayer = '';
@@ -231,6 +239,20 @@ version 1.0.2.20211011.231300
                     }
                 });
             }
+            if (!self.iconMac_backup) {
+                self.iconMac_backup = window.plugin.playerTracker.iconMac;
+                window.plugin.playerTracker.iconMac = window.L.Icon.Label.extend({
+                    options: {
+                        iconUrl: window.plugin.playerTracker.iconMac.prototype.options.iconUrl,
+                        iconRetinaUrl: window.plugin.playerTracker.iconMac.prototype.options.iconRetinaUrl,
+                        shadowUrl: null,
+                        iconSize: new window.L.Point(25, 41),
+                        iconAnchor: new window.L.Point(0, -28),
+                        labelAnchor: new window.L.Point(16, -18),
+                        wrapperAnchor: new window.L.Point(12, 13)
+                    }
+                });
+            }
         } else {
             if (self.iconEnl_backup) {
                 window.plugin.playerTracker.iconEnl = self.iconEnl_backup;
@@ -239,6 +261,10 @@ version 1.0.2.20211011.231300
             if (self.iconRes_backup) {
                 window.plugin.playerTracker.iconRes = self.iconRes_backup;
                 self.iconRes_backup = undefined;
+            }
+            if (self.iconMac_backup) {
+                window.plugin.playerTracker.iconMac = self.iconMac_backup;
+                self.iconMac_backup = undefined;
             }
         }
         self.modify_drawData();
@@ -249,7 +275,7 @@ version 1.0.2.20211011.231300
             self.processNewData_backup = window.plugin.playerTracker.processNewData;
             var processNewData_override = window.plugin.playerTracker.processNewData.toString();
             processNewData_override = processNewData_override.replace('var limit','if (!data) return;\n  var limit');
-            processNewData_override = processNewData_override.replace('events: [newEvent]','events: [newEvent], color: ' + self.namespace + 'getPlayerColor(plrname,json[2].plext.team)');
+            processNewData_override = processNewData_override.replace(/( +)(events: \[newEvent\])/,'$1$2,\n$1color: ' + self.namespace + 'getPlayerColor(plrname,json[2].plext.team)');
             eval('window.plugin.playerTracker.processNewData = ' + processNewData_override);
         }
         // restore
@@ -264,9 +290,18 @@ version 1.0.2.20211011.231300
         self.modify_drawData();
     };
 
+    self.actionssetup = function() {
+        let processNewData_override = window.plugin.playerTracker.processNewData.toString();
+        processNewData_override = processNewData_override.replace(/(, address);/,'$1, action;');
+        processNewData_override = processNewData_override.replace(/( +)(case 'TEXT':)/,'$1$2\n$1  action = markup[1].plain;');
+        processNewData_override = processNewData_override.replace(/( +)(address: address)/,'$1$2,\n$1actions: [action]');
+        eval('window.plugin.playerTracker.processNewData = ' + processNewData_override);
+    };
+
     self.resettracks = function() {
         window.plugin.playerTracker.drawnTracesEnl.clearLayers();
         window.plugin.playerTracker.drawnTracesRes.clearLayers();
+        window.plugin.playerTracker.drawnTracesMac.clearLayers();
         window.plugin.playerTracker.drawData();
     };
 
@@ -292,9 +327,9 @@ version 1.0.2.20211011.231300
             drawData_override = drawData_override.replace('var polyLineByAgeRes = ','var polyLineByAgeRes = {}; //');
             drawData_override = drawData_override.replace('polyLineByAgeRes[ageBucket].push(line);','{ if (!polyLineByAgeRes[plrname]) polyLineByAgeRes[plrname] = [[], [], [], []]; polyLineByAgeRes[plrname][ageBucket].push(line); }');
             drawData_override = drawData_override.replace('polyLineByAgeEnl[ageBucket].push(line);','{ if (!polyLineByAgeEnl[plrname]) polyLineByAgeEnl[plrname] = [[], [], [], []]; polyLineByAgeEnl[plrname][ageBucket].push(line); }');
-            drawData_override = drawData_override.replace('$.each(polyLineByAgeEnl, function(i, polyLine) {','$.each(polyLineByAgeEnl, function(plrname, polyLineByAge) { $.each(polyLineByAge, function(i, polyLine) {');
+            drawData_override = drawData_override.replace('$.each(polyLineByAgeEnl, function(i, polyLine) {','$.each(polyLineByAgeEnl, function(plrname, polyLineByAge) {\n$.each(polyLineByAge, function(i, polyLine) {');
             drawData_override = drawData_override.replace('color: PLAYER_TRACKER_LINE_COLOUR,','color: window.plugin.playerTracker.stored[plrname].color,');
-            drawData_override = drawData_override.replace('$.each(polyLineByAgeRes, function(i, polyLine) {','}); $.each(polyLineByAgeRes, function(plrname, polyLineByAge) { $.each(polyLineByAge, function(i, polyLine) {');
+            drawData_override = drawData_override.replace('$.each(polyLineByAgeRes, function(i, polyLine) {','});\n$.each(polyLineByAgeRes, function(plrname, polyLineByAge) {\n$.each(polyLineByAge, function(i, polyLine) {');
             drawData_override = drawData_override.replace('color: PLAYER_TRACKER_LINE_COLOUR,','color: window.plugin.playerTracker.stored[plrname].color,');
             drawData_override = drawData_override + ');}';
         }
@@ -350,6 +385,9 @@ version 1.0.2.20211011.231300
         } else if (team === 'RESISTANCE') {
             // random blue color
             return '#0000' + randomcolor;
+        } else if (team === 'NEUTRAL') {
+            // random red color
+            return '#' + randomcolor + '0000';
         }
 
         return '#' + (hash.toString(16) + '00000000').slice(2, 8).toUpperCase();
@@ -373,16 +411,21 @@ version 1.0.2.20211011.231300
         if (!window.plugin.playerTracker.stored) return;
         var resultsE = [];
         var resultsR = [];
+        var resultsU = [];
         $.each(window.plugin.playerTracker.stored, function(plrname, player) {
             var text = plrname + ' ' + window.plugin.playerTracker.ago(player.events[player.events.length-1].time, new Date().getTime()) + (self.settings.showdatetime?'':' ago') + (player.events.length>1?' (' + player.events.length + ' events)':'');
 
             if (player.team === "ENLIGHTENED") {
                 resultsE.push(text);
+            } else if (player.team === "NEUTRAL") {
+                resultsU.push(text);
             } else {
                 resultsR.push(text);
             }
         });
-        alert('ENLIGHTENED:\n' + resultsE.sort(function(a,b) { return (a.toLowerCase() < b.toLowerCase()?-1:(a.toLowerCase() > b.toLowerCase()?1:0)); }).join('\n') + '\n\nRESISTANCE:\n' + resultsR.sort(function(a,b) { return (a.toLowerCase() < b.toLowerCase()?-1:(a.toLowerCase() > b.toLowerCase()?1:0)); }).join('\n'));
+        alert('ENLIGHTENED:\n' + resultsE.sort(function(a,b) { return (a.toLowerCase() < b.toLowerCase()?-1:(a.toLowerCase() > b.toLowerCase()?1:0)); }).join('\n') + '\n' +
+              '\nRESISTANCE:\n' + resultsR.sort(function(a,b) { return (a.toLowerCase() < b.toLowerCase()?-1:(a.toLowerCase() > b.toLowerCase()?1:0)); }).join('\n') + '\n' +
+              '\nU̶͚̓̍N̴̖̈K̠͔̍͑̂͜N̞̥͋̀̉Ȯ̶̹͕̀W̶̢͚͑̚͝Ṉ̨̟̒̅:\n' + resultsU.sort(function(a,b) { return (a.toLowerCase() < b.toLowerCase()?-1:(a.toLowerCase() > b.toLowerCase()?1:0)); }).join('\n'));
     };
 
     self.playerselectlist = function(selectedname) {
@@ -476,6 +519,14 @@ version 1.0.2.20211011.231300
         hidedatetoday.disabled = !(self.settings.showlabels && self.settings.showlastaction && self.settings.showdatetime);
         hidedatetodayarea.appendChild(document.createTextNode('Hide date if it is today'));
 
+        container.appendChild(document.createElement('br'));
+
+        let hideonyourportalactionsarea = container.appendChild(document.createElement('label'));
+        let hideonyourportalactions = hideonyourportalactionsarea.appendChild(document.createElement('input'));
+        hideonyourportalactions.type = 'checkbox';
+        hideonyourportalactions.checked = self.settings.hideonyourportalactions;
+        hideonyourportalactionsarea.appendChild(document.createTextNode('Hide "on your portal" actions'));
+
         showlabels.addEventListener('change', function(e) {
             e.preventDefault();
             self.settings.showlabels = this.checked;
@@ -520,6 +571,13 @@ version 1.0.2.20211011.231300
             hidedatetoday.disabled = !(self.settings.showlabels && self.settings.showlastaction && self.settings.showdatetime);
         },false);
 
+        hideonyourportalactions.addEventListener('change', function(e) {
+            e.preventDefault();
+            self.settings.hideonyourportalactions = this.checked;
+            self.storesettings();
+            self.resettracks();
+        },false);
+
         let othersettings = container.appendChild(document.createElement('div'));
         othersettings.className = self.id + 'menu';
         othersettings.innerHTML =
@@ -528,8 +586,8 @@ version 1.0.2.20211011.231300
             '<input type="checkbox" id="' + self.id + 'center" name="' + self.id + 'center" onclick="' + self.namespace + 'settings.showcenter = this.checked; ' + self.namespace + 'storesettings(); ' + self.namespace + 'centersetup(); ' + self.namespace + 'resettracks();"' + (self.settings.showcenter?' checked':'') + '><label for="' + self.id + 'center" title="This is a nice feature to make screenshots of all players on the map.">Center all visible players on the map</label><br />' +
             '<input type="text" id="' + self.id + '_playercolor"> Adjust color for selected player:<br />' +
             self.playerselectlist() + '<br />' +
-            '<input type="checkbox" id="' + self.id + 'randomcolor" name="' + self.id + 'randomcolor" onclick="' + self.namespace + 'settings.applyrandomcolors = this.checked; ' + self.namespace + 'storesettings(); ' + self.namespace + 'updateplayerlist(); ' + self.namespace + 'resettracks();"' + (self.settings.applyrandomcolors?' checked':'') + '><label for="' + self.id + 'randomcolor">Apply random team colors</label><br />' +
-            '<input type="checkbox" id="' + self.id + 'selectedplayer" name="' + self.id + 'selectedplayer" onclick="' + self.namespace + 'displayselectedplayer = this.checked; ' + self.namespace + 'resettracks();"' + (self.displayselectedplayer?' checked':'') + '><label for="' + self.id + 'selectedplayer">Display selected player only</label><br />' +
+            '<label><input type="checkbox" id="' + self.id + 'randomcolor" name="' + self.id + 'randomcolor" onclick="' + self.namespace + 'settings.applyrandomcolors = this.checked; ' + self.namespace + 'storesettings(); ' + self.namespace + 'updateplayerlist(); ' + self.namespace + 'resettracks();"' + (self.settings.applyrandomcolors?' checked':'') + '>Apply random team colors</label><br />' +
+            '<label><input type="checkbox" id="' + self.id + 'selectedplayer" name="' + self.id + 'selectedplayer" onclick="' + self.namespace + 'displayselectedplayer = this.checked; ' + self.namespace + 'resettracks();"' + (self.displayselectedplayer?' checked':'') + '>Display selected player only</label><br />' +
             '<a href="#" onclick="' + self.namespace + 'viewselectedplayer(); return false;">Focus on selected player</a>' +
             '<a href="#" onclick="' + self.namespace + 'showlist(); return false;">Show list of stored players</a>';
 
@@ -1055,21 +1113,104 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
             return returnVal;
         };
 
+        // inject code for Machina:
+        if (!window.plugin.playerTracker.iconMac) {
+            var iconMacImage = 'data:image/png;base64,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';
+            var iconMacRetImage = 'data:image/png;base64,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';
+            window.plugin.playerTracker.iconMac = window.L.Icon.Default.extend({options: {
+                iconUrl: iconMacImage,
+                iconRetinaUrl: iconMacRetImage
+            }});
+        }
+
+        // inject code for Machina:
+        if (!window.plugin.playerTracker.drawnTracesMac) {
+            window.plugin.playerTracker.drawnTracesMac = new window.L.LayerGroup();
+
+            if ('addOverlay' in window.layerChooser) {
+                window.layerChooser.addOverlay(window.plugin.playerTracker.drawnTracesMac, 'Player Tracker U̶͚̓̍N̴̖̈K̠͔̍͑̂͜N̞̥͋̀̉Ȯ̶̹͕̀W̶̢͚͑̚͝Ṉ̨̟̒̅',{default: true});
+            } else { // before IITC 0.34:
+                window.addLayerGroup('Player Tracker U̶͚̓̍N̴̖̈K̠͔̍͑̂͜N̞̥͋̀̉Ȯ̶̹͕̀W̶̢͚͑̚͝Ṉ̨̟̒̅', window.plugin.playerTracker.drawnTracesMac, true);
+            }
+
+            window.map.on('layeradd',function(obj) {
+                if(obj.layer === window.plugin.playerTracker.drawnTracesMac) {
+                    obj.layer.eachLayer(function(marker) {
+                        if(marker._icon) window.setupTooltips($(marker._icon));
+                    });
+                }
+            });
+        }
+
         try {
             self.labelsetup();
             self.colorsetup();
+            self.actionssetup();
             self.centersetup();
             self.modify_ago();
             self.resettracks();
-        }
-        catch(e) {
+        } catch(e) {
             console.log('PLAYERTRACKERADDON - ERROR: setup failed');
             return;
+        }
+
+        // inject code for Machina:
+        if (!window.plugin.playerTracker.closeIconTooltips.toString().match(/Mac/)) {
+            let original_closeIconTooltips = window.plugin.playerTracker.closeIconTooltips;
+            window.plugin.playerTracker.closeIconTooltips = function() {
+                original_closeIconTooltips();
+                window.plugin.playerTracker.drawnTracesMac.eachLayer(function(layer) {
+                    if ($(layer._icon)) { $(layer._icon).tooltip('close');}
+                });
+            };
+            let original_zoomListener = window.plugin.playerTracker.zoomListener;
+            window.plugin.playerTracker.zoomListener = function() {
+                original_zoomListener();
+                if(window.map.getZoom() < window.PLAYER_TRACKER_MIN_ZOOM) {
+                    window.plugin.playerTracker.drawnTracesMac.clearLayers();
+                }
+            };
+
+            let drawData_string = window.plugin.playerTracker.drawData.toString();
+            drawData_string = drawData_string.replace(/(var polyLineByAgeRes.*?\n)/s,'$1var polyLineByAgeMac = {};\n');
+            drawData_string = drawData_string.replace(/(else\n)/s,'else if(playerData.team === \'NEUTRAL\')\n        { if (!polyLineByAgeMac[plrname]) polyLineByAgeMac[plrname] = [[], [], [], []]; polyLineByAgeMac[plrname][ageBucket].push(line); }\n      $1');
+            drawData_string = drawData_string.replace(/(addClass\('nickname.*?)('enl')/,'$1(playerData.team === \'NEUTRAL\' ? \'mac\' : $2)');
+            drawData_string = drawData_string.replace(/(var icon =.*?) : (.*?);/s,'$1 : (playerData.team === \'NEUTRAL\' ? new plugin.playerTracker.iconMac({ labelText: playerData.nick + (window.plugin.playerTrackerAddon.settings.showlastaction?\', \' + window.plugin.playerTracker.ago(playerData.events[playerData.events.length - 1].time,now):\'\') }) : $2);');
+            drawData_string = drawData_string.replace(/(m.addTo\(.*?) : (.*?);/s,'$1 : (playerData.team === \'NEUTRAL\' ? plugin.playerTracker.drawnTracesMac : $2);\n');
+            drawData_string = drawData_string.replace(/\}$/s,`
+    $.each(polyLineByAgeMac, function(plrname, polyLineByAge) {
+        $.each(polyLineByAge, function(i, polyLine) {
+            if(polyLine.length === 0) return true;
+
+            var opts = {
+                weight: 2-0.25*i,
+                color: window.plugin.playerTracker.stored[plrname].color,
+                interactive: false,
+                opacity: 1-0.2*i,
+                dashArray: "5,8"
+            };
+
+            $.each(polyLine, function(ind,poly) {
+                L.polyline(poly, opts).addTo(plugin.playerTracker.drawnTracesMac);
+            });
+        });
+    });
+    console.log('NEUTRAL PLAYER INJECTED');
+}`);
+            console.log(drawData_string);
+            try {
+                eval('window.plugin.playerTracker.drawData = ' + drawData_string);
+            } catch(e) {
+                console.log('PLAYERTRACKERADDON - ERROR: injecting code for drawData failed');
+            }
         }
 
         // inject an extra function into the playerTracker publicChatDataAvailable handleData hook:
         var handleData_override = window.plugin.playerTracker.handleData.toString();
         handleData_override = handleData_override.replace('}','  ' + self.namespace + 'updateplayerlist();\n}');
+        if (!handleData_override.match(/drawnTracesMac/)) {
+            handleData_override = handleData_override.replace(/(clearLayers.*?\n)/s,'$1  window.plugin.playerTracker.drawnTracesMac.clearLayers();\n');
+        }
         eval('window.plugin.playerTracker.handleData = ' + handleData_override);
         for (let callback of window._hooks.publicChatDataAvailable) {
             if (callback.toString().match('playerTracker')) {

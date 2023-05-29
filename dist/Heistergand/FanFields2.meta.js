@@ -13,7 +13,7 @@
 // @issueTracker    https://github.com/Heistergand/fanfields2/issues
 // @homepageURL     https://github.com/Heistergand/fanfields2/
 // @depends         draw-tools@breunigs
-// @recommends      itc-plugin-bookmarks@ZasoGD
+// @recommends      bookmarks@ZasoGD
 // @preview         https://raw.githubusercontent.com/Heistergand/fanfields2/master/FanFields2.png
 // @match           https://intel.ingress.com/*
 // @include         https://intel.ingress.com/*

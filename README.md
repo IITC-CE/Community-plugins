@@ -676,7 +676,7 @@ Shows drone flight distance between portals
 Calculate how to link the portals to create the largest tidy set of nested fields. Enable from the layer chooser.
 
 *Depends*: [draw-tools@breunigs](#)  |
-*Recommends*: [itc-plugin-bookmarks@ZasoGD](#)  |
+*Recommends*: [bookmarks@ZasoGD](#)  |
 *[Homepage](https://github.com/Heistergand/fanfields2/)* |
 *[Issue tracker](https://github.com/Heistergand/fanfields2/issues)* |
 *Version:* 2.2.8

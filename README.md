@@ -2,7 +2,7 @@
 
 A collection of amazing plugins made by community.
 
-There are now 115 plugins from 32 authors in the collection.
+There are now 114 plugins from 32 authors in the collection.
 
 > Note: You must install IITC-CE on your [desktop](https://iitc.app/download_desktop)
 or [mobile device](https://iitc.app/download_mobile) to use IITC plugins.
@@ -664,22 +664,6 @@ Shows drone flight distance between portals
 
 *[Homepage](https://gitbub.com/VE6SRV/iitc-plugins)* |
 *Version:* 0.1
-
-
-  
-### [Fan Fields 2](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Heistergand/FanFields2.user.js) by Heistergand
-
-
-
-![preview](https://raw.githubusercontent.com/Heistergand/fanfields2/master/FanFields2.png)
-
-Calculate how to link the portals to create the largest tidy set of nested fields. Enable from the layer chooser.
-
-*Depends*: [draw-tools@breunigs](#)  |
-*Recommends*: [bookmarks@ZasoGD](#)  |
-*[Homepage](https://github.com/Heistergand/fanfields2/)* |
-*[Issue tracker](https://github.com/Heistergand/fanfields2/issues)* |
-*Version:* 2.2.8
 
 
   

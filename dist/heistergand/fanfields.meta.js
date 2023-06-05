@@ -3,11 +3,12 @@
 // @name            Fan Fields 2
 // @id              fanfields@heistergand
 // @category        Layer
-// @version         2.2.8
+// @version         2.3.0
 // @description     Calculate how to link the portals to create the largest tidy set of nested fields. Enable from the layer chooser.
 // @downloadURL     https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/heistergand/fanfields.user.js
 // @updateURL       https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/heistergand/fanfields.meta.js
-// @icon            https://raw.githubusercontent.com/Heistergand/fanfields2/master/favicon.ico
+// @icon            https://github.com/Heistergand/fanfields2/raw/master/fanfields2-16.png
+// @icon64          https://github.com/Heistergand/fanfields2/raw/master/fanfields2-64.png
 // @supportURL      https://github.com/Heistergand/fanfields2/issues
 // @namespace       https://github.com/Heistergand/fanfields2
 // @issueTracker    https://github.com/Heistergand/fanfields2/issues

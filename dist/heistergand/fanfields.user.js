@@ -3,7 +3,7 @@
 // @name            Fan Fields 2
 // @id              fanfields@heistergand
 // @category        Layer
-// @version         2.3.0
+// @version         2.3.1
 // @description     Calculate how to link the portals to create the largest tidy set of nested fields. Enable from the layer chooser.
 // @downloadURL     https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/heistergand/fanfields.user.js
 // @updateURL       https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/heistergand/fanfields.meta.js
@@ -24,6 +24,9 @@
 /*
 
 Version History:
+
+2.3.1 (Heistergand)
+FIX: Portals were difficult to select underneath the fanfileds plan.
 
 2.3.0 (Heistergand)
 NEW: Added Arc support.
@@ -784,9 +787,11 @@ function wrapper(plugin_info) {
                 iconSize: [thisplugin.LABEL_WIDTH,thisplugin.LABEL_HEIGHT],
                 html: labelText
             }),
-            guid: guid
+            guid: guid,
+            interactive: false
         });
         thisplugin.labelLayers[guid] = label;
+
         label.addTo(thisplugin.numbersLayerGroup);
 
     };
@@ -1396,6 +1401,7 @@ function wrapper(plugin_info) {
                 opacity: 1,
                 weight: 1.5,
                 clickable: false,
+                interactive: false,
                 smoothFactor: 10,
                 dashArray: thisplugin.linkDashArray,
             });
@@ -1409,6 +1415,7 @@ function wrapper(plugin_info) {
                 fillColor: '#FF0000',
                 fillOpacity: 0.1,
                 clickable: false,
+                interactive: false,
             });
         });
     };

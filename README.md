@@ -892,7 +892,7 @@ Display heatmap of all portals that the player did NOT visit/capture.
 
 Place markers on the map for your candidates in Wayfarer.
 
-*[Homepage](https://gitlab.com/AlfonsoML/wayfarer/)* |
+*[Homepage](https://alfonsoml-s.github.io/wayfarer-tools/)* |
 *Version:* 1.162
 
 

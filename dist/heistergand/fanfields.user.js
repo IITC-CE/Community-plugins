@@ -3,11 +3,11 @@
 // @name            Fan Fields 2
 // @id              fanfields@heistergand
 // @category        Layer
-// @version         2.3.1
+// @version         2.3.2
 // @description     Calculate how to link the portals to create the largest tidy set of nested fields. Enable from the layer chooser.
 // @downloadURL     https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/heistergand/fanfields.user.js
 // @updateURL       https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/heistergand/fanfields.meta.js
-// @icon            https://github.com/Heistergand/fanfields2/raw/master/fanfields2-16.png
+// @icon            https://github.com/Heistergand/fanfields2/raw/master/fanfields2-32.png
 // @icon64          https://github.com/Heistergand/fanfields2/raw/master/fanfields2-64.png
 // @supportURL      https://github.com/Heistergand/fanfields2/issues
 // @namespace       https://github.com/Heistergand/fanfields2
@@ -24,6 +24,16 @@
 /*
 
 Version History:
+2.3.2 (Heistergand)
+FIX: Updated download hint link for Drawtools 
+
+2.3.2 (Heistergand)
+NEW: Introducing code for upcoming multiple fanfields by Drawtools Colors
+FIX: some code refactorings
+FIX: SBUL defaults to 2 now, assuming most fields are done solo.
+FIX: If a marker is not actually snapped onto a portal it does not act as fan point anymore.
+FIX: When adding a marker, it's now selected as start portal.
+PAIN: it's so messy...
 
 2.3.1 (Heistergand)
 FIX: Portals were difficult to select underneath the fanfileds plan.
@@ -170,7 +180,6 @@ Click on a link to flip it's direction
 
 */
 
-
 function wrapper(plugin_info) {
     // ensure plugin framework is there, even if iitc is not yet loaded
     if(typeof window.plugin !== 'function') window.plugin = function() {};
@@ -196,7 +205,7 @@ function wrapper(plugin_info) {
     thisplugin.labelLayers = {};
 
     thisplugin.startingpoint = undefined;
-    thisplugin.availableSBUL = 4;
+    thisplugin.availableSBUL = 2;
 
     thisplugin.locations = [];
     thisplugin.fanpoints = [];
@@ -245,18 +254,22 @@ function wrapper(plugin_info) {
 
     };
 
-
-    // cycle to next starting point on the convex hull list of portals
-    thisplugin.nextStartingPoint = function() {
-        // *** startingpoint handling is duplicated in updateLayer().
-        var i = thisplugin.startingpointIndex + 1;
-        if (i >= thisplugin.perimeterpoints.length) {
-            i = 0;
-        }
+    thisplugin.updateStartingPoint = function(i) {
         thisplugin.startingpointIndex = i;
         thisplugin.startingpointGUID = thisplugin.perimeterpoints[thisplugin.startingpointIndex][0];
         thisplugin.startingpoint = this.fanpoints[thisplugin.startingpointGUID];
         thisplugin.updateLayer();
+    }
+
+    // cycle to next starting point on the convex hull list of portals
+    thisplugin.nextStartingPoint = function() {
+        // *** startingpoint handling is duplicated in updateLayer().
+        // debugger
+        var i = thisplugin.startingpointIndex + 1;
+        if (i >= thisplugin.perimeterpoints.length) {
+            i = 0;
+        }
+        thisplugin.updateStartingPoint(i);
     };
 
     thisplugin.previousStartingPoint = function() {
@@ -264,10 +277,7 @@ function wrapper(plugin_info) {
         if (i < 0) {
             i = thisplugin.perimeterpoints.length -1;
         }
-        thisplugin.startingpointIndex = i;
-        thisplugin.startingpointGUID = thisplugin.perimeterpoints[thisplugin.startingpointIndex][0];
-        thisplugin.startingpoint = this.fanpoints[thisplugin.startingpointGUID];
-        thisplugin.updateLayer();
+        thisplugin.updateStartingPoint(i);
     };
 
     thisplugin.generateTasks = function() {};
@@ -356,9 +366,6 @@ function wrapper(plugin_info) {
     }
 
     thisplugin.exportDrawtools = function() {
-        // todo: currently the link plan added to the DrawTools Layer. We need to replace existing
-        // drawn links and how about just exporting the json without saving it to the current draw?
-
         var alatlng, blatlng, layer;
         $.each(thisplugin.sortedFanpoints, function(index, portal) {
             $.each(portal.outgoing, function(targetIndex, targetPortal) {
@@ -551,11 +558,11 @@ function wrapper(plugin_info) {
                                                        '}\n'
                                                       ).appendTo("head");
 
-//             $("<style>").prop("type", "text/css").html('\n' +
-//                                                        '.plugin_fanfields_toolbox > span {\n' +
-//                                                        '   float: left;\n' +
-//                                                        '}\n'
-//                                                       ).appendTo("head");
+            //             $("<style>").prop("type", "text/css").html('\n' +
+            //                                                        '.plugin_fanfields_toolbox > span {\n' +
+            //                                                        '   float: left;\n' +
+            //                                                        '}\n'
+            //                                                       ).appendTo("head");
 
             $("<style>").prop("type", "text/css").html('\n' +
                                                        '#plugin_fanfields_toolbox a.highlight {\n' +
@@ -591,7 +598,7 @@ function wrapper(plugin_info) {
                                                        '   border: 1px solid #ffce00;\n' +
                                                        '   box-shadow: 3px 3px 5px black;\n' +
                                                        '   color: #ffce00;' +
-  //                                                     '   flex: 0 0 50%;' +
+                                                       //                                                     '   flex: 0 0 50%;' +
                                                        '}\n'
                                                       ).appendTo("head");
 
@@ -858,6 +865,13 @@ function wrapper(plugin_info) {
         return starting_ll.bearingToE6(other_ll);
     };
 
+    thisplugin.distanceTo = function (a, b) {
+        var starting_ll, other_ll;
+        starting_ll = map.unproject(a, thisplugin.PROJECT_ZOOM);
+        other_ll = map.unproject(b, thisplugin.PROJECT_ZOOM);
+        return starting_ll.distanceTo(other_ll);
+    }
+
     thisplugin.bearingWord = function(bearing) {
         var bearingword = '';
         if      (bearing >=  22 && bearing <=  67) bearingword = 'NE';
@@ -960,10 +974,14 @@ function wrapper(plugin_info) {
 
         // using marker as starting point, if option enabled
 
+        // TODO: possible loop start for layers by color?
+
         for (i in plugin.drawTools.drawnItems._layers) {
             var layer = plugin.drawTools.drawnItems._layers[i];
             if (layer instanceof L.Marker) {
+                //debugger;
                 console.log("Marker found")
+                // Todo: make this an array by color
                 thisplugin.startingMarker = map.project(layer.getLatLng(), thisplugin.PROJECT_ZOOM);
                 console.log("Marker set to " + thisplugin.startingMarker)
             }
@@ -1016,7 +1034,6 @@ function wrapper(plugin_info) {
             var p = map.project(ll, thisplugin.PROJECT_ZOOM);
             if (thisplugin.startingMarker !== undefined ) {
                 if (p.equals(thisplugin.startingMarker)) {
-                    debugger;
                     thisplugin.startingMarkerGUID = guid;
                     console.log("Marker GUID = " + thisplugin.startingMarkerGUID)
                 }
@@ -1052,15 +1069,19 @@ function wrapper(plugin_info) {
                     continue;
                 }
                 ll = fanLayer.getLatLngs();
-
+                // debugger;
                 polygon = [];
                 for ( k = 0; k < ll.length; ++k) {
                     p = map.project(ll[k], thisplugin.PROJECT_ZOOM);
                     polygon.push(p);
                 }
                 filtered = filter(locations, polygon);
+                // todo:
+                // add fanLayer._leaflet_id as information to the fanpoint
                 for (i in filtered) {
-                    result[i] = filtered[i];
+                    p = filtered[i];
+                    p.dtLayerColor = fanLayer.options.color;
+                    result[i] = p;
                 }
             }
             return result;
@@ -1068,29 +1089,85 @@ function wrapper(plugin_info) {
 
         this.sortedFanpoints = [];
 
-        this.fanpoints = findFanpoints(plugin.drawTools.drawnItems._layers,
+        thisplugin.dtLayers = plugin.drawTools.drawnItems.getLayers();
+
+        thisplugin.dtLayersByColor = function(dtLayers) {
+            // debugger;
+            var colors = [];
+            var color;
+            var result = [];
+            function checkColor(layer) {
+                return layer.color == this;
+            }
+            // get all colors
+            for(i in dtLayers) {
+                if (dtLayers[i] instanceof L.GeodesicPolygon) {
+                    color = dtLayers[i].options.color;
+
+                    // introducing a flattened color proprty to the layer, because
+                    // there is none at same object level across different dtLayer types.
+                    dtLayers[i].color = color;
+
+                    if (colors.indexOf(color) === -1) colors.push(color);
+                }
+                else if (dtLayers[i] instanceof L.Marker) {
+                    color = dtLayers[i].options.icon.options.color;
+                    dtLayers[i].color = color;
+                    if (colors.indexOf(color) === -1) colors.push(color);
+                }
+            }
+
+            for (i in colors) {
+                result.push(dtLayers.filter(checkColor, colors[i]));
+            }
+            // should return a multidimentional array of colors of layers.
+            return result;
+        };
+
+        this.layersByColor = thisplugin.dtLayersByColor(thisplugin.dtLayers);
+
+
+        // TODO: loop through layers by color to make the fanfields for each color of draws in drawtools.
+        // The problem is that it's not as capsuled as it should be. We need to refactor some stuff to
+        // ged rid of global vars and objects.
+
+        // for (let dtLayerByColor of this.layersByColor) {
+        //     this.fanpoints = findFanpoints(dtLayerByColor,
+        //                                    this.locations,
+        //                                    this.filterPolygon);
+        // }
+
+
+        // TODO: replace following with uncommented above.
+        this.fanpoints = findFanpoints(thisplugin.dtLayers,
                                        this.locations,
                                        this.filterPolygon);
 
 
         var npoints = Object.keys(this.fanpoints).length;
-        if (npoints === 0)
+        if (npoints === 0) {
             return;
-
-        // used in convexHull
-        function cross(a, b, o) {
-            return (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0])
-
         }
 
         // Find convex hull from fanpoints list of points
         // Returns array : [guid, [x,y],.....]
         function convexHull(points) {
+            // debugger;
+            // nested function
+            function cross(a, b, o) {
+                //return (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0])
+                return (a.x - o.x) * (b.y - o.y) - (a.y - o.y) * (b.x - o.x)
+            }
+
             // convert to array
-            var pa = Object.entries(points).map(p => [p[0], [p[1].x, p[1].y]]);
+            //var pa = Object.entries(points).map(p => Point [p[0], [p[1].x, p[1].y]]);
+            var pa = Object.entries(points).map(p => [p[0], p[1]]);
+
+
             // sort by x then y if x the same
             pa.sort(function(a, b) {
-                return a[1][0] == b[1][0] ? a[1][1] - b[1][1] : a[1][0] - b[1][0];
+                //return a[1][0] == b[1][0] ? a[1][1] - b[1][1] : a[1][0] - b[1][0];
+                return a[1].x == b[1].x ? a[1].y - b[1].y : a[1].x - b[1].x;
             });
 
             var lower = [];
@@ -1116,9 +1193,12 @@ function wrapper(plugin_info) {
         };
 
         // Add Marker Point to list of Fanpoints
+        // Todo: get color magic to the startingMarker
         if (thisplugin.startingMarker !== undefined) {
-            this.fanpoints[thisplugin.startingMarkerGUID] = thisplugin.startingMarker;
-
+            // debugger;
+            if (thisplugin.startingMarkerGUID in window.portals ) {
+                this.fanpoints[thisplugin.startingMarkerGUID] = thisplugin.startingMarker;
+            }
         }
 
         function extendperimeter(perimeter, GUID, point) {
@@ -1127,7 +1207,7 @@ function wrapper(plugin_info) {
             if (GUID !== undefined) {
                 debugger;
                 for (i = 0; i < perimeter.length; i++) {
-                    if (perimeter[i] == GUID) {
+                    if (perimeter[i] === GUID) {
                         //already in
                         done=true;
                         break;
@@ -1135,7 +1215,12 @@ function wrapper(plugin_info) {
                     if (done) break;
                 }
                 if (!done) {
-                    perimeter.push([GUID,[point.x, point.y]])
+                    // add the marker to the perimeter
+                    perimeter.unshift([GUID,[point.x, point.y]]);
+
+                    // tried to sort the list here to put the point at a position in the list so it's between it's
+                    // nearest points, but it has no effect if done here, it sorts itself new somewhere.
+                    // Quite confusing. Made me mad. Spaghetti code.
                 }
             }
             return perimeter;
@@ -1171,6 +1256,7 @@ function wrapper(plugin_info) {
         if (thisplugin.startingpointIndex >= thisplugin.perimeterpoints.length) {
             thisplugin.startingpointIndex = 0;
         }
+        // TODO: add color magic to log line
         console.log("startingpointIndex = " + thisplugin.startingpointIndex);
         thisplugin.startingpointGUID = thisplugin.perimeterpoints[thisplugin.startingpointIndex][0];
         thisplugin.startingpoint = this.fanpoints[thisplugin.startingpointGUID];
@@ -1293,6 +1379,8 @@ function wrapper(plugin_info) {
                                };
                 intersection = 0;
                 maplinks = [];
+
+                // "Respect Intel" stuff
                 if (thisplugin.respectCurrentLinks) {
                     $.each(thisplugin.intelLinks, function(guid,link){
                         maplinks.push(link);
@@ -1356,8 +1444,8 @@ function wrapper(plugin_info) {
             }
         }
 
-        $.each(donelinks, function(i,elem) {
-            thisplugin.links[i] = elem;
+        $.each(donelinks, function(i, link) {
+            thisplugin.links[i] = link;
         });
 
         if (this.sortedFanpoints.length > 3) {
@@ -1419,6 +1507,7 @@ function wrapper(plugin_info) {
             });
         });
     };
+
 
     // as calculating portal marker visibility can take some time when there's lots of portals shown, we'll do it on
     // a short timer. this way it doesn't get repeated so much
@@ -1530,7 +1619,7 @@ function wrapper(plugin_info) {
             }
 
             dialog({
-                html: '<b>Fan Fields 2</b><p>Fan Fields 2 requires the IITC Drawtools plugin</p><a href="https://iitc.me/desktop/">Download here</a>',
+                html: '<b>Fan Fields 2</b><p>Fan Fields 2 requires the IITC Drawtools plugin</p><a href="https://iitc.app/download_desktop#draw-tools-by-breunigs">Download here</a>',
                 id: 'plugin_fanfields_alert_dependencies',
                 title: 'Fan Fields - Missing dependency',
                 width: width

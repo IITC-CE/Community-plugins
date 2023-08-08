@@ -3,7 +3,7 @@
 // @id             IngressMaxFields@itayo
 // @name           Ingress Maxfields
 // @category       Information
-// @version        0.1.9.0
+// @version        0.2.0.0
 // @namespace      http://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/itayo/IngressMaxFields.meta.js
 // @downloadURL    https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/itayo/IngressMaxFields.user.js
@@ -114,7 +114,7 @@ function wrapper() {
     self.genStrFromPortal = function genStrFromPortal(portal, portalGuid) {
         var lat = portal._latlng.lat,
             lng = portal._latlng.lng,
-            title = portal.options.data.title || "untitled portal";
+            title = portal.options.data.title || portal.label || "untitled portal";
 
         return self.genStr(title, lat, lng, portalGuid);
     };

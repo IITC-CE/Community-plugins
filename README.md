@@ -586,7 +586,7 @@ Adds scanner link (copy mode) to IITC
 
 Exports portals in the format for http://www.ingress-maxfield.com/ and allow direct transfer to site
 
-*Version:* 0.1.9.0
+*Version:* 0.2.0.0
 
 
   

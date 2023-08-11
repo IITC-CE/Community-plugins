@@ -3,7 +3,7 @@
 // @name            Fan Fields 2
 // @id              fanfields@heistergand
 // @category        Layer
-// @version         2.4.0
+// @version         2.4.1
 // @description     Calculate how to link the portals to create the largest tidy set of nested fields. Enable from the layer chooser.
 // @downloadURL     https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/heistergand/fanfields.user.js
 // @updateURL       https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/heistergand/fanfields.meta.js
@@ -24,6 +24,8 @@
 /*
 
 Version History:
+2.4.1 (Heistergand)
+FIX: "Show as List" without having the Keys Plugin did not show any Keys.
 
 2.4.0 (Heistergand)
 NEW: Integrate functionality with Key Plugin.
@@ -430,7 +432,7 @@ function wrapper(plugin_info) {
 
                 availableKeysText = keyColorAttribute + '>' + availableKeys + '/';
             } else {
-                availableKeysText = '';
+                availableKeysText = '>';
             };
             text+='<tr><td>' + (index) + '</td><td>'+ title + '</td><td ' + availableKeysText + portal.incoming.length+ '</td><td>' + portal.outgoing.length + '</td></tr>';
         });

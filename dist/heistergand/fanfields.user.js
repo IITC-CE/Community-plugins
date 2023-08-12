@@ -3,7 +3,7 @@
 // @name            Fan Fields 2
 // @id              fanfields@heistergand
 // @category        Layer
-// @version         2.4.1
+// @version         2.5.0
 // @description     Calculate how to link the portals to create the largest tidy set of nested fields. Enable from the layer chooser.
 // @downloadURL     https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/heistergand/fanfields.user.js
 // @updateURL       https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/heistergand/fanfields.meta.js
@@ -24,6 +24,9 @@
 /*
 
 Version History:
+2.5.0 (Heistergand)
+NEW: Integrate key counts from LiveInventory plugin.
+
 2.4.1 (Heistergand)
 FIX: "Show as List" without having the Keys Plugin did not show any Keys.
 
@@ -420,9 +423,13 @@ function wrapper(plugin_info) {
             }
 
             let availableKeysText = '';
-
-            if (window.plugin.keys) {
-                let availableKeys = plugin.keys.keys[portal.guid] || 0;
+            let availableKeys = 0;
+            if (window.plugin.keys || window.plugin.LiveInventory) {
+                if (window.plugin.keys) {
+                    availableKeys = window.plugin.keys.keys[portal.guid] || 0;
+                } else {
+                    availableKeys = window.plugin.LiveInventory.keyGuidCount[portal.guid] || 0;
+                }
                 let keyColorAttribute = '';
                 if (availableKeys >= portal.incoming.length) {
                     keyColorAttribute = 'plugin_fanfields_enoughKeys';
@@ -437,7 +444,7 @@ function wrapper(plugin_info) {
             text+='<tr><td>' + (index) + '</td><td>'+ title + '</td><td ' + availableKeysText + portal.incoming.length+ '</td><td>' + portal.outgoing.length + '</td></tr>';
         });
         text+='</tbody></table>';
-        if (window.plugin.keys) {
+        if (window.plugin.keys || window.plugin.LiveInventory) {
             text+='<br><div plugin_fanfields_enoughKeys>Adjust available keys using your keys plugin.</div>';
         };
         text+='<hr noshade>';
@@ -718,7 +725,7 @@ function wrapper(plugin_info) {
                                                    '}\n'
                                                   ).appendTo("head");
 
-        if (window.plugin.keys) {
+        if (window.plugin.keys || window.plugin.LiveInventory) {
             $("<style>").prop("type", "text/css").html('\n' +
                                                        'td[plugin_fanfields_enoughKeys], div[plugin_fanfields_enoughKeys] {\n' +
                                                        '   color: #828284;\n' +

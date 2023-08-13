@@ -3,7 +3,7 @@
 // @name            Fan Fields 2
 // @id              fanfields@heistergand
 // @category        Layer
-// @version         2.5.0
+// @version         2.5.1
 // @description     Calculate how to link the portals to create the largest tidy set of nested fields. Enable from the layer chooser.
 // @downloadURL     https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/heistergand/fanfields.user.js
 // @updateURL       https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/heistergand/fanfields.meta.js
@@ -24,162 +24,13 @@
 /*
 
 Version History:
-2.5.0 (Heistergand)
-NEW: Integrate key counts from LiveInventory plugin.
-
-2.4.1 (Heistergand)
-FIX: "Show as List" without having the Keys Plugin did not show any Keys.
-
-2.4.0 (Heistergand)
-NEW: Integrate functionality with Key Plugin.
-NEW: Replace fieldset box design with a separated sidebar box.
-
-2.3.2 (Heistergand)
-NEW: Introducing code for upcoming multiple fanfields by Drawtools Colors
-FIX: some code refactorings
-FIX: SBUL defaults to 2 now, assuming most fields are done solo.
-FIX: If a marker is not actually snapped onto a portal it does not act as fan point anymore.
-FIX: When adding a marker, it's now selected as start portal.
-
-
-2.3.1 (Heistergand)
-FIX: Portals were difficult to select underneath the fanfileds plan.
-
-2.3.0 (Heistergand)
-NEW: Added Arc support.
-
-2.2.9 (Heistergand)
-FIX: Link direction indicator did not work anymore.
-NEW: Link direction indicator is now optional.
-NEW: New plugin icon showing a hand fan.
-
-2.2.8 (Heistergand)
-FIX: minor changes
-
-2.2.7 (Heistergand)
-FIX: Menue Buttons in Mobile version are now actually buttons.
-
-2.2.6 (Heistergand)
-NEW: Google Maps Portal Routing
-
-2.2.5 (Heistergand)
-NEW: Set how many SBUL you plan to use.
-FIX: Anchor shift button design changed
-
-2.2.4.1 (Heistergand)
-FIX: Fixed what should have been fixed in 2.2.4
-
-2.2.4 (Heistergand)
-FIX: Width of dialog boxes did extend screen size
-
-2.2.3 (Heistergand)
-FIX: Made Bookmark Plugin optional
-NEW: Anchor shifting ("Cycle Start") is now bidirectional.
-FIX: Some minor fixes and code formatting.
-
-2.2.2 (Heistergand)
-NEW: Added favicon.ico to script header.
-
-2.2.1 (Heistergand via Jormund)
-FIX: Merged from Jormund fork (2.1.7): Fixed L.LatLng extension
-
-2.2.0 (Heistergand)
-FIX: Reintroducing the marker function which was removed in 2.1.7
-     so that a Drawtools Marker can be used to force a portal
-     inside (or outside) the hull to be the anchor.
-
-2.1.10 (Heistergand)
-FIX: minor fixes
-
-2.1.9.2 (Heistergand)
-FIX: minor fixes
-
-
-
-2.1.9.1 (zysfryar)
-FIX: Fixed blank in header for compatibility with IITC-CE Button.
-
-2.1.9 (bryane50)
-FIX: Fix for missing constants in leaflet verion 1.6.0.
-
-2.1.8 (bryane50)
-NEW: Added starting portal advance button to select
-     among the list of perimeter portals.
-
-2.1.7 (bryane50)
-DEL: Removed marker and random selection of starting point portal.
-NEW: Replaced with use of first outer hull portal. This ensures
-     maximum fields will be generated.
-
-2.1.5 (Seth10)
-FIX: Minor syntax issue affecting potentially more strict runtimes
-
-2.1.4 (Seth10)
-FIX: Make the clockwise button change its label to "Counterclockwise" when toggled
-
-2.1.3 (Heistergand)
-FIX: added id tags to menu button elements, ...just because.
-
-2.1.2
-FIX: Minor issues
-
-2.1.1
-FIX: changed List export format to display as a table
-
-2.1.0
-NEW: Added save to DrawTools functionality
-NEW: Added fanfield statistics
-FIX: Changed some menu texts
-VER: Increased Minor Version due to DrawTools Milestone
-
-2.0.9
-NEW: Added the number of outgoing links to the simple list export
-
-2.0.8
-NEW: Toggle the direction of the star-links (Inbound/Outbound) and calculate number of SBUL
-FIX: Despite crosslinks, respecting the current intel did not handle done links
-
-2.0.7
-FIX: Sorting of the portals was not accurate for far distance anchors when the angle was too equal.
-NEW: Added option to respect current intel and not crossing lines.
-
-2.0.6
-FIX: Plan messed up on multiple polygons.
-
-2.0.5
-FIX: fan links abandoned when Marker was outside the polygon
-BUG: Issue found where plan messes up when using more than one polygon (fixed in 2.0.6)
-
-2.0.4
-NEW: Added Lock/Unlock button to freeze the plan and prevent recalculation on any events.
-NEW: Added a simple text export (in a dialog box)
-FIX: Several changes to the algorithm
-BUG: Issue found where links are closing fields on top of portals that are
-     successors in the list once you got around the startportal
-
-2.0.3
-FIX: Counterclockwise did not work properly
-NEW: Save as Bookmarks
-
-2.0.2
-NEW: Added Menu
-NEW: Added counterclockwise option
-FIX: Minor Bugfixes
-
-2.0.1
-NEW: Count keys to farm
-NEW: Count total fields
-NEW: Added labels to portals
-FIX: Links were drawn in random order
-FIX: Only fields to the center portal were drawn
+-- Version History moved into the code.
 
 Todo:
 
 Add a kind of system to have a cluster of Fanfields
 Calculate distance to walk for the plan (crow / streets)
 Calculate the most efficient possible plan based on ways to walk and keys to farm
-Export to Drawtools
-Export to Arcs
 Export to Tasks
 Bookmarks saving works, but let it also save into a Bookmarks Folder
 Calculate amount of possible rebuilds after flippinig the center portal
@@ -190,7 +41,277 @@ Click on a link to flip it's direction
 function wrapper(plugin_info) {
     // ensure plugin framework is there, even if iitc is not yet loaded
     if(typeof window.plugin !== 'function') window.plugin = function() {};
+    plugin_info.buildName = 'beta';
+    plugin_info.dateTimeVersion = '2023-08-12-184142';
+    plugin_info.pluginId = 'fanfields';
 
+    /* global L -- eslint */
+    /* exported setup, changelog --eslint */
+    let arcname = window.PLAYER.team === 'ENLIGHTENED' ? 'Arc' : '***';
+    var changelog = [
+        {
+            version: '2.5.1',
+            changes: [
+                'FIX: Prefer LiveInventory Plugin over Keys Plugin',
+            ],
+        },
+        {
+            version: '2.5.0',
+            changes: [
+                'NEW: Integrate key counts from LiveInventory plugin.',
+            ],
+        },
+        {
+            version: '2.4.1',
+            changes: [
+                'FIX: "Show as List" without having the Keys Plugin did not show any Keys.',
+            ],
+        },
+        {
+            version: '2.4.0',
+            changes: [
+                'NEW: Integrate functionality with Key Plugin.',
+                'NEW: Replace fieldset box design with a separated sidebar box.',
+            ],
+        },
+        {
+            version: '2.3.2',
+            changes: [
+                'NEW: Introducing code for upcoming multiple fanfields by Drawtools Colors',
+                'FIX: some code refactorings',
+                'FIX: SBUL defaults to 2 now, assuming most fields are done solo.',
+                'FIX: If a marker is not actually snapped onto a portal it does not act as fan point anymore.',
+                'FIX: When adding a marker, it\'s now selected as start portal.',
+            ],
+        },
+        {
+            version: '2.3.1',
+            changes: [
+                'FIX: Portals were difficult to select underneath the fanfileds plan.',
+            ],
+        },
+        {
+            version: '2.3.0',
+            changes: [
+                'NEW: Added '+arcname+' support.',
+            ],
+        },
+        {
+            version: '2.2.9',
+            changes: [
+                'FIX: Link direction indicator did not work anymore.',
+                'NEW: Link direction indicator is now optional.',
+                'NEW: New plugin icon showing a hand fan.',
+            ],
+        },
+        {
+            version: '2.2.8',
+            changes: [
+                'FIX: minor changes',
+            ],
+        },
+        {
+            version: '2.2.7',
+            changes: [
+                'FIX: Menue Buttons in Mobile version are now actually buttons.',
+            ],
+        },
+        {
+            version: '2.2.6',
+            changes: [
+                'NEW: Google Maps Portal Routing',
+            ],
+        },
+        {
+            version: '2.2.5',
+            changes: [
+                'NEW: Set how many SBUL you plan to use.',
+                'FIX: Anchor shift button design changed',
+            ],
+        },
+        {
+            version: '2.2.4',
+            changes: [
+                'FIX: Fixed what should have been fixed in 2.2.4',
+            ],
+        },
+        {
+            version: '2.2.4',
+            changes: [
+                'FIX: Width of dialog boxes did extend screen size',
+            ],
+        },
+        {
+            version: '2.2.3',
+            changes: [
+                'FIX: Made Bookmark Plugin optional',
+                'NEW: Anchor shifting ("Cycle Start") is now bidirectional.',
+                'FIX: Some minor fixes and code formatting.',
+            ],
+        },
+        {
+            version: '2.2.2',
+            changes: [
+                'NEW: Added favicon.ico to script header.',
+            ],
+        },
+        {
+            version: '2.2.1',
+            changes: [
+                'FIX: Merged from Jormund fork (2.1.7): Fixed L.LatLng extension',
+            ],
+        },
+
+        {
+            version: '2.2.0',
+            changes: [
+                'FIX: Reintroducing the marker function which was removed in 2.1.7 so that a Drawtools Marker can be used to force a portal inside (or outside) the hull to be the anchor.',
+            ],
+        },
+        {
+            version: '2.1.10',
+            changes: [
+                'FIX: minor fixes',
+            ],
+        },
+        {
+            version: '2.1.9',
+            changes: [
+                'FIX: minor fixes',
+            ],
+        },
+        {
+            version: '2.1.9',
+            changes: [
+                'FIX: Fixed blank in header for compatibility with IITC-CE Button.',
+            ],
+        },
+        {
+            version: '2.1.9',
+            changes: [
+                'FIX: Fix for missing constants in leaflet verion 1.6.0.',
+            ],
+        },
+        {
+            version: '2.1.8',
+            changes: [
+                'NEW: Added starting portal advance button to select among the list of perimeter portals.',
+            ],
+        },
+        {
+            version: '2.1.7',
+            changes: [
+                'DEL: Removed marker and random selection of starting point portal.',
+                'NEW: Replaced with use of first outer hull portal. This ensures maximum fields will be generated.',
+            ],
+        },
+        {
+            version: '2.1.5',
+            changes: [
+                'FIX: Minor syntax issue affecting potentially more strict runtimes',
+            ],
+        },
+        {
+            version: '2.1.4',
+            changes: [
+                'FIX: Make the clockwise button change its label to "Counterclockwise" when toggled',
+            ],
+        },
+        {
+            version: '2.1.3',
+            changes: [
+                'FIX: added id tags to menu button elements, ...just because.',
+            ],
+        },
+        {
+            version: '2.1.2',
+            changes: [
+                'FIX: Minor issues',
+            ],
+        },
+        {
+            version: '2.1.1',
+            changes: [
+                'FIX: changed List export format to display as a table',
+            ],
+        },
+        {
+            version: '2.1.0',
+            changes: [
+                'NEW: Added save to DrawTools functionality',
+                'NEW: Added fanfield statistics',
+                'FIX: Changed some menu texts',
+                'VER: Increased Minor Version due to DrawTools Milestone',
+            ],
+        },
+        {
+            version: '2.0.9',
+            changes: [
+                'NEW: Added the number of outgoing links to the simple list export',
+            ],
+        },
+        {
+            version: '2.0.8',
+            changes: [
+                'NEW: Toggle the direction of the star-links (Inbound/Outbound) and calculate number of SBUL',
+                'FIX: Despite crosslinks, respecting the current intel did not handle done links',
+            ],
+        },
+        {
+            version: '2.0.7',
+            changes: [
+                'FIX: Sorting of the portals was not accurate for far distance anchors when the angle was too equal.',
+                'NEW: Added option to respect current intel and not crossing lines.',
+            ],
+        },
+        {
+            version: '2.0.6',
+            changes: [
+                'FIX: Plan messed up on multiple polygons.',
+            ],
+        },
+        {
+            version: '2.0.5',
+            changes: [
+                'FIX: fan links abandoned when Marker was outside the polygon',
+                'BUG: Issue found where plan messes up when using more than one polygon (fixed in 2.0.6)',
+            ],
+        },
+        {
+            version: '2.0.4',
+            changes: [
+                'NEW: Added Lock/Unlock button to freeze the plan and prevent recalculation on any events.',
+                'NEW: Added a simple text export (in a dialog box)',
+                'FIX: Several changes to the algorithm',
+                'BUG: Issue found where links are closing fields on top of portals that are successors in the list once you got around the startportal',
+            ],
+        },
+        {
+            version: '2.0.3',
+            changes: [
+                'FIX: Counterclockwise did not work properly',
+                'NEW: Save as Bookmarks',
+            ],
+        },
+        {
+            version: '2.0.2',
+            changes: [
+                'NEW: Added Menu',
+                'NEW: Added counterclockwise option',
+                'FIX: Minor Bugfixes',
+            ],
+        },
+        {
+            version: '2.0.1',
+            changes: [
+                'NEW: Count keys to farm',
+                'NEW: Count total fields',
+                'NEW: Added labels to portals',
+                'FIX: Links were drawn in random order',
+                'FIX: Only fields to the center portal were drawn',
+            ],
+        },
+    ];
     // PLUGIN START ////////////////////////////////////////////////////////
 
     // use own namespace for plugin
@@ -388,7 +509,10 @@ function wrapper(plugin_info) {
     }
 
     thisplugin.exportArcs = function() {
-
+        if (window.PLAYER.team === 'RESISTANCE') {
+            // sorry
+            return;
+        };
         var alatlng, blatlng, layer;
         $.each(thisplugin.sortedFanpoints, function(index, portal) {
             $.each(portal.outgoing, function(targetIndex, targetPortal) {
@@ -426,9 +550,9 @@ function wrapper(plugin_info) {
             let availableKeys = 0;
             if (window.plugin.keys || window.plugin.LiveInventory) {
                 if (window.plugin.keys) {
-                    availableKeys = window.plugin.keys.keys[portal.guid] || 0;
-                } else {
                     availableKeys = window.plugin.LiveInventory.keyGuidCount[portal.guid] || 0;
+                } else {
+                    availableKeys = window.plugin.keys.keys[portal.guid] || 0;
                 }
                 let keyColorAttribute = '';
                 if (availableKeys >= portal.incoming.length) {
@@ -620,7 +744,7 @@ function wrapper(plugin_info) {
                                                        '  margin-right: 7px;\n' +
                                                        '  text-align: center;\n' +
                                                        '}\n'
-                                          ).appendTo("head");
+                                                      ).appendTo("head");
 
         }
         else {
@@ -1698,7 +1822,7 @@ function wrapper(plugin_info) {
 
         // Write Arcs
         var buttonArcs = ''
-        if(typeof window.plugin.arcs != 'undefined') {
+        if(typeof window.plugin.arcs != 'undefined' && window.PLAYER.team === 'ENLIGHTENED') {
             buttonArcs = '<a class="plugin_fanfields_btn" id="plugin_fanfields_exportArcsBtn" onclick="window.plugin.fanfields.exportArcs();" title="Field Together Improve Human Mind">Write&nbsp;Arcs</a> ';
         };
 
@@ -1783,6 +1907,7 @@ function wrapper(plugin_info) {
 
 
     setup.info = plugin_info; //add the script info data to the function as a property
+    if (typeof changelog !== 'undefined') setup.info.changelog = changelog;
     if(!window.bootPlugins) window.bootPlugins = [];
     window.bootPlugins.push(setup);
     // if IITC has already booted, immediately run the 'setup' function

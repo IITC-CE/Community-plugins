@@ -7,6 +7,6 @@ recommends:
   - bookmarks@ZasoGD
   - draw-tools-plus@zaso
   - liveInventory@DanielOnDiordna
-  - keys
+  - keys@xelio
 author: Heistergand
 preview: https://raw.githubusercontent.com/Heistergand/fanfields2/master/FanFields2.png

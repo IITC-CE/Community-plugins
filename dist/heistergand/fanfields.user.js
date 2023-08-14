@@ -3,7 +3,7 @@
 // @name            Fan Fields 2
 // @id              fanfields@heistergand
 // @category        Layer
-// @version         2.5.1
+// @version         2.5.2
 // @description     Calculate how to link the portals to create the largest tidy set of nested fields. Enable from the layer chooser.
 // @downloadURL     https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/heistergand/fanfields.user.js
 // @updateURL       https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/heistergand/fanfields.meta.js
@@ -49,6 +49,12 @@ function wrapper(plugin_info) {
     /* exported setup, changelog --eslint */
     let arcname = window.PLAYER.team === 'ENLIGHTENED' ? 'Arc' : '***';
     var changelog = [
+        {
+            version: '2.5.2',
+            changes: [
+                'FIX: Prefer LiveInventory Plugin over Keys Plugin (hotfix)',
+            ],
+        },
         {
             version: '2.5.1',
             changes: [
@@ -549,7 +555,7 @@ function wrapper(plugin_info) {
             let availableKeysText = '';
             let availableKeys = 0;
             if (window.plugin.keys || window.plugin.LiveInventory) {
-                if (window.plugin.keys) {
+                if (window.plugin.LiveInventory) {
                     availableKeys = window.plugin.LiveInventory.keyGuidCount[portal.guid] || 0;
                 } else {
                     availableKeys = window.plugin.keys.keys[portal.guid] || 0;

@@ -3,10 +3,10 @@
 // @id             date-time@DanielOnDiordna
 // @name           Date and time
 // @category       Controls
-// @version        2.2.0.20220227.233000
+// @version        2.2.1.20230824.100900
 // @updateURL      https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/date-time.meta.js
 // @downloadURL    https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/date-time.user.js
-// @description    [danielondiordna-2.2.0.20220227.233000] Show date and time on the map, configurable time formatting, select a manual timezone, or automated timezones with your free GeoNames account.
+// @description    [danielondiordna-2.2.1.20230824.100900] Show date and time on the map, configurable time formatting, select a manual timezone, or automated timezones with your free GeoNames account.
 // @namespace      https://softspot.nl/ingress/
 // @match          https://intel.ingress.com/*
 // @grant          none
@@ -22,10 +22,14 @@ function wrapper(plugin_info) {
     var self = window.plugin.dateTime;
     self.id = 'dateTime';
     self.title = 'Date and time';
-    self.version = '2.2.0.20220227.233000';
+    self.version = '2.2.1.20230824.100900';
     self.author = 'DanielOnDiordna';
     self.changelog = `
 Changelog:
+
+version 2.2.1.20230824.100900
+- fixed the update of the checkpoint details title by adding a delay of 1 second
+- added a cycle interval timer to keep updating the popup title with the checkpoint details
 
 version 2.2.0.20220227.233000
 - dialog split up into separate menu pages
@@ -931,7 +935,7 @@ version 0.1
 
         // leaflet date time control
         window.L.DateTimeControl = window.L.Control.extend({
-            interval: 1000,
+            interval: 1000, // 1 second
             options: {
                 position: 'topleft'
             },
@@ -953,8 +957,10 @@ version 0.1
                 });
 
                 let t = this;
-                t.update();
-                setInterval(function () { t.update() }, this.interval)
+                t.update(); // update displayed time now
+                setInterval(function () {
+                    t.update();
+                }, this.interval); // keep updating displayed time every 1 second
 
                 if (this.options.color) this.color(this.options.color);
                 if (this.options.fontFamily) this.fontFamily(this.options.fontFamily);
@@ -1049,7 +1055,13 @@ version 0.1
         options.offsety = self.settings.offsetposition[self.settings.controlposition].y;
         self.control = window.L.dateTime(options).addTo(window.map);
         self.control.setTitle(self.settings.displaytooltipcycle ? self.getScoreCycleTimes() : '');
-        setTimeout(function() { self.control.setTitle(self.settings.displaytooltipcycle ? self.getScoreCycleTimes() : ''); }, self.getNextScoreCycleTime());
+
+        setTimeout(function() {
+            self.control.setTitle(self.settings.displaytooltipcycle ? self.getScoreCycleTimes() : '');
+            setInterval(function() {
+                self.control.setTitle(self.settings.displaytooltipcycle ? self.getScoreCycleTimes() : '');
+            }, 5*60*60*1000);
+        }, self.getNextScoreCycleTime() + 1000); // refresh the title 1 second after the new cycle starts, then keep refreshing at a fixed cycle interval of 5 hours
 
         // wait for other controls to initialize (then move to the edge)
         setTimeout(function() { self.control.moveToEdge(self.control); });

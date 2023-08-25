@@ -188,9 +188,9 @@ Cache the data of visible portals and use this to populate the map when possible
 
 
 
-[danielondiordna-2.2.0.20220227.233000] Show date and time on the map, configurable time formatting, select a manual timezone, or automated timezones with your free GeoNames account.
+[danielondiordna-2.2.1.20230824.100900] Show date and time on the map, configurable time formatting, select a manual timezone, or automated timezones with your free GeoNames account.
 
-*Version:* 2.2.0.20220227.233000
+*Version:* 2.2.1.20230824.100900
 
 
   

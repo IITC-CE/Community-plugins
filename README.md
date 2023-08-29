@@ -1393,9 +1393,9 @@ Append a pocket box containing some restricted details of the selected portal.
 
 
 
-[danielondiordna-1.0.1.20210725.171600] Override the portal and links display levels for every zoom level. Using this method can cause more bandwidth usage when showing more details at higher zoom levels.
+[danielondiordna-1.1.0.20230828.230800] Override the portal and links display levels for every zoom level. Using this method can cause more bandwidth usage when showing more details at higher zoom levels.
 
-*Version:* 1.0.1.20210725.171600
+*Version:* 1.1.0.20230828.230800
 
 
   

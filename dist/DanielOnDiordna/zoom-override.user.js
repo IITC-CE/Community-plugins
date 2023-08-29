@@ -2,10 +2,10 @@
 // @author          DanielOnDiordna
 // @name            Zoom Override
 // @category        Tweak
-// @version         1.0.1.20210725.171600
+// @version         1.1.0.20230828.230800
 // @updateURL       https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/zoom-override.meta.js
 // @downloadURL     https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/zoom-override.user.js
-// @description     [danielondiordna-1.0.1.20210725.171600] Override the portal and links display levels for every zoom level. Using this method can cause more bandwidth usage when showing more details at higher zoom levels.
+// @description     [danielondiordna-1.1.0.20230828.230800] Override the portal and links display levels for every zoom level. Using this method can cause more bandwidth usage when showing more details at higher zoom levels.
 // @id              zoom-override@DanielOnDiordna
 // @namespace       https://softspot.nl/ingress/
 // @antiFeatures    highLoad
@@ -23,20 +23,19 @@ function wrapper(plugin_info) {
     var self = window.plugin.zoomoverride;
     self.id = 'zoomoverride';
     self.title = 'Zoom Override';
-    self.version = '1.0.1.20210725.171600';
+    self.version = '1.1.0.20230828.230800';
     self.author = 'DanielOnDiordna';
     self.changelog = `
 Changelog:
 
-version 0.0.1.20161103.114500
-- earlier version
+version 1.1.0.20230828.230800
+- added a dialog to quickly set the load level by clicking the link/portal load level text at the bottom of the screen
+- reversed the changelog order to show last changes at the top
 
-version 0.0.1.20181030.211100
-- intel URL changed from www.ingress.com to *.ingress.com
-
-version 0.0.2.20210128.234000
-- updated plugin wrapper and userscript header formatting to match IITC-CE coding
-- fix to work in IITC CE as well
+version 1.0.1.20210725.171600
+- prevent double plugin setup
+- changed zoom level texts to match mobile texts and IITC-CE 0.32.0 texts
+- added changelog button in the mobile pane
 
 version 1.0.0.20210704.120900
 - changed tweak method from eval function modification to a function replacement with a callback to the original function
@@ -44,10 +43,15 @@ version 1.0.0.20210704.120900
 - added highlighter for the active zoom level in the menu
 - added an override enable checkbox in the menu, synced with the layer toggle checkbox
 
-version 1.0.1.20210725.171600
-- prevent double plugin setup
-- changed zoom level texts to match mobile texts and IITC-CE 0.32.0 texts
-- added changelog button in the mobile pane
+version 0.0.2.20210128.234000
+- updated plugin wrapper and userscript header formatting to match IITC-CE coding
+- fix to work in IITC CE as well
+
+version 0.0.1.20181030.211100
+- intel URL changed from www.ingress.com to *.ingress.com
+
+version 0.0.1.20161103.114500
+- earlier version
 `;
     self.namespace = 'window.plugin.' + self.id + '.';
     self.pluginname = 'plugin-' + self.id;
@@ -97,10 +101,14 @@ version 1.0.1.20210725.171600
     self.toggleoverride = undefined;
     self.menucontainer = undefined;
 
+    self.quickzoom = 0;
+
     self.getDataZoomForMapZoom = function(zoom) {
         let newzoom = zoom;
 
-        if (self.settings.zoomoverridechecked && self.settings.check[zoom] == 1) {
+        if (self.quickzoom) {
+            newzoom = self.quickzoom;
+        } else if (self.settings.zoomoverridechecked && self.settings.check[zoom] == 1) {
             newzoom = self.settings.showzoom[zoom];
         }
 
@@ -139,6 +147,10 @@ version 1.0.1.20210725.171600
         let zoomlevel = window.map.getZoom();
         $('.' + self.id + 'mainmenu span.active').removeClass();
         $('#' + self.id + '_level' + zoomlevel).addClass('active');
+
+        $(`.${self.id}_zoomlevel_text`).text(window.map.getZoom());
+        $(`.${self.id}_default_text`).text(self.zoomtext[window.map.getZoom()]);
+        $(`.${self.id}_override_text`).text(self.zoomtext[self.settings.showzoom[window.map.getZoom()]]);
     };
 
     self.menu = function() {
@@ -153,10 +165,11 @@ version 1.0.1.20210725.171600
 
         layertoggle.addEventListener('change', function(e) {
             e.preventDefault();
-            if (this.checked && !window.map.hasLayer(self.toggleoverride))
+            if (this.checked && !window.map.hasLayer(self.toggleoverride)) {
                 window.map.addLayer(self.toggleoverride);
-            else if (!this.checked && window.map.hasLayer(self.toggleoverride))
+            } else if (!this.checked && window.map.hasLayer(self.toggleoverride)) {
                 window.map.removeLayer(self.toggleoverride);
+            }
         },false);
 
         let sortedzoomlevels = Object.keys(self.zoomlevels).map(function(key) { return {key:key,value:self.zoomlevels[key]}; }).sort(function(a,b) { let x = a.value; let y = b.value; return ((x > y) ? -1 : ((x < y) ? 1 : 0)); });
@@ -240,6 +253,62 @@ version 1.0.1.20210725.171600
         }
     };
 
+    self.setquickzoom = function(zoom) {
+        if (zoom != self.quickzoom) {
+            self.quickzoom = zoom;
+            window.mapDataRequest.start();
+        }
+    };
+
+    self.showquickdialog = function() {
+        let container = document.createElement('div');
+        container.className = `${self.id}_quickdialog`;
+        container.innerHTML = `
+Quickly set a view level<br>
+for this zoom level: <span class="${self.id}_zoomlevel_text active"></span>
+<button class="${self.id}_showportals_button">Show portals</button>
+<button class="${self.id}_showlinks_button">Show links: all links</button>
+<button class="${self.id}_showdefault_button">Show default: <span class="${self.id}_default_text"></span></button>
+<button class="${self.id}_showoverride_button">Show override: <span class="${self.id}_override_text"></span></button>
+`;
+
+        container.querySelector(`.${self.id}_zoomlevel_text`).innerText = window.map.getZoom();
+        container.querySelector(`.${self.id}_default_text`).innerText = self.zoomtext[window.map.getZoom()];
+        container.querySelector(`.${self.id}_override_text`).innerText = self.zoomtext[self.settings.showzoom[window.map.getZoom()]];
+
+        container.querySelector(`.${self.id}_showportals_button`).addEventListener('click',function(e) {
+            self.setquickzoom(self.zoomlevels['portals'] || self.zoomlevels['portals: all']);
+        },false);
+        container.querySelector(`.${self.id}_showlinks_button`).addEventListener('click',function(e) {
+            self.setquickzoom(self.zoomlevels['links: all links'] || self.zoomlevels['all links']);
+        },false);
+        container.querySelector(`.${self.id}_showdefault_button`).addEventListener('click',function(e) {
+            self.setquickzoom(window.map.getZoom());
+        },false);
+        container.querySelector(`.${self.id}_showoverride_button`).addEventListener('click',function(e) {
+            self.setquickzoom(self.settings.showzoom[window.map.getZoom()]);
+        },false);
+
+        window.dialog({
+            id: self.pluginname + '-dialog',
+            html: container,
+            width: 'auto',
+            title: "Quick " + self.title
+        }).dialog('option', 'buttons', {
+            '< Main menu': function() {
+                if (window.useAndroidPanes()) {
+                    $(this).dialog('close');
+                    if (window.currentPane != self.pluginname) {
+                        window.show(self.pluginname);
+                    }
+                } else {
+                    self.menu();
+                }
+            },
+            'Close': function() { $(this).dialog('close'); }
+        });
+    };
+
     self.onPaneChanged = function(pane) {
 		if (pane == self.pluginname) {
             self.menu();
@@ -321,7 +390,7 @@ version 1.0.1.20210725.171600
             }, false);
         }
 
-        self.toggleoverride = new L.LayerGroup();
+        self.toggleoverride = new window.L.LayerGroup();
         window.addLayerGroup(self.title, self.toggleoverride, false);
         window.map.on('layeradd', function(obj) {
             if (obj.layer === self.toggleoverride) {
@@ -348,18 +417,33 @@ version 1.0.1.20210725.171600
             }
         });
         window.map.on('zoomend', self.updatemenu);
+        window.map.on('zoomend movestart', function() {
+            self.quickzoom = 0;
+        });
 
-        var sheet = document.createElement('style')
-        sheet.innerHTML = '';
-        sheet.innerHTML += '.' + self.id + 'mainmenu label { user-select: none; }';
-        sheet.innerHTML += '.' + self.id + 'author { margin-top: 14px; font-style: italic; font-size: smaller; }';
-        sheet.innerHTML += '#' + self.id + 'panemenu { background: transparent; border: 0 none !important; height: 100% !important; width: 100% !important; left: 0 !important; top: 0 !important; position: absolute; overflow: auto; }';
-        sheet.innerHTML += '.' + self.id + 'mainmenu span.active { font-weight: bold; color: #ffce00; }';
-        document.body.appendChild(sheet);
+        var stylesheet = document.createElement('style');
+        stylesheet.innerHTML = `
+.${self.id}mainmenu label { user-select: none; }
+.${self.id}author { margin-top: 14px; font-style: italic; font-size: smaller; }
+#${self.id}panemenu { background: transparent; border: 0 none !important; height: 100% !important; width: 100% !important; left: 0 !important; top: 0 !important; position: absolute; overflow: auto; }
+.${self.id}mainmenu span.active { font-weight: bold; color: #ffce00; }
+.${self.id}_quickdialog .active { font-weight: bold; color: #ffce00; }
+.${self.id}_quickdialog button { width: 200px; display: block; margin-block-start: 6px; cursor: pointer; }
+`;
+        document.body.appendChild(stylesheet);
 
         // override function:
         self.standardZoomFunction = window.getDataZoomForMapZoom;
         window.getDataZoomForMapZoom = self.getDataZoomForMapZoom;
+
+        setTimeout(function() {
+            document.querySelector('#innerstatus').addEventListener('click',function(e) {
+                if (e.target == document.querySelector('#innerstatus #loadlevel')) {
+                    console.log(e.target);
+                    self.showquickdialog();
+                }
+            },false);
+        });
 
         console.log('IITC plugin loaded: ' + self.title + ' version ' + self.version);
     };

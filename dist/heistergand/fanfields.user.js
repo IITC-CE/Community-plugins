@@ -1,9 +1,9 @@
 // ==UserScript==
 // @author          Heistergand
-// @name            Fan Fields 2
+// @name            Fan Fields 2 
 // @id              fanfields@heistergand
 // @category        Layer
-// @version         2.5.2
+// @version         2.5.3.20230919
 // @description     Calculate how to link the portals to create the largest tidy set of nested fields. Enable from the layer chooser.
 // @downloadURL     https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/heistergand/fanfields.user.js
 // @updateURL       https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/heistergand/fanfields.meta.js
@@ -42,13 +42,19 @@ function wrapper(plugin_info) {
     // ensure plugin framework is there, even if iitc is not yet loaded
     if(typeof window.plugin !== 'function') window.plugin = function() {};
     plugin_info.buildName = 'beta';
-    plugin_info.dateTimeVersion = '2023-08-12-184142';
+    plugin_info.dateTimeVersion = '2023-09-19-233542';
     plugin_info.pluginId = 'fanfields';
 
     /* global L -- eslint */
     /* exported setup, changelog --eslint */
     let arcname = window.PLAYER.team === 'ENLIGHTENED' ? 'Arc' : '***';
     var changelog = [
+        {
+            version: '2.5.3',
+            changes: [
+                'NEW: Saving to Bookmarks now creates a folder in the Bookmarks list.',
+            ],
+        },
         {
             version: '2.5.2',
             changes: [
@@ -359,6 +365,7 @@ function wrapper(plugin_info) {
         // loop thru portals and UN-Select them for bkmrks
         var bkmrkData, list;
         thisplugin.sortedFanpoints.forEach(function(point, index) {
+
             bkmrkData = window.plugin.bookmarks.findByGuid(point.guid);
             if(bkmrkData) {
 
@@ -374,19 +381,44 @@ function wrapper(plugin_info) {
 
                 window.runHooks('pluginBkmrksEdit', {"target": "portal", "action": "remove", "folder": bkmrkData.id_folder, "id": bkmrkData.id_bookmark, "guid":point.guid});
 
-                console.log('BOOKMARKS via FANFIELDS: removed portal ('+bkmrkData.id_bookmark+' situated in '+bkmrkData.id_folder+' folder)');
+                console.log('Fanfields2: removed BOOKMARKS portal ('+bkmrkData.id_bookmark+' situated in '+bkmrkData.id_folder+' folder)');
             }
         });
+
+
+        let type = "folder";
+        let label = 'Fanfields2';
+        // Add new folder in the localStorage
+        let folder_ID = window.plugin.bookmarks.generateID();
+        window.plugin.bookmarks.bkmrksObj.portals[folder_ID] = {"label":label,"state":1,"bkmrk":{}};
+
+        window.plugin.bookmarks.saveStorage();
+        window.plugin.bookmarks.refreshBkmrks();
+        window.runHooks('pluginBkmrksEdit', {"target": type, "action": "add", "id": folder_ID});
+        console.log('Fanfields2: added BOOKMARKS '+type+' '+folder_ID);
+
+        thisplugin.addPortalBookmark = function(guid, latlng, label, folder_ID) {
+            var bookmark_ID = window.plugin.bookmarks.generateID();
+
+            // Add bookmark in the localStorage
+            window.plugin.bookmarks.bkmrksObj.portals[folder_ID].bkmrk[bookmark_ID] = {"guid":guid,"latlng":latlng,"label":label};
+
+            window.plugin.bookmarks.saveStorage();
+            window.plugin.bookmarks.refreshBkmrks();
+            window.runHooks('pluginBkmrksEdit', {"target": "portal", "action": "add", "id": bookmark_ID, "guid": guid});
+            console.log('Fanfields2: added BOOKMARKS portal '+bookmark_ID);
+        }
+
         // loop again: ordered(!) to add them as bookmarks
         thisplugin.sortedFanpoints.forEach(function(point, index) {
             if (point.guid) {
                 var p = window.portals[point.guid];
                 var ll = p.getLatLng();
 
-                plugin.bookmarks.addPortalBookmark(point.guid, ll.lat+','+ll.lng, p.options.data.title);
+                //plugin.bookmarks.addPortalBookmark(point.guid, ll.lat+','+ll.lng, p.options.data.title);
+                thisplugin.addPortalBookmark(point.guid, ll.lat+','+ll.lng, p.options.data.title, folder_ID)
             }
         });
-
     };
 
     thisplugin.updateStartingPoint = function(i) {

@@ -667,7 +667,7 @@ Shows drone flight distance between portals
 
 
   
-### [Fan Fields 2](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/heistergand/fanfields.user.js) by Heistergand
+### [Fan Fields 2 ](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/heistergand/fanfields.user.js) by Heistergand
 
 
 
@@ -679,7 +679,7 @@ Calculate how to link the portals to create the largest tidy set of nested field
 *Recommends*: [bookmarks@ZasoGD](#) [draw-tools-plus@zaso](#) [liveInventory@DanielOnDiordna](#live-inventory-by-eisfrei---fork-by-danielondiordna) [keys@xelio](#)  |
 *[Homepage](https://github.com/Heistergand/fanfields2/)* |
 *[Issue tracker](https://github.com/Heistergand/fanfields2/issues)* |
-*Version:* 2.5.2
+*Version:* 2.5.3.20230919
 
 
   

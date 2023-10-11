@@ -2,10 +2,10 @@
 // @author         DanielOnDiordna
 // @name           Bookmarks add-on
 // @category       Addon
-// @version        0.0.8.20210802.234100
+// @version        2.0.1.20231011.001300
 // @updateURL      https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/bookmarks-addon.meta.js
 // @downloadURL    https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/bookmarks-addon.user.js
-// @description    [danielondiordna-0.0.8.20210802.234100] Bookmark plugin add-on, to replace the default yellow marker by a color marker (color change requires colorpicker or drawtools), and show bookmark names (layer), including optional scaling. Modified export file with timestamp in text/plain format. Also an option for bookmarks export to kml file format (for google maps). Integrated Spectrum Colorpicker 1.8.1
+// @description    [danielondiordna-2.0.1.20231011.001300] Bookmark plugin add-on, to replace the default yellow marker by a color marker (color change requires colorpicker or drawtools), and show bookmark names (layer), including optional scaling. Modified export file with timestamp in text/plain format. Also an option for bookmarks export to kml file format (for google maps). Add/remove bookmarks with filters for level, faction, captured, visited and resonator counts. Integrated Spectrum Colorpicker 1.8.1
 // @id             bookmarks-addon@DanielOnDiordna
 // @namespace      https://softspot.nl/ingress/
 // @depends        bookmarks@ZasoGD
@@ -23,36 +23,49 @@ function wrapper(plugin_info) {
     var self = window.plugin.bookmarksAddon;
     self.id = 'bookmarksAddon';
     self.title = 'Bookmarks add-on';
-    self.version = '0.0.8.20210802.234100';
+    self.version = '2.0.1.20231011.001300';
     self.author = 'DanielOnDiordna';
     self.changelog = `
 Changelog:
 
-version 0.0.1.20180405.092300
-- earlier version
+version 2.0.1.20231011.001300
+- fixed the captured filter where visited was mixed up with captured
+- added more details to the plugin description
 
-version 0.0.1.20181030.213900
-- intel URL changed from www.ingress.com to *.ingress.com
+version 2.0.0.20231011.000200
+- reformatted javascript code ES6 backticks
+- redesigned the add/remove bookmarks dialog
+- fixed the dialog id to hide the main dialog when selecting other submenus
+- modified kml export file with http urls to https urls
+- added KML file usage instructions with a link to My Google Maps
+- added filters for visited and captured for auto add bookmarks
+- added folder name for auto add bookmarks
+- added more confirm dialogs
 
-version 0.0.1.20191003.225300
-- added KML export function
+version 1.0.0.20230726.000800
+- first major release with lots of changes
+- reversed the changelog order to show last changes at the top
+- added window. in front of all global object references
+- added export to csv file with decimal sign and separator selectors
+- removed colon (:) from timestamp between hours minutes used in filenames
+- added support for Machina portals
+- fixed drawing bookmarks for unclaimed portals
+- removed fast functions from previous version
+- added a super fast drawbookmarks function
 
-version 0.0.2.20191223.152300
-- changed Export bookmarks file format from application/json to text/plain
-- added a timestamp to the Export bookmarks filename suggestion
+version 0.0.9.20211025.221800
+- test version to increase portal creation speed
+- created a fastAddPortalBookmark function
+- created a fastSwitchStarPortal function
 
-version 0.0.3.20200502.005000
-- added zoom scaling, replacing the option for smaller portals
+version 0.0.8.20210802.234100
+- added KML file export button
 
-version 0.0.4.20211701.233600
-- fixed the export file timestamp for IITC-CE
-- updated plugin wrapper and userscript header formatting to match IITC-CE coding
+version 0.0.7.20210724.002500
+- prevent double plugin setup on hook iitcLoaded
 
-version 0.0.5.20210119.230400
-- integrated Spectrum Colorpicker 1.8.1 plugin code, no need anymore for the separate plugin
-
-version 0.0.6.20210121.224700
-- version number fix
+version 0.0.7.20210421.190200
+- minor fix for IITC CE where runHooks iitcLoaded is executed before addHook is defined in this plugin
 
 version 0.0.7.20210218.232400
 - moved code to setup functions with comments for better understanding the code
@@ -60,14 +73,31 @@ version 0.0.7.20210218.232400
 - fixed dragging portals in the listbox for older versions of IITC
 - added an about menu and changelog display option
 
-version 0.0.7.20210421.190200
-- minor fix for IITC CE where runHooks iitcLoaded is executed before addHook is defined in this plugin
+version 0.0.6.20210121.224700
+- version number fix
 
-version 0.0.7.20210724.002500
-- prevent double plugin setup on hook iitcLoaded
+version 0.0.5.20210119.230400
+- integrated Spectrum Colorpicker 1.8.1 plugin code, no need anymore for the separate plugin
 
-version 0.0.8.20210802.234100
-- added KML file export button
+version 0.0.4.20211701.233600
+- fixed the export file timestamp for IITC-CE
+- updated plugin wrapper and userscript header formatting to match IITC-CE coding
+
+version 0.0.3.20200502.005000
+- added zoom scaling, replacing the option for smaller portals
+
+version 0.0.2.20191223.152300
+- changed Export bookmarks file format from application/json to text/plain
+- added a timestamp to the Export bookmarks filename suggestion
+
+version 0.0.1.20191003.225300
+- added KML export function
+
+version 0.0.1.20181030.213900
+- intel URL changed from www.ingress.com to *.ingress.com
+
+version 0.0.1.20180405.092300
+- earlier version
 `;
     self.namespace = 'window.plugin.' + self.id + '.';
     self.pluginname = 'plugin-' + self.id;
@@ -81,10 +111,16 @@ version 0.0.8.20210802.234100
     self.settings.resonators = '<=8';
     self.settings.enl = true;
     self.settings.res = true;
+    self.settings.mac = true;
+    self.settings.visited = "any";
+    self.settings.captured = "any";
     self.settings.addcolor = self.defaultcolor;
     self.settings.replace = true;
     self.settings.smaller = false;
     self.settings.override = false;
+    self.settings.csvseparator = "\t";
+    self.settings.csvdecimal = ".";
+    self.settings.autofolder = "auto add";
 
     self.labelLayerGroup = undefined;
     self.labeltimer = undefined;
@@ -115,6 +151,7 @@ version 0.0.8.20210802.234100
 
         if (portal.options.data.team === 'E' && !window.overlayStatus['Enlightened']) return false;
         if (portal.options.data.team === 'R' && !window.overlayStatus['Resistance']) return false;
+        if (portal.options.data.team === 'M' && !(window.overlayStatus['__MACHINA__'] || window.overlayStatus['U̶͚̓̍N̴̖̈K̠͔̍͑̂͜N̞̥͋̀̉Ȯ̶̹͕̀W̶̢͚͑̚͝Ṉ̨̟̒̅'])) return false;
         if (portal.options.data.team === 'N' && !window.overlayStatus['Unclaimed/Placeholder Portals']) return false;
         if (portal.options.data.team !== 'N' && !window.overlayStatus['Level ' + portal.options.data.level + ' Portals']) return false;
 
@@ -124,38 +161,58 @@ version 0.0.8.20210802.234100
     self.includeportal = function(portal) {
         if (!portal || !portal.options || !portal.options.data) return false;
 
-        //console.log('includeportal',portal.options.data.title,portal.options.data.team,self.settings.portallevel[0],portal.options.data.level);
+        // console.log('includeportal',portal.options.data.title,portal.options.data.team,self.settings.portallevel[0],portal.options.data.level,portal.options.data.history);
 
+        // Faction:
         if (portal.options.data.team === 'E' && !self.settings.enl) return false;
         if (portal.options.data.team === 'R' && !self.settings.res) return false;
+        if (portal.options.data.team === 'M' && !self.settings.mac) return false;
         if (portal.options.data.team === 'N' && !self.settings.portallevel[0]) return false;
-        if (!self.settings.portallevel[portal.options.data.level]) return false;
-        if (self.settings.resonators === '<8' && !(portal.options.data.resCount < 8)) return false;
-        if (self.settings.resonators === '8' && !(portal.options.data.resCount === 8)) return false;
-        if (self.settings.resonators === '<=8' && !(portal.options.data.resCount <= 8)) return false;
+
+        if (portal.options.data.team !== 'N') {
+            // Level:
+            if (!self.settings.portallevel[portal.options.data.level]) return false;
+            // Resonators:
+            if (self.settings.resonators === '<8' && !(portal.options.data.resCount < 8)) return false;
+            if (self.settings.resonators === '8' && !(portal.options.data.resCount === 8)) return false;
+            if (self.settings.resonators === '<=8' && !(portal.options.data.resCount <= 8)) return false;
+        }
+
+        // History:
+        if ('history' in portal.options.data && 'visited' in portal.options.data.history) {
+            if (self.settings.visited == "visited" && !portal.options.data.history.visited) return false;
+            if (self.settings.visited == "not-visited" && portal.options.data.history.visited) return false;
+        }
+        if ('history' in portal.options.data && 'captured' in portal.options.data.history) {
+            if (self.settings.captured == "captured" && !portal.options.data.history.captured) return false;
+            if (self.settings.captured == "not-captured" && portal.options.data.history.captured) return false;
+        }
 
         return true;
     };
 
-    self.addbookmarks = function() {
-        let visiblebounds = map.getBounds();
-        let color_backup = self.settings.color;
-        self.settings.color = self.settings.addcolor;
-        let addcnt = 0;
-        let replacecnt = 0;
-        let cnt = 0;
+    self.getmatchingportals = function() {
+        let visiblebounds = window.map.getBounds();
+        //let color_backup = self.settings.color;
+        //self.settings.color = self.settings.addcolor;
+        //let addcnt = 0;
+        //let replacecnt = 0;
+        //let cnt = 0;
+        let bookmarkslist = {}; // {<guid>:{folder:<string>,latlng:<window.L.LatLng>,label:<string>,color:<string>}};
         for (const guid in window.portals) {
             let portal = window.portals[guid];
             let latlng = portal.getLatLng();
             if (visiblebounds.contains(latlng)) {
-                cnt++;
+                //cnt++;
                 //console.log(cnt,portal.options.data.title,guid);
                 if (self.portalonvisiblelayer(portal) && self.includeportal(portal)) {
+                    bookmarkslist[guid] = {folder:self.settings.autofolder || "Other",latlng:latlng,label:portal.options.data.title,color:self.settings.addcolor};
+/*
                     let bkmrkData = window.plugin.bookmarks.findByGuid(guid);
                     let label = portal.options.data.title;
                     if (!bkmrkData) {
                         // add new bookmark:
-                        window.plugin.bookmarks.addPortalBookmark(guid,latlng.lat + ',' + latlng.lng,label);
+                        self.fastAddPortalBookmark(guid,latlng.lat + ',' + latlng.lng,label);
                         addcnt++;
                     } else if (window.plugin.bookmarks.bkmrksObj.portals[bkmrkData.id_folder].bkmrk[bkmrkData.id_bookmark].color != self.settings.addcolor) {
                         if (self.settings.replace) {
@@ -166,42 +223,190 @@ version 0.0.8.20210802.234100
                         }
                         replacecnt++;
                     }
+*/
                 }
             }
         }
-        if (addcnt > 0 || replacecnt > 0) window.plugin.bookmarks.updateStarPortal();
-        self.settings.color = color_backup;
-        alert('Added bookmarks: ' + addcnt + (self.settings.replace?'\nReplaced bookmarks:' + replacecnt:'\n(replace disabled, skipped: ' + replacecnt + ')'));
+        return bookmarkslist;
+    };
+
+    self.addmatchingbookmarks = function(bookmarkslist) {
+        let result = self.drawbookmarks(bookmarkslist,self.settings.replace); // {added:addcnt,changed:changecnt,skipped:skipcnt}
+
+        //if (addcnt > 0 || replacecnt > 0) window.plugin.bookmarks.updateStarPortal();
+        //self.settings.color = color_backup;
+        alert('Added bookmarks: ' + result.added + (self.settings.replace?'\nReplaced bookmarks:' + result.changed:'\n(skipped: ' + result.skipped + ')'));
+    };
+
+    self.countbookmarks = function(bounds,outofbounds) {
+        if (typeof outofbounds != "boolean") outofbounds = false;
+        let removecnt = 0;
+        for (const folderid in window.plugin.bookmarks.bkmrksObj.portals) {
+            if (!bounds) {
+                removecnt += Object.keys(window.plugin.bookmarks.bkmrksObj.portals[folderid].bkmrk).length;
+            } else {
+                for (const ID in window.plugin.bookmarks.bkmrksObj.portals[folderid].bkmrk) {
+                    let bookmark = window.plugin.bookmarks.bkmrksObj.portals[folderid].bkmrk[ID];
+                    let guid = bookmark.guid;
+                    let bookmarkpos = window.L.latLng(bookmark.latlng.split(","));
+                    if (!outofbounds && bounds.contains(bookmarkpos) || outofbounds && !bounds.contains(bookmarkpos)) {
+                        // remove existing bookmark:
+                        removecnt++;
+                    }
+                }
+            }
+        }
+        return removecnt;
+    };
+
+    self.clearbookmarks = function(bounds,outofbounds) {
+        // leave maps alone
+        // only clear all portals including folders
+        // optionally limit to portals within given bounds, or outofbounds (boolean) - this will keep all folders
+        if (typeof outofbounds != "boolean") outofbounds = false;
+        let removecnt = 0;
+        for (const folderid in window.plugin.bookmarks.bkmrksObj.portals) {
+            if (!bounds) {
+                removecnt += Object.keys(window.plugin.bookmarks.bkmrksObj.portals[folderid].bkmrk).length;
+            } else {
+                for (const ID in window.plugin.bookmarks.bkmrksObj.portals[folderid].bkmrk) {
+                    let bookmark = window.plugin.bookmarks.bkmrksObj.portals[folderid].bkmrk[ID];
+                    let guid = bookmark.guid;
+                    let bookmarkpos = window.L.latLng(bookmark.latlng.split(","));
+                    if (!outofbounds && bounds.contains(bookmarkpos) || outofbounds && !bounds.contains(bookmarkpos)) {
+                        // remove existing bookmark:
+                        delete window.plugin.bookmarks.bkmrksObj.portals[folderid].bkmrk[ID];
+                        removecnt++;
+                    }
+                }
+                if (folderid != 'idOthers' && removecnt > 0 && Object.keys(window.plugin.bookmarks.bkmrksObj.portals[folderid].bkmrk).length == 0) {
+                    // remove empty portals folder
+                    delete window.plugin.bookmarks.bkmrksObj.portals[folderid];
+                }
+            }
+        }
+        if (!bounds) {
+            window.plugin.bookmarks.bkmrksObj.portals = {idOthers:{label:"Others",state:1,bkmrk:{}}};
+        }
+
+        window.plugin.bookmarks.saveStorage();
+        window.plugin.bookmarks.refreshBkmrks();
+        window.runHooks('pluginBkmrksEdit', {"target": "all", "action": "reset"});
+        return removecnt;
+    };
+    self.drawbookmarks = function(bookmarkslist,replaceexisting) { // {<guid>:{folder:<string>,latlng:<window.L.LatLng>,label:<string>,color:<string>}};
+        // super fast: draw bookmarks instantly by replacing all bookmarks data, without slow hooks and console calls
+        replaceexisting = replaceexisting || false;
+        function saveAndRefreshBookmarks() {
+            window.plugin.bookmarks.saveStorage();
+            window.plugin.bookmarks.refreshBkmrks();
+            window.runHooks('pluginBkmrksEdit', {"target": "all", "action": "import"});
+        }
+        function createBookmarkData(guid,latlng,label,color) {
+            if (typeof latlng == 'object') {
+                latlng = latlng.lat+','+latlng.lng;
+            }
+            let bookmark = {"guid":guid,"latlng":latlng,"label":label};
+            if (window.plugin.bookmarksAddon) {
+                bookmark.color = color;
+            }
+            return bookmark;
+        }
+        function getBookmarksFolderID(bookmarksfolder) {
+            if (!bookmarksfolder) bookmarksfolder = "Others"; // default
+            let folderid = undefined;
+            for (const ID in window.plugin.bookmarks.bkmrksObj.portals) {
+                if (window.plugin.bookmarks.bkmrksObj.portals[ID].label == bookmarksfolder) {
+                    folderid = ID;
+                    break;
+                }
+            }
+            return folderid;
+        }
+        function createNewBookmarksFolder(bookmarksfolder) {
+            if (!bookmarksfolder) bookmarksfolder = "Others"; // default
+            let folderid = getBookmarksFolderID(bookmarksfolder);
+            if (!folderid) {
+                folderid = window.plugin.bookmarks.generateID();
+
+                window.plugin.bookmarks.bkmrksObj.portals[folderid] = {"label":bookmarksfolder,"state":1,"bkmrk":{}};
+                window.plugin.bookmarks.saveStorage();
+                window.plugin.bookmarks.refreshBkmrks();
+                window.runHooks('pluginBkmrksEdit', {"target": 'folder', "action": "add", "id": folderid});
+            }
+            return folderid;
+        }
+
+        let changecnt = 0,addcnt = 0,skipcnt = 0;
+        for (let guid in bookmarkslist) {
+            let bookmark = bookmarkslist[guid];
+            let bookmarkFolderID = createNewBookmarksFolder(bookmark.folder);
+
+            let newbookmarkdata = createBookmarkData(guid,bookmark.latlng,bookmark.label,bookmark.color);
+            let bkmrkData = window.plugin.bookmarks.findByGuid(guid);
+            if (bkmrkData) {
+                if (bookmarkFolderID == bkmrkData.id_folder &&
+                    newbookmarkdata.latlng == window.plugin.bookmarks.bkmrksObj.portals[bkmrkData.id_folder].bkmrk[bkmrkData.id_bookmark].latlng &&
+                    newbookmarkdata.label == window.plugin.bookmarks.bkmrksObj.portals[bkmrkData.id_folder].bkmrk[bkmrkData.id_bookmark].label &&
+                    newbookmarkdata.color == window.plugin.bookmarks.bkmrksObj.portals[bkmrkData.id_folder].bkmrk[bkmrkData.id_bookmark].color) {
+                    // same data, skip
+                    skipcnt++;
+                    continue;
+                }
+                if (!replaceexisting) {
+                    skipcnt++;
+                    continue;
+                }
+                // remove (to replace) existing bookmark:
+                delete window.plugin.bookmarks.bkmrksObj.portals[bkmrkData.id_folder].bkmrk[bkmrkData.id_bookmark];
+                changecnt++;
+            } else {
+                addcnt++;
+            }
+
+            // add new bookmark:
+            let ID = window.plugin.bookmarks.generateID();
+            window.plugin.bookmarks.bkmrksObj.portals[bookmarkFolderID].bkmrk[ID] = newbookmarkdata;
+        }
+
+        saveAndRefreshBookmarks();
+
+        //console.log('Bookmarks added: ' + addcnt + ' changed: ' + changecnt + ' unchanged: ' + skipcnt);
+        return {added:addcnt,changed:changecnt,skipped:skipcnt};
     };
 
     self.removebookmarks = function(includedportals) {
-        let visiblebounds = map.getBounds();
+        let visiblebounds = window.map.getBounds();
         let removecnt = 0;
-        for (const guid in window.portals) {
-            let portal = window.portals[guid];
-            let latlng = portal.getLatLng();
-            if (visiblebounds.contains(latlng) && self.portalonvisiblelayer(portal) && (!includedportals || includedportals && self.includeportal(portal))) {
-                let bkmrkData = window.plugin.bookmarks.findByGuid(guid);
-                if (bkmrkData) {
+        for (const folderid in window.plugin.bookmarks.bkmrksObj.portals) {
+            for (const ID in window.plugin.bookmarks.bkmrksObj.portals[folderid].bkmrk) {
+                let bookmark = window.plugin.bookmarks.bkmrksObj.portals[folderid].bkmrk[ID];
+                let guid = bookmark.guid;
+                let portal = window.portals[guid];
+                let bookmarkpos = window.L.latLng(bookmark.latlng.split(","));
+                if (visiblebounds.contains(bookmarkpos) && (!includedportals || includedportals && self.includeportal(portal))) {
                     // remove existing bookmark:
-                    window.plugin.bookmarks.switchStarPortal(guid);
+                    // self.fastSwitchStarPortal(guid);
+                    delete window.plugin.bookmarks.bkmrksObj.portals[folderid].bkmrk[ID];
                     removecnt++;
                 }
             }
+            if (folderid != 'idOthers' && removecnt > 0 && Object.keys(window.plugin.bookmarks.bkmrksObj.portals[folderid].bkmrk).length == 0) {
+                // remove empty portals folder
+                delete window.plugin.bookmarks.bkmrksObj.portals[folderid];
+            }
         }
-        window.plugin.bookmarks.updateStarPortal();
+
+//        window.plugin.bookmarks.updateStarPortal();
+        window.plugin.bookmarks.saveStorage();
+        window.plugin.bookmarks.refreshBkmrks();
+        window.runHooks('pluginBkmrksEdit', {"target": "all", "action": "reset"});
+
         alert('Removed bookmarks: ' + removecnt);
     };
 
     self.bookmarks2kml = function() {
         let bookmarkdata = JSON.parse(localStorage[window.plugin.bookmarks.KEY_STORAGE]);
-
-        let kml = [
-            '<?xml version="1.0" encoding="UTF-8"?>',
-            '<kml xmlns="http://www.opengis.net/kml/2.2">',
-            '  <Document>',
-            '    <name>Portals</name>',
-            '    <description/>'].join("\n") + "\n";
 
         let kmlstyles = {};
 
@@ -211,11 +416,11 @@ version 0.0.8.20210802.234100
                 continue;
             }
             let foldername = bookmarkdata.portals[folderid].label;
-            kmlfolders += [
-                '    <Folder>',
-                '      <name>' + foldername + '</name>'].join("\n") + "\n";
+            kmlfolders += `
+    <Folder>
+      <name>${foldername}</name>`;
             for (const bookmarkid in bookmarkdata.portals[folderid].bkmrk) {
-                let color = "#000000";
+                let color = self.defaultcolor;
                 if (bookmarkdata.portals[folderid].bkmrk[bookmarkid].color) {
                     color = bookmarkdata.portals[folderid].bkmrk[bookmarkid].color;
                 }
@@ -225,85 +430,110 @@ version 0.0.8.20210802.234100
                     let kmlcolor = color.replace(/^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i,"ff$3$2$1");
                     // convert rrggbb > aabbggrr, where aa=alpha (00 to ff); bb=blue (00 to ff); gg=green (00 to ff); rr=red (00 to ff)
                     // e65100 > ff0051e6
-//                        '<Style id="icon-1499-' + capscolor + '-labelson-nodesc">' +
-//                        '<color>' + kmlcolor + '</color>' +
-                    kmlstyles[color] = [
-                        '    <Style id="icon-1899-' + capscolor + '-nodesc-normal">',
-                        '      <IconStyle>',
-                        '        <color>' + kmlcolor + '</color>',
-                        '        <scale>1</scale>',
-                        '        <Icon>',
-                        '          <href>http://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png</href>',
-                        '        </Icon>',
-                        '        <hotSpot x="32" xunits="pixels" y="64" yunits="insetPixels"/>',
-                        '      </IconStyle>',
-                        '      <LabelStyle>',
-                        '        <scale>0</scale>',
-                        '      </LabelStyle>',
-                        '      <BalloonStyle>',
-                        '        <text><![CDATA[<h3>$[name]</h3>]]></text>',
-                        '      </BalloonStyle>',
-                        '    </Style>',
-                        '    <Style id="icon-1899-' + capscolor + '-nodesc-highlight">',
-                        '      <IconStyle>',
-                        '        <color>' + kmlcolor + '</color>',
-                        '        <scale>1</scale>',
-                        '        <Icon>',
-                        '          <href>http://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png</href>',
-                        '        </Icon>',
-                        '        <hotSpot x="32" xunits="pixels" y="64" yunits="insetPixels"/>',
-                        '      </IconStyle>',
-                        '      <LabelStyle>',
-                        '        <scale>1</scale>',
-                        '      </LabelStyle>',
-                        '      <BalloonStyle>',
-                        '        <text><![CDATA[<h3>$[name]</h3>]]></text>',
-                        '      </BalloonStyle>',
-                        '    </Style>',
-                        '    <StyleMap id="icon-1899-' + capscolor + '-nodesc">',
-                        '      <Pair>',
-                        '        <key>normal</key>',
-                        '        <styleUrl>#icon-1899-' + capscolor + '-nodesc-normal</styleUrl>',
-                        '      </Pair>',
-                        '      <Pair>',
-                        '        <key>highlight</key>',
-                        '        <styleUrl>#icon-1899-' + capscolor + '-nodesc-highlight</styleUrl>',
-                        '      </Pair>',
-                        '    </StyleMap>'].join("\n") + "\n";
+                    kmlstyles[color] = `
+    <Style id="icon-1899-${capscolor}-nodesc-normal">
+      <IconStyle>
+        <color>${kmlcolor}</color>
+        <scale>1</scale>
+        <Icon>
+          <href>https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png</href>
+        </Icon>
+        <hotSpot x="32" xunits="pixels" y="64" yunits="insetPixels"/>
+      </IconStyle>
+      <LabelStyle>
+        <scale>0</scale>
+      </LabelStyle>
+      <BalloonStyle>
+        <text><![CDATA[<h3>$[name]</h3>]]></text>
+      </BalloonStyle>
+    </Style>
+    <Style id="icon-1899-${capscolor}-nodesc-highlight">
+      <IconStyle>
+        <color>${kmlcolor}</color>
+        <scale>1</scale>
+        <Icon>
+          <href>https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png</href>
+        </Icon>
+        <hotSpot x="32" xunits="pixels" y="64" yunits="insetPixels"/>
+      </IconStyle>
+      <LabelStyle>
+        <scale>1</scale>
+      </LabelStyle>
+      <BalloonStyle>
+        <text><![CDATA[<h3>$[name]</h3>]]></text>
+      </BalloonStyle>
+    </Style>
+    <StyleMap id="icon-1899-${capscolor}-nodesc">
+      <Pair>
+        <key>normal</key>
+        <styleUrl>#icon-1899-${capscolor}-nodesc-normal</styleUrl>
+      </Pair>
+      <Pair>
+        <key>highlight</key>
+        <styleUrl>#icon-1899-${capscolor}-nodesc-highlight</styleUrl>
+      </Pair>
+    </StyleMap>`;
                 }
                 let guid = bookmarkdata.portals[folderid].bkmrk[bookmarkid].guid;
                 let bookmarkname = bookmarkdata.portals[folderid].bkmrk[bookmarkid].label;
                 if (bookmarkname.match(/[^a-zA-Z0-9 \-,.]/)) {
-                    bookmarkname = '<![CDATA[' + bookmarkname + ']]>';
+                    bookmarkname = `<![CDATA[${bookmarkname}]]>`;
                 }
                 let kmllatlng = bookmarkdata.portals[folderid].bkmrk[bookmarkid].latlng.replace(/^([^,]+),([^,]+)$/,"$2,$1");
                 bookmarkdata.portals[folderid].bkmrk[bookmarkid].latlng
                 let lat = bookmarkdata.portals[folderid].bkmrk[bookmarkid].latlng.match(/^([^,]+),/)[1];
                 let lng = bookmarkdata.portals[folderid].bkmrk[bookmarkid].latlng.match(/,([^,]+)$/)[1];
-                let permalinkUrl = location.href.match(/^([^/]+\/\/[^/]+)\//)[1] + '/intel?ll='+lat+','+lng+'&z=17&pll='+lat+','+lng;
-                kmlfolders += [
-                    '      <Placemark>',
-                    '        <name>' + bookmarkname + '</name>',
-                    '        <description><![CDATA[' + permalinkUrl + ']]></description>',
-                    '        <styleUrl>#icon-1899-' + capscolor + '-nodesc</styleUrl>',
-                    '        <Point>',
-                    '          <coordinates>',
-                    '            ' + kmllatlng + ',0',
-                    '          </coordinates>',
-                    '        </Point>',
-                    '      </Placemark>'].join("\n") + "\n";
+                let permalinkUrl = location.href.match(/^([^/]+\/\/[^/]+)\//)[1] + `/intel?ll=${lat},${lng}&z=17&pll=${lat},${lng}`;
+                kmlfolders += `
+      <Placemark>
+        <name>${bookmarkname}</name>
+        <description><![CDATA[${permalinkUrl}]]></description>
+        <styleUrl>#icon-1899-${capscolor}-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            ${kmllatlng},0
+          </coordinates>
+        </Point>
+      </Placemark>`;
             }
-            kmlfolders +=
-                '    </Folder>';
-            kmlfolders += "\n";
+            kmlfolders += `
+    </Folder>`;
         }
-        kml +=
-            Object.values(kmlstyles).join('') +
-            kmlfolders + [
-            '  </Document>',
-            '</kml>'].join("\n");
+
+        let kml =
+`<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="https://www.opengis.net/kml/2.2">
+  <Document>
+    <name>Portals</name>
+    <description/>${Object.values(kmlstyles).join('')}${kmlfolders}
+  </Document>
+</kml>`;
         // console.log(kml);
         return kml;
+    };
+
+    self.bookmarks2csv = function(separator,decimal) {
+        separator = separator || "\t";
+        let csv = [];
+        csv.push(['label','guid','lat','lng','color','folder'].join(separator));
+        for (const folderid in window.plugin.bookmarks.bkmrksObj.portals) {
+            let foldername = window.plugin.bookmarks.bkmrksObj.portals[folderid].label;
+            for (const ID in window.plugin.bookmarks.bkmrksObj.portals[folderid].bkmrk) {
+                let bookmark = window.plugin.bookmarks.bkmrksObj.portals[folderid].bkmrk[ID];
+                let bookmarkpos = window.L.latLng(bookmark.latlng.split(","));
+                let bookmarkname = bookmark.label;
+                if (bookmarkname.indexOf(separator) >= 0) {
+                    bookmarkname = bookmarkname.replaceAll('"','""');
+                    bookmarkname = '"' + bookmarkname + '"';
+                }
+                let lat = bookmarkpos.lat.toString().replaceAll('.',decimal);
+                if (decimal == separator) lat = '"' + lat + '"';
+                let lng = bookmarkpos.lng.toString().replaceAll('.',decimal);
+                if (decimal == separator) lng = '"' + lng + '"';
+                csv.push([bookmarkname,bookmark.guid,lat,lng,bookmark.color || "#000000",foldername].join(separator));
+            }
+        }
+        return csv.join("\n");
     };
 
     self.savekml = function() {
@@ -314,11 +544,17 @@ version 0.0.8.20210802.234100
     };
 
     self.exportkml = function() {
-        let kmldata = self.bookmarks2kml();
-        // ' + (typeof android !== 'undefined' && android && android.saveFile?' <a href="#" onclick="' + self.namespace + 'savekml(); return false;">Save file</a>':'') + '
-        dialog({
-            html: '<p><a href="#" onclick="$(\'.ui-dialog-bkmrksSet-copy textarea\').select(); return false;">Select all</a> and press CTRL+C to copy it.</p><textarea readonly>' + kmldata.replace(/</,'&lt;').replace(/>/,'&gt;') + '</textarea>',
-            id: 'bookmarks-dialog-id',
+        let container = document.createElement('div');
+        container.innerHTML = `
+<p><a href="#" onclick="$('.ui-dialog-bkmrksSet-copy textarea').select(); return false;">Select all</a> and press CTRL+C to copy it.</p>
+<textarea readonly></textarea>
+<p>Save the KML to a file, <a href="https://www.google.com/maps/d?hl=nl&amp;authuser=0&amp;action=open" target="_blank">Open My Google Maps</a>, make a Map and import the KML file</p>
+`;
+        container.querySelector('textarea').value = self.bookmarks2kml(); // .replace(/</,'&lt;').replace(/>/,'&gt;')
+
+        window.dialog({
+            html: container,
+            id: 'plugin-bookmarks-options',
             dialogClass: 'ui-dialog-bkmrksSet-copy',
             title: 'Bookmarks - KML Export'
         }).dialog('option', 'buttons', {
@@ -326,23 +562,68 @@ version 0.0.8.20210802.234100
             'Save file': function() { window.saveFile(kmldata,'IITC-bookmarks-' + self.timestamp() + '.kml','application/vnd.google-earth.kml+xml'); },
             'Close': function() { $(this).dialog('close'); },
         });
-    }
+    };
 
-    self.about = function() {
-        let html = '<div>' +
-            'Bookmarks add-on<br />' +
-            '<br />' +
-            'With colored bookmarks enabled the original bookmark image is replaced by an svg vector icon.<br />' +
-            'When a portal with a bookmark is selected, the color can be changed from the menu.<br />' +
-            'With add/remove bookmarks you can quickly draw bookmarks on portals by team, level or amount of resonators.<br />' +
-            'Portal lists can be exported to KML file format, which can be imported in Google maps.<br />' +
-            'Added an overlay layer for Bookmarked portal names.<br />' +
-            '<span style="font-style: italic; font-size: smaller">' + self.title + ' version ' + self.version + ' by ' + self.author + '</span>' +
-            '</div>';
+    self.exportcsv = function() {
+        let container = document.createElement('div');
+        container.innerHTML = `
+<p><a href="#">Select all</a> and press CTRL+C to copy it.</p>
+<p>Decimal sign: <select class="csvdecimal"><option value=".">45.1345</option><option value=",">45,1345</option></select>
+Separator: <select class="csvseparator"><option value="\t">tab</option><option value=";">;</option><option value=",">,</option></select></p>
+<textarea readonly></textarea>
+`;
+        container.querySelector('a').addEventListener('click',function(e) {
+            e.preventDefault();
+            container.querySelector('textarea').select();
+        },false);
+        let decimalselect = container.querySelector('select.csvdecimal');
+        decimalselect.value = self.settings.csvdecimal;
+        decimalselect.addEventListener('change',function(e) {
+            self.settings.csvdecimal = decimalselect.value;
+            self.storesettings();
+            container.querySelector('textarea').value = self.bookmarks2csv(self.settings.csvseparator,self.settings.csvdecimal);
+        },false);
+        let separatorselect = container.querySelector('select.csvseparator');
+        separatorselect.value = self.settings.csvseparator;
+        separatorselect.addEventListener('change',function(e) {
+            self.settings.csvseparator = separatorselect.value;
+            self.storesettings();
+            container.querySelector('textarea').value = self.bookmarks2csv(self.settings.csvseparator,self.settings.csvdecimal);
+        },false);
+        container.querySelector('textarea').value = self.bookmarks2csv(self.settings.csvseparator,self.settings.csvdecimal);
 
         window.dialog({
-            html: html,
-            id: 'bookmarks-dialog-id',
+            html: container,
+            id: 'plugin-bookmarks-options',
+            dialogClass: 'ui-dialog-bkmrksSet-copy',
+            title: 'Bookmarks - CSV Export'
+        }).dialog('option', 'buttons', {
+            '< Main menu': function() { window.plugin.bookmarks.manualOpt(); },
+            'Save file': function() { window.saveFile(container.querySelector('textarea').value,'IITC-bookmarks-' + self.timestamp() + '.csv','text/plain'); },
+            'Close': function() { $(this).dialog('close'); },
+        });
+    };
+
+    self.about = function() {
+        let container = document.createElement('div');
+        container.innerHTML = `
+Bookmarks add-on<br>
+<br>
+This add-on will add extra functionality to the stock plugin Bookmarks:<br>
+With colored bookmarks enabled the original bookmark image is replaced by an svg vector icon.<br>
+<br>
+With add/remove bookmarks you can quickly draw bookmarks on portals by level, faction, visited, captured or amount of resonators.<br>
+Bookmarked portals can be exported to KML file format, which can be imported in <a href="https://www.google.com/maps/d?hl=nl&amp;authuser=0&amp;action=open" target="_blank">My Google Maps</a>.<br>
+Bookmarked portals can also be exported to CSV file format.<br>
+When a portal with a bookmark is selected, the color can be changed from the menu.<br>
+<br>
+And also added an overlay layer for Bookmarked portal names.<br>
+<span style="font-style: italic; font-size: smaller">${self.title} version ${self.version} by ${self.author}</span>
+`;
+
+        window.dialog({
+            html: container,
+            id: 'plugin-bookmarks-options',
             dialogClass: 'ui-dialog-bkmrksSet',
             width: 'auto',
             title: self.title + ' - About'
@@ -354,45 +635,233 @@ version 0.0.8.20210802.234100
     };
 
     self.menu = function() {
-        let lvl = 0;
-        let lvlcheckboxes = '';
-        for (lvl = 1; lvl <= 8; lvl++) {
-            lvlcheckboxes += '<input type="checkbox" onclick="' + self.namespace + 'settings.portallevel[' + lvl + '] = this.checked; ' + self.namespace + 'storesettings();"' + (self.settings.portallevel[lvl]?' checked':'') + ' id="' + self.id + 'Level' + lvl + '"><label for="' + self.id + 'Level'+ lvl + '">' + lvl + '</label>';
-        }
-        let html = '<div id="bkmrksSetbox">' +
-            '<input type="text" id="' + self.id + '_addcolor"></input> Color<br />\n' +
-            'Include these portals:<br />\n' +
-            'Level: ' + lvlcheckboxes + '<br />\n' +
-            '<input type="checkbox" onclick="' + self.namespace + 'settings.portallevel[0] = this.checked; ' + self.namespace + 'storesettings();"' + (self.settings.portallevel[0]?' checked':'') + ' id="' + self.id + 'Unclaimed"><label for="' + self.id + 'Unclaimed">Unclaimed</label> ' +
-            '<input type="checkbox" onclick="' + self.namespace + 'settings.enl = this.checked; ' + self.namespace + 'storesettings();"' + (self.settings.enl?' checked':'') + ' id="' + self.id + 'Enlightened"><label for="' + self.id + 'Enlightened">Enlightened</label> ' +
-            '<input type="checkbox" onclick="' + self.namespace + 'settings.res = this.checked; ' + self.namespace + 'storesettings();"' + (self.settings.res?' checked':'') + ' id="' + self.id + 'Resistance"><label for="' + self.id + 'Resistance">Resistance</label><br />\n' +
-            '<select onchange="' + self.namespace + 'settings.resonators=this.value; ' + self.namespace + 'storesettings();">\n' +
-            '<option value="&lt;=8"' + (self.settings.resonators === '<=8'?' selected':'') + '>Any number of resonators</option>\n' +
-            '<option value="8"' + (self.settings.resonators === '8'?' selected':'') + '>Fully deployed</option>\n' +
-            '<option value="&lt;8"' + (self.settings.resonators === '<8'?' selected':'') + '>Missing resonators</option>\n' +
-            '</select><br />\n' +
-            '<input type="checkbox" onclick="' + self.namespace + 'settings.replace = this.checked; ' + self.namespace + 'storesettings();"' + (self.settings.replace?' checked':'') + ' id="' + self.id + 'Replace"><label for="' + self.id + 'Replace">replace existing bookmarks</label><br />\n' +
-            '(Only portals on visible layers will be used)<br />' +
-            '<a href="#" onclick="' + self.namespace + 'addbookmarks(); return false;">Add/replace included bookmarks now</a>' +
-            '<a href="#" onclick="if (confirm(\'Remove all included visible bookmarks?\')) ' + self.namespace + 'removebookmarks(true); return false;">Remove included bookmarks now</a>' +
-            '<a onclick="if (confirm(\'Remove all visible bookmarks?\')) ' + self.namespace + 'removebookmarks(false);return false;">Remove all visible bookmarks</a>' +
-            '<a onclick="window.plugin.bookmarks.optReset();return false;">Reset bookmarks</a>' +
-            '<span style="font-style: italic; font-size: smaller">version ' + self.version + ' by ' + self.author + '</span>' +
-            '</div>';
+        let container = document.createElement('div');
+        container.innerHTML = `
+<div>
+Only portals on visible layers will be used!<br>
+Include portals that match these options:<br>
+Level (<a href="#" name="selectlevels">select all</a>):<br>
+<span name="levels"><label><input type="checkbox" name="level1">1</label>
+<label><input type="checkbox" name="level2">2</label>
+<label><input type="checkbox" name="level3">3</label>
+<label><input type="checkbox" name="level4">4</label>
+<label><input type="checkbox" name="level5">5</label>
+<label><input type="checkbox" name="level6">6</label>
+<label><input type="checkbox" name="level7">7</label>
+<label><input type="checkbox" name="level8">8</label></span><br>
+Faction:<br>
+<label><input type="checkbox" name="unclaimed">Unclaimed</label>
+<label title="Enlightened"><input type="checkbox" name="enlightened">ENL</label>
+<label title="Resistance"><input type="checkbox" name="resistance">RES</label>
+<label title="Machina"><input type="checkbox" name="machina">MAC</label><br>
+History:<br>
+<label><input type="radio" name="visited" value="any">Any</label> <label><input type="radio" name="visited" value="visited">Visited</label> <label><input type="radio" name="visited" value="not-visited">Not-Visited</label><br>
+<label><input type="radio" name="captured" value="any">Any</label> <label><input type="radio" name="captured" value="captured">Captured</label> <label><input type="radio" name="captured" value="not-captured">Not-Captured</label><br>
+Resonators:<br>
+<select name="resonators">
+<option value="8">8 resonators</option>
+<option value="&lt;8">less then 8 resonators</option>
+<option value="&lt;=8">any resonators</option>
+</select><br>
+<input type="text" name="addsbookmarkscolor"></input> Color for new bookmarks<br>
+Add to folder: <input type="text" name="autofolder"><br>
+<label><input type="checkbox" name="replaceexisting">replace existing bookmarks</label><br>
+</div>
+<div id="bkmrksSetbox">
+<a href="#" name="addbookmarks">Add bookmarks...</a>
+<a href="#" name="removematching">Remove matching bookmarks...</a>
+<a href="#" name="clearvisible">Clear all visible bookmarks...</a>
+<a href="#" name="clearinvisible">Clear all invisible bookmarks...</a>
+<a href="#" name="clearallbookmarks">Clear all bookmarks + folders...</a>
+<a href="#" name="clearall">Reset bookmarks + maps...</a>
+<span style="font-style: italic; font-size: smaller">version ${self.version} by ${self.author}</span>
+</div>
+`;
 
-        dialog({
-            html: html,
-            id: 'bookmarks-dialog-id',
-            dialogClass: 'ui-dialog-bkmrksSet',
-            title: 'Bookmarks Add/Remove'
-        }).dialog('option', 'buttons', {
-            '< Main menu': function() { window.plugin.bookmarks.manualOpt(); },
-            'About': function() { self.about(); },
-            'Ok': function() { $(this).dialog('close'); },
-        });
+        let unclaimedcheckbox = container.querySelector('input[type=checkbox][name=unclaimed]');
+        let enlightenedcheckbox = container.querySelector('input[type=checkbox][name=enlightened]');
+        let resistancecheckbox = container.querySelector('input[type=checkbox][name=resistance]');
+        let machinacheckbox = container.querySelector('input[type=checkbox][name=machina]');
+        let resonatorsselect = container.querySelector('select[name=resonators]');
+        let replaceexistingcheckbox = container.querySelector('input[type=checkbox][name=replaceexisting]');
+        let addbookmarksbutton = container.querySelector('a[name=addbookmarks]');
+        let removematchingbutton = container.querySelector('a[name=removematching]');
+        let clearvisiblebutton = container.querySelector('a[name=clearvisible]');
+        let clearinvisiblebutton = container.querySelector('a[name=clearinvisible]');
+        let clearallbookmarksbutton = container.querySelector('a[name=clearallbookmarks]');
+        let clearallbutton = container.querySelector('a[name=clearall]');
+
+        let selectlevelslbutton = container.querySelector('a[name=selectlevels]');
+        selectlevelslbutton.addEventListener('click',function(e) {
+            e.preventDefault();
+            for (let lvl = 1; lvl <= 8; lvl++) {
+                let levelcheckbox = container.querySelector(`input[type=checkbox][name=level${lvl}]`);
+                levelcheckbox.checked = true;
+                self.settings.portallevel[lvl] = true
+            }
+            self.storesettings();
+        },false);
+
+        for (let lvl = 1; lvl <= 8; lvl++) {
+            let levelcheckbox = container.querySelector(`input[type=checkbox][name=level${lvl}]`);
+            levelcheckbox.checked = self.settings.portallevel[lvl];
+            levelcheckbox.addEventListener('click',function(e) {
+                self.settings.portallevel[lvl] = this.checked;
+                self.storesettings();
+            },false);
+        }
+        function disablelevelcheckboxes(disable = true) {
+            let levelcheckboxes = container.querySelectorAll(`span[name=levels] input[type=checkbox]`);
+            for (let levelcheckbox of levelcheckboxes) {
+                levelcheckbox.disabled = disable;
+            }
+        }
+
+        // if only unclaimed is selected, then resonator filter and level filters cannot be used
+        function updateform() {
+            resonatorsselect.disabled = (self.settings.portallevel[0] && !self.settings.enl && !self.settings.res && !self.settings.mac);
+            disablelevelcheckboxes(self.settings.portallevel[0] && !self.settings.enl && !self.settings.res && !self.settings.mac);
+            if (!self.settings.portallevel[0] && !self.settings.enl && !self.settings.res && !self.settings.mac) {
+                addbookmarksbutton.classList.add('disabled');
+                removematchingbutton.classList.add('disabled');
+            } else {
+                addbookmarksbutton.classList.remove('disabled');
+                removematchingbutton.classList.remove('disabled');
+            }
+        }
+        updateform();
+
+        unclaimedcheckbox.checked = self.settings.portallevel[0];
+        unclaimedcheckbox.addEventListener('click',function(e) {
+            self.settings.portallevel[0] = this.checked;
+            self.storesettings();
+            updateform();
+        },false);
+        enlightenedcheckbox.checked = self.settings.enl;
+        enlightenedcheckbox.addEventListener('click',function(e) {
+            self.settings.enl = this.checked;
+            self.storesettings();
+            updateform();
+        },false);
+        resistancecheckbox.checked = self.settings.res;
+        resistancecheckbox.addEventListener('click',function(e) {
+            self.settings.res = this.checked;
+            self.storesettings();
+            updateform();
+        },false);
+        machinacheckbox.checked = self.settings.mac;
+        machinacheckbox.addEventListener('click',function(e) {
+            self.settings.mac = this.checked;
+            self.storesettings();
+            updateform();
+        },false);
+
+        resonatorsselect.value = self.settings.resonators;
+        resonatorsselect.addEventListener('change',function(e) {
+            self.settings.resonators = this.value;
+            self.storesettings();
+        },false);
+
+        replaceexistingcheckbox.checked = self.settings.replace;
+        replaceexistingcheckbox.addEventListener('click',function(e) {
+            self.settings.replace = this.checked;
+            self.storesettings();
+        },false);
+
+        let autofolderinput = container.querySelector('input[type=text][name=autofolder]');
+        autofolderinput.value = self.settings.autofolder;
+        autofolderinput.addEventListener('change',function(e) {
+            self.settings.autofolder = autofolderinput.value;
+            self.storesettings();
+        },false);
+
+        let visited_radios = container.querySelectorAll('input[type=radio][name=visited]');
+        for (let radio of visited_radios) {
+            if (radio.value == self.settings.visited) {
+                radio.checked = true;
+            }
+            radio.addEventListener('change',function(e) {
+                self.settings.visited = radio.value;
+                self.storesettings();
+                // if radio not-visited is selected, then check Not-Captured
+                if (radio.value == "not-visited") {
+                     let radionotcaptured = container.querySelector('input[type=radio][name=captured][value=not-captured]');
+                    radionotcaptured.checked = true;
+                    self.settings.captured = radionotcaptured.value;
+                    self.storesettings();
+                }
+            },false);
+        }
+        let captured_radios = container.querySelectorAll('input[type=radio][name=captured]');
+        for (let radio of captured_radios) {
+            if (radio.value == self.settings.captured) {
+                radio.checked = true;
+            }
+            radio.addEventListener('change',function(e) {
+                e.preventDefault();
+                self.settings.captured = radio.value;
+                self.storesettings();
+                // if radio captured is selected, then check visited
+                if (radio.value == "captured") {
+                    let radiovisited = container.querySelector('input[type=radio][name=visited][value=visited]');
+                    radiovisited.checked = true;
+                    self.settings.visited = radiovisited.value;
+                    self.storesettings();
+                }
+            },false);
+        }
+
+        addbookmarksbutton.addEventListener('click',function(e) {
+            e.preventDefault();
+            if (!self.settings.portallevel[0] && !self.settings.enl && !self.settings.res && !self.settings.mac) return;
+            let bookmarkslist = self.getmatchingportals();
+            if (Object.keys(bookmarkslist).length == 0) {
+                alert('There are no portals found that match the filters. Nothing to add.');
+                return;
+            }
+            if (confirm('Portals matching the filters: ' + Object.keys(bookmarkslist).length + '\n\nDo you want to add bookmarks?')) {
+                self.addmatchingbookmarks(bookmarkslist);
+            }
+        },false);
+        removematchingbutton.addEventListener('click',function(e) {
+            e.preventDefault();
+            if (!self.settings.portallevel[0] && !self.settings.enl && !self.settings.res && !self.settings.mac) return;
+            let bookmarkslist = self.getmatchingportals();
+            if (Object.keys(bookmarkslist).length == 0) {
+                alert('There are no portals found that match the filters. Nothing to remove.');
+                return;
+            }
+            if (confirm('Portals matching the filters: ' + Object.keys(bookmarkslist).length + '\n\nDo you want to remove all matching bookmarks?')) self.removebookmarks(true);
+        },false);
+        clearvisiblebutton.addEventListener('click',function(e) {
+            e.preventDefault();
+            if (confirm('Visible bookmarks: ' + self.countbookmarks(window.map.getBounds()) + '\n\nClear all visible bookmarks?')) {
+                let removecnt = self.clearbookmarks(window.map.getBounds());
+                alert('Removed bookmarks: ' + removecnt);
+            }
+        },false);
+        clearinvisiblebutton.addEventListener('click',function(e) {
+            e.preventDefault();
+            if (confirm('Invisible bookmarks: ' + self.countbookmarks(window.map.getBounds(),true) + '\n\nClear all invisible bookmarks?')) {
+                let removecnt = self.clearbookmarks(window.map.getBounds(),true);
+                alert('Removed bookmarks: ' + removecnt);
+            }
+        },false);
+        clearallbookmarksbutton.addEventListener('click',function(e) {
+            e.preventDefault();
+            if (confirm('All bookmarks: ' + self.countbookmarks() + '\n\nClear all bookmarks + folders?')) {
+                let removecnt = self.clearbookmarks();
+                alert('Removed bookmarks: ' + removecnt);
+            }
+        },false);
+        clearallbutton.addEventListener('click',function(e) {
+            e.preventDefault();
+            window.plugin.bookmarks.optReset();
+        },false);
 
         // need to initialise the 'spectrum' color picker
-        $('#' + self.id + '_addcolor').spectrum({
+        let addsbookmarkscolorpicker = container.querySelector('input[name=addsbookmarkscolor]');
+        $(addsbookmarkscolorpicker).spectrum({
             flat: false,
             showInput: true,
             showButtons: true,
@@ -415,6 +884,17 @@ version 0.0.8.20210802.234100
                 self.storesettings();
             },
             color: self.settings.addcolor,
+        });
+
+        window.dialog({
+            html: container,
+            id: 'plugin-bookmarks-options',
+            dialogClass: 'ui-dialog-bkmrksSet',
+            title: 'Bookmarks Add/Remove'
+        }).dialog('option', 'buttons', {
+            '< Main menu': function() { window.plugin.bookmarks.manualOpt(); },
+            'About': function() { self.about(); },
+            'Ok': function() { $(this).dialog('close'); },
         });
     };
 
@@ -443,7 +923,7 @@ version 0.0.8.20210802.234100
                 'icon: L.divIcon({\n' +
                 '        iconSize: new L.Point(width, height),\n' +
                 '        iconAnchor: new L.Point(parseInt(width / 2), height),\n' +
-                '        html: \'<?xml version="1.0" encoding="UTF-8"?>\\n<svg xmlns="http://www.w3.org/2000/svg"\\n  version="1.1" baseProfile="full"\\n	width="\' + width + \'px" height="\' + height + \'px" viewBox="0 0 25 40">\\n  <path\\n     style="fill:\'+ ' + self.namespace + 'settings.color + \';fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:0.66890079;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"\\n     d="M 12.232156,0.49368461 C 5.396431,0.47991897 -1.319899,5.9784347 0.94239879,17.061937 2.5900981,25.134382 12.395973,39.250702 12.395973,39.250702 c 0,0 10.512096,-14.052494 11.844349,-22.249666 C 26.02274,6.0340612 19.067882,0.50745032 12.232156,0.49368461 Z m 0.151872,5.57403579 2.271263,4.3560176 4.996434,0.677924 -3.711491,3.373589 0.858334,4.670138 -4.566412,-2.270962 -4.4640274,2.20846 0.8890515,-4.777517 -3.6176371,-3.304677 5.115885,-0.681128 2.2286,-4.2518446 z"\\n     id="fill_\' + guid + \'"\\n     inkscape:connector-curvature="0" />\\n  <path\\n     style="fill:none;fill-rule:evenodd;stroke:#ffffff;stroke-width:0.42335492;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"\\n     d="m 12.414483,38.336374 c 0,0 -10.0723803,-14.823222 -11.1062713,-21.383227 -3.562278,-22.6025346 26.2353973,-20.1021377 22.3976503,0.08692 -1.635339,8.602948 -11.291379,21.296304 -11.291379,21.296304 z"\\n     inkscape:connector-curvature="0"\\n     sodipodi:nodetypes="cssc" />\\n</svg>\',\n' +
+                '        html: \'<?xml version="1.0" encoding="UTF-8"?>\\n<svg xmlns="https://www.w3.org/2000/svg"\\n  version="1.1" baseProfile="full"\\n	width="\' + width + \'px" height="\' + height + \'px" viewBox="0 0 25 40">\\n  <path\\n     style="fill:\'+ ' + self.namespace + 'settings.color + \';fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:0.66890079;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"\\n     d="M 12.232156,0.49368461 C 5.396431,0.47991897 -1.319899,5.9784347 0.94239879,17.061937 2.5900981,25.134382 12.395973,39.250702 12.395973,39.250702 c 0,0 10.512096,-14.052494 11.844349,-22.249666 C 26.02274,6.0340612 19.067882,0.50745032 12.232156,0.49368461 Z m 0.151872,5.57403579 2.271263,4.3560176 4.996434,0.677924 -3.711491,3.373589 0.858334,4.670138 -4.566412,-2.270962 -4.4640274,2.20846 0.8890515,-4.777517 -3.6176371,-3.304677 5.115885,-0.681128 2.2286,-4.2518446 z"\\n     id="fill_\' + guid + \'"\\n     inkscape:connector-curvature="0" />\\n  <path\\n     style="fill:none;fill-rule:evenodd;stroke:#ffffff;stroke-width:0.42335492;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"\\n     d="m 12.414483,38.336374 c 0,0 -10.0723803,-14.823222 -11.1062713,-21.383227 -3.562278,-22.6025346 26.2353973,-20.1021377 22.3976503,0.08692 -1.635339,8.602948 -11.291379,21.296304 -11.291379,21.296304 z"\\n     inkscape:connector-curvature="0"\\n     sodipodi:nodetypes="cssc" />\\n</svg>\',\n' +
                 '        className: \'leaflet-iitc-custom-icon\',\n' +
                 '        // L.divIcon does not use the option color, but we store it here to\n' +
                 '        // be able to simply retrieve the color for serializing markers\n' +
@@ -468,18 +948,18 @@ version 0.0.8.20210802.234100
         }
     };
 
-    self.updateBoomkarkLabels = function() {
+    self.updateBookmarkLabels = function() {
         // as this is called every time layers are toggled, there's no point in doing it when the layer is off
-        if (!map.hasLayer(self.labelLayerGroup)) {
+        if (!window.map.hasLayer(self.labelLayerGroup)) {
             return;
         }
 
-        let visiblebounds = map.getBounds();
+        let visiblebounds = window.map.getBounds();
         let bookmarkedPortalPoints = {};
         for (const guid in window.plugin.bookmarks.starLayers) { // only for bookmarked portal
             let latlng = window.plugin.bookmarks.starLayers[guid].getLatLng();
             if (visiblebounds.contains(latlng)) {
-                let point = map.project(latlng);
+                let point = window.map.project(latlng);
                 bookmarkedPortalPoints[guid] = point;
             }
         }
@@ -489,7 +969,7 @@ version 0.0.8.20210802.234100
         for (const guid in bookmarkedPortalPoints) {
             let point = bookmarkedPortalPoints[guid];
 
-            let bucketId = L.point([Math.floor(point.x/(self.portalName_WIDTH*2)),Math.floor(point.y/self.portalName_HEIGHT)]);
+            let bucketId = window.L.point([Math.floor(point.x/(self.portalName_WIDTH*2)),Math.floor(point.y/self.portalName_HEIGHT)]);
             // the guid is added to four buckets. this way, when testing for overlap we don't need to test
             // all 8 buckets surrounding the one around the particular portal, only the bucket it is in itself
             let bucketIds = [bucketId, bucketId.add([1,0]), bucketId.add([0,1]), bucketId.add([1,1])];
@@ -507,7 +987,7 @@ version 0.0.8.20210802.234100
                 let point = bookmarkedPortalPoints[guid];
                 // the bounds used for testing are twice as wide as the portal name marker. this is so that there's no left/right
                 // overlap between two different portals text
-                let largeBounds = L.bounds (
+                let largeBounds = window.L.bounds (
                     point.subtract([self.portalName_WIDTH,0]),
                     point.add([self.portalName_WIDTH,self.portalName_HEIGHT])
                 );
@@ -548,9 +1028,9 @@ version 0.0.8.20210802.234100
         if (!window.plugin.bookmarks.starLayers[guid]) return;
         let latLng = window.plugin.bookmarks.starLayers[guid].getLatLng();
         let portalName = window.plugin.bookmarks.starLayers[guid].options.title;
-        let label = L.marker(
+        let label = window.L.marker(
             latLng, {
-            icon: L.divIcon({
+            icon: window.L.divIcon({
                 className: 'plugin-bookmarks-addon-names',
                 iconAnchor: [self.portalName_WIDTH/2,0],
                 iconSize: [self.portalName_WIDTH,self.portalName_HEIGHT],
@@ -582,7 +1062,7 @@ version 0.0.8.20210802.234100
         if (self.labeltimer === undefined) {
             self.labeltimer = window.setTimeout(function() {
                 self.labeltimer = undefined;
-                self.updateBoomkarkLabels();
+                self.updateBookmarkLabels();
             }, waitseconds * 1000);
         }
     };
@@ -594,8 +1074,8 @@ version 0.0.8.20210802.234100
         // formula: val = val * (2-0.25)/(21-3)*(zoom-3)+0.25
         if (!self.settings.smaller) return val;
 
-        let zoom = map.getZoom();
-        if (L.Browser.mobile)
+        let zoom = window.map.getZoom();
+        if (window.L.Browser.mobile)
             return val * ((2-0.25)/(21-3)*(zoom-3)+0.25);
         else
             return val * ((2-0.25)/(21-3)*(zoom-3)+0.25);
@@ -875,7 +1355,8 @@ version 0.0.8.20210802.234100
             '<input type="checkbox" onclick="' + self.namespace + 'settings.override = this.checked; ' + self.namespace + 'storesettings(); ' + self.namespace + 'iconoverride(this.checked); window.plugin.bookmarks.resetAllStars();" id="' + self.id + 'override"%OVERRIDECHECKED%><label for="' + self.id + 'override">Show colored bookmarks</label><br />\n' +
             '<input type="checkbox" onclick="' + self.namespace + 'settings.smaller = this.checked; ' + self.namespace + 'storesettings(); window.plugin.bookmarks.resetAllStars();" id="' + self.id + 'smaller"%SMALLERCHECKED%><label for="' + self.id + 'smaller">Scale bookmarks</label><br />\n' +
             '<a onclick="' + self.namespace + 'menu();return false;">Add/Remove bookmarks...</a>' +
-            '<a onclick="' + self.namespace + 'exportkml();return false;">Export KML file...</a>');
+            '<a onclick="' + self.namespace + 'exportkml();return false;">Export KML file...</a>' +
+            '<a onclick="' + self.namespace + 'exportcsv();return false;">Export CSV file...</a>');
 
         let manualOptstring = window.plugin.bookmarks.manualOpt.toString();
         manualOptstring = manualOptstring.replace('plugin.bookmarks.htmlSetbox','plugin.bookmarks.htmlSetbox.replace(\'%SMALLERCHECKED%\',(' + self.namespace + 'settings.smaller?\' checked\':\'\')).replace(\'%OVERRIDECHECKED%\',(' + self.namespace + 'settings.override?\' checked\':\'\'))');
@@ -895,12 +1376,40 @@ version 0.0.8.20210802.234100
         eval('window.plugin.bookmarks.addAllStars = ' + addAllStarsString + ';');
     };
 
+    /*
+    self.setupFastAddPortalBookmark = function() {
+        // copy a bookmark function, modify some lines, and use it inside this plugin
+        // increase speed by disabling runhooks and console.log for every bookmark:
+        let addPortalBookmark_override = window.plugin.bookmarks.addPortalBookmark.toString();
+        addPortalBookmark_override = addPortalBookmark_override.replace('window.runHooks','//window.runHooks');
+        addPortalBookmark_override = addPortalBookmark_override.replace('console.log','//console.log');
+        eval(self.namespace + 'fastAddPortalBookmark = ' + addPortalBookmark_override + ';');
+    };
+
+    self.setupFastSwitchStarPortal = function() {
+        // increase speed by disabling console.log line:
+        let switchStarPortal_override = window.plugin.bookmarks.switchStarPortal.toString();
+        switchStarPortal_override = switchStarPortal_override.replace('console.log','//console.log');
+        eval(self.namespace + 'fastSwitchStarPortal = ' + switchStarPortal_override + ';');
+    };
+*/
+
+    self.setupEditStar = function() {
+        // remove the hook, modify the function, add the hook again:
+        window.removeHook('pluginBkmrksEdit', window.plugin.bookmarks.editStar);
+        let editStar_override = window.plugin.bookmarks.editStar.toString();
+        editStar_override = editStar_override.replace(/(var latlng = )(.*?);/s,'let bkmrk = window.plugin.bookmarks.findByGuid(guid);\n        if (!window.portals[guid] && !bkmrk) return;\n        $1(bkmrk?window.L.latLng(window.plugin.bookmarks.bkmrksObj.portals[bkmrk.id_folder].bkmrk[bkmrk.id_bookmark].latlng.split(",")):$2);');
+        editStar_override = editStar_override.replace(/(var lbl = )(.*?);/s,'$1(bkmrk?window.plugin.bookmarks.bkmrksObj.portals[bkmrk.id_folder].bkmrk[bkmrk.id_bookmark].label:$2);');
+        eval('window.plugin.bookmarks.editStar = ' + editStar_override + ';');
+        window.addHook('pluginBkmrksEdit', window.plugin.bookmarks.editStar);
+    };
+
     self.timestamp = function() {
         function leadingzero(value) {
             return ('0' + value).slice(-2);
         }
         let d = new Date();
-        return d.getFullYear() + '-' + leadingzero(d.getDate()) + '-' + leadingzero(d.getMonth()) + '_' + leadingzero(d.getHours()) + ':' + leadingzero(d.getMinutes());
+        return d.getFullYear() + '-' + leadingzero(d.getDate()) + '-' + leadingzero(d.getMonth()) + '_' + leadingzero(d.getHours()) + '' + leadingzero(d.getMinutes());
     };
 
     self.setupSaveFilename = function() {
@@ -937,6 +1446,9 @@ version 0.0.8.20210802.234100
         self.setupScaleableBookmarks();
         self.setupBookmarkMenu();
         self.setupColoredBookmarks();
+        //self.setupFastAddPortalBookmark();
+        //self.setupFastSwitchStarPortal();
+        self.setupEditStar();
         self.setupSaveFilename();
 
         self.restoresettings();
@@ -946,20 +1458,21 @@ version 0.0.8.20210802.234100
 
         window.addHook('portalDetailLoaded', self.updatemenucolor);
 
-        $("<style>").prop("type", "text/css").html(
-            '.plugin-bookmarks-addon-names{' +
-            'color:#FFFFBB;' +
-            'font-size:11px;line-height:12px;' +
-            'text-align:center;padding: 2px;' +  // padding needed so shadow doesn't clip
-            'overflow:hidden;' +
-            // could try this if one-line names are used
-            //    +'white-space: nowrap;text-overflow:ellipsis;'
-            'text-shadow:1px 1px #000,1px -1px #000,-1px 1px #000,-1px -1px #000, 0 0 5px #000;' +
-            'pointer-events:none;' +
-            '}'
-        ).appendTo('head');
+        let stylesheet = document.head.appendChild(document.createElement('style'));
+        stylesheet.innerHTML = `
+.plugin-bookmarks-addon-names {
+    color: #FFFFBB;
+    font-size:11px;line-height: 12px;
+    text-align: center;
+    padding: 2px; /* padding needed so shadow doesn't clip */
+    overflow: hidden;
+    /* could try this if one-line names are used */
+    /* white-space: nowrap; text-overflow: ellipsis; */
+    text-shadow: 1px 1px #000,1px -1px #000,-1px 1px #000,-1px -1px #000, 0 0 5px #000;
+    pointer-events: none;
+}`;
 
-        self.labelLayerGroup = new L.LayerGroup();
+        self.labelLayerGroup = new window.L.LayerGroup();
         window.addLayerGroup('Bookmarked portal names', self.labelLayerGroup, true);
 
         window.addHook('requestFinished', function() { setTimeout(function(){self.delayedUpdatePortalLabels(3.0);},1); });

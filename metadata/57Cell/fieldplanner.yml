@@ -1,8 +1,9 @@
-updateURL:   https://github.com/mike40033/iitc-57Cell/raw/master/plugins/homogeneous-fields/homogeneous-fields.meta.js
+updateURL: https://github.com/mike40033/iitc-57Cell/raw/master/plugins/homogeneous-fields/homogeneous-fields.meta.js
 downloadURL: https://github.com/mike40033/iitc-57Cell/raw/master/plugins/homogeneous-fields/homogeneous-fields.user.js
 preview: https://github.com/mike40033/iitc-57Cell/blob/4f9d4496b40de650ae83d5ca2a0d20ecd00530cc/plugins/homogeneous-fields/Screenshot_2023-10-15_015218.png?raw=true
 issueTracker: https://github.com/mike40033/iitc-57Cell/issues
 recommends: 
-  - drawtools
-  - arcs
+  - draw-tools@breunigs
+  - draw-tools-plus@zaso
 homepageURL: https://www.youtube.com/@57Cell
+

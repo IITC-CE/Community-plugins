@@ -2,7 +2,7 @@
 // @author         jaiperdu
 // @name           MUs Tab
 // @category       COMM
-// @version        0.1.0
+// @version        0.1.1
 // @description    Add a MUs tab scoring the MU
 // @id             muTab@jaiperdu
 // @namespace      https://github.com/IITC-CE/ingress-intel-total-conversion

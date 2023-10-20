@@ -2,10 +2,10 @@
 // @author         DanielOnDiordna
 // @name           Backup/restore all data
 // @category       Misc
-// @version        1.0.0.20220113.120500
+// @version        1.0.1.20221019.225200
 // @updateURL      https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/backup-restore-alldata.meta.js
 // @downloadURL    https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/backup-restore-alldata.user.js
-// @description    [danielondiordna-1.0.0.20220113.120500] With this plugin you can backup all your localstorage data, so you can save it to a text file, and you can also restore all data. This can be usefull to transfer your settings to another device, or to make a backup before reinstalling IITC. You can also view or delete stored data.
+// @description    [danielondiordna-1.0.1.20221019.225200] With this plugin you can backup all your localstorage data, so you can save it to a text file, and you can also restore all data. This can be usefull to transfer your settings to another device, or to make a backup before reinstalling IITC. You can also view or delete stored data.
 // @id             backup-restore-alldata@DanielOnDiordna
 // @namespace      https://softspot.nl/ingress/
 // @match          https://intel.ingress.com/*
@@ -22,10 +22,13 @@ function wrapper(plugin_info) {
     var self = window.plugin.backuprestorealldata;
     self.id = 'backuprestorealldata';
     self.title = 'Backup/restore all data';
-    self.version = '1.0.0.20220113.120500';
+    self.version = '1.0.1.20221019.225200';
     self.author = 'DanielOnDiordna';
     self.changelog = `
 Changelog:
+
+version 1.0.1.20221019.225200
+- version upgrade due to a change in the wrapper, added changelog
 
 version 1.0.0.20220113.120500
 - reversed changelog to show latest first
@@ -305,7 +308,15 @@ version 0.0.1.20191209.145200
         (window.iitcLoaded?self.setup():window.addHook('iitcLoaded',self.setup));
     };
 
+    // Added to support About IITC details and changelog:
+    plugin_info.script.version = plugin_info.script.version.replace(/\.\d{8}\.\d{6}$/,'');
+    plugin_info.buildName = 'softspot.nl';
+    plugin_info.dateTimeVersion = self.version.replace(/^.*(\d{4})(\d{2})(\d{2})\.(\d{6})/,'$1-$2-$3-$4');
+    plugin_info.pluginId = self.id;
+    let changelog = [{version:'This is a <a href="https://softspot.nl/ingress/" target="_blank">softspot.nl</a> plugin by ' + self.author,changes:[]},...self.changelog.replace(/^.*?version /s,'').split(/\nversion /).map((v)=>{v=v.split(/\n/).map((l)=>{return l.replace(/^- /,'')}).filter((l)=>{return l != "";}); return {version:v.shift(),changes:v}})];
+
     setup.info = plugin_info; //add the script info data to the function as a property
+    if (typeof changelog !== 'undefined') setup.info.changelog = changelog;
     if(!window.bootPlugins) window.bootPlugins = [];
     window.bootPlugins.push(setup);
     // if IITC has already booted, immediately run the 'setup' function
@@ -317,4 +328,3 @@ var info = {};
 if (typeof GM_info !== 'undefined' && GM_info && GM_info.script) info.script = { version: GM_info.script.version, name: GM_info.script.name, description: GM_info.script.description };
 script.appendChild(document.createTextNode('('+ wrapper +')('+JSON.stringify(info)+');'));
 (document.body || document.head || document.documentElement).appendChild(script);
-

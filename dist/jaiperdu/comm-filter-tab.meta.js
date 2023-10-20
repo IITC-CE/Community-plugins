@@ -2,7 +2,7 @@
 // @author         jaiperdu
 // @name           COMM Filter Tab
 // @category       COMM
-// @version        0.4.9
+// @version        0.4.10
 // @description    Show virus in the regular Comm and add a new tab with portal/player name filter and event type filter.
 // @id             comm-filter-tab@jaiperdu
 // @namespace      https://github.com/IITC-CE/ingress-intel-total-conversion

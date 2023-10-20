@@ -136,7 +136,7 @@ Bring ameba64/ingress-items icons into IITC
 
 Show virus in the regular Comm and add a new tab with portal/player name filter and event type filter.
 
-*Version:* 0.4.9
+*Version:* 0.4.10
 
 
   
@@ -148,7 +148,7 @@ Show virus in the regular Comm and add a new tab with portal/player name filter 
 
 Add a MUs tab scoring the MU
 
-*Version:* 0.1.0
+*Version:* 0.1.1
 
 
   
@@ -344,9 +344,9 @@ Use the portal fill color to denote if the portal needs recharging and how much.
 
 
 
-[danielondiordna-0.0.5.20210724.002500] Highlight portals with resonators by owner
+[danielondiordna-1.0.0.20231019.224200] Highlight portals with resonators by owner
 
-*Version:* 0.0.5.20210724.002500
+*Version:* 1.0.0.20231019.224200
 
 
   
@@ -1027,9 +1027,9 @@ Advanced version of Player Tracker
 
 
 
-[danielondiordna-1.0.0.20220113.120500] With this plugin you can backup all your localstorage data, so you can save it to a text file, and you can also restore all data. This can be usefull to transfer your settings to another device, or to make a backup before reinstalling IITC. You can also view or delete stored data.
+[danielondiordna-1.0.1.20221019.225200] With this plugin you can backup all your localstorage data, so you can save it to a text file, and you can also restore all data. This can be usefull to transfer your settings to another device, or to make a backup before reinstalling IITC. You can also view or delete stored data.
 
-*Version:* 1.0.0.20220113.120500
+*Version:* 1.0.1.20221019.225200
 
 
   
@@ -1330,15 +1330,15 @@ Append a pocket box containing some restricted details of the selected portal.
 
 ## Tweak
   
-### [Filter Comms for MU](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/filter-comms.user.js) by DanielOnDiordna
+### [Filter Comms for MU and more](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/filter-comms.user.js) by DanielOnDiordna
 
 
 
 
 
-[danielondiordna-0.0.3.20211024.003700] Filter the &#39;all&#39; comms pane to show only created Control Fields and their MUs
+[danielondiordna-1.1.0.20231019.181300] Filter the &#39;all&#39; comms pane, options to show only created Control Fields and their MUs, filter for capture, deploy, link, destroy or drone actions, filter faction or public chat, or filter all actions by faction
 
-*Version:* 0.0.3.20211024.003700
+*Version:* 1.1.0.20231019.181300
 
 
   

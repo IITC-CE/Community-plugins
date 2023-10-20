@@ -2,10 +2,10 @@
 // @author         DanielOnDiordna
 // @name           Highlight Resonator Owners
 // @category       Highlighter
-// @version        0.0.5.20210724.002500
+// @version        1.0.0.20231019.224200
 // @updateURL      https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/highlight-resonator-owners.meta.js
 // @downloadURL    https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/highlight-resonator-owners.user.js
-// @description    [danielondiordna-0.0.5.20210724.002500] Highlight portals with resonators by owner
+// @description    [danielondiordna-1.0.0.20231019.224200] Highlight portals with resonators by owner
 // @id             highlight-resonator-owners@DanielOnDiordna
 // @namespace      https://softspot.nl/ingress/
 // @match          https://intel.ingress.com/*
@@ -22,19 +22,30 @@ function wrapper(plugin_info) {
     var self = window.plugin.highlightresonatorowners;
     self.id = 'highlightresonatorowners';
     self.title = 'Highlight Resonator Owners';
-    self.version = '0.0.5.20210724.002500';
+    self.version = '1.0.0.20231019.224200';
     self.author = 'DanielOnDiordna';
     self.changelog = `
 Changelog:
 
-version 0.0.1.20200906.182700
-- version 0.0.1
+version 1.0.0.20231019.224200
+- version upgrade due to a change in the wrapper, added changelog
+- reversed the changelog order to show last changes at the top
+- reformatted javascript code ES6 backticks
+- replaced all var with let declarations
+- added machina faction
 
-version 0.0.2.20200906.224900
-- color picker for owner name/level (colorpicker add-on or drawtools plugin required)
-- highlight portal if missing resonator by level for a selected player
-- option to show/hide owner names
-- option to show/hide resonator levels
+version 0.0.5.20210724.002500
+- prevent double plugin setup on hook iitcLoaded
+
+version 0.0.5.20210421.190200
+- minor fix for IITC CE where runHooks iitcLoaded is executed before addHook is defined in this plugin
+
+version 0.0.5.20210328.002900
+- disabled interaction on resonator text labels
+
+version 0.0.4.20210123.174900
+- integrated Spectrum Colorpicker 1.8.1 plugin code, no need anymore for the separate plugin
+- updated plugin wrapper and userscript header formatting to match IITC-CE coding
 
 version 0.0.3.20200908.231600
 - added short names option
@@ -43,18 +54,14 @@ version 0.0.3.20200908.231600
 - changed the orange highlighter function from all to any resonator by level
 - fixed some issues
 
-version 0.0.4.20210123.174900
-- integrated Spectrum Colorpicker 1.8.1 plugin code, no need anymore for the separate plugin
-- updated plugin wrapper and userscript header formatting to match IITC-CE coding
+version 0.0.2.20200906.224900
+- color picker for owner name/level (colorpicker add-on or drawtools plugin required)
+- highlight portal if missing resonator by level for a selected player
+- option to show/hide owner names
+- option to show/hide resonator levels
 
-version 0.0.5.20210328.002900
-- disabled interaction on resonator text labels
-
-version 0.0.5.20210421.190200
-- minor fix for IITC CE where runHooks iitcLoaded is executed before addHook is defined in this plugin
-
-version 0.0.5.20210724.002500
-- prevent double plugin setup on hook iitcLoaded
+version 0.0.1.20200906.182700
+- first version
 `;
     self.namespace = 'window.plugin.' + self.id + '.';
     self.pluginname = 'plugin-' + self.id;
@@ -76,6 +83,7 @@ version 0.0.5.20210724.002500
     self.settings.portallevel = [0,true,true,true,true,true,true,true,true]; // 0, level 1-8
     self.settings.scanenl = true;
     self.settings.scanres = true;
+    self.settings.scanmac = true;
 
     self.restartrunning = false;
     self.nextrunning = false;
@@ -150,6 +158,7 @@ version 0.0.5.20210724.002500
         if (portal.options.team === window.TEAM_NONE ||
             !self.settings.scanenl && portal.options.team == window.TEAM_ENL ||
             !self.settings.scanres && portal.options.team == window.TEAM_RES ||
+            !self.settings.scanmac && portal.options.team == window.TEAM_MAC ||
             !self.settings.portallevel[portal.options.level]) {
             params.fillColor = window.COLORS[portal.options.team];
             params.fillOpacity = 0.5;
@@ -187,12 +196,12 @@ version 0.0.5.20210724.002500
         function(active) {
             if (!active) {
                 //hide
-                map.removeLayer(self.portallabelslayergroup);
+                window.map.removeLayer(self.portallabelslayergroup);
                 self.stop();
             } else {
                 self.updateHighlighter();
-                map.addLayer(self.portallabelslayergroup);
-                $('.' + self.pluginname + '-portallabel').css('pointer-events','none');
+                window.map.addLayer(self.portallabelslayergroup);
+                $(`.${self.pluginname}-portallabel`).css('pointer-events','none');
                 self.restart();
             }
         }
@@ -216,11 +225,12 @@ version 0.0.5.20210724.002500
         self.removeLabel(guid);
         if (!self.highlighteractive()) return;
         if (window.getMapZoomTileParameters(window.getDataZoomForMapZoom(window.map.getZoom())).level !== 0) return;
-        var portal = window.portals[guid];
+        let portal = window.portals[guid];
         if (window.teamStringToId(portal.options.data.team) == window.TEAM_NONE) return; // skip unclaimed
 
         if (!self.settings.scanenl && window.teamStringToId(portal.options.data.team) == window.TEAM_ENL) return;
         if (!self.settings.scanres && window.teamStringToId(portal.options.data.team) == window.TEAM_RES) return;
+        if (!self.settings.scanmac && window.teamStringToId(portal.options.data.team) == window.TEAM_MAC) return;
         if (!self.settings.portallevel[portal.options.data.level]) return;
 
         // octant=slot: 0=E, 1=NE, 2=N, 3=NW, 4=W, 5=SW, 6=S, SE=7
@@ -270,20 +280,21 @@ version 0.0.5.20210724.002500
             }
         }
 
-        var labelwidth = 300;
-        var labelheight = 40;
-        var portaltext = '' +
-            '<div style="position: absolute; width: ' + (labelwidth/2 - 5) + 'px; left: 0px; top:0px; text-align: right; white-space: nowrap;' + resonatorstyle[0] + '">' + resonatortext[0] + '</div>' +
-            '<div style="position: absolute; left: ' + (labelwidth/2 + 11) + 'px; top:0px; white-space: nowrap;' + resonatorstyle[1] + '">' + resonatortext[1] + '</div>' +
-            '<div style="position: absolute; width: ' + (labelwidth/2 - 10) + 'px; left: 0px; top: ' + ((labelheight/4)*1) + 'px; text-align: right; white-space: nowrap;' + resonatorstyle[2] + '">' + resonatortext[2] + '</div>' +
-            '<div style="position: absolute; left: ' + (labelwidth/2 + 17) + 'px; top: ' + ((labelheight/4)*1) + 'px; white-space: nowrap;' + resonatorstyle[3] + '">' + resonatortext[3] + '</div>' +
-            '<div style="position: absolute; width: ' + (labelwidth/2 - 10) + 'px; left: 0px; top: ' + ((labelheight/4)*2) + 'px; text-align: right; white-space: nowrap;' + resonatorstyle[4] + '">' + resonatortext[4] + '</div>' +
-            '<div style="position: absolute; left: ' + (labelwidth/2 + 17) + 'px; top: ' + ((labelheight/4)*2) + 'px; white-space: nowrap;' + resonatorstyle[5] + '">' + resonatortext[5] + '</div>' +
-            '<div style="position: absolute; width: ' + (labelwidth/2 - 5) + 'px; left: 0px; top: ' + ((labelheight/4)*3) + 'px; text-align: right; white-space: nowrap;' + resonatorstyle[6] + '">' + resonatortext[6] + '</div>' +
-            '<div style="position: absolute; left: ' + (labelwidth/2 + 11) + 'px; top: ' + ((labelheight/4)*3) + 'px; white-space: nowrap;' + resonatorstyle[7] + '">' + resonatortext[7] + '</div>';
-        var label = window.L.marker(latLng, {
+        let labelwidth = 300;
+        let labelheight = 40;
+        let portaltext = `
+<div style="position: absolute; width: ${labelwidth/2 - 5}px; left: 0px; top:0px; text-align: right; white-space: nowrap;${resonatorstyle[0]}">${resonatortext[0]}</div>
+<div style="position: absolute; left: ${labelwidth/2 + 11}px; top:0px; white-space: nowrap;${resonatorstyle[1]}">${resonatortext[1]}</div>
+<div style="position: absolute; width: ${labelwidth/2 - 10}px; left: 0px; top: ${((labelheight/4)*1)}px; text-align: right; white-space: nowrap;${resonatorstyle[2]}">${resonatortext[2]}</div>
+<div style="position: absolute; left: ${labelwidth/2 + 17}px; top: ${((labelheight/4)*1)}px; white-space: nowrap;${resonatorstyle[3]}">${resonatortext[3]}</div>
+<div style="position: absolute; width: ${labelwidth/2 - 10}px; left: 0px; top: ${((labelheight/4)*2)}px; text-align: right; white-space: nowrap;${resonatorstyle[4]}">${resonatortext[4]}</div>
+<div style="position: absolute; left: ${labelwidth/2 + 17}px; top: ${((labelheight/4)*2)}px; white-space: nowrap;${resonatorstyle[5]}">${resonatortext[5]}</div>
+<div style="position: absolute; width: ${labelwidth/2 - 5}px; left: 0px; top: ${((labelheight/4)*3)}px; text-align: right; white-space: nowrap;${resonatorstyle[6]}">${resonatortext[6]}</div>
+<div style="position: absolute; left: ${labelwidth/2 + 11}px; top: ${((labelheight/4)*3)}px; white-space: nowrap;${resonatorstyle[7]}">${resonatortext[7]}</div>
+`;
+        self.portallabelslayer[guid] = window.L.marker(latLng, {
             icon: window.L.divIcon({
-                className: self.pluginname + '-portallabel',
+                className: `${self.pluginname}-portallabel`,
                 iconAnchor: [labelwidth/2 + 3,labelheight/2],
                 iconSize: [labelwidth,labelheight],
                 html: portaltext
@@ -291,22 +302,21 @@ version 0.0.5.20210724.002500
             guid: guid
         });
 
-        self.portallabelslayer[guid] = label;
-        label.addTo(self.portallabelslayergroup);
-        $('.' + self.pluginname + '-portallabel').css('pointer-events','none');
+        self.portallabelslayer[guid].addTo(self.portallabelslayergroup);
+        $(`.${self.pluginname}-portallabel`).css('pointer-events','none');
     };
 
     self.removeLabel = function(guid) {
-        var existinglayer = self.portallabelslayer[guid];
+        let existinglayer = self.portallabelslayer[guid];
         if (existinglayer) {
             self.portallabelslayergroup.removeLayer(existinglayer);
             delete self.portallabelslayer[guid];
         }
     };
     self.updatePortalLabel = function(data) {
-        var portal = window.portals[data.guid];
+        let portal = window.portals[data.guid];
         if (!portal) return;
-        var latLng = portal.getLatLng();
+        let latLng = portal.getLatLng();
 
         self.addLabel(data.guid, latLng);
     };
@@ -319,8 +329,9 @@ version 0.0.5.20210724.002500
     self.portalonvisiblelayer = function(portal) {
         if (portal.options.data.team === 'E' && !window.overlayStatus['Enlightened']) return false;
         if (portal.options.data.team === 'R' && !window.overlayStatus['Resistance']) return false;
-        var unclaimedlayername = 'Unclaimed Portals';
-        var found = window.setupMap.toString().match(/i === 0 \? \'([^']+)\'/);
+        if (portal.options.data.team === 'M' && !(window.overlayStatus['__MACHINA__'] || window.overlayStatus['U̶͚̓̍N̴̖̈K̠͔̍͑̂͜N̞̥͋̀̉Ȯ̶̹͕̀W̶̢͚͑̚͝Ṉ̨̟̒̅'])) return false;
+        let unclaimedlayername = 'Unclaimed Portals';
+        let found = window.setupMap.toString().match(/i === 0 \? \'([^']+)\'/);
         if (found) unclaimedlayername = found[1] + ' Portals';
         if (portal.options.data.team === 'N' && !window.overlayStatus[unclaimedlayername]) return false;
         if (!window.overlayStatus['Level ' + portal.options.data.level + ' Portals']) return false;
@@ -335,7 +346,7 @@ version 0.0.5.20210724.002500
         delete(self.requestlist[data.guid]);
         delete(self.updatelist[data.guid]);
 
-        var portal = {};
+        let portal = {};
         portal.team = data.details.team;
         portal.level = (portal.team === window.TEAM_NONE?0:data.details.level); // set level to 0 if portal is unclaimed
         portal.owner = data.details.owner;
@@ -344,8 +355,8 @@ version 0.0.5.20210724.002500
         portal.checked = new Date().getTime();
 
         // store unique resonatorowners
-        var totalresonatorowners = Object.keys(self.resonatorowners).length;
-        for (var cnt = 0; cnt < portal.resonators.length; cnt++) {
+        let totalresonatorowners = Object.keys(self.resonatorowners).length;
+        for (let cnt = 0; cnt < portal.resonators.length; cnt++) {
             self.resonatorowners[portal.resonators[cnt].owner] = window.teamStringToId(portal.team);
         }
         if (Object.keys(self.resonatorowners).length != totalresonatorowners) {
@@ -354,7 +365,7 @@ version 0.0.5.20210724.002500
 
         self.portals[data.guid] = portal;
 
-        var latlngid = data.details.latE6 + ',' + data.details.lngE6;
+        let latlngid = data.details.latE6 + ',' + data.details.lngE6;
         self.latlngindex[latlngid] = data.guid;
 
         //console.log(self.title + " storedetails 4",data);
@@ -391,12 +402,12 @@ version 0.0.5.20210724.002500
         //console.log(self.title + " RESTART");
 
         // create list of portals to request:
-        var visiblebounds = window.map.getBounds();
+        let visiblebounds = window.map.getBounds();
         self.requestlist = {};
 
-        var currenttime = new Date().getTime();
-        for (var guid in window.portals) {
-            var portal = window.portals[guid];
+        let currenttime = new Date().getTime();
+        for (let guid in window.portals) {
+            let portal = window.portals[guid];
             // portal must be within visible bounds
             // and portal must on a visible layer
             if (visiblebounds.contains(portal.getLatLng()) && self.portalonvisiblelayer(portal)) {
@@ -411,6 +422,7 @@ version 0.0.5.20210724.002500
 
                     if (!self.settings.scanenl && window.teamStringToId(portal.options.data.team) == window.TEAM_ENL) continue;
                     if (!self.settings.scanres && window.teamStringToId(portal.options.data.team) == window.TEAM_RES) continue;
+                    if (!self.settings.scanmac && window.teamStringToId(portal.options.data.team) == window.TEAM_MAC) continue;
                     if (!self.settings.portallevel[portal.options.data.level]) continue;
 
                     self.requestlist[guid] = portal;
@@ -441,10 +453,10 @@ version 0.0.5.20210724.002500
 
         // next key
         self.updatestatusbar();
-        var guid = Object.keys(self.requestlist)[0];
+        let guid = Object.keys(self.requestlist)[0];
         self.requestid = guid;
 
-        var portal = window.portals[guid];
+        let portal = window.portals[guid];
         if (!portal || !portal.options) {
             // skip portal if not in range
             delete(self.requestlist[guid]);
@@ -457,7 +469,7 @@ version 0.0.5.20210724.002500
 
         self.timerid = window.setTimeout(function() {
             self.nextrunning = false;
-            var portal = self.requestlist[self.requestid];
+            let portal = self.requestlist[self.requestid];
             if (!portal) {
                 self.next();
                 return;
@@ -468,10 +480,10 @@ version 0.0.5.20210724.002500
     self.publicchat = function(data) {
         if (!self.highlighteractive()) return;
         //console.log(self.title + " PUBLICCHAT");
-        var forceupdate = false;
+        let forceupdate = false;
         $.each(data.result, function(ind, json) {
-            var plrname,latE6,lngE6,title,skipmessage = false;
-            var portalstatuschanged = false;
+            let plrname,latE6,lngE6,title,skipmessage = false;
+            let portalstatuschanged = false;
             $.each(json[2].plext.markup, function(ind, markup) {
                 switch(markup[0]) {
                     case 'TEXT':
@@ -497,12 +509,12 @@ version 0.0.5.20210724.002500
 
             if (!latE6 || !lngE6 || skipmessage) return;
 
-            var latlngid = latE6+','+lngE6;
-            var time = json[1];
+            let latlngid = latE6+','+lngE6;
+            let time = json[1];
 
-            var guid = self.latlngindex[latlngid];
+            let guid = self.latlngindex[latlngid];
             if (self.portals[guid]) { // portal is stored, check if details need to be updated
-                var checked = self.portals[guid]['checked'];
+                let checked = self.portals[guid]['checked'];
                 if (portalstatuschanged && time > checked) {
                     self.updatelist[guid] = time;
                     forceupdate = true;
@@ -542,25 +554,25 @@ version 0.0.5.20210724.002500
         $('#' + self.id + '_statusbar').replaceWith(self.statusbarhtml());
     };
     self.statusbarhtml = function() {
-        var portalstotal = Object.keys(self.portals).length;
-        var requestlisttotal = Object.keys(self.requestlist).length;
+        let portalstotal = Object.keys(self.portals).length;
+        let requestlisttotal = Object.keys(self.requestlist).length;
         return '<span id="' + self.id + '_statusbar">Portals loaded: ' + portalstotal + (requestlisttotal > 0?' Loading: ' + requestlisttotal:'') + '</span>';
     };
     self.updateplayerselectlist = function() {
-        var newlist = self.playerselectlist($('#' + self.id + '_selectplayer option:selected').val());
+        let newlist = self.playerselectlist($('#' + self.id + '_selectplayer option:selected').val());
         if (newlist !== $('#' + self.id + '_selectplayer').html()) $('#' + self.id + '_selectplayer').replaceWith(newlist);
     };
     self.playerselectlist = function(selectedname) {
         //console.log(self.title + ' updateplayerselectlist ' + selectedname);
-        var players = Object.keys(self.resonatorowners).sort(function(a,b) { return (a.toLowerCase() < b.toLowerCase()?-1:(a.toLowerCase() > b.toLowerCase()?1:0)); });
+        let players = Object.keys(self.resonatorowners).sort(function(a,b) { return (a.toLowerCase() < b.toLowerCase()?-1:(a.toLowerCase() > b.toLowerCase()?1:0)); });
 
         if (!selectedname) selectedname = self.settings.resonatorowner;
-        var player_team = window.teamStringToId(window.PLAYER.team);
-        var selectednamefound = false;
-        var list = [];
+        let player_team = window.teamStringToId(window.PLAYER.team);
+        let selectednamefound = false;
+        let list = [];
         list.push('<option value=""' + (selectedname == ''?' selected':'')+ '>(no selection)</option>');
-        for (var index in players) {
-            var plrname = players[index];
+        for (let index in players) {
+            let plrname = players[index];
             //  style="color: ' + self.getPlayerColor(plrname) + '"
             list.push('<option value="' + plrname + '"' + (plrname === selectedname?' selected':'')+ '>' + plrname + (self.resonatorowners[plrname] !== player_team?' [' + window.TEAM_TO_CSS[self.resonatorowners[plrname]] + ']':'') + '</option>');
             if (plrname === selectedname) selectednamefound = true;
@@ -569,34 +581,94 @@ version 0.0.5.20210724.002500
         return '<select id="' + self.id + '_selectplayer" onchange="' + self.namespace + 'settings.resonatorowner = this.value; ' + self.namespace + 'storesettings(); ' + self.namespace + 'updateHighlighter(); ' + self.namespace + 'updatePortalLabels();">' + list.join('\n') + '</select>';
     };
     self.menu = function() {
-        var lvl = 0;
-        var reso_lvlcheckboxes = '';
-        var portal_lvlcheckboxes = '';
+        let lvl = 0;
+        let reso_lvlcheckboxes = '';
+        let portal_lvlcheckboxes = '';
+        let reso_countselectors = '';
         for (lvl = 1; lvl <= 8; lvl++) {
-            reso_lvlcheckboxes += '<input type="checkbox" onclick="' + self.namespace + 'settings.resolevel[' + lvl + '] = this.checked; ' + self.namespace + 'storesettings(); ' + self.namespace + 'updateHighlighter();"' + (self.settings.resolevel[lvl]?' checked':'') + ' id="' + self.id + 'resoLevel' + lvl + '"><label for="' + self.id + 'resoLevel'+ lvl + '">' + lvl + '</label>';
-            portal_lvlcheckboxes += '<input type="checkbox" onclick="' + self.namespace + 'settings.portallevel[' + lvl + '] = this.checked; ' + self.namespace + 'storesettings(); ' + self.namespace + 'updateHighlighter(); ' + self.namespace + 'updatePortalLabels(); ' + self.namespace + 'restart();"' + (self.settings.portallevel[lvl]?' checked':'') + ' id="' + self.id + 'portalLevel' + lvl + '"><label for="' + self.id + 'portalLevel'+ lvl + '">' + lvl + '</label>';
+            portal_lvlcheckboxes += '<label style="display: inline-block; width: 32px; white-space: nowrap;"><input type="checkbox" onclick="' + self.namespace + 'settings.portallevel[' + lvl + '] = this.checked; ' + self.namespace + 'storesettings(); ' + self.namespace + 'updateHighlighter(); ' + self.namespace + 'updatePortalLabels(); ' + self.namespace + 'restart();"' + (self.settings.portallevel[lvl]?' checked':'') + ' class="' + self.id + '-portalLevel' + lvl + '">R' + lvl + '</label>';
+            reso_lvlcheckboxes += '<label style="display: inline-block; width: 32px; white-space: nowrap;"><input type="checkbox" onclick="' + self.namespace + 'settings.resolevel[' + lvl + '] = this.checked; ' + self.namespace + 'storesettings(); ' + self.namespace + 'updateHighlighter();"' + (self.settings.resolevel[lvl]?' checked':'') + ' class="' + self.id + '-resoLevel' + lvl + '">L' + lvl + '</label>';
+            reso_countselectors += '<select style="width: 32px"><option disabled>R' + lvl + ':</option><option>0</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option></select>';
         }
 
-        var html = '<div>' +
-            'Mark portals RED without any resonators for this player:<br />' +
-            self.playerselectlist(self.settings.resonatorowner) + '<br />' +
-            'Mark portals ORANGE if for this player any of these resonator levels are missing:<br />' +
-            reso_lvlcheckboxes + '<br />\n' +
-            '<input type="text" id="resonatorownercolor"></input> Owner name/level color<br />' +
-            '<input type="checkbox" onclick="' + self.namespace + 'settings.shownames = this.checked; ' + self.namespace + 'storesettings(); ' + self.namespace + 'updatePortalLabels();" id="highlightershownamestoggle"' + (self.settings.shownames?' checked':'') + '><label for="highlightershownamestoggle">Show resonator owners</label> ' +
-            '(<input type="checkbox" onclick="' + self.namespace + 'settings.shortnames = this.checked; ' + self.namespace + 'storesettings(); ' + self.namespace + 'updatePortalLabels();" id="highlightershortnamestoggle"' + (self.settings.shortnames?' checked':'') + '><label for="highlightershortnamestoggle">short names</label>)<br />' +
-            '<input type="checkbox" onclick="' + self.namespace + 'settings.showlevels = this.checked; ' + self.namespace + 'storesettings(); ' + self.namespace + 'updatePortalLabels();" id="highlightershowlevelstoggle"' + (self.settings.showlevels?' checked':'') + '><label for="highlightershowlevelstoggle">Show resonator levels</label><br />' +
-            'Limit portal scan to these portal levels:<br />' +
-            portal_lvlcheckboxes + '<br />\n' +
-            'Limit portal scan to these factions:<br />' +
-            '<input type="checkbox" onclick="' + self.namespace + 'settings.scanenl = this.checked; ' + self.namespace + 'storesettings(); ' + self.namespace + 'updateHighlighter(); ' + self.namespace + 'updatePortalLabels(); ' + self.namespace + 'restart();"' + (self.settings.scanenl?' checked':'') + ' id="' + self.id + 'scanenl"><label for="' + self.id + 'scanenl">Enlightend</label> ' +
-            '<input type="checkbox" onclick="' + self.namespace + 'settings.scanres = this.checked; ' + self.namespace + 'storesettings(); ' + self.namespace + 'updateHighlighter(); ' + self.namespace + 'updatePortalLabels(); ' + self.namespace + 'restart();"' + (self.settings.scanres?' checked':'') + ' id="' + self.id + 'scanres"><label for="' + self.id + 'scanres">Resistance</label>' + '<br />\n' +
-            self.statusbarhtml() + '<br />' +
-            '<span style="font-style: italic; font-size: smaller">version ' + self.version + ' by ' + self.author + '</span>' +
-            '</div>';
+        let container = document.createElement('div');
+        container.innerHTML = `
+Auto load resonator details<br>
+Limit to these portal levels:<br>
+${portal_lvlcheckboxes}<br>
+Limit to portals of these factions:<br>
+<label><input type="checkbox" class="${self.id}-scanenl">Enlightend</label>
+<label><input type="checkbox" class="${self.id}-scanres">Resistance</label><br>
+<label><input type="checkbox" class="${self.id}-scanmac">Machina</label><br>
+${self.statusbarhtml()}<br>
+<br>
+For this selected player:<br>
+${self.playerselectlist(self.settings.resonatorowner)}<br>
+<input type="text" id="resonatorownercolor"></input> Text color<br>
+Require resonators of this level:<br>
+${reso_lvlcheckboxes}<br>
+Require this number of resonators:<br>
+${reso_countselectors}<br>
+Highlight RED: 0 resonators<br>
+Highlight ORANGE: missing required resonators<br>
+<br>
+Settings:<br>
+<label><input type="checkbox" class="${self.id}-shownames">Show resonator owners</label>
+(<label><input type="checkbox" class="${self.id}-shortnames">short names</label>)<br>
+<label><input type="checkbox" class="${self.id}-showlevels">Show resonator levels</label><br>
+<span style="font-style: italic; font-size: smaller">version ${self.version} by ${self.author}</span>
+`;
+        let scanenlcheckbox = container.querySelector(`.${self.id}-scanenl`);
+        scanenlcheckbox.checked = self.settings.scanenl;
+        scanenlcheckbox.addEventListener('click',function(e) {
+            self.settings.scanenl = this.checked;
+            self.storesettings();
+            self.updateHighlighter();
+            self.updatePortalLabels();
+            self.restart();
+        });
+        let scanrescheckbox = container.querySelector(`.${self.id}-scanres`);
+        scanrescheckbox.checked = self.settings.scanres;
+        scanrescheckbox.addEventListener('click',function(e) {
+            self.settings.scanres = this.checked;
+            self.storesettings();
+            self.updateHighlighter();
+            self.updatePortalLabels();
+            self.restart();
+        });
+        let scanmaccheckbox = container.querySelector(`.${self.id}-scanmac`);
+        scanmaccheckbox.checked = self.settings.scanmac;
+        scanmaccheckbox.addEventListener('click',function(e) {
+            self.settings.scanmac = this.checked;
+            self.storesettings();
+            self.updateHighlighter();
+            self.updatePortalLabels();
+            self.restart();
+        });
+        let shownamescheckbox = container.querySelector(`.${self.id}-shownames`);
+        shownamescheckbox.checked = self.settings.shownames;
+        shownamescheckbox.addEventListener('click',function(e) {
+            self.settings.shownames = this.checked;
+            self.storesettings();
+            self.updatePortalLabels();
+        });
+        let shortnamescheckbox = container.querySelector(`.${self.id}-shortnames`);
+        shortnamescheckbox.checked = self.settings.shortnames;
+        shortnamescheckbox.addEventListener('click',function(e) {
+            self.settings.shortnames = this.checked;
+            self.storesettings();
+            self.updatePortalLabels();
+        });
+        let showlevelscheckbox = container.querySelector(`.${self.id}-showlevels`);
+        showlevelscheckbox.checked = self.settings.showlevels;
+        showlevelscheckbox.addEventListener('click',function(e) {
+            self.settings.showlevels = this.checked;
+            self.storesettings();
+            self.updatePortalLabels();
+        });
 
         window.dialog({
-            html: html,
+            html: container,
             id: self.pluginname + '-dialog',
             dialogClass: 'ui-dialog-' + self.pluginname,
             title: self.title
@@ -853,23 +925,23 @@ version 0.0.5.20210724.002500
 
         window.map.on('zoomend',self.zoomend);
 
-        $('#toolbox').append('<a onclick="' + self.namespace + 'menu(); return false;" href="#">' + self.title + '</a>');
+        $('#toolbox').append(`<a onclick="${self.namespace}menu(); return false;" href="#">${self.title}</a>`);
 
-        $('head').append(
-            '<style>' +
-            '.' + self.pluginname + '-portallabel {' +
-            'font-family: arial;' +
-            'font-size: 10px;' +
-            'color: black;' +
-            'line-height: 10px;' +
-            'text-align: center;' +
-            'padding: 2px;' +  // padding needed so shadow doesn't clip
-            'overflow: hidden;' +
-            'text-align: center;' +
-            'pointer-events: none;' +
-            '-webkit-text-size-adjust: none;' +
-            '}'+
-            '</style>');
+        $('head').append(`
+<style>
+.${self.pluginname}-portallabel {
+font-family: arial;
+font-size: 10px;
+color: black;
+line-height: 10px;
+text-align: center;
+padding: 2px; /* padding needed so shadow doesn't clip */
+overflow: hidden;
+text-align: center;
+pointer-events: none;
+-webkit-text-size-adjust: none;
+}
+</style>`);
 
         console.log('IITC plugin loaded: ' + self.title + ' version ' + self.version);
     };
@@ -878,7 +950,15 @@ version 0.0.5.20210724.002500
         (window.iitcLoaded?self.setup():window.addHook('iitcLoaded',self.setup));
     };
 
+    // Added to support About IITC details and changelog:
+    plugin_info.script.version = plugin_info.script.version.replace(/\.\d{8}\.\d{6}$/,'');
+    plugin_info.buildName = 'softspot.nl';
+    plugin_info.dateTimeVersion = self.version.replace(/^.*(\d{4})(\d{2})(\d{2})\.(\d{6})/,'$1-$2-$3-$4');
+    plugin_info.pluginId = self.id;
+    let changelog = [{version:'This is a <a href="https://softspot.nl/ingress/" target="_blank">softspot.nl</a> plugin by ' + self.author,changes:[]},...self.changelog.replace(/^.*?version /s,'').split(/\nversion /).map((v)=>{v=v.split(/\n/).map((l)=>{return l.replace(/^- /,'')}).filter((l)=>{return l != "";}); return {version:v.shift(),changes:v}})];
+
     setup.info = plugin_info; //add the script info data to the function as a property
+    if (typeof changelog !== 'undefined') setup.info.changelog = changelog;
     if(!window.bootPlugins) window.bootPlugins = [];
     window.bootPlugins.push(setup);
     // if IITC has already booted, immediately run the 'setup' function
@@ -890,4 +970,3 @@ var info = {};
 if (typeof GM_info !== 'undefined' && GM_info && GM_info.script) info.script = { version: GM_info.script.version, name: GM_info.script.name, description: GM_info.script.description };
 script.appendChild(document.createTextNode('('+ wrapper +')('+JSON.stringify(info)+');'));
 (document.body || document.head || document.documentElement).appendChild(script);
-

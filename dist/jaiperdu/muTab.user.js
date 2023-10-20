@@ -2,7 +2,7 @@
 // @author         jaiperdu
 // @name           MUs Tab
 // @category       COMM
-// @version        0.1.0
+// @version        0.1.1
 // @description    Add a MUs tab scoring the MU
 // @id             muTab@jaiperdu
 // @namespace      https://github.com/IITC-CE/ingress-intel-total-conversion
@@ -20,7 +20,7 @@ if(typeof window.plugin !== 'function') window.plugin = function() {};
 //PLUGIN AUTHORS: writing a plugin outside of the IITC build environment? if so, delete these lines!!
 //(leaving them in place might break the 'About IITC' page or break update checks)
 plugin_info.buildName = 'lejeu';
-plugin_info.dateTimeVersion = '2022-06-30-074250';
+plugin_info.dateTimeVersion = '2023-10-19-070329';
 plugin_info.pluginId = 'muTab';
 //END PLUGIN AUTHORS NOTE
 
@@ -61,7 +61,7 @@ musTab.RESISTANCE = {
 	},
 }
 
-musTab.addMus = function(guid, player, team, mus) {
+musTab.addMus = function (guid, player, team, mus) {
 	if (!(player.name in musTab.data))
 		musTab.data[player.name] = {
 			player: player,
@@ -90,7 +90,7 @@ musTab.addMus = function(guid, player, team, mus) {
 	}
 };
 
-musTab.delPlayer = function(name) {
+musTab.delPlayer = function (name) {
 	if (!(name in musTab.data)) return;
 	var playerData = musTab.data[name];
 	var teamData = musTab[playerData.player.team];
@@ -100,26 +100,28 @@ musTab.delPlayer = function(name) {
 	delete musTab.data[name];
 };
 
-musTab.newChatData = function(data) {
+musTab.newChatData = function (data) {
 	// {raw: data, result: data.result, processed: chat._channels[channel].data}
 	for (const row of data.result) {
 		const guid = row[0];
-		const isCreateField = row[2].plext.markup.some(ent => ent[0] == 'TEXT' && ent[1].plain === " created a Control Field @");
-		const isDestroyField = row[2].plext.markup.some(ent => ent[0] == 'TEXT' && ent[1].plain === " destroyed a Control Field @");
+		const parseData = data.processed[guid][4];
+		const idMUs = row[2].plext.markup.findIndex((ent) => ent[0] == 'TEXT' && ent[1].plain === ' MUs');
+		if (idMUs < 0) continue;
+		const isCreateField = row[2].plext.markup[idMUs - 2][1].plain === ' +';
+		const isDestroyField = row[2].plext.markup[idMUs - 2][1].plain === ' -';
+		const mus = +row[2].plext.markup[idMUs - 1][1].plain;
 		if (isCreateField) {
-			const mus = +row[2].plext.markup[4][1].plain;
 			const player = {
-				name: row[2].plext.markup[0][1].plain,
-				team: row[2].plext.markup[0][1].team,
+				name: parseData.player.name,
+				team: window.TEAM_CODENAMES[parseData.player.team],
 			}
 			musTab.addMus(guid, player, player.team, mus);
 		} else if (isDestroyField) {
-			const mus = +row[2].plext.markup[4][1].plain;
 			const player = {
-				name: row[2].plext.markup[0][1].plain,
-				team: row[2].plext.markup[0][1].team,
-			};
-			const team = row[2].plext.markup[2][1].team;
+				name: parseData.player.name,
+				team: window.TEAM_CODENAMES[parseData.player.team],
+			}
+			const team = row[2].plext.markup[idMUs - 3][1].team;
 			musTab.addMus(guid, player, team, -mus);
 		}
 	}
@@ -132,85 +134,85 @@ musTab.renderLine = function (data) {
 	return L.Util.template(template, {
 		teamClass: data.player.team === 'ENLIGHTENED' ? TEAM_TO_CSS[TEAM_ENL] : TEAM_TO_CSS[TEAM_RES],
 		name: data.player.name,
-		totMUpercent: Math.round(data.totalMus*100/musTab.maxMus),
+		totMUpercent: Math.round(data.totalMus * 100 / musTab.maxMus),
 		totMU: data.totalMus.toLocaleString('en-US'),
-		destENLpercent: Math.round(data.destroyedMus.ENLIGHTENED*100/musTab.maxDest.ENLIGHTENED),
+		destENLpercent: Math.round(data.destroyedMus.ENLIGHTENED * 100 / musTab.maxDest.ENLIGHTENED),
 		destENL: data.destroyedMus.ENLIGHTENED.toLocaleString('en-US'),
-		destRESpercent: Math.round(data.destroyedMus.RESISTANCE*100/musTab.maxDest.RESISTANCE),
+		destRESpercent: Math.round(data.destroyedMus.RESISTANCE * 100 / musTab.maxDest.RESISTANCE),
 		destRES: data.destroyedMus.RESISTANCE.toLocaleString('en-US'),
 		cross: '<a data-name="' + data.player.name + '">❌</a>',
 	});
 };
 
 musTab.render = function () {
-  const elm = $('#chatmus');
-  if (elm.is(':hidden')) return;
+	const elm = $('#chatmus');
+	if (elm.is(':hidden')) return;
 
-  const vals = Object.values(musTab.data).sort((a,b) => b.totalMus - a.totalMus);
+	const vals = Object.values(musTab.data).sort((a, b) => b.totalMus - a.totalMus);
 
-  const maxFact = Math.max(musTab.ENLIGHTENED.totalMus, musTab.RESISTANCE.totalMus, 1);
-  const maxDestEnl = Math.max(musTab.ENLIGHTENED.destroyedMus.ENLIGHTENED, musTab.RESISTANCE.destroyedMus.ENLIGHTENED, 1);
-  const maxDestRes = Math.max(musTab.ENLIGHTENED.destroyedMus.RESISTANCE, musTab.RESISTANCE.destroyedMus.RESISTANCE, 1);
+	const maxFact = Math.max(musTab.ENLIGHTENED.totalMus, musTab.RESISTANCE.totalMus, 1);
+	const maxDestEnl = Math.max(musTab.ENLIGHTENED.destroyedMus.ENLIGHTENED, musTab.RESISTANCE.destroyedMus.ENLIGHTENED, 1);
+	const maxDestRes = Math.max(musTab.ENLIGHTENED.destroyedMus.RESISTANCE, musTab.RESISTANCE.destroyedMus.RESISTANCE, 1);
 
-  // render to string with date separators inserted
-  let msgs = '<tr><td></td><td></td><td>Total MUs</td><td colspan=2>Destroyed MUs</td></tr>';
-  const facts = [musTab.ENLIGHTENED, musTab.RESISTANCE];
-  if (window.PLAYER.team === "RESISTANCE") facts.reverse();
-  for (const data of facts) {
-	  msgs += L.Util.template(template, {
+	// render to string with date separators inserted
+	let msgs = '<tr><td></td><td></td><td>Total MUs</td><td colspan=2>Destroyed MUs</td></tr>';
+	const facts = [musTab.ENLIGHTENED, musTab.RESISTANCE];
+	if (window.PLAYER.team === "RESISTANCE") facts.reverse();
+	for (const data of facts) {
+		msgs += L.Util.template(template, {
 			name: data.name,
 			teamClass: data.team,
-			totMUpercent: Math.round(data.totalMus*100/maxFact),
+			totMUpercent: Math.round(data.totalMus * 100 / maxFact),
 			totMU: data.totalMus.toLocaleString('en-US'),
 			destENL: data.destroyedMus.ENLIGHTENED.toLocaleString('en-US'),
-			destENLpercent: Math.round(data.destroyedMus.ENLIGHTENED*100/maxDestEnl),
+			destENLpercent: Math.round(data.destroyedMus.ENLIGHTENED * 100 / maxDestEnl),
 			destRES: data.destroyedMus.RESISTANCE.toLocaleString('en-US'),
-			destRESpercent: Math.round(data.destroyedMus.RESISTANCE*100/maxDestRes),
+			destRESpercent: Math.round(data.destroyedMus.RESISTANCE * 100 / maxDestRes),
 			cross: ''
 		});
 	}
 	msgs += '<tr><td colspan=5><hr></td></tr>'
-  vals.forEach(function(d) {
-  	msgs += musTab.renderLine(d);
-  });
+	vals.forEach(function (d) {
+		msgs += musTab.renderLine(d);
+	});
 
-  elm.html('<table>' + msgs + '</table>');
+	elm.html('<table>' + msgs + '</table>');
 }
 
 musTab.create = function () {
-  $('#chatcontrols').append('<a>MUs</a>');
-  $('#chatcontrols a:last').click(musTab.toogle);
-  $('#chat').append('<div style="display: none" id="chatmus"><table></table></div>');
+	$('#chatcontrols').append('<a>MUs</a>');
+	$('#chatcontrols a:last').click(musTab.toogle);
+	$('#chat').append('<div style="display: none" id="chatmus"><table></table></div>');
 
-  document.getElementById('chatmus').addEventListener('click', (ev) => {
-  	if (ev.target.dataset['name']) {
-  		musTab.delPlayer(ev.target.dataset['name']);
-  		musTab.render();
-  	}
-  })
+	document.getElementById('chatmus').addEventListener('click', (ev) => {
+		if (ev.target.dataset['name']) {
+			musTab.delPlayer(ev.target.dataset['name']);
+			musTab.render();
+		}
+	})
 
-  if (useAndroidPanes()) {
-    android.addPane('mus-tab', 'MUs', 'ic_action_view_as_list');
-    window.addHook('paneChanged', function (id) {
-      if (id == 'mus-tab') {
-        musTab.toogle();
-      }
-    })
-  }
+	if (useAndroidPanes()) {
+		android.addPane('mus-tab', 'MUs', 'ic_action_view_as_list');
+		window.addHook('paneChanged', function (id) {
+			if (id == 'mus-tab') {
+				musTab.toogle();
+			}
+		})
+	}
 };
 
 musTab.toogle = function () {
-  $('#chat, #chatinput').show();
-  $('#chatinput mark').css('cssText', 'color: #bbb !important').text('');
-  $('#chat > div').hide();
-  $('#chatmus').show();
-  $('#chatcontrols .active').removeClass('active');
-  $("#chatcontrols a:contains('MUs')").addClass('active');
+	$('#chat, #chatinput').show();
+	$('#chatinput mark').css('cssText', 'color: #bbb !important').text('');
+	$('#chat > div').hide();
+	$('#chatmus').show();
+	$('#chatcontrols .active').removeClass('active');
+	$("#chatcontrols a:contains('MUs')").addClass('active');
 	musTab.render();
 }
 
 
-var setup = function() {
+var setup = function () {
 	$('<style>').html('#chatmus .meter .meter-bar { display: inline-block; } #chatmus .enl .meter-bar, #chatmus span.enl.meter-bar { background-color: green } #chatmus .res .meter-bar, #chatmus span.res.meter-bar { background-color: blue } #chatmus .meter-bar { text-shadow: 0.0em 0.0em 0.3em #808080; text-align: center; }').appendTo(document.head);
 	window.plugin.musTab = musTab;
 	musTab.create();

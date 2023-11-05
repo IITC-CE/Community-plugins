@@ -58,6 +58,14 @@ function wrapper(plugin_info) {
         }
     }
 
+    window.plugin.wolfLinked.unlinkAnchor = function(guid) {
+    var linkGuids = getPortalLinks(guid)
+
+    if (linkGuids != undefined) {
+        return !((linkGuids.in != undefined && linkGuids.in.length > 0) || (linkGuids.out != undefined && linkGuids.out.length > 0));
+    }
+}
+
     window.plugin.wolfLinked.highlightFieldAnchors = function(data) {
         window.plugin.wolfLinked.hideAnchors(data, window.plugin.wolfLinked.fieldAnchor);
     }
@@ -66,9 +74,15 @@ function wrapper(plugin_info) {
         window.plugin.wolfLinked.hideAnchors(data, window.plugin.wolfLinked.linkAnchor);
     }
 
+    window.plugin.wolfLinked.highlightunLinkAnchors = function(data) {
+        window.plugin.wolfLinked.hideAnchors(data, window.plugin.wolfLinked.unlinkAnchor);
+
+    }
+
     var setup =  function() {
         window.addPortalHighlighter('Field Anchor', window.plugin.wolfLinked.highlightFieldAnchors);
         window.addPortalHighlighter('Link Anchor', window.plugin.wolfLinked.highlightLinkAnchors);
+        window.addPortalHighlighter('UnLink Anchor', window.plugin.wolfLinked.highlightunLinkAnchors);
     }
 
     setup.info = plugin_info; //add the script info data to the function as a property

@@ -2,8 +2,9 @@
 // @author          57Cell
 // @id              fieldplanner@57Cell
 // @name            57Cell's Field Planner
-// @version         2.1.6.20230820
+// @version         2.1.7.20231011
 // @description     Plugin for planning fields in IITC
+// @category        Layer
 // @namespace       https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL       https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/57Cell/fieldplanner.meta.js
 // @downloadURL     https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/57Cell/fieldplanner.user.js
@@ -28,82 +29,145 @@
 
 
 pluginName = "57Cell's Field Planner";
-version = "2.1.6";
-
-/** Version History
-2.1.6.20230820
-NEW: Add a dialog with useful links (57Cell)
-
-2.1.5.20230819
-NEW: Include distance traveled in the linking plan (57Cell)
-
-2.1.4.20230810
-NEW: Conserve screen real estate by removing vertical whitespace (57Cell)
-
-2.1.3.20230810
-NEW: Change link numbering scheme (57Cell)
-
-2.1.2.20230808
-FIX: UI Issues regarding Webikit/Mozilla CSS
-
-2.1.2.20230801
-NEW: Improved animated corners: Selected portals get animated Triangles when hovering the preview images. (Heistergand)
-
-2.1.2.20230731
-NEW: Add selected portals images in the dialog. (Heistergand)
-NEW: Add animated corners: Selected portals get animated circles when hovering the preview images. (Heistergand)
-NEW: Add clear button (Heistergand)
-FIX: Portal selection does not affect plugin while dialog is not open. (Heistergand)
-
-2.1.1.20230727
-FIX: Dialog UI improvements (Heistergand)
-
-2.1.0.20230726
-NEW: Option to generate Cobweb fielding plans (57Cell)
-
-2.0.1.20230723
-NEW: Add field drawing layer (Heistergand)
-NEW: Created Control Fields are mentioned in the plan (Heistergand)
-NEW: Add Statistics output (Heistergand)
-
-2.0.0.20230723
-NEW: Add an option for general maximum fielding (57Cell)
-NEW: change name of plugin and UI text (57Cell)
-
-1.2.3.20230723
-NEW: Number of softbanks is noted for portals that need them (57Cell)
-
-1.2.2.20230715
-FIX: Sporadic failure to find an HCF when one exists (Issue #11)
-
-1.2.1.20230701
-FIX: Working with portals having the same name is no problem anymore.
-NEW: Export to DrawTools (Heistergand)
-
-1.2.0.20230628
-FIX: Some code refactoring to comply to IITC plugin framework.
-FIX: typo in layer label fixed
-NEW: improved dialog (Heistergand)
-NEW: User can now choose to generate a geometrically perfectly balanced plan
-
-TODO: async field calculation
-
-1.1.0.20230624
-NEW: Added plugin layer and link drawings. (Heistergand)
-NEW: Added numbers to the task list (Heistergand)
-FIX: minor code refactoring, mainly divorcing plan composing from UI drawing.
-
-1.0.0.20230521
-NEW: Initial Release (57Cell)
-
-*/
+version = "2.1.7";
+changeLog = [
+    {
+        version: '2.1.7.20231011',
+        changes: [
+            'NEW: Changelog appears in IITC Plugin List. (Heistergand)',
+        ],
+    },
+    {
+        version: '2.1.6.20230820',
+        changes: [
+            'NEW: Add a dialog with useful links (57Cell)',
+        ],
+    },
+    {
+        version: '2.1.5.20230819',
+        changes: [
+            'NEW: Include distance traveled in the linking plan (57Cell)',
+        ],
+    },
+    {
+        version: '2.1.4.20230810',
+        changes: [
+            'NEW: Conserve screen real estate by removing vertical whitespace (57Cell)',
+        ],
+    },
+    {
+        version: '2.1.3.20230810',
+        changes: [
+            'NEW: Change link numbering scheme (57Cell)',
+        ],
+    },
+    {
+        version: '2.1.2.20230808',
+        changes: [
+            'FIX: UI Issues regarding Webikit/Mozilla CSS',
+        ],
+    },
+    {
+        version: '2.1.2.20230801',
+        changes: [
+            'NEW: Improved animated corners: Selected portals get animated Triangles when hovering the preview images. (Heistergand)',
+        ],
+    },
+    {
+        version: '2.1.2.20230731',
+        changes: [
+            'NEW: Add selected portals images in the dialog. (Heistergand)',
+            'NEW: Add animated corners: Selected portals get animated circles when hovering the preview images. (Heistergand)',
+            'NEW: Add clear button (Heistergand)',
+            'FIX: Portal selection does not affect plugin while dialog is not open. (Heistergand)',
+        ],
+    },
+    {
+        version: '2.1.1.20230727',
+        changes: [
+            'FIX: Dialog UI improvements (Heistergand)',
+        ],
+    },
+    {
+        version: '2.1.0.20230726',
+        changes: [
+            'NEW: Option to generate Cobweb fielding plans (57Cell)',
+        ],
+    },
+    {
+        version: '2.0.1.20230723',
+        changes: [
+            'NEW: Add field drawing layer (Heistergand)',
+            'NEW: Created Control Fields are mentioned in the plan (Heistergand)',
+            'NEW: Add Statistics output (Heistergand)',
+        ],
+    },
+    {
+        version: '2.0.0.20230723',
+        changes: [
+            'NEW: Add an option for general maximum fielding (57Cell)',
+            'NEW: change name of plugin and UI text (57Cell)',
+        ],
+    },
+    {
+        version: '1.2.3.20230723',
+        changes: [
+            'NEW: Number of softbanks is noted for portals that need them (57Cell)',
+        ],
+    },
+    {
+        version: '1.2.2.20230715',
+        changes: [
+            'FIX: Sporadic failure to find an HCF when one exists (Issue #11)',
+        ],
+    },
+    {
+        version: '1.2.1.20230701',
+        changes: [
+            'FIX: Working with portals having the same name is no problem anymore.',
+            'NEW: Export to DrawTools (Heistergand)',
+        ],
+    },
+    {
+        version: '1.2.0.20230628',
+        changes: [
+            'FIX: Some code refactoring to comply to IITC plugin framework.',
+            'FIX: typo in layer label fixed',
+            'NEW: improved dialog (Heistergand)',
+            'NEW: User can now choose to generate a geometrically perfectly balanced plan',
+        ],
+    },
+    {
+        version: '1.1.0.20230624',
+        changes: [
+            'NEW: Added plugin layer and link drawings. (Heistergand)',
+            'NEW: Added numbers to the task list (Heistergand)',
+            'FIX: minor code refactoring, mainly divorcing plan composing from UI drawing.',
+        ],
+    },
+    {
+        version: '1.0.0.20230521',
+        changes: [
+            'NEW: Initial Release (57Cell)',
+        ],
+    },
+    {
+        version: '0.1',
+        changes: [
+            'There was some conversation with ChatGPT',
+        ],
+    },
+];
 
 function wrapper(plugin_info) {
     if (typeof window.plugin !== 'function') window.plugin = function() {};
+    plugin_info.buildName = '';
+    plugin_info.dateTimeVersion = '2023-10-11-214542';
+    plugin_info.pluginId = '57CellsFieldPlanner';
 
     // PLUGIN START
     console.log('loading hcf plugin')
-
+    var changelog = changeLog;
     let self = window.plugin.homogeneousFields = function() {};
 
     // helper function to convert portal ID to portal object
@@ -1527,7 +1591,10 @@ function wrapper(plugin_info) {
     // Add an info property for IITC's plugin system
     var setup = self.setup;
     setup.info = plugin_info;
-
+    
+    // export changelog
+    if (typeof changelog !== 'undefined') setup.info.changelog = changelog;
+    
     // Make sure window.bootPlugins exists and is an array
     if (!window.bootPlugins) window.bootPlugins = [];
     // Add our startup hook

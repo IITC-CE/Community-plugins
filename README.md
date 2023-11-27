@@ -605,6 +605,21 @@ Exports portals to a CSV list
 
 ## Layer
   
+### [57Cell&#39;s Field Planner](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/57Cell/fieldplanner.user.js) by 57Cell
+
+
+
+![preview](https://github.com/mike40033/iitc-57Cell/blob/4f9d4496b40de650ae83d5ca2a0d20ecd00530cc/plugins/homogeneous-fields/Screenshot_2023-10-15_015218.png?raw=true)
+
+Plugin for planning fields in IITC
+
+*Recommends*: [draw-tools@breunigs](#) [draw-tools-plus@zaso](#)  |
+*[Homepage](https://www.youtube.com/@57Cell)* |
+*[Issue tracker](https://github.com/mike40033/iitc-57Cell/issues)* |
+*Version:* 2.1.7.20231011
+
+
+  
 ### [Cells areas at portal level](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/cells.user.js) by DanielOnDiordna
 
 
@@ -980,21 +995,6 @@ GL layer
   
 
 ## Misc
-  
-### [57Cell&#39;s Field Planner](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/57Cell/fieldplanner.user.js) by 57Cell
-
-
-
-![preview](https://github.com/mike40033/iitc-57Cell/blob/4f9d4496b40de650ae83d5ca2a0d20ecd00530cc/plugins/homogeneous-fields/Screenshot_2023-10-15_015218.png?raw=true)
-
-Plugin for planning fields in IITC
-
-*Recommends*: [draw-tools@breunigs](#) [draw-tools-plus@zaso](#)  |
-*[Homepage](https://www.youtube.com/@57Cell)* |
-*[Issue tracker](https://github.com/mike40033/iitc-57Cell/issues)* |
-*Version:* 2.1.6.20230820
-
-
   
 ### [Advanced Tracker Player](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/BlancLapin/advanced_player_tracker.user.js) by BlancLapin
 

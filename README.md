@@ -1402,18 +1402,6 @@ Append a pocket box containing some restricted details of the selected portal.
 
 
   
-### [Zoom Override](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/zoom-override.user.js) by DanielOnDiordna
-
-**Anti-features:** **[highLoad](/CONTRIBUTING.md#anti-features)** 
-
-
-
-[danielondiordna-1.1.0.20230828.230800] Override the portal and links display levels for every zoom level. Using this method can cause more bandwidth usage when showing more details at higher zoom levels.
-
-*Version:* 1.1.0.20230828.230800
-
-
-  
 
 ## Tweaks
   
@@ -1486,6 +1474,18 @@ Minify some Portal Details in sidebar: mod slots and resonators info
 A control to enable/disable the zoom map by scroll mouse.
 
 *Version:* 0.0.3.20200216.174030
+
+
+  
+### [Zoom Override](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/zoom-override.user.js) by DanielOnDiordna
+
+**Anti-features:** **[highLoad](/CONTRIBUTING.md#anti-features)** 
+
+
+
+[danielondiordna-1.2.0.20240122.225900] Override the portal and links display levels for every zoom level. Using this method can cause more bandwidth usage when showing more details at higher zoom levels.
+
+*Version:* 1.2.0.20240122.225900
 
 
   

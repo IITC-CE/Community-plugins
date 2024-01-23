@@ -1,11 +1,11 @@
 // ==UserScript==
 // @author          DanielOnDiordna
 // @name            Zoom Override
-// @category        Tweak
-// @version         1.1.0.20230828.230800
+// @category        Tweaks
+// @version         1.2.0.20240122.225900
 // @updateURL       https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/zoom-override.meta.js
 // @downloadURL     https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/zoom-override.user.js
-// @description     [danielondiordna-1.1.0.20230828.230800] Override the portal and links display levels for every zoom level. Using this method can cause more bandwidth usage when showing more details at higher zoom levels.
+// @description     [danielondiordna-1.2.0.20240122.225900] Override the portal and links display levels for every zoom level. Using this method can cause more bandwidth usage when showing more details at higher zoom levels.
 // @id              zoom-override@DanielOnDiordna
 // @namespace       https://softspot.nl/ingress/
 // @antiFeatures    highLoad
@@ -23,10 +23,14 @@ function wrapper(plugin_info) {
     var self = window.plugin.zoomoverride;
     self.id = 'zoomoverride';
     self.title = 'Zoom Override';
-    self.version = '1.1.0.20230828.230800';
+    self.version = '1.2.0.20240122.225900';
     self.author = 'DanielOnDiordna';
     self.changelog = `
 Changelog:
+
+version 1.2.0.20240122.225900
+- changed header category from Tweak to Tweaks
+- fixed alignment of the Go buttons
 
 version 1.1.0.20230828.230800
 - added a dialog to quickly set the load level by clicking the link/portal load level text at the bottom of the screen
@@ -143,10 +147,10 @@ version 0.0.1.20161103.114500
     };
 
     self.updatemenu = function() {
-        $('#' + self.id + '_toggle').prop("checked", window.map.hasLayer(self.toggleoverride));
+        $(`#${self.id}_toggle`).prop("checked", window.map.hasLayer(self.toggleoverride));
         let zoomlevel = window.map.getZoom();
-        $('.' + self.id + 'mainmenu span.active').removeClass();
-        $('#' + self.id + '_level' + zoomlevel).addClass('active');
+        $(`.${self.id}mainmenu span.active`).removeClass();
+        $(`#${self.id}_level${zoomlevel}`).addClass('active');
 
         $(`.${self.id}_zoomlevel_text`).text(window.map.getZoom());
         $(`.${self.id}_default_text`).text(self.zoomtext[window.map.getZoom()]);
@@ -423,7 +427,11 @@ for this zoom level: <span class="${self.id}_zoomlevel_text active"></span>
 
         var stylesheet = document.createElement('style');
         stylesheet.innerHTML = `
-.${self.id}mainmenu label { user-select: none; }
+.${self.id}mainmenu label { user-select: none; display: flex; }
+.${self.id}mainmenu>div { align-items: center; column-gap: 10px; display: flex; flex-wrap: nowrap; }
+.${self.id}mainmenu select { margin-left: 5px; margin-right: 5px; }
+.${self.id}mainmenu span { margin-left: 5px; }
+.${self.id}mainmenu>div>input[type=button] { margin-left: auto; }
 .${self.id}author { margin-top: 14px; font-style: italic; font-size: smaller; }
 #${self.id}panemenu { background: transparent; border: 0 none !important; height: 100% !important; width: 100% !important; left: 0 !important; top: 0 !important; position: absolute; overflow: auto; }
 .${self.id}mainmenu span.active { font-weight: bold; color: #ffce00; }
@@ -439,7 +447,7 @@ for this zoom level: <span class="${self.id}_zoomlevel_text active"></span>
         setTimeout(function() {
             document.querySelector('#innerstatus').addEventListener('click',function(e) {
                 if (e.target == document.querySelector('#innerstatus #loadlevel')) {
-                    console.log(e.target);
+                    // console.log(e.target);
                     self.showquickdialog();
                 }
             },false);
@@ -448,7 +456,15 @@ for this zoom level: <span class="${self.id}_zoomlevel_text active"></span>
         console.log('IITC plugin loaded: ' + self.title + ' version ' + self.version);
     };
 
+    // Added to support About IITC details and changelog:
+    plugin_info.script.version = plugin_info.script.version.replace(/\.\d{8}\.\d{6}$/,'');
+    plugin_info.buildName = 'softspot.nl';
+    plugin_info.dateTimeVersion = self.version.replace(/^.*(\d{4})(\d{2})(\d{2})\.(\d{6})/,'$1-$2-$3-$4');
+    plugin_info.pluginId = self.id;
+    let changelog = [{version:'This is a <a href="https://softspot.nl/ingress/" target="_blank">softspot.nl</a> plugin by ' + self.author,changes:[]},...self.changelog.replace(/^.*?version /s,'').split(/\nversion /).map((v)=>{v=v.split(/\n/).map((l)=>{return l.replace(/^- /,'')}).filter((l)=>{return l != "";}); return {version:v.shift(),changes:v}})];
+
     setup.info = plugin_info; //add the script info data to the function as a property
+    if (typeof changelog !== 'undefined') setup.info.changelog = changelog;
     if(!window.bootPlugins) window.bootPlugins = [];
     window.bootPlugins.push(setup);
     // if IITC has already booted, immediately run the 'setup' function
@@ -460,4 +476,3 @@ var info = {};
 if (typeof GM_info !== 'undefined' && GM_info && GM_info.script) info.script = { version: GM_info.script.version, name: GM_info.script.name, description: GM_info.script.description };
 script.appendChild(document.createTextNode('('+ wrapper +')('+JSON.stringify(info)+');'));
 (document.body || document.head || document.documentElement).appendChild(script);
-

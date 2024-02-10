@@ -2,10 +2,10 @@
 // @author         DanielOnDiordna
 // @name           Player Tracker add-on
 // @category       Addon
-// @version        1.3.0.20230514.005600
+// @version        1.3.1.20240209.233200
 // @updateURL      https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/player-tracker-addon.meta.js
 // @downloadURL    https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/player-tracker-addon.user.js
-// @description    [danielondiordna-1.3.0.20230514.005600] Add-on to the player tracker plugin: Adjust history limit of 3 hours to another value. Toggle name labels, last action time, toggle/adjust player colors, focus on players, display 1 single player. Integrated Marker Label plugin and Spectrum Colorpicker 1.8.1 plugin. Supports Machina U̶͚̓̍N̴̖̈K̠͔̍͑̂͜N̞̥͋̀̉Ȯ̶̹͕̀W̶̢͚͑̚͝Ṉ̨̟̒̅' player.
+// @description    [danielondiordna-1.3.1.20240209.233200] Add-on to the player tracker plugin: Adjust history limit of 3 hours to another value. Toggle name labels, last action time, toggle/adjust player colors, focus on players, display 1 single player. Integrated Marker Label plugin and Spectrum Colorpicker 1.8.1 plugin. Supports Machina U̶͚̓̍N̴̖̈K̠͔̍͑̂͜N̞̥͋̀̉Ȯ̶̹͕̀W̶̢͚͑̚͝Ṉ̨̟̒̅' player.
 // @id             player-tracker-addon@DanielOnDiordna
 // @namespace      https://softspot.nl/ingress/
 // @depends        player-activity-tracker@breunigs
@@ -23,10 +23,13 @@ function wrapper(plugin_info) {
     var self = window.plugin.playerTrackerAddon;
     self.id = 'playerTrackerAddon';
     self.title = 'Player Tracker add-on';
-    self.version = '1.3.0.20230514.005600';
+    self.version = '1.3.1.20240209.233200';
     self.author = 'DanielOnDiordna';
     self.changelog = `
 Changelog:
+
+version 1.3.1.20240209.233200
+- minor fix to display player nickname on the labels (fix for Player Tracker version 0.12.3.20240201.073623 IITC-CE 0.37.1 beta)
 
 version 1.3.0.20230514.005600
 - added Machina U̶͚̓̍N̴̖̈K̠͔̍͑̂͜N̞̥͋̀̉Ȯ̶̹͕̀W̶̢͚͑̚͝Ṉ̨̟̒̅' icons, player tracker layer and colors
@@ -313,8 +316,8 @@ version 0.0.1.20181030.212900
 
         if (self.settings.showlabels) {
             if (drawData_override.indexOf('iconEnl()') >= 0) {
-                drawData_override = drawData_override.replace('iconEnl()','iconEnl({ labelText: playerData.nick + (' + self.namespace + 'settings.showlastaction?\', \' + window.plugin.playerTracker.ago(playerData.events[playerData.events.length - 1].time,now):\'\') })');
-                drawData_override = drawData_override.replace('iconRes()','iconRes({ labelText: playerData.nick + (' + self.namespace + 'settings.showlastaction?\', \' + window.plugin.playerTracker.ago(playerData.events[playerData.events.length - 1].time,now):\'\') })');
+                drawData_override = drawData_override.replace('iconEnl()','iconEnl({ labelText: (plrname || playerData.nick) + (' + self.namespace + 'settings.showlastaction?\', \' + window.plugin.playerTracker.ago(playerData.events[playerData.events.length - 1].time,now):\'\') })');
+                drawData_override = drawData_override.replace('iconRes()','iconRes({ labelText: (plrname || playerData.nick) + (' + self.namespace + 'settings.showlastaction?\', \' + window.plugin.playerTracker.ago(playerData.events[playerData.events.length - 1].time,now):\'\') })');
             }
         }
 
@@ -1175,7 +1178,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
             drawData_string = drawData_string.replace(/(var polyLineByAgeRes.*?\n)/s,'$1var polyLineByAgeMac = {};\n');
             drawData_string = drawData_string.replace(/(else\n)/s,'else if(playerData.team === \'NEUTRAL\')\n        { if (!polyLineByAgeMac[plrname]) polyLineByAgeMac[plrname] = [[], [], [], []]; polyLineByAgeMac[plrname][ageBucket].push(line); }\n      $1');
             drawData_string = drawData_string.replace(/(addClass\('nickname.*?)('enl')/,'$1(playerData.team === \'NEUTRAL\' ? \'mac\' : $2)');
-            drawData_string = drawData_string.replace(/(var icon =.*?) : (.*?);/s,'$1 : (playerData.team === \'NEUTRAL\' ? new plugin.playerTracker.iconMac({ labelText: playerData.nick + (window.plugin.playerTrackerAddon.settings.showlastaction?\', \' + window.plugin.playerTracker.ago(playerData.events[playerData.events.length - 1].time,now):\'\') }) : $2);');
+            drawData_string = drawData_string.replace(/(var icon =.*?) : (.*?);/s,'$1 : (playerData.team === \'NEUTRAL\' ? new plugin.playerTracker.iconMac({ labelText: (plrname || playerData.nick) + (window.plugin.playerTrackerAddon.settings.showlastaction?\', \' + window.plugin.playerTracker.ago(playerData.events[playerData.events.length - 1].time,now):\'\') }) : $2);');
             drawData_string = drawData_string.replace(/(m.addTo\(.*?) : (.*?);/s,'$1 : (playerData.team === \'NEUTRAL\' ? plugin.playerTracker.drawnTracesMac : $2);\n');
             drawData_string = drawData_string.replace(/\}$/s,`
     $.each(polyLineByAgeMac, function(plrname, polyLineByAge) {
@@ -1195,9 +1198,9 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
             });
         });
     });
-    console.log('NEUTRAL PLAYER INJECTED');
+    //console.log('NEUTRAL PLAYER INJECTED');
 }`);
-            console.log(drawData_string);
+            //console.log(drawData_string);
             try {
                 eval('window.plugin.playerTracker.drawData = ' + drawData_string);
             } catch(e) {

@@ -2,7 +2,7 @@
 // @author         jaiperdu
 // @name           COMM Filter Tab
 // @category       COMM
-// @version        0.4.10
+// @version        0.4.11
 // @description    Show virus in the regular Comm and add a new tab with portal/player name filter and event type filter.
 // @id             comm-filter-tab@jaiperdu
 // @namespace      https://github.com/IITC-CE/ingress-intel-total-conversion
@@ -20,7 +20,7 @@ if(typeof window.plugin !== 'function') window.plugin = function() {};
 //PLUGIN AUTHORS: writing a plugin outside of the IITC build environment? if so, delete these lines!!
 //(leaving them in place might break the 'About IITC' page or break update checks)
 plugin_info.buildName = 'lejeu';
-plugin_info.dateTimeVersion = '2023-10-19-070329';
+plugin_info.dateTimeVersion = '2024-02-09-193909';
 plugin_info.pluginId = 'comm-filter-tab';
 //END PLUGIN AUTHORS NOTE
 
@@ -618,25 +618,25 @@ function computeHidden() {
 
   const filtered = new Set(hidden);
   for (const guid of window.chat._public.guids) {
-    const n = window.chat._public.data[guid][3];
-    const d = window.chat._public.data[guid][4]['comm-filter'];
-    const p = window.chat._public.data[guid][4];
-    let show = commFilter.filters.type.includes(d.type);
+    const nick = window.chat._public.data[guid][3];
+    const filterData = window.chat._public.data[guid][4]['comm-filter'];
+    const parsedData = window.chat._public.data[guid][4];
+    let show = commFilter.filters.type.includes(filterData.type);
 
     // special type
     if (commFilter.filters.type.includes('all')) show = true;
-    if (commFilter.filters.type.includes('chat all') && (d.type === 'chat' || d.type === 'chat faction')) show = true;
-    if (commFilter.filters.type.includes('chat public') && d.type === 'chat') show = true;
-    if (commFilter.filters.type.includes('virus') && d.virus) show = true;
-    if (commFilter.filters.type.includes('machina') && p.player.name === '__MACHINA__') show = true;
+    if (commFilter.filters.type.includes('chat all') && (filterData.type === 'chat' || filterData.type === 'chat faction')) show = true;
+    if (commFilter.filters.type.includes('chat public') && filterData.type === 'chat') show = true;
+    if (commFilter.filters.type.includes('virus') && filterData.virus) show = true;
+    if (commFilter.filters.type.includes('machina') && parsedData.player.name === '__MACHINA__') show = true;
 
     let match = false;
-    if (n.includes(commFilter.filters.text)) match = true;
-    if (d.portals) {
-      if (d.portals.some((p) => p.name.includes(commFilter.filters.text))) match = true;
+    if (nick.toLowerCase().includes(commFilter.filters.text)) match = true;
+    if (filterData.portals) {
+      if (filterData.portals.some((p) => p.name.toLowerCase().includes(commFilter.filters.text))) match = true;
     }
-    if (d.mentions) {
-      if (d.mentions.some((p) => p.name.includes(commFilter.filters.text))) match = true;
+    if (filterData.mentions) {
+      if (filterData.mentions.some((p) => p.name.toLowerCase().includes(commFilter.filters.text))) match = true;
     }
     if (!show || !match) filtered.add(guid);
   }
@@ -798,7 +798,7 @@ function tabCreate() {
     Array.from(events).map((s) => '<option value="' + s + '">' + s + '</option>') +
     '</select>';
   $('#filter-text').on('change', function (ev) {
-    commFilter.filters.text = ev.target.value;
+    commFilter.filters.text = ev.target.value.toLowerCase();
     commFilter.hidden = computeHidden();
     renderChatFilter(false);
   });

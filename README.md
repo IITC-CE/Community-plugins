@@ -90,10 +90,10 @@ See the [Contributing](CONTRIBUTING.md) documentation.
 
 
 
-[danielondiordna-1.3.0.20230514.005600] Add-on to the player tracker plugin: Adjust history limit of 3 hours to another value. Toggle name labels, last action time, toggle/adjust player colors, focus on players, display 1 single player. Integrated Marker Label plugin and Spectrum Colorpicker 1.8.1 plugin. Supports Machina U̶͚̓̍N̴̖̈K̠͔̍͑̂͜N̞̥͋̀̉Ȯ̶̹͕̀W̶̢͚͑̚͝Ṉ̨̟̒̅&#39; player.
+[danielondiordna-1.3.1.20240209.233200] Add-on to the player tracker plugin: Adjust history limit of 3 hours to another value. Toggle name labels, last action time, toggle/adjust player colors, focus on players, display 1 single player. Integrated Marker Label plugin and Spectrum Colorpicker 1.8.1 plugin. Supports Machina U̶͚̓̍N̴̖̈K̠͔̍͑̂͜N̞̥͋̀̉Ȯ̶̹͕̀W̶̢͚͑̚͝Ṉ̨̟̒̅&#39; player.
 
 *Depends*: [player-activity-tracker@breunigs](#)  |
-*Version:* 1.3.0.20230514.005600
+*Version:* 1.3.1.20240209.233200
 
 
   
@@ -136,7 +136,7 @@ Bring ameba64/ingress-items icons into IITC
 
 Show virus in the regular Comm and add a new tab with portal/player name filter and event type filter.
 
-*Version:* 0.4.10
+*Version:* 0.4.11
 
 
   

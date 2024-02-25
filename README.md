@@ -136,7 +136,7 @@ Bring ameba64/ingress-items icons into IITC
 
 Show virus in the regular Comm and add a new tab with portal/player name filter and event type filter.
 
-*Version:* 0.4.11
+*Version:* 0.4.12
 
 
   

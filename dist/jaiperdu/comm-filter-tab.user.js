@@ -2,7 +2,7 @@
 // @author         jaiperdu
 // @name           COMM Filter Tab
 // @category       COMM
-// @version        0.4.11
+// @version        0.4.12
 // @description    Show virus in the regular Comm and add a new tab with portal/player name filter and event type filter.
 // @id             comm-filter-tab@jaiperdu
 // @namespace      https://github.com/IITC-CE/ingress-intel-total-conversion
@@ -20,20 +20,17 @@ if(typeof window.plugin !== 'function') window.plugin = function() {};
 //PLUGIN AUTHORS: writing a plugin outside of the IITC build environment? if so, delete these lines!!
 //(leaving them in place might break the 'About IITC' page or break update checks)
 plugin_info.buildName = 'lejeu';
-plugin_info.dateTimeVersion = '2024-02-09-193909';
+plugin_info.dateTimeVersion = '2024-02-24-075816';
 plugin_info.pluginId = 'comm-filter-tab';
 //END PLUGIN AUTHORS NOTE
 
 // todo list
 // 4) add checkable filtering for all/faction/alert
+// 5) lookup data in another dialog/pane
 
 // ==============
 // chat injection
 // ==============
-
-function renderText(text) {
-  return $('<div/>').text(text.plain).html().autoLink();
-}
 
 function renderPortal(portal) {
   var lat = portal.latE6 / 1e6,
@@ -59,263 +56,6 @@ function renderPortal(portal) {
     window.chat.getChatPortalName(portal) +
     '</a>'
   );
-}
-
-function renderFactionEnt(faction) {
-  var teamId = window.teamStringToId(faction.team);
-  var name = window.TEAM_NAMES[teamId];
-  var spanClass = window.TEAM_TO_CSS[teamId];
-  return $('<div/>').html($('<span/>').attr('class', spanClass).text(name)).html();
-}
-
-function renderPlayer(player, at, sender) {
-  var name = sender ? player.plain.slice(0, -2) : at ? player.plain.slice(1) : player.plain;
-  var thisToPlayer = name === window.PLAYER.nickname;
-  var spanClass = thisToPlayer ? 'pl_nudge_me' : player.team + ' pl_nudge_player';
-  return $('<div/>')
-    .html(
-      $('<span/>')
-        .attr('class', spanClass)
-        .attr('onclick', "window.chat.nicknameClicked(event, '" + name + "')")
-        .text((at ? '@' : '') + name)
-    )
-    .html();
-}
-
-function renderMarkupEntity(ent) {
-  switch (ent[0]) {
-    case 'TEXT':
-      return renderText(ent[1]);
-    case 'PORTAL':
-      return renderPortal(ent[1]);
-    case 'FACTION':
-      return renderFactionEnt(ent[1]);
-    case 'SENDER':
-      return renderPlayer(ent[1], false, true);
-    case 'PLAYER':
-      return renderPlayer(ent[1]);
-    case 'AT_PLAYER':
-      return renderPlayer(ent[1], true);
-    default:
-  }
-  return $('<div/>')
-    .text(ent[0] + ':<' + ent[1].plain + '>')
-    .html();
-}
-
-function renderMarkup(markup) {
-  var msg = '';
-  markup.forEach(function (ent, ind) {
-    switch (ent[0]) {
-      case 'SENDER':
-      case 'SECURE':
-        // skip as already handled
-        break;
-
-      case 'PLAYER': // automatically generated messages
-        if (ind > 0) msg += renderMarkupEntity(ent); // don’t repeat nick directly
-        break;
-
-      default:
-        // add other enitities whatever the type
-        msg += renderMarkupEntity(ent);
-        break;
-    }
-  });
-  return msg;
-}
-
-function renderTimeCell(time, classNames) {
-  var ta = window.unixTimeToHHmm(time);
-  var tb = window.unixTimeToDateTimeString(time, true);
-  // add <small> tags around the milliseconds
-  tb = (tb.slice(0, 19) + '<small class="milliseconds">' + tb.slice(19) + '</small>').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-  return '<td><time class="' + classNames + '" title="' + tb + '" data-timestamp="' + time + '">' + ta + '</time></td>';
-}
-
-function renderNickCell(nick, classNames) {
-  var i = ['<span class="invisep">&lt;</span>', '<span class="invisep">&gt;</span>'];
-  return '<td>' + i[0] + '<mark class="' + classNames + '">' + nick + '</mark>' + i[1] + '</td>';
-}
-
-function renderMsgCell(msg, classNames) {
-  return '<td class="' + classNames + '">' + msg + '</td>';
-}
-
-function renderMsgRow(data) {
-  var timeClass = data.msgToPlayer ? 'pl_nudge_date' : '';
-  var timeCell = renderTimeCell(data.time, timeClass);
-
-  var nickClasses = ['nickname'];
-  if (0 <= data.player.team && data.player.team < window.TEAM_TO_CSS.length) nickClasses.push(window.TEAM_TO_CSS[data.player.team]);
-  // highlight things said/done by the player in a unique colour (similar to @player mentions from others in the chat text itself)
-  if (data.player.name === window.PLAYER.nickname) nickClasses.push('pl_nudge_me');
-  var nickCell = renderNickCell(data.player.name, nickClasses.join(' '));
-
-  var msg = renderMarkup(data.markup);
-  var msgClass = data.narrowcast ? 'system_narrowcast' : '';
-  var msgCell = renderMsgCell(msg, msgClass);
-
-  var className = '';
-  if (!data.auto && data.public) className = 'public';
-  else if (!data.auto && data.secure) className = 'faction';
-  return '<tr data-guid="' + data.guid + '" class="' + className + '">' + timeCell + nickCell + msgCell + '</tr>';
-}
-
-function updateOldNewHash(newData, storageHash, isOlderMsgs, isAscendingOrder) {
-  // handle guids reset before refactored chat
-  if (storageHash.oldestGUID === undefined) storageHash.guids = [];
-  // track oldest + newest timestamps/GUID
-  if (newData.result.length > 0) {
-    var first = {
-      guid: newData.result[0][0],
-      time: newData.result[0][1],
-    };
-    var last = {
-      guid: newData.result[newData.result.length - 1][0],
-      time: newData.result[newData.result.length - 1][1],
-    };
-    if (isAscendingOrder) {
-      var temp = first;
-      first = last;
-      last = temp;
-    }
-    if (storageHash.oldestTimestamp === -1 || storageHash.oldestTimestamp >= last.time) {
-      if (isOlderMsgs || storageHash.oldestTimestamp !== last.time) {
-        storageHash.oldestTimestamp = last.time;
-        storageHash.oldestGUID = last.guid;
-      }
-    }
-    if (storageHash.newestTimestamp === -1 || storageHash.newestTimestamp <= first.time) {
-      if (!isOlderMsgs || storageHash.newestTimestamp !== first.time) {
-        storageHash.newestTimestamp = first.time;
-        storageHash.newestGUID = first.guid;
-      }
-    }
-  }
-}
-
-function parseMsgData(data) {
-  var categories = data[2].plext.categories;
-  var isPublic = (categories & 1) === 1;
-  var isSecure = (categories & 2) === 2;
-  var msgAlert = (categories & 4) === 4;
-
-  var msgToPlayer = msgAlert && (isPublic || isSecure);
-
-  var time = data[1];
-  var team = window.teamStringToId(data[2].plext.team);
-  var auto = data[2].plext.plextType !== 'PLAYER_GENERATED';
-  var systemNarrowcast = data[2].plext.plextType === 'SYSTEM_NARROWCAST';
-
-  var markup = data[2].plext.markup;
-
-  var nick = '';
-  markup.forEach(function (ent) {
-    switch (ent[0]) {
-      case 'SENDER': // user generated messages
-        nick = ent[1].plain.slice(0, -2); // cut “: ” at end
-        break;
-
-      case 'PLAYER': // automatically generated messages
-        nick = ent[1].plain;
-        team = window.teamStringToId(ent[1].team);
-        break;
-
-      default:
-        break;
-    }
-  });
-
-  return {
-    guid: data[0],
-    time: time,
-    public: isPublic,
-    secure: isSecure,
-    alert: msgAlert,
-    msgToPlayer: msgToPlayer,
-    type: data[2].plext.plextType,
-    narrowcast: systemNarrowcast,
-    auto: auto,
-    player: {
-      name: nick,
-      team: team,
-    },
-    markup: markup,
-  };
-}
-
-function writeDataToHash(newData, storageHash, isPublicChannel, isOlderMsgs, isAscendingOrder) {
-  updateOldNewHash(newData, storageHash, isOlderMsgs, isAscendingOrder);
-
-  newData.result.forEach(function (json) {
-    // avoid duplicates
-    if (json[0] in storageHash.data) return true;
-
-    var parsedData = parseMsgData(json);
-
-    // format: timestamp, autogenerated, HTML message, nick, additional data (parsed, plugin specific data...)
-    storageHash.data[parsedData.guid] = [parsedData.time, parsedData.auto, renderMsgRow(parsedData), parsedData.player.name, parsedData];
-
-    if (isAscendingOrder) storageHash.guids.push(parsedData.guid);
-    else storageHash.guids.unshift(parsedData.guid);
-  });
-}
-
-function renderDivider(text) {
-  return '<tr class="divider"><td><hr></td><td>' + text + '</td><td><hr></td></tr>';
-}
-
-function renderData(data, element, likelyWereOldMsgs, sortedGuids) {
-  var elm = $('#' + element);
-  if (elm.is(':hidden')) return;
-
-  // discard guids and sort old to new
-  // TODO? stable sort, to preserve server message ordering? or sort by GUID if timestamps equal?
-  var vals = sortedGuids;
-  if (vals === undefined) {
-    vals = $.map(data, function (v, k) {
-      return [[v[0], k]];
-    });
-    vals = vals.sort(function (a, b) {
-      return a[0] - b[0];
-    });
-    vals = vals.map(function (v) {
-      return v[1];
-    });
-  }
-
-  // render to string with date separators inserted
-  var msgs = '';
-  var prevTime = null;
-  vals.forEach(function (guid) {
-    var msg = data[guid];
-    var nextTime = new Date(msg[0]).toLocaleDateString();
-    if (prevTime && prevTime !== nextTime) msgs += window.chat.renderDivider(nextTime);
-    msgs += msg[2];
-    prevTime = nextTime;
-  });
-
-  var firstRender = elm.is(':empty');
-  var scrollBefore = window.scrollBottom(elm);
-  elm.html('<table>' + msgs + '</table>');
-
-  if (firstRender) elm.data('needsScrollTop', 99999999);
-  else window.chat.keepScrollPosition(elm, scrollBefore, likelyWereOldMsgs);
-
-  if (elm.data('needsScrollTop')) {
-    elm.data('ignoreNextScroll', true);
-    elm.scrollTop(elm.data('needsScrollTop'));
-    elm.data('needsScrollTop', null);
-  }
-}
-
-// fix for browser zoom/devicePixelRatio != 1
-// was jquery more reliable ?
-function scrollBottom(elm) {
-  if (typeof elm === 'string') elm = $(elm);
-  elm = elm.get(0);
-  return Math.max(0, elm.scrollHeight - elm.clientHeight - elm.scrollTop);
 }
 
 // =============
@@ -541,7 +281,7 @@ function findVirus(guids, data) {
     const id = parseData.markup.findIndex((m) => m[0] === 'TEXT' && m[1].plain.startsWith(' destroyed '));
     if (id >= 0) {
       parseData.markup[id][1].plain = ' destroyed ' + (prop.guids.length + 1) + ' Resonators on ';
-      data[guid][2] = renderMsgRow(parseData);
+      data[guid][2] = window.chat.renderMsgRow(parseData);
     }
   }
 }
@@ -567,7 +307,7 @@ function computeMUs(guids, data) {
         parseData.markup.push(['TEXT', { plain: '', type: 'mus_total' }]);
       }
       parseData.markup[id][1].plain = ' (' + tot.toLocaleString('en-US') + '/' + sum.toLocaleString('en-US') + ')';
-      data[guid][2] = renderMsgRow(parseData);
+      data[guid][2] = window.chat.renderMsgRow(parseData);
     }
   }
 }
@@ -587,7 +327,7 @@ function showDistances(guids, data) {
           type: 'length'
         },
       ]);
-      data[guid][2] = renderMsgRow(parseData);
+      data[guid][2] = window.chat.renderMsgRow(parseData);
     }
   }
 }
@@ -605,7 +345,7 @@ function patchMachina(guids, data) {
         }
         parseData.player.team = window.TEAM_MAC;
       }
-      data[guid][2] = renderMsgRow(parseData);
+      data[guid][2] = window.chat.renderMsgRow(parseData);
     }
   }
 }
@@ -753,7 +493,7 @@ function tabCreate() {
       channel: 'filter',
       name: 'Filter',
       inputPrompt: '',
-      sendMessage: () => {},
+      sendMessage: () => { },
       request: (_, old) => window.chat.requestChannel('all', old),
       render: (c, old) => {
         $('#chat-filters').show();
@@ -920,34 +660,12 @@ function setup() {
 
   // injection
   if (window.script_info.script.version < '0.34') {
-    window.TEAM_MAC = 3;
-    window.TEAM_TO_CSS = ['none', 'res', 'enl', 'mac'];
-    window.TEAM_NAMES = ['Neutral', 'Resistance', 'Enlightened', '__MACHINA__'];
-    window.TEAM_CODES = ['N', 'R', 'E', 'M'];
-    window.TEAM_CODENAMES = ['NEUTRAL', 'RESISTANCE', 'ENLIGHTENED', 'MACHINA'];
-
-    // given the entity detail data, returns the team the entity belongs
-    window.teamStringToId = function (teamStr) {
-      var teamIndex = window.TEAM_CODENAMES.indexOf(teamStr);
-      if (teamIndex >= 0) return teamIndex;
-      teamIndex = window.TEAM_CODES.indexOf(teamStr);
-      if (teamIndex >= 0) return teamIndex;
-      return window.TEAM_NONE;
-    };
-  }
-  if (window.script_info.script.version < '0.32') {
-    console.info('comm-filter: inject chat functions from 0.32');
-    window.chat.renderDivider = renderDivider;
-    window.chat.writeDataToHash = writeDataToHash;
-    window.chat.renderData = renderData;
-    window.scrollBottom = scrollBottom;
+    alert('comm-filter: require IITC 0.34+');
+    return;
   } else {
     console.info('comm-filter: replace renderPortal');
     window.chat.renderPortal = renderPortal;
   }
-  // use machina css
-  window.chat.renderMsgRow = renderMsgRow;
-  window.chat.parseMsgData = parseMsgData;
 
   // plugin
   commFilter.filters = {

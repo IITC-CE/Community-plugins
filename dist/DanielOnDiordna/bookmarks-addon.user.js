@@ -2,10 +2,10 @@
 // @author         DanielOnDiordna
 // @name           Bookmarks add-on
 // @category       Addon
-// @version        2.0.1.20231011.001300
+// @version        2.1.0.20240227.204800
 // @updateURL      https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/bookmarks-addon.meta.js
 // @downloadURL    https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/bookmarks-addon.user.js
-// @description    [danielondiordna-2.0.1.20231011.001300] Bookmark plugin add-on, to replace the default yellow marker by a color marker (color change requires colorpicker or drawtools), and show bookmark names (layer), including optional scaling. Modified export file with timestamp in text/plain format. Also an option for bookmarks export to kml file format (for google maps). Add/remove bookmarks with filters for level, faction, captured, visited and resonator counts. Integrated Spectrum Colorpicker 1.8.1
+// @description    [danielondiordna-2.1.0.20240227.204800] Bookmark plugin add-on, to replace the default yellow marker by a color marker (color change requires colorpicker or drawtools), and show bookmark names (layer), including optional scaling. Modified export file with timestamp in text/plain format. Also an option for bookmarks export to kml file format (for google maps). Add/remove bookmarks with filters for level, faction, captured, visited and resonator counts. Integrated Spectrum Colorpicker 1.8.1
 // @id             bookmarks-addon@DanielOnDiordna
 // @namespace      https://softspot.nl/ingress/
 // @depends        bookmarks@ZasoGD
@@ -23,10 +23,13 @@ function wrapper(plugin_info) {
     var self = window.plugin.bookmarksAddon;
     self.id = 'bookmarksAddon';
     self.title = 'Bookmarks add-on';
-    self.version = '2.0.1.20231011.001300';
+    self.version = '2.1.0.20240227.204800';
     self.author = 'DanielOnDiordna';
     self.changelog = `
 Changelog:
+
+version 2.1.0.20240227.204800
+- fixed the Bookmarks Opt menu items injection (using MutationObserver) to be compatible with Bookmarks plugin version 0.4.4
 
 version 2.0.1.20231011.001300
 - fixed the captured filter where visited was mixed up with captured
@@ -1308,7 +1311,8 @@ Add to folder: <input type="text" name="autofolder"><br>
             }
         }
 
-        $('#' + self.id + '_color').spectrum({
+        $(`#${self.id}_color[style*="display: none;"]`).next().remove();
+        $(`#${self.id}_color`).spectrum({
             flat: false,
             showInput: true,
             showButtons: true,
@@ -1345,24 +1349,62 @@ Add to folder: <input type="text" name="autofolder"><br>
     };
 
     self.setupBookmarkMenu = function() {
-        self.manualOpt_backup = window.plugin.bookmarks.manualOpt.toString();
+        let container = document.createElement('div');
+        container.innerHTML = `
+<input type="text" name="color" id="${self.id}_color"></input> Current/new bookmarks color<br>
+<label><input type="checkbox" name="overridechecked">Show colored bookmarks</label><br>
+<label><input type="checkbox" name="smallerchecked">Scale bookmarks</label><br>
+<a href="#" name="addremove">Add/Remove bookmarks...</a>
+<a href="#" name="exportkml">Export KML file...</a>
+<a href="#" name="exportcsv">Export CSV file...</a>
+`;
+        let overridechecked = container.querySelector('input[name=overridechecked]');
+        overridechecked.addEventListener('click',function(e) {
+            self.settings.override = this.checked;
+            self.storesettings();
+            self.iconoverride(this.checked);
+            window.plugin.bookmarks.resetAllStars();
+        },false);
+        let smallerchecked = container.querySelector('input[name=smallerchecked]');
+        smallerchecked.addEventListener('click',function(e) {
+            self.settings.smaller = this.checked;
+            self.storesettings();
+            window.plugin.bookmarks.resetAllStars();
+        },false);
+        container.querySelector('a[name=addremove]').addEventListener('click',function(e) {
+            e.preventDefault();
+            self.menu();
+        },false);
+        container.querySelector('a[name=exportkml]').addEventListener('click',function(e) {
+            e.preventDefault();
+            self.exportkml();
+        },false);
+        container.querySelector('a[name=exportcsv]').addEventListener('click',function(e) {
+            e.preventDefault();
+            self.exportcsv();
+        },false);
 
-        // insert extra menu items:
-        window.plugin.bookmarks.htmlSetbox = window.plugin.bookmarks.htmlSetbox.replace(
-            '<div id="bkmrksSetbox">',
-            '<div id="bkmrksSetbox">\n' +
-            '<input type="text" id="' + self.id + '_color"></input> Current/new bookmarks color<br />\n' +
-            '<input type="checkbox" onclick="' + self.namespace + 'settings.override = this.checked; ' + self.namespace + 'storesettings(); ' + self.namespace + 'iconoverride(this.checked); window.plugin.bookmarks.resetAllStars();" id="' + self.id + 'override"%OVERRIDECHECKED%><label for="' + self.id + 'override">Show colored bookmarks</label><br />\n' +
-            '<input type="checkbox" onclick="' + self.namespace + 'settings.smaller = this.checked; ' + self.namespace + 'storesettings(); window.plugin.bookmarks.resetAllStars();" id="' + self.id + 'smaller"%SMALLERCHECKED%><label for="' + self.id + 'smaller">Scale bookmarks</label><br />\n' +
-            '<a onclick="' + self.namespace + 'menu();return false;">Add/Remove bookmarks...</a>' +
-            '<a onclick="' + self.namespace + 'exportkml();return false;">Export KML file...</a>' +
-            '<a onclick="' + self.namespace + 'exportcsv();return false;">Export CSV file...</a>');
-
-        let manualOptstring = window.plugin.bookmarks.manualOpt.toString();
-        manualOptstring = manualOptstring.replace('plugin.bookmarks.htmlSetbox','plugin.bookmarks.htmlSetbox.replace(\'%SMALLERCHECKED%\',(' + self.namespace + 'settings.smaller?\' checked\':\'\')).replace(\'%OVERRIDECHECKED%\',(' + self.namespace + 'settings.override?\' checked\':\'\'))');
-        manualOptstring = manualOptstring.replace(',\n',',\n      id: \'bookmarks-dialog-id\',\n');
-        manualOptstring = manualOptstring.replace('});','});\n\n    ' + self.namespace + 'bookmarkmenuColorpicker();');
-        eval('window.plugin.bookmarks.manualOpt = ' + manualOptstring + ';');
+        let config = {
+            subtree: true,
+            childList: true,
+        }
+        const observer = new MutationObserver(() => {
+            let bookmarksdialog = document.body.querySelector('#bkmrksSetbox');
+            if (!bookmarksdialog) return;
+            if (bookmarksdialog.classList.contains(self.id)) return;
+            // pause monitoring
+            observer.disconnect();
+            // edit content
+            bookmarksdialog.classList.add(self.id);
+            overridechecked.checked = self.settings.override;
+            smallerchecked.checked = self.settings.smaller;
+            bookmarksdialog.prepend(container);
+            self.bookmarkmenuColorpicker();
+            // activate monitoring
+            observer.observe(document.documentElement || document.body,config);
+        });
+        // activate monitoring
+        observer.observe(document.documentElement || document.body,config);
     };
 
     self.setupColoredBookmarks = function() {
@@ -1443,8 +1485,8 @@ Add to folder: <input type="text" name="autofolder"><br>
 
         self.setupColorpickerSpectrum();
         self.setupBookmarkDragFix();
-        self.setupScaleableBookmarks();
         self.setupBookmarkMenu();
+        self.setupScaleableBookmarks();
         self.setupColoredBookmarks();
         //self.setupFastAddPortalBookmark();
         //self.setupFastSwitchStarPortal();

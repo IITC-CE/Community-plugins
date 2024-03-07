@@ -3,7 +3,7 @@
 // @name            Fan Fields 2 
 // @id              fanfields@heistergand
 // @category        Layer
-// @version         2.5.4.20231211
+// @version         2.5.5.20240306
 // @description     Calculate how to link the portals to create the largest tidy set of nested fields. Enable from the layer chooser.
 // @downloadURL     https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/heistergand/fanfields.user.js
 // @updateURL       https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/heistergand/fanfields.meta.js
@@ -49,6 +49,13 @@ function wrapper(plugin_info) {
     /* exported setup, changelog --eslint */
     let arcname = window.PLAYER.team === 'ENLIGHTENED' ? 'Arc' : '***';
     var changelog = [
+
+        {
+            version: '2.5.5',
+            changes: [
+              'FIX: Plugin did not work on IITC-Mobile.',
+            ],
+        },
         {
             version: '2.5.4',
             changes: [
@@ -682,16 +689,9 @@ function wrapper(plugin_info) {
           '&#128278;&nbsp;All Portals'
         );
       }
-      thisplugin.updateLayer();
+      thisplugin.delayedUpdateLayer(0.2);
     };
-  
-    window.pluginCreateHook('pluginBkmrksEdit');
-  
-    window.addHook('pluginBkmrksEdit', function (e) {
-      if (thisplugin.use_bookmarks_only && e.target === 'portal') {
-        thisplugin.updateLayer();
-      }
-    });
+
 
     thisplugin.is_clockwise = true;
     thisplugin.toggleclockwise = function() {
@@ -1831,9 +1831,13 @@ function wrapper(plugin_info) {
         thisplugin.initLatLng();
 
         var buttonBookmarks = '';
+        var buttonBookmarksOnly = '';
         if(typeof window.plugin.bookmarks != 'undefined') {
             // Write Bookmarks
             buttonBookmarks = '<a class="plugin_fanfields_btn" onclick="window.plugin.fanfields.saveBookmarks();" title="Create New Portal Potential Future">Write&nbsp;Bookmarks</a> ';
+
+            // Only Use Bookmarked Portals
+            buttonBookmarksOnly = '<a class="plugin_fanfields_btn" id="plugin_fanfields_bookarks_only_btn" onclick="window.plugin.fanfields.useBookmarksOnly();" title="Help Enlightened Strong Victory">&#128278;&nbsp;All Portals</a> ';
         }
         // Show as list
         var buttonPortalList = '<a class="plugin_fanfields_btn" onclick="window.plugin.fanfields.exportText();" title="OpenAll Link Create Star">Show&nbsp;as&nbsp;list</a> ';
@@ -1862,7 +1866,7 @@ function wrapper(plugin_info) {
         //var button5 = '<a class="plugin_fanfields_btn" id="plugin_fanfields_resetbtn" onclick="window.plugin.fanfields.reset();">Reset</a> ';
         var buttonClockwise = '<a class="plugin_fanfields_btn" id="plugin_fanfields_clckwsbtn" onclick="window.plugin.fanfields.toggleclockwise();" title="Begin Journey Breathe XM ">Clockwise&nbsp;'+symbol_clockwise+'</a> ';
         var buttonLock = '<a class="plugin_fanfields_btn" id="plugin_fanfields_lockbtn" onclick="window.plugin.fanfields.lock();" title="Avoid XM Message Lie">&#128275;&nbsp;Unlocked</a> ';
-        var buttonBookmarksOnly = '<a class="plugin_fanfields_btn" id="plugin_fanfields_bookarks_only_btn" onclick="window.plugin.fanfields.useBookmarksOnly();" title="Help Enlightened Strong Victory">&#128278;&nbsp;All Portals</a> ';
+
         var buttonStarDirection = '<a class="plugin_fanfields_btn" id="plugin_fanfields_stardirbtn" onclick="window.plugin.fanfields.toggleStarDirection();" title="Change Perspective Technology">Inbounding</a> ';
         // Available SBUL
         var buttonSBUL =
@@ -1942,6 +1946,14 @@ function wrapper(plugin_info) {
 
 
         $('#fanfields2').append(fanfields_buttons);
+
+//         window.pluginCreateHook('pluginBkmrksEdit');
+
+//         window.addHook('pluginBkmrksEdit', function (e) {
+//             if (thisplugin.use_bookmarks_only && e.target === 'portal') {
+//                 thisplugin.delayedUpdateLayer(0.5);
+//             }
+//         });
 
         window.pluginCreateHook('pluginDrawTools');
 

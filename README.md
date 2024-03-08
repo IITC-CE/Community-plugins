@@ -202,7 +202,7 @@ Cache the data of visible portals and use this to populate the map when possible
 
 Reduces use of sidebar.
 
-*Version:* 0.0.4.20200216.174029
+*Version:* 0.0.5.20240307.074938
 
 
   
@@ -1281,10 +1281,10 @@ Ingress Mission Authoring Tool Total Conversion, adding categories for missions,
 
 
 
-[danielondiordna-2.1.1.20230307.232000] Plan a route with multiple portals (max 9 waypoints) and open Google Maps to start your navigation.
+[danielondiordna-3.0.0.20240307.220600] Plan a route with multiple portals and open Google Maps (max 9 waypoints) or Apple Maps (iOS 16+ supports waypoints) to start your navigation.
 
 *[Homepage](https://softspot.nl/ingress/plugins/documentation/iitc-plugin-maps-route-planner.user.js.html)* |
-*Version:* 2.1.1.20230307.232000
+*Version:* 3.0.0.20240307.220600
 
 
   

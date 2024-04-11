@@ -3,7 +3,7 @@
 // @name            Fan Fields 2 
 // @id              fanfields@heistergand
 // @category        Layer
-// @version         2.5.6.20240409
+// @version         2.5.6.20240410
 // @description     Calculate how to link the portals to create the largest tidy set of nested fields. Enable from the layer chooser.
 // @downloadURL     https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/heistergand/fanfields.user.js
 // @updateURL       https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/heistergand/fanfields.meta.js
@@ -41,8 +41,8 @@ Click on a link to flip it's direction
 function wrapper(plugin_info) {
     // ensure plugin framework is there, even if iitc is not yet loaded
     if(typeof window.plugin !== 'function') window.plugin = function() {};
-    plugin_info.buildName = 'beta';
-    plugin_info.dateTimeVersion = '2023-12-11-150742';
+    plugin_info.buildName = 'main';
+    plugin_info.dateTimeVersion = '2024-04-10-233042';
     plugin_info.pluginId = 'fanfields';
 
     /* global L -- eslint */

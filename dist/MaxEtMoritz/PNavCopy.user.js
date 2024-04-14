@@ -18,6 +18,8 @@
 // ==/UserScript==
 
 
+/* globals $, GM_info, L */
+
 // original Plug-In is from https://gitlab.com/ruslan.levitskiy/iitc-mobile/-/tree/master, the License of this project is provided below:
 
 /*
@@ -721,14 +723,14 @@ function wrapper (plugin_info) {
   };
 
   window.plugin.pnav.showSettings = function () {
-    let html = /*html*/ `
+    let html = /* html*/ `
         <div class="form-group">
           <label for="pnavLanguage">${getString('pnavLanguageDescription')}</label>
           <select id="pnavLanguage" onchange="window.plugin.pnav.settings.language = this.value;alert(window.plugin.pnav.getString('alertLanguageAfterReload'));"></select>
         </div>
         <div>
           <label for="webhookUrl" title="${getString('pnavhookurlTitle')}">${getString('pnavhookurlDescription')}</label>
-          <input type="url" style="width:100%" id="webhookUrl" value="${window.plugin.pnav.settings.webhookUrl !== null ? window.plugin.pnav.settings.webhookUrl : ''}" pattern="^https?://(ptb.|canary.)?discord(app)?.com/api/webhooks/[0&#45;9]{1,20}/[^/]*$"/>
+          <input type="url" style="width:100%" id="webhookUrl" value="${window.plugin.pnav.settings.webhookUrl !== null ? window.plugin.pnav.settings.webhookUrl : ''}" pattern="https?://(?:ptb.|canary.)?discord(?:app)?.com/api/webhooks/[0-9]{1,20}/[^\\/]*"/>
           <div style="color: red; display:none;">${getString('lblErrorWHText')}</div>
         </div>
         <div class="form-group">
@@ -973,11 +975,11 @@ function wrapper (plugin_info) {
       let poi = changeList[i];
       $('#pNavPoiInfo', modDialog).on('click', function () {
         if (window.plugin.pnav.settings.webhookUrl) {
-          sendMessage(`<@${pNavId}> ${poi.oldType==='pokestop' ? 'stop' : poi.oldType}-info ${poi.oldName}`);
+          sendMessage(`<@${pNavId}> ${poi.oldType === 'pokestop' ? 'stop' : poi.oldType}-info ${poi.oldName}`);
         } else {
           const input = $('#copyInput');
           input.show();
-          input.val(`<@${pNavId}> ${poi.oldType==='pokestop' ? 'stop' : poi.oldType}-info ${poi.oldName}`);
+          input.val(`<@${pNavId}> ${poi.oldType === 'pokestop' ? 'stop' : poi.oldType}-info ${poi.oldName}`);
           copyfieldvalue('copyInput');
           input.hide();
         }

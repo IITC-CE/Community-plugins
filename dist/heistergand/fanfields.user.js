@@ -3,7 +3,7 @@
 // @name            Fan Fields 2 
 // @id              fanfields@heistergand
 // @category        Layer
-// @version         2.5.6.20240410
+// @version         2.6.0.20240428
 // @description     Calculate how to link the portals to create the largest tidy set of nested fields. Enable from the layer chooser.
 // @downloadURL     https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/heistergand/fanfields.user.js
 // @updateURL       https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/heistergand/fanfields.meta.js
@@ -20,6 +20,7 @@
 // @include         https://intel.ingress.com/*
 // @grant           none
 // ==/UserScript==
+
 
 /*
 
@@ -49,7 +50,12 @@ function wrapper(plugin_info) {
     /* exported setup, changelog --eslint */
     let arcname = window.PLAYER.team === 'ENLIGHTENED' ? 'Arc' : '***';
     var changelog = [
-
+        {
+            version: '2.6.0',
+            changes: [
+                'NEW: Add control buttons for better ux on mobile.',
+            ],
+        },
         {
             version: '2.5.6',
             changes: [
@@ -1936,6 +1942,37 @@ function wrapper(plugin_info) {
 
     };
 
+    var symbol_clockwise = '&#8635;';
+    var symbol_counterclockwise = '&#8634;';
+
+    thisplugin.addFfButtons = function () {
+        thisplugin.ffButtons = L.Control.extend({
+            options: {
+                position: "topleft",
+            },
+            onAdd: function (map) {
+                var container = L.DomUtil.create("div", "leaflet-fanfields leaflet-bar");
+                $(container)
+                    .append(
+                    '<a id="fanfieldShiftLeftButton" href="javascript: void(0);" class="fanfields-control" title="FanFields shift left">'+symbol_counterclockwise+'</a>'
+                )
+                    .on("click", "#fanfieldShiftLeftButton", function () {
+                    thisplugin.previousStartingPoint();
+                });
+
+                $(container)
+                    .append(
+                    '<a id="fanfieldShiftRightButton" href="javascript: void(0);" class="fanfields-control" title="FanFields shift right">'+symbol_clockwise+'</a>'
+                )
+                    .on("click", "#fanfieldShiftRightButton", function () {
+                    thisplugin.nextStartingPoint();
+                });
+
+                return container;
+            },
+        });
+        map.addControl(new thisplugin.ffButtons());
+    };
 
     thisplugin.setup = function() {
         thisplugin.setupCSS();
@@ -1970,8 +2007,7 @@ function wrapper(plugin_info) {
 
 
 
-        var symbol_clockwise = '&#8635;';
-        var symbol_counterclockwise = '&#8634;';
+
 
         var symbol_up = '&#5123;';
         var symbol_down = '&#5121;';
@@ -2041,6 +2077,7 @@ function wrapper(plugin_info) {
 
         $('#sidebar').append('<div id="fanfields2" class="plugin_fanfields_sidebar"></div>');
 
+        thisplugin.addFfButtons();
 
         if (!window.plugin.drawTools) {
             var width = 400;

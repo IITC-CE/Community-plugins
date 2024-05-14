@@ -761,16 +761,16 @@ Add one or more player markers and his ranges (hack/deploy range and xmp ranges)
 
 
   
-### [Pogo Tools](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Alfonso_M/s2check.user.js) by Alfonso_M
+### [Pogo Tools w/ PoGOHWH](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/NvlblNm/s2check.user.js) by NvlblNm
 
 
 
 
 
-Pokemon Go tools over IITC.
+Pokemon Go tools over IITC. Support in #tools-chat on https://discord.gg/niawayfarer
 
-*[Homepage](https://alfonsoml-s.github.io/pogo-s2/)* |
-*Version:* 0.102
+*[Homepage](https://gitlab.com/NvlblNm/pogo-s2/)* |
+*Version:* 0.105
 
 
   
@@ -899,7 +899,7 @@ Display heatmap of all portals that the player did NOT visit/capture.
 
 
   
-### [Wayfarer Planner](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Alfonso_M/wayfarer-planner.user.js) by Alfonso_M
+### [Wayfarer Planner](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/NvlblNm/wayfarer-planner.user.js) by NvlblNm
 
 
 
@@ -907,8 +907,8 @@ Display heatmap of all portals that the player did NOT visit/capture.
 
 Place markers on the map for your candidates in Wayfarer.
 
-*[Homepage](https://alfonsoml-s.github.io/wayfarer-tools/)* |
-*Version:* 1.163
+*[Homepage](https://gitlab.com/NvlblNm/wayfarer/)* |
+*Version:* 1.181
 
 
   
@@ -1053,7 +1053,7 @@ Advanced version of Player Tracker
 
 Copy portal info to clipboard or send it to Discord in the format the PokeNav Discord bot needs.
 
-*Recommends*: [s2check@Alfonso_M](#pogo-tools-by-alfonso_m)  |
+*Recommends*: [s2check@Alfonso_M](#)  |
 *[Homepage](https://github.com/MaxEtMoritz/PNavCopy)* |
 *[Issue tracker](https://github.com/MaxEtMoritz/PNavCopy/issues)* |
 *Version:* 1.7.6

@@ -2,10 +2,10 @@
 // @author          DanielOnDiordna
 // @name            Unique Portal History
 // @category        Layer
-// @version         2.1.0.20220711.235400
+// @version         2.2.0.20240525.141200
 // @updateURL       https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/uniqueportalhistory.meta.js
 // @downloadURL     https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/uniqueportalhistory.user.js
-// @description     [danielondiordna-2.1.0.20220711.235400] Show your personal unique portal history for Visited, Captured or Scout Controlled portals with layers. Choose your own colors. Place bookmarks. Invert results! Add three extra Portals List plugin columns. Requires CORE subscription.
+// @description     [danielondiordna-2.2.0.20240525.141200] Show your personal unique portal history for Visited, Captured or Scout Controlled portals with layers. Choose your own colors for Resistance, Enlightened, Machina and Neutral portals. Place bookmarks. Invert results! Add three extra Portals List plugin columns. Does not require CORE subscription.
 // @id              uniqueportalhistory@DanielOnDiordna
 // @namespace       https://softspot.nl/ingress/
 // @depends         portalhistorysupport@DanielOnDiordna
@@ -24,10 +24,16 @@ function wrapper(plugin_info) {
     var self = window.plugin.uniqueportalhistory;
     self.id = 'uniqueportalhistory';
     self.title = 'Unique Portal History';
-    self.version = '2.1.0.20220711.235400';
+    self.version = '2.2.0.20240525.141200';
     self.author = 'DanielOnDiordna';
     self.changelog = `
 Changelog:
+
+version 2.2.0.20240525.141200
+- added Machina support
+- added a zoom to see all bookmarks button
+- improved the bookmark menu and methods
+- improved the inverting of overlay layers
 
 version 2.1.0.20220711.235400
 - made compatible with IITC-CE Beta 0.32.1.20211217.151857
@@ -91,16 +97,19 @@ version 0.0.1.20210206.120400
         visited: 'purple',
         capturedenl: '#FF0000',
         capturedres: '#FF0000',
+        capturedmac: '#FF0000',
         capturedneutral: '#000000',
         scoutControlled: 'yellow'
     };
     self.settings.replacebookmarks = true;
     self.settings.bookmarkscolor = 'yellow';
     self.settings.showwhenzoomedout = false;
+    self.settings.drawnameless = false;
 
     self.capturedlayers = {
         capturedenl: window.TEAM_ENL,
         capturedres: window.TEAM_RES,
+        capturedmac: window.TEAM_MAC || 3,
         capturedneutral: window.TEAM_NONE
     };
 
@@ -112,6 +121,7 @@ version 0.0.1.20210206.120400
         visited: { stroke: true, color: 'settingscolor', radius: 15.0, weight: 2, opacity: 0.5, fill: false, fillOpacity: 0.0 },
         capturedenl: { stroke: true, color: 'portalcolor', radius: 'portalradius', weight: 'portalweight', opacity: 1.0, fill: true, fillOpacity: 1.0, fillColor: 'settingscolor' },
         capturedres: { stroke: true, color: 'portalcolor', radius: 'portalradius', weight: 'portalweight', opacity: 1.0, fill: true, fillOpacity: 1.0, fillColor: 'settingscolor' },
+        capturedmac: { stroke: true, color: 'portalcolor', radius: 'portalradius', weight: 'portalweight', opacity: 1.0, fill: true, fillOpacity: 1.0, fillColor: 'settingscolor' },
         capturedneutral: { stroke: true, color: 'portalcolor', radius: 'portalradius', weight: 'portalweight', opacity: 1.0, fill: true, fillOpacity: 1.0, fillColor: 'settingscolor' },
         scoutControlled: { stroke: true, color: 'settingscolor', radius: 19.0, weight: 3, opacity: 1.0, fill: false, fillOpacity: 0.0 }
     };
@@ -122,10 +132,20 @@ version 0.0.1.20210206.120400
         scoutControlled: 1
     };
 
+    self.bookmarkfoldernames = {
+        visited: 'Visited',
+        captured: 'Captured',
+        capturedenl: 'Captured ENL',
+        capturedres: 'Captured RES',
+        capturedmac: 'Captured MAC',
+        capturedneutral: 'Captured Neutral',
+        scoutControlled: 'Scout Controlled'
+    };
     self.toggle_layernames = {
         visited: 'Visited',
         capturedenl: 'Captured ENL',
         capturedres: 'Captured RES',
+        capturedmac: 'Captured MAC',
         capturedneutral: 'Captured neutral',
         scoutControlled: 'Scout Controlled'
     };
@@ -133,6 +153,7 @@ version 0.0.1.20210206.120400
         visited: 'Never Visited',
         capturedenl: 'Never Captured ENL',
         capturedres: 'Never Captured RES',
+        capturedmac: 'Never Captured MAC',
         capturedneutral: 'Never Captured neutral',
         scoutControlled: 'Not Scout Controlled'
     };
@@ -140,6 +161,7 @@ version 0.0.1.20210206.120400
         visited: undefined,
         capturedenl: undefined,
         capturedres: undefined,
+        capturedmac: undefined,
         capturedneutral: undefined,
         scoutControlled: undefined,
     };
@@ -147,6 +169,7 @@ version 0.0.1.20210206.120400
         visited: undefined,
         capturedenl: undefined,
         capturedres: undefined,
+        capturedmac: undefined,
         capturedneutral: undefined,
         scoutControlled: undefined
     };
@@ -154,8 +177,25 @@ version 0.0.1.20210206.120400
         visited: {},
         capturedenl: {},
         capturedres: {},
+        capturedmac: {},
         capturedneutral: {},
         scoutControlled: {}
+    };
+    self.layerdescription = {
+        visited: '(Ever visited/total visible portals)',
+        capturedenl: '(Ever captured/total visible ENL portals)',
+        capturedres: '(Ever captured/total visible RES portals)',
+        capturedmac: '(Ever captured/total visible MAC portals)',
+        capturedneutral: '(Ever captured/total visible neutral portals)',
+        scoutControlled: '(Ever Scout Controlled/total visible portals)'
+    };
+    self.layerdescriptioninverted = {
+        visited: '(Never visited/total visible portals)',
+        capturedenl: '(Never captured/total visible ENL portals)',
+        capturedres: '(Never captured/total visible RES portals)',
+        capturedmac: '(Never captured/total visible MAC portals)',
+        capturedneutral: '(Never captured/total visible neutral portals)',
+        scoutControlled: '(Not Scout Controlled/total visible portals)'
     };
 
     self.colorpickeroptions = {
@@ -178,17 +218,20 @@ version 0.0.1.20210206.120400
             ['#000000','#666666','#bbbbbb','#ffffff']
         ]};
 
-    self.requestlist = [];
-    self.requestguid = undefined;
+    self.requestlist = []; // [{guid:guid,cnt:cnt}]
+    self.requestmax = 3;
+    self.request = {};
     self.requestlisttimer = 0;
     self.requestlisttimeout = 0;
     self.requestdelay = 100;
     self.requestbookmarkfoldername = '';
+    self.requesttimerstarttotal = 0;
+    self.requesttimerstarttime = 0;
 
     self.restoresettings = function() {
         if (typeof localStorage[self.localstoragesettings] != 'string' || localStorage[self.localstoragesettings] == '') return;
         try {
-            var settings = JSON.parse(localStorage[self.localstoragesettings]);
+            let settings = JSON.parse(localStorage[self.localstoragesettings]);
             if (typeof settings === 'object' && settings instanceof Object && !(settings instanceof Array)) { // expect an object
                 for (const i in self.settings) {
                     if (i in settings && typeof settings[i] === typeof self.settings[i]) { // only accept settings from default template of same type
@@ -213,12 +256,12 @@ version 0.0.1.20210206.120400
     };
 
     self.moveHistoryToNewPlugin = function() {
-        let localstoragehistory = self.pluginname + '-history';
+        let localstoragehistory = `${self.pluginname}-history`;
         if (typeof localStorage[localstoragehistory] == 'undefined' || !window.plugin.portalhistorysupport) return; // no old values found, or required plugin not found
 
         if (typeof localStorage[localstoragehistory] == 'string' && localStorage[localstoragehistory] != '') {
             try {
-                var storagehistoryraw = JSON.parse(localStorage[localstoragehistory]);
+                let storagehistoryraw = JSON.parse(localStorage[localstoragehistory]);
                 if (typeof storagehistoryraw == 'object' && storagehistoryraw instanceof Object && !(storagehistoryraw instanceof Array)) {
                     for (const guid in storagehistoryraw) { // convert history data to new plugin cache
                         if (storagehistoryraw[guid] > 0) window.plugin.portalhistorysupport.addcache(guid,storagehistoryraw[guid]);
@@ -275,12 +318,13 @@ version 0.0.1.20210206.120400
     self.setupLayers = function() {
         for (const layername in self.toggle_layers) {
             // use separate layer togglers and actual drawing layers, to enable show/hide layers when zooming in/out:
-            self.toggle_layers[layername] = new L.LayerGroup();
+            self.toggle_layers[layername] = new window.L.LayerGroup();
 
-            window.addLayerGroup((self.settings.invertresults?self.toggle_layernamesinverted[layername]:self.toggle_layernames[layername]), self.toggle_layers[layername], true);
+            window.layerChooser.addOverlay(self.toggle_layers[layername], (self.settings.invertresults?self.toggle_layernamesinverted[layername]:self.toggle_layernames[layername]), {default: true});
+            // window.addLayerGroup((self.settings.invertresults?self.toggle_layernamesinverted[layername]:self.toggle_layernames[layername]), self.toggle_layers[layername], true);
 
             // create drawing layers:
-            self.layers[layername] = new L.FeatureGroup();
+            self.layers[layername] = new window.L.FeatureGroup();
 
             // setup initial drawing layers visibility:
             if (self.layeractive(layername)) self.showlayer(layername);
@@ -315,7 +359,7 @@ version 0.0.1.20210206.120400
         let layername = self.gettogglelayername(layerkey,portaloptions.team);
         let markerformatting = self.markerformatting[layername];
 
-        var styleOptions = {
+        let styleOptions = {
             radius: markerformatting.radius,
             stroke: markerformatting.stroke,
             color: markerformatting.color,
@@ -342,7 +386,6 @@ version 0.0.1.20210206.120400
                     break;
             }
         }
-
         return styleOptions;
     };
 
@@ -350,8 +393,8 @@ version 0.0.1.20210206.120400
         // dataOptions = { guid: guid, data: data.portal.options }
         let styleOptions = self.getMarkerStyle(dataOptions.data, layerkey, dataOptions.guid == window.selectedPortal);
 
-        var options = L.extend({}, dataOptions, styleOptions);
-        var marker = L.circleMarker(latlng, options);
+        let options = window.L.extend({}, dataOptions, styleOptions);
+        let marker = window.L.circleMarker(latlng, options);
 
         marker.on('click', function() { window.renderPortalDetails(dataOptions.guid); });
         marker.on('dblclick', function() { window.renderPortalDetails(dataOptions.guid); window.map.setView(latlng, 17); });
@@ -364,17 +407,24 @@ version 0.0.1.20210206.120400
         if (layerkey == 'captured') {
             switch (team) {
                 case window.TEAM_ENL:
-                    layername = layerkey + 'enl';
+                    layername = `${layerkey}enl`;
                     break;
                 case window.TEAM_RES:
-                    layername = layerkey + 'res';
+                    layername = `${layerkey}res`;
+                    break;
+                case (window.TEAM_MAC || 3):
+                    layername = `${layerkey}mac`;
                     break;
                 case window.TEAM_NONE:
-                    layername = layerkey + 'neutral';
+                    layername = `${layerkey}neutral`;
                     break;
+                default:
+                    console.log('ERROR: gettogglelayername - unknown team',team);
             }
         } else if (layerkey in self.toggle_layers) {
             layername = layerkey
+        } else {
+            console.log('ERROR: gettogglelayername - unknown layerkey',layerkey);
         }
         return layername;
     };
@@ -396,14 +446,14 @@ version 0.0.1.20210206.120400
         };
 
         for (const layerkey in self.basiclayers) {
-            //console.log('onportalAdded',layerkey,data.portal.options.data.history);
-            if (data.portal.options.data.history && data.portal.options.data.history._raw != undefined)
+            if (data.portal.options.data.history && data.portal.options.data.history._raw != undefined) {
                 if ((!self.settings.invertresults && data.portal.options.data.history[layerkey]) || (self.settings.invertresults && !data.portal.options.data.history[layerkey])) {
                     let marker = self.createMarker(latlng, dataOptions, layerkey);
                     let layername = self.gettogglelayername(layerkey,data.portal.options.team);
                     self.layers[layername].addLayer(marker);
                     self.layermarkers[layername][guid] = marker;
                 }
+            }
         }
     };
 
@@ -421,7 +471,6 @@ version 0.0.1.20210206.120400
     self.onzoomlevelschange = function() {
         if (self.lastportalscale == window.portalMarkerScale()) return;
 
-        console.log('onzoomlevelschange: resize markers');
         for (const layername in self.layers) {
             let layerkey;
             switch (layername) {
@@ -459,7 +508,6 @@ version 0.0.1.20210206.120400
     self.layersbringToFront = function() {
         for (const layername in self.layers) {
             if (self.layeractive(layername) && self.layers[layername]._map) { // only if layer is visible
-                // console.log('layersbringToFront',layername,self.layers[layername]);
                 self.layers[layername].bringToFront();
             }
         }
@@ -478,19 +526,19 @@ version 0.0.1.20210206.120400
     };
 
     self.displaytogglelayer = function(layername,display) {
-        if (display && !map.hasLayer(self.toggle_layers[layername]))
+        if (display && !window.map.hasLayer(self.toggle_layers[layername])) {
             window.map.addLayer(self.toggle_layers[layername]);
-        else if (!display && window.map.hasLayer(self.toggle_layers[layername]))
+        } else if (!display && window.map.hasLayer(self.toggle_layers[layername])) {
             window.map.removeLayer(self.toggle_layers[layername]);
+        }
     };
 
     self.layeractive = function(findlayername) {
-        var overlayLayers = window.layerChooser.getLayers().overlayLayers;
+        let overlayLayers = window.layerChooser.getLayers().overlayLayers;
         for (let cnt = overlayLayers.length -1; cnt >= 0; cnt--) {
             let layername = overlayLayers[cnt].name;
             // compare with self.toggle_layernames and self.toggle_layernamesinverted
             if (layername == self.toggle_layernames[findlayername] || layername == self.toggle_layernamesinverted[findlayername]) {
-                //console.log('layeractive',findlayername,layername,layers[cnt].active);
                 return overlayLayers[cnt].active;
             }
         }
@@ -513,19 +561,24 @@ version 0.0.1.20210206.120400
         for (const layername in self.toggle_layernames) {
             // copy current layer visibility status, to force same initial status when creating the new layer:
             let oldlayername = (!self.settings.invertresults?self.toggle_layernamesinverted[layername]:self.toggle_layernames[layername]);
-            let enabled = window.isLayerGroupDisplayed(oldlayername);
+            let enabled = window.map.hasLayer(self.toggle_layers[layername]); // window.isLayerGroupDisplayed(oldlayername);
             let newlayername = (self.settings.invertresults?self.toggle_layernamesinverted[layername]:self.toggle_layernames[layername]);
 
-            if (window.isLayerGroupDisplayed(newlayername) != enabled) {
-                if (typeof window.updateDisplayedLayerGroup == "function") { // IITC 0.32.1 Release
-                    window.updateDisplayedLayerGroup(newlayername,enabled); // force start status
-                } else if (typeof window.layerChooser._storeOverlayState == "function") { // IITC 0.32.1 Beta
+            if (typeof window.layerChooser?._isOverlayDisplayed == 'function') { // IITC 0.32.1 Beta and up
+                if (window.layerChooser._isOverlayDisplayed(newlayername,false) != enabled) {
                     window.layerChooser._storeOverlayState(newlayername,enabled); // force start status
                 }
+                window.layerChooser.removeLayer(self.toggle_layers[layername]);
+                self.toggle_layers[layername] = new window.L.LayerGroup();
+                window.layerChooser.addOverlay(self.toggle_layers[layername], newlayername, {default: enabled});
+            } else if (typeof window.isLayerGroupDisplayed == 'function') { // IITC 0.32.1 Release and before
+                if (window.isLayerGroupDisplayed(newlayername,false) != enabled) {
+                    window.updateDisplayedLayerGroup(newlayername,enabled); // force start status
+                }
+                window.removeLayerGroup(self.toggle_layers[layername]);
+                self.toggle_layers[layername] = new window.L.LayerGroup();
+                window.addLayerGroup(newlayername, self.toggle_layers[layername], enabled);
             }
-
-            window.removeLayerGroup(self.toggle_layers[layername]);
-            window.addLayerGroup((self.settings.invertresults?self.toggle_layernamesinverted[layername]:self.toggle_layernames[layername]), self.toggle_layers[layername], enabled);
 
             // remove all markers:
             self.layers[layername].clearLayers();
@@ -542,40 +595,50 @@ version 0.0.1.20210206.120400
     self.onzoomend = function() {
         let ZOOM_LEVEL_ALL_PORTALS = self.zoomlevelhasportals();
         for (const layername in self.layers) {
-            if (!ZOOM_LEVEL_ALL_PORTALS && !self.settings.showwhenzoomedout) // hide layers
+            if (!ZOOM_LEVEL_ALL_PORTALS && !self.settings.showwhenzoomedout) { // hide layers
                 window.map.removeLayer(self.layers[layername]);
-            else if (self.layeractive(layername)) // show if enabled
+            } else if (self.layeractive(layername)) { // show if enabled
                 window.map.addLayer(self.layers[layername]);
+            }
         }
     };
 
     self.about = function() {
-        let html = '<div>' +
-            'Thank you for choosing this plugin.<br />' +
-            '<br />' +
-            'You can visualize your unique history with <b>5 toggle layers</b>:<br />' +
-            '- Visited: draw a small circle around the portal.<br />' +
-            '- Captured: draw a filled portal, with a separate layer for ENL, RES and Neutral portals.<br />' +
-            '- Scout Controlled: a larger circle around the portal.<br />' +
-            '<br />' +
-            'You can toggle these 5 layers individually from the menu or on the layer selector.<br />' +
-            'You can also <b>choose your own colors</b> for every layer.<br />' +
-            'You can <b>invert the results</b>. The layer selector names will change accordingly to Never Visited, Never Captured (ENL, RES and Neutral) and Not Scout Controlled.<br />' +
-            'When zooming out to "link" levels, the layers will be hidden, unless Show markers when zooming out is enabled.<br />' +
-            '<br />' +
-            'The <b>Portals List</b> plugin (if enabled) will show extra columns for visit, capture and scout controlled (v c s columns) and can be sorted.<br />' +
-            '<br />' +
-            'You can draw (and remove) <b>Bookmarks</b> (if plugin is enabled) for groups of portals which are never visited or captured. Bookmarks are automatically created in named folders. With the Bookmarks add-on you can draw colored bookmarks.<br />' +
-            'Also an option to add bookmarks for portals anywhere for cached history portals (if plugin portalhistorysupport is installed).<br />' +
-            '<span style="font-style: italic; font-size: smaller">' + self.title + ' version ' + self.version + ' by ' + self.author + '</span>' +
-            '</div>';
+        let container = document.createElement('div');
+        container.innerHTML = `
+<p>Thank you for choosing this plugin.</p>
+
+<p>You can visualize your unique history with <b>6 toggle layers</b>:</p>
+
+<ul>
+<li>Visited: draws a small circle around each visited portal.</li>
+<li>Captured: draw a filled portal, with a separate layer for ENL, RES, MAC and Neutral portals.</li>
+<li>Scout Controlled: draws a larger circle around each scout controlled portal.</li>
+</ul>
+
+<p>You can toggle these 6 layers individually from the menu or from the layer selector.<br>
+You can also <b>choose your own colors</b> for every layer.<br>
+You can <b>invert the results</b> to Never. The layer selector names will change accordingly to Never Visited, Never Captured (ENL, RES, MAC and Neutral) and Not Scout Controlled.<br>
+When zooming out to "link" levels, the layers will be hidden, unless Show markers when zooming out is enabled.</p>
+
+<p>The <b>Portals List</b> plugin (if enabled) will show extra columns for visit, capture and scout controlled (v c s columns) and can be sorted.</p>
+
+<p>You can draw (and remove) <b>Bookmarks</b> (if plugin is enabled) for groups of portals which are never visited or captured. Bookmarks are automatically created in named folders. With the Bookmarks add-on you can draw colored bookmarks.<br>
+If the plugin <a href="#" name="portalhistorysupport">Portal History Support</a> is enabled, it is also possible to draw bookmarks for portals anywhere for cached history portals.</p>
+
+<p><span class="footer">${self.title} version ${self.version} by ${self.author}</span></p>
+`;
+
+        container.querySelector('a[name=portalhistorysupport]').addEventListener('click',function(e) {
+            e.preventDefault();
+            self.missingPortalHistorySupportplugin();
+        },false);
 
         window.dialog({
-            html: html,
-            id: self.pluginname + '-dialog',
-            dialogClass: 'ui-dialog-' + self.pluginname,
+            html: container,
+            id: `${self.pluginname}-dialog`,
             width: 'auto',
-            title: self.title + ' - About'
+            title: `${self.title} - About`
         }).dialog('option', 'buttons', {
             '< Main menu': function() { self.menu(); },
             'Changelog': function() { alert(self.changelog); },
@@ -583,143 +646,298 @@ version 0.0.1.20210206.120400
         });
     };
 
-    self.clearbookmarktimerlist = function() {
-        for (let cnt = self.bookmarktimerlist.length - 1; cnt >= 0; cnt--) {
-            window.clearTimeout(self.bookmarktimerlist[cnt]);
+    self.showAllBookmarks = function() {
+        let bookmarklayers = window.plugin.bookmarks.starLayerGroup.getLayers();
+        if (bookmarklayers.length === 0) {
+            alert('There are no bookmarks');
+            return;
         }
-        self.bookmarktimerlist = [];
+        // The bookmarks starLayerGroup is of type L.LayerGroup
+        // The L.LayerGroup does not support getBounds
+        // Convert all bookmarks to simple markers on a temporary layer of type L.FeatureGroup
+        let layer = new window.L.FeatureGroup();
+        for (let bookmarklayer of bookmarklayers) {
+            let latlng = bookmarklayer.getLatLng();
+            window.L.marker([latlng.lat, latlng.lng]).addTo(layer);
+        }
+        window.map.fitBounds(layer.getBounds());
+    };
+    self.drawbookmarks = function(bookmarkslist,replaceexisting) { // {<guid>:{folder:<string>,latlng:<window.L.LatLng>,label:<string>,color:<string>}};
+        // super fast: draw bookmarks instantly by replacing all bookmarks data, without slow hooks and console calls
+        if (!window.plugin.bookmarks) return;
+        if (!bookmarkslist || !Object.keys(bookmarkslist).length) return;
 
+        replaceexisting = replaceexisting || false;
+        function saveAndRefreshBookmarks() {
+            window.plugin.bookmarks.saveStorage();
+            window.plugin.bookmarks.refreshBkmrks();
+            window.runHooks('pluginBkmrksEdit', {"target": "all", "action": "import"});
+        }
+        function createBookmarkData(guid,latlng,label,color) {
+            if (typeof latlng == 'object') {
+                latlng = latlng.lat+','+latlng.lng;
+            }
+            let bookmark = {"guid":guid,"latlng":latlng,"label":label};
+            if (window.plugin.bookmarksAddon) {
+                bookmark.color = color;
+            }
+            return bookmark;
+        }
+        function getBookmarksFolderID(bookmarksfolder) {
+            if (!bookmarksfolder) bookmarksfolder = "Others"; // default
+            let folderid = undefined;
+            for (const ID in window.plugin.bookmarks.bkmrksObj.portals) {
+                if (window.plugin.bookmarks.bkmrksObj.portals[ID].label == bookmarksfolder) {
+                    folderid = ID;
+                    break;
+                }
+            }
+            return folderid;
+        }
+        function createNewBookmarksFolder(bookmarksfolder) {
+            if (!bookmarksfolder) bookmarksfolder = "Others"; // default
+            let folderid = getBookmarksFolderID(bookmarksfolder);
+            if (!folderid) {
+                folderid = window.plugin.bookmarks.generateID();
+
+                window.plugin.bookmarks.bkmrksObj.portals[folderid] = {"label":bookmarksfolder,"state":1,"bkmrk":{}};
+                window.plugin.bookmarks.saveStorage();
+                window.plugin.bookmarks.refreshBkmrks();
+                window.runHooks('pluginBkmrksEdit', {"target": 'folder', "action": "add", "id": folderid});
+            }
+            return folderid;
+        }
+
+        let changecnt = 0,addcnt = 0,skipcnt = 0;
+        for (let guid in bookmarkslist) {
+            let bookmark = bookmarkslist[guid];
+            let bookmarkFolderID = createNewBookmarksFolder(bookmark.folder);
+
+            let newbookmarkdata = createBookmarkData(guid,bookmark.latlng,bookmark.label,bookmark.color);
+            let bkmrkData = window.plugin.bookmarks.findByGuid(guid);
+            if (bkmrkData) {
+                if (bookmarkFolderID == bkmrkData.id_folder &&
+                    newbookmarkdata.latlng == window.plugin.bookmarks.bkmrksObj.portals[bkmrkData.id_folder].bkmrk[bkmrkData.id_bookmark].latlng &&
+                    newbookmarkdata.label == window.plugin.bookmarks.bkmrksObj.portals[bkmrkData.id_folder].bkmrk[bkmrkData.id_bookmark].label &&
+                    newbookmarkdata.color == window.plugin.bookmarks.bkmrksObj.portals[bkmrkData.id_folder].bkmrk[bkmrkData.id_bookmark].color) {
+                    // same data, skip
+                    skipcnt++;
+                    continue;
+                }
+                if (!replaceexisting) {
+                    skipcnt++;
+                    continue;
+                }
+                // remove (to replace) existing bookmark:
+                delete window.plugin.bookmarks.bkmrksObj.portals[bkmrkData.id_folder].bkmrk[bkmrkData.id_bookmark];
+                changecnt++;
+            } else {
+                addcnt++;
+            }
+
+            // add new bookmark:
+            let ID = window.plugin.bookmarks.generateID();
+            window.plugin.bookmarks.bkmrksObj.portals[bookmarkFolderID].bkmrk[ID] = newbookmarkdata;
+        }
+
+        if (addcnt || changecnt) {
+            saveAndRefreshBookmarks();
+        }
+
+        //console.log('Bookmarks added: ' + addcnt + ' changed: ' + changecnt + ' unchanged: ' + skipcnt);
+        return {added:addcnt,changed:changecnt,skipped:skipcnt};
+    };
+    self.removebookmarks = function(guids) { // guids = [guid,guid,...]
+        let removecnt = 0;
+        for (const folderid in window.plugin.bookmarks.bkmrksObj.portals) {
+            // remove bookmarks from any/every folder:
+            for (const ID in window.plugin.bookmarks.bkmrksObj.portals[folderid].bkmrk) {
+                let bookmark = window.plugin.bookmarks.bkmrksObj.portals[folderid].bkmrk[ID];
+                if (guids.includes(bookmark.guid)) {
+                    // remove existing bookmark:
+                    delete window.plugin.bookmarks.bkmrksObj.portals[folderid].bkmrk[ID];
+                    removecnt++;
+                }
+            }
+            // remove empty bookmarks folder:
+            if (folderid != 'idOthers' && Object.keys(window.plugin.bookmarks.bkmrksObj.portals[folderid].bkmrk).length == 0) {
+                delete window.plugin.bookmarks.bkmrksObj.portals[folderid];
+            }
+        }
+
+        window.plugin.bookmarks.saveStorage();
+        window.plugin.bookmarks.refreshBkmrks();
+        window.runHooks('pluginBkmrksEdit', {"target": "all", "action": "reset"});
+    };
+
+    self.clearbookmarktimerlist = function() {
         self.requestlist = [];
         clearTimeout(self.requestlisttimer);
         self.requestlisttimer = 0;
         clearTimeout(self.requestlisttimeout);
         self.requestlisttimeout = 0;
+
         self.requestbookmarkfoldername = '';
 
         if (self.bookmarkrestorecolor) window.plugin.bookmarksAddon.settings.color = self.bookmarkrestorecolor;
         self.bookmarkrestorecolor = undefined;
 
-        $('#dialog-' + self.pluginname + '-dialog-bookmarks').dialog('close');
-    };
-
-    self.createNewBookmarkFolder = function(foldername) {
-        for (const ID in window.plugin.bookmarks.bkmrksObj.portals) {
-            if (window.plugin.bookmarks.bkmrksObj.portals[ID].label == foldername) // folder already exists
-                return ID;
-        }
-        let ID = window.plugin.bookmarks.generateID();
-        window.plugin.bookmarks.bkmrksObj.portals[ID] = {"label":foldername,"state":1,"bkmrk":{}};
-        window.plugin.bookmarks.saveStorage();
-        window.plugin.bookmarks.refreshBkmrks();
-        window.runHooks('pluginBkmrksEdit', {"target": 'portals', "action": "add", "id": ID});
-        return ID;
-    };
-
-    self.createOrMoveBookMarkInFolder = function(portalguid,foldername) {
-        if (!(portalguid in window.portals) || !window.portals[portalguid].options.data.title) {
-            console.log("portal details missing",portalguid);
-            return;
-        }
-        if (!foldername) foldername = "Others"; // default
-        // find existing bookmark and folder ids:
-        let bookmarkid, oldfolderid, newfolderid;
-        for (const ID in window.plugin.bookmarks.bkmrksObj.portals) {
-            if (window.plugin.bookmarks.bkmrksObj.portals[ID].label == foldername)
-                newfolderid = ID;
-            for (const bkmrkID in window.plugin.bookmarks.bkmrksObj.portals[ID].bkmrk) {
-                if (window.plugin.bookmarks.bkmrksObj.portals[ID].bkmrk[bkmrkID].guid == portalguid) {
-                    oldfolderid = ID;
-                    bookmarkid = bkmrkID;
-                }
-            }
-        }
-
-        if (!newfolderid) newfolderid = self.createNewBookmarkFolder(foldername); // create new folder
-        if (!bookmarkid) { // create new bookmark
-            let portal = window.portals[portalguid];
-            let latlng = portal.getLatLng();
-            let label = portal.options.data.title;
-            window.plugin.bookmarks.addPortalBookmark(portalguid,latlng.lat + ',' + latlng.lng,label); // default added to idOthers
-            let ID = window.plugin.bookmarks.KEY_OTHER_BKMRK;
-            for (const bkmrkID in window.plugin.bookmarks.bkmrksObj.portals[ID].bkmrk) {
-                if (window.plugin.bookmarks.bkmrksObj.portals[ID].bkmrk[bkmrkID].guid == portalguid) {
-                    oldfolderid = ID;
-                    bookmarkid = bkmrkID;
-                }
-            }
-        }
-
-        if (newfolderid != oldfolderid) { // move when needed
-            var Bkmrk = window.plugin.bookmarks.bkmrksObj.portals[oldfolderid].bkmrk[bookmarkid];
-            delete window.plugin.bookmarks.bkmrksObj.portals[oldfolderid].bkmrk[bookmarkid];
-            window.plugin.bookmarks.bkmrksObj.portals[newfolderid].bkmrk[bookmarkid] = Bkmrk;
-
-            window.plugin.bookmarks.saveStorage();
-            window.plugin.bookmarks.refreshBkmrks();
-            window.runHooks('pluginBkmrksEdit', {"target": "bookmarks", "action": "sort"});
-        }
+        $(window.DIALOGS[`dialog-${self.pluginname}-dialog-patience`]).dialog('close');
     };
 
     self.addbookmarkanywhererequestnext = function() {
-        self.requestguid = self.requestlist.shift();
-        $('#' + self.id + '_count_addbookmarks').html(parseInt($('#' + self.id + '_count_addbookmarks').text()) + 1);
+        function msToTime(duration) {
+            let milliseconds = Math.floor((duration % 1000) / 100);
+            let seconds = Math.floor((duration / 1000) % 60);
+            let minutes = Math.floor((duration / (1000 * 60)) % 60);
+            let hours = Math.floor((duration / (1000 * 60 * 60)) % 24);
+
+            hours = `0${hours}`.substr(-2);
+            minutes = `0${minutes}`.substr(-2);
+            seconds = `0${seconds}`.substr(-2);
+
+            return `${hours}:${minutes}:${seconds}`;
+        }
+
+        // update dialog values:
+        let count_requestlist_span = window.DIALOGS[`dialog-${self.pluginname}-dialog-patience`]?.querySelector('span[name=count_requestlist]');
+        if (count_requestlist_span) count_requestlist_span.innerHTML = self.requestlist.length;
+        let count_timeleft_span = window.DIALOGS[`dialog-${self.pluginname}-dialog-patience`]?.querySelector('span[name=count_timeleft]');
+        if (count_timeleft_span) {
+            let timepassed = Date.now() - self.requesttimerstarttime;
+            let requestsdone = self.requesttimerstarttotal - self.requestlist.length;
+            if (requestsdone > 0) {
+                let timeeach = timepassed / requestsdone;
+                count_timeleft_span.innerHTML = msToTime(timeeach * self.requestlist.length);
+            }
+        }
+
+        self.request = self.requestlist.shift();
 
         self.requestlisttimer = setTimeout(function() {
-            let guid = self.requestguid;
+            let guid = self.request.guid;
+            let requestcnt = self.request.cnt;
             self.requestlisttimeout = setTimeout(function() {
                 // retry
                 self.requestlisttimeout = 0;
-                console.log("request timeout",guid);
-                self.requestlist.push(guid);
+                if (self.request.cnt < self.requestmax) {
+                    console.log(`WARNING: addbookmarkanywhererequestnext - request timeout (${self.request.cnt}/${self.requestmax})`,guid);
+                    self.requestlist.push({guid:guid,cnt:requestcnt});
+                } else {
+                    console.log(`FAIL: addbookmarkanywhererequestnext - max request timeout (${self.requestmax})`,guid);
+                }
                 self.addbookmarkanywhererequestnext();
             },1000); // timeout
-            window.portalDetail.request(guid);
+            self.request.cnt++;
+            window.portalDetail.request(guid); // wait for hook portalDetailLoaded: call self.addbookmarkanywhererequestloaded
         },self.requestdelay);
     };
 
     self.addbookmarkanywhererequestloaded = function(data) {
         let guid = data.guid;
-        if (self.requestguid != guid) return;
-        self.requestguid = undefined;
+        if (self.request.guid != guid && !self.requestlist.filter((el)=>{return el.guid == guid}).length) return;
 
-        clearTimeout(self.requestlisttimeout);
-        self.requestlisttimeout = 0;
+        let requestcnt = 0;
+        if (self.request.guid == guid) {
+            requestcnt = self.request.cnt;
+            self.request = {};
+
+            clearTimeout(self.requestlisttimeout);
+            self.requestlisttimeout = 0;
+        } else if (self.requestlist.filter((el)=>{return el.guid == guid}).length) {
+            self.requestlist = self.requestlist.filter((el)=>{return el.guid != guid});
+        }
 
         if (data.success) {
-            self.createOrMoveBookMarkInFolder(guid,self.requestbookmarkfoldername);
-        } else {
+            if (window.portals[guid].options.data.title) {
+                let portal = window.portals[guid];
+                let bookmarkslist = {};
+                bookmarkslist[guid] = {folder:self.requestbookmarkfoldername || "Other",latlng:portal.getLatLng(),label:portal.options.data.title,color:self.settings.bookmarkscolor};
+                self.drawbookmarks(bookmarkslist,self.settings.replacebookmarks); // {<guid>:{folder:<string>,latlng:<window.L.LatLng>,label:<string>,color:<string>}};
+                if (requestcnt > 1) {
+                    console.log(`SUCCESS: addbookmarkanywhererequestloaded - load portal title (${requestcnt}/${self.requestmax})`,data);
+                }
+            } else if (requestcnt < self.requestmax) {
+                console.log(`WARNING: addbookmarkanywhererequestloaded - load portal missing title (${requestcnt}/${self.requestmax})`,data);
+                self.requestlist.push({guid:guid,cnt:requestcnt});
+            } else {
+                console.log(`FAIL: addbookmarkanywhererequestloaded - load portal missing title (${self.requestmax})`,data);
+            }
+        } else if (requestcnt < self.requestmax) {
             // retry
-            console.log("load portal details failure",data);
-            self.requestlist.push(guid);
+            console.log(`WARNING: addbookmarkanywhererequestloaded - load portal details failure (${requestcnt}/${self.requestmax})`,data);
+            self.requestlist.push({guid:guid,cnt:requestcnt});
+        } else {
+            console.log(`FAIL: addbookmarkanywhererequestloaded - load portal details failure (${self.requestmax})`,data);
         }
 
         if (self.requestlist.length == 0) {
-            console.log("all requests finished");
+            // console.log('OKAY: all requests finished');
             self.clearbookmarktimerlist();
-        } else {
+        } else if (!self.request.guid) { // only if last request completed
             self.addbookmarkanywhererequestnext();
         }
+    };
+    self.loadportaldetailscreatebookmarks = function(addbookmarkrequests,bookmarkfoldername) {
+        if (!addbookmarkrequests.length) return;
+
+        self.clearbookmarktimerlist();
+        self.requesttimerstarttotal = addbookmarkrequests.length;
+        self.requesttimerstarttime = Date.now();
+        for (let guid of addbookmarkrequests) {
+            self.requestlist.push({guid:guid,cnt:0});
+        }
+        self.requestbookmarkfoldername = bookmarkfoldername || "Other";
+
+        let container = document.createElement('div');
+        container.innerHTML = `<div>Adding bookmarks: ${bookmarkfoldername}<br>
+Loading details for ${self.requesttimerstarttotal} portals.<br>
+To do: <span name="count_requestlist">${self.requestlist.length}</span><br>
+Estimated time left: <span name="count_timeleft">?</span><br>
+<br>
+Please be patient...</div>`
+
+        window.dialog({
+            html: container,
+            id: `${self.pluginname}-dialog-patience`,
+            title: `${self.title} - Bookmarks`,
+            width: 'auto',
+            closeCallback: function() {
+                self.clearbookmarktimerlist();
+            }
+        }).dialog('option', 'buttons', {
+            'Stop': function() { $(this).dialog('close'); },
+        });
+
+        self.addbookmarkanywhererequestnext();
     };
 
     self.addbookmarksanywherecached = function(bookmarkgroup,never) {
         if (!window.plugin.portalhistorysupport) return;
-        if (Object.keys(self.requestlist).length > 0) return; // busy
+        if (self.requestlist.length) return; // busy
 
         let bookmarkportalguids = self.getBookmarkPortalGuids();
         let addbookmarks = [];
         let addbookmarkrequests = [];
-        let bookmarkfoldername = (never?'Never ':'') + bookmarkgroup;
+        let bookmarkfoldername = (never?(bookmarkgroup.match('scoutControlled')?'Not ':'Never '):'') + (self.bookmarkfoldernames[bookmarkgroup] || bookmarkgroup);
+        let bookmarkslist = {};
 
         for (const guid in window.plugin.portalhistorysupport.cache[window.PLAYER.nickname]) {
             let bitarray = window.plugin.portalhistorysupport.cache[window.PLAYER.nickname][guid];
             let history = window.plugin.portalhistorysupport.decodeHistory(bitarray);
             if ((bookmarkgroup == "Visited but never Captured" && history.visited && !history.captured) || (!never && history[bookmarkgroup]) || (never && !history[bookmarkgroup])) {
-                if (guid in bookmarkportalguids && self.settings.replacebookmarks) { // bookmark for portal exists and is visible
-                    window.plugin.bookmarks.switchStarPortal(guid); // remove
-                    addbookmarks.push(guid);
-                } else if (!(guid in bookmarkportalguids)) { // no bookmark for portal exists
+                if (guid in bookmarkportalguids) {
+                    if (self.settings.replacebookmarks) { // bookmark for portal exists and is visible
+                        bookmarkslist[guid] = {
+                            ...bookmarkportalguids[guid],
+                            folder:bookmarkfoldername || "Other",
+                            color:self.settings.bookmarkscolor
+                        };
+                    }
+                } else { // no bookmark for portal exists
                     if (guid in window.portals && window.portals[guid].options.data.title) { // portal already loaded
-                        addbookmarks.push(guid);
+                        let portal = window.portals[guid];
+                        bookmarkslist[guid] = {folder:bookmarkfoldername || "Other",latlng:portal.getLatLng(),label:portal.options.data.title,color:self.settings.bookmarkscolor};
                     } else {
                         addbookmarkrequests.push(guid);
                     }
@@ -727,61 +945,32 @@ version 0.0.1.20210206.120400
             }
         }
 
-        self.clearbookmarktimerlist();
-
-        if ((addbookmarks.length + addbookmarkrequests.length) > 20) // only show a dialog when drawing bookmarks takes a long time
-            window.dialog({
-                html: '<div>Adding <span id="' + self.id + '_count_addbookmarks">0</span>/' + (addbookmarks.length + addbookmarkrequests.length) + ' bookmarks. Please be patient...<br />' + bookmarkfoldername + '</div>',
-                id: self.pluginname + '-dialog-bookmarks',
-                dialogClass: 'ui-dialog-' + self.pluginname,
-                title: self.title + ' - Bookmarks',
-                width: 'auto',
-                closeCallback: function() {
-                    self.clearbookmarktimerlist();
-                }
-            }).dialog('option', 'buttons', {
-                'Cancel': function() { $(this).dialog('close'); },
-            });
-
-        if (window.plugin.bookmarksAddon) {
-            self.bookmarkrestorecolor = window.plugin.bookmarksAddon.settings.color;
-            window.plugin.bookmarksAddon.settings.color = self.settings.bookmarkscolor;
+        if (!Object.keys(bookmarkslist).length && !addbookmarkrequests.length) {
+            alert('There are no bookmarks to add');
+            return;
         }
 
-        for (let cnt = 0; cnt < addbookmarks.length; cnt++) {
-            let guid = addbookmarks[cnt];
-            self.bookmarktimerlist.push(window.setTimeout(function() { // use a timeout to make sure the scanner does not appear to hang
-                $('#' + self.id + '_count_addbookmarks').html(parseInt($('#' + self.id + '_count_addbookmarks').text()) + 1);
-                self.createOrMoveBookMarkInFolder(guid,bookmarkfoldername);
-                if (cnt + 1 >= addbookmarks.length) {
-                    if (addbookmarkrequests.length == 0) {
-                        self.clearbookmarktimerlist();
-                    } else {
-                        self.requestlist = addbookmarkrequests;
-                        self.addbookmarkanywhererequestnext();
-                    }
-                }
-            },0));
+        let counts = self.drawbookmarks(bookmarkslist,self.settings.replacebookmarks); // {added:addcnt,changed:changecnt,skipped:skipcnt}
+        if (!addbookmarkrequests.length) {
+            alert(`Bookmarks added: ${counts.added}\nBookmarks changed: ${counts.changed}`);
+            return;
         }
 
-        if (addbookmarks.length == 0) {
-            if (addbookmarkrequests.length == 0) {
-                self.clearbookmarktimerlist();
-            } else {
-                self.requestlist = addbookmarkrequests;
-                self.addbookmarkanywhererequestnext();
-            }
-        }
+        self.loadportaldetailscreatebookmarks(addbookmarkrequests,bookmarkfoldername);
     };
 
-    self.addbookmarksvisible = function(bookmarkgroup,never) {
+    self.addbookmarksvisible = function(bookmarkgroup,bookmarkfoldername,never) {
         let bookmarkportalguids = self.getBookmarkPortalGuids();
         let displayBounds = window.map.getBounds();
-        let addbookmarks = [];
-        let bookmarkfoldername = (never?'Never ':'') + bookmarkgroup;
+        //let addbookmarks = [];
+        //let replacebookmarks = [];
+        //let skipportals = [];
+        let bookmarkslist = {}; // {<guid>:{folder:<string>,latlng:<window.L.LatLng>,label:<string>,color:<string>}};
+        let addbookmarkrequests = [];
         for (const guid in window.portals) {
             let portal = window.portals[guid];
-            if (displayBounds.contains(portal.getLatLng())) {
+            let latlng = portal.getLatLng();
+            if (displayBounds.contains(latlng)) {
                 if (portal.options.data.history && portal.options.data.history._raw != undefined) {
                     let addbookmark = false;
                     switch (bookmarkgroup) {
@@ -803,6 +992,12 @@ version 0.0.1.20210206.120400
                                 if (never) addbookmark = !addbookmark;
                             }
                             break;
+                        case 'capturedmac':
+                            if (window.portals[guid].options.team == (window.TEAM_MAC || 3)) {
+                                addbookmark = portal.options.data.history.captured;
+                                if (never) addbookmark = !addbookmark;
+                            }
+                            break;
                         case 'capturedneutral':
                             if (window.portals[guid].options.team == window.TEAM_NONE) {
                                 addbookmark = portal.options.data.history.captured;
@@ -812,131 +1007,161 @@ version 0.0.1.20210206.120400
                     }
 
                     if (addbookmark) {
-                        if (guid in bookmarkportalguids && self.settings.replacebookmarks) { // bookmark for portal exists and is visible
-                            window.plugin.bookmarks.switchStarPortal(guid); // remove
-                            addbookmarks.push(guid);
-                        } else if (!(guid in bookmarkportalguids)) { // no bookmark for portal exists
-                            addbookmarks.push(guid);
+                        if (!(guid in bookmarkportalguids) || (guid in bookmarkportalguids && self.settings.replacebookmarks)) { // new bookmark, or replace if enabled
+                            let label = portal.options.data.title || bookmarkportalguids[guid]?.label;
+                            if (label) {
+                                bookmarkslist[guid] = {folder:bookmarkfoldername || "Other",latlng:latlng,label:label,color:self.settings.bookmarkscolor};
+                            } else {
+                                addbookmarkrequests.push(guid);
+                            }
                         }
                     }
                 }
             }
         }
 
-        self.clearbookmarktimerlist();
-
-        if (addbookmarks.length > 20) // only show a dialog when drawing bookmarks takes a long time
-            window.dialog({
-                html: '<div>Adding <span id="' + self.id + '_count_addbookmarks"></span>/' + addbookmarks.length + ' bookmarks. Please be patient...<br />' + bookmarkfoldername + '</div>',
-                id: self.pluginname + '-dialog-bookmarks',
-                dialogClass: 'ui-dialog-' + self.pluginname,
-                title: self.title + ' - Bookmarks',
-                width: 'auto',
-                closeCallback: function() {
-                    self.clearbookmarktimerlist();
-                }
-            }).dialog('option', 'buttons', {
-                'Cancel': function() { $(this).dialog('close'); },
-            });
-
-        if (window.plugin.bookmarksAddon) {
-            self.bookmarkrestorecolor = window.plugin.bookmarksAddon.settings.color;
-            window.plugin.bookmarksAddon.settings.color = self.settings.bookmarkscolor;
+        if (!Object.keys(bookmarkslist).length && !addbookmarkrequests.length) {
+            alert('There are no bookmarks to add');
+            return;
         }
 
-        for (let cnt = 0; cnt < addbookmarks.length; cnt++) {
-            let guid = addbookmarks[cnt];
-            self.bookmarktimerlist.push(window.setTimeout(function() { // use a timeout to make sure the scanner does not appear to hang
-                $('#' + self.id + '_count_addbookmarks').html(cnt + 1);
-                self.createOrMoveBookMarkInFolder(guid,bookmarkfoldername);
-                if (cnt + 1 >= addbookmarks.length) {
-                    self.clearbookmarktimerlist();
-                }
-            },0));
+        let counts = self.drawbookmarks(bookmarkslist,self.settings.replacebookmarks); // {added:addcnt,changed:changecnt,skipped:skipcnt}
+        if (!addbookmarkrequests.length) {
+            alert(`Bookmarks added: ${counts.added}\nBookmarks changed: ${counts.changed}`);
+            return;
         }
+
+        self.loadportaldetailscreatebookmarks(addbookmarkrequests,bookmarkfoldername);
     };
 
     self.removebookmarksvisible = function(bookmarkgroup) {
         let bookmarkportalguids = self.getBookmarkPortalGuids();
-        let displayBounds = window.map.getBounds();
+        let guids = [];
         for (const guid in bookmarkportalguids) {
-            switch (bookmarkgroup) {
-                case 'all':
-                    if (bookmarkportalguids[guid] == true) // bookmark for portal exists and is visible
-                        window.plugin.bookmarks.switchStarPortal(guid); // remove
-                    break;
-                case 'visited':
-                case 'captured':
-                    if (bookmarkportalguids[guid] == true) { // bookmark for portal exists and is visible
+            if (bookmarkportalguids[guid].visible) { // bookmark for portal exists and is visible
+                switch (bookmarkgroup) {
+                    case 'all':
+                        guids.push(guid);
+                        break;
+                    case 'visited':
+                    case 'captured': {
                         let portal = window.portals[guid];
                         if (portal.options.data.history && portal.options.data.history._raw != undefined) {
-                            if (portal.options.data.history[bookmarkgroup])
-                                window.plugin.bookmarks.switchStarPortal(guid); // remove
+                            if (portal.options.data.history[bookmarkgroup]) {
+                                guids.push(guid);
+                            }
                         }
+                        break;
                     }
-                    break;
+                }
             }
         }
+        self.removebookmarks(guids);
     };
 
     self.removeallbookmarks = function() {
         let bookmarkportalguids = self.getBookmarkPortalGuids();
-        for (const guid in bookmarkportalguids) {
-            window.plugin.bookmarks.switchStarPortal(guid); // remove
-        }
+        let guids = Object.keys(bookmarkportalguids);
+        self.removebookmarks(guids);
     };
 
-    self.bookmarks = function() {
-        let html = '<div>If you install and enable the Bookmarks plugin, you can auto create bookmarks for your ' + self.title + '.</div>';
-        if (window.plugin.bookmarks) {
-            html = '<div class="' + self.pluginname + '">' +
-                (!window.plugin.bookmarksAddon?'':'<input type="color" id="' + self.id + '_colorbookmarks" /> Bookmarks color<br />') +
-                '<input type="checkbox" onclick="' + self.namespace + 'settings.replacebookmarks = this.checked; ' + self.namespace + 'storesettings();" id="replacebookmarkstoggle"' + (self.settings.replacebookmarks?' checked':'') + '>' +
-                '<label for="replacebookmarkstoggle" style="user-select: none">Replace exisiting bookmarks</label><br />' +
-                '<br />' +
-                'Draw bookmarks on visible portals:<br />' +
-                '<a href="#" class="dialogbutton" onclick="' + self.namespace + 'addbookmarksvisible(\'visited\',true); return false;">Never Visited (<span id="' + self.id + '_count_nevervisited"></span>)</a>' +
-                '<a href="#" class="dialogbutton" onclick="' + self.namespace + 'addbookmarksvisible(\'captured\',true); return false;">Never Captured (<span id="' + self.id + '_count_nevercaptured"></span>)</a>' +
-                '<a href="#" class="dialogbutton" onclick="' + self.namespace + 'addbookmarksvisible(\'capturedenl\',true); return false;">Never Captured ENL (<span id="' + self.id + '_count_nevercapturedenl"></span>)</a>' +
-                '<a href="#" class="dialogbutton" onclick="' + self.namespace + 'addbookmarksvisible(\'capturedres\',true); return false;">Never Captured RES (<span id="' + self.id + '_count_nevercapturedres"></span>)</a>' +
-                '<a href="#" class="dialogbutton" onclick="' + self.namespace + 'addbookmarksvisible(\'capturedneutral\',true); return false;">Never Captured Neutral (<span id="' + self.id + '_count_nevercapturedneutral"></span>)</a>' +
-                '<a href="#" class="dialogbutton" onclick="' + self.namespace + 'addbookmarksvisible(\'scoutControlled\',true); return false;">Not Scout Controlled (<span id="' + self.id + '_count_neverscoutControlled"></span>)</a>' +
-                (window.plugin.portalhistorysupport ? 'Draw bookmarks for cached portals:<br />' +
-                '<a href="#" class="dialogbutton" onclick="' + self.namespace + 'addbookmarksanywherecached(\'visited\',false); return false;">Visited (<span id="' + self.id + '_count_visitedCached"></span>)</a>' +
-                '<a href="#" class="dialogbutton" onclick="' + self.namespace + 'addbookmarksanywherecached(\'captured\',false); return false;">Captured (<span id="' + self.id + '_count_capturedCached"></span>)</a>' +
-                '<a href="#" class="dialogbutton" onclick="' + self.namespace + 'addbookmarksanywherecached(\'Visited but never Captured\',false); return false;">Visited but never Captured (<span id="' + self.id + '_count_visitednevercapturedCached"></span>)</a>' +
-                '<a href="#" class="dialogbutton" onclick="' + self.namespace + 'addbookmarksanywherecached(\'scoutControlled\',false); return false;">Scout Controlled (<span id="' + self.id + '_count_scoutControlledCached"></span>)</a>' : '') +
-                'Remove bookmarks for visible portals:<br />' +
-                '<a href="#" class="dialogbutton" onclick="' + self.namespace + 'removebookmarksvisible(\'visited\'); return false;">Remove Visited bookmarks (<span id="' + self.id + '_count_bookmarksalreadyvisited"></span>)</a>' +
-                '<a href="#" class="dialogbutton" onclick="' + self.namespace + 'removebookmarksvisible(\'captured\'); return false;">Remove Captured bookmarks (<span id="' + self.id + '_count_bookmarksalreadycaptured"></span>)</a>' +
-                '<a href="#" class="dialogbutton" onclick="if (confirm(\'Are you sure to delete all visible bookmarks?\')) ' + self.namespace + 'removebookmarksvisible(\'all\'); return false;">Remove all visible bookmarks (<span id="' + self.id + '_count_bookmarksvisible"></span>)</a>' +
-                '<a href="#" class="dialogbutton" onclick="if (confirm(\'Are you sure to delete ALL bookmarks?\')) ' + self.namespace + 'removeallbookmarks(); return false;">Remove ALL bookmarks (<span id="' + self.id + '_count_bookmarks"></span>)</a>' +
-                '</div>';
+    self.bookmarks = function(menu) {
+        menu = menu || 'main';
+
+        let container = document.createElement('div');
+        if (!window.plugin.bookmarks) {
+            container.innerHTML = `If you install and enable the Bookmarks plugin, you can auto create bookmarks for your ${self.title}.`;
+        } else {
+            if (window.plugin.bookmarksAddon) {
+                container.innerHTML = `<input type="color"> Bookmarks color<br>`;
+            }
+            container.innerHTML += `
+<label><input type="checkbox" name="replacebookmarks"> Replace a bookmark if it exists</label><br>
+<a href="#" class="dialogbutton" onclick="${self.namespace}showAllBookmarks(); return false;">Zoom to see all bookmarks</a>
+`;
+            if (menu == 'main') {
+                container.innerHTML += `
+Draw bookmarks on visible portals:<br>
+<div class="visibleportals"></div>
+<hr>
+`;
+                if (window.plugin.portalhistorysupport) {
+                    container.innerHTML += `
+<a href="#" class="dialogbutton" onclick="${self.namespace}bookmarks('cached'); return false;">Portal History Bookmarks menu...</a>
+`;
+                }
+                container.innerHTML += `
+<a href="#" class="dialogbutton" onclick="${self.namespace}bookmarks('remove'); return false;">Remove bookmarks menu...</a>
+`;
+                for (let layerkey in self.bookmarkfoldernames) {
+                    let bookmarkfoldername = (layerkey.match('scoutControlled')?'Not':'Never') + ' ' + self.bookmarkfoldernames[layerkey];
+                    let a = container.querySelector('div.visibleportals').appendChild(document.createElement('a'));
+                    a.className = 'dialogbutton';
+                    a.innerHTML = `${bookmarkfoldername} (<span name="count_never${layerkey}"></span>/<span name="count_${layerkey.match(/captured./) ? layerkey.replace('captured','') : 'total'}"></span>)`;
+                    a.addEventListener('click',function(e) {
+                        self.addbookmarksvisible(layerkey,bookmarkfoldername,true);
+                        e.preventDefault();
+                    },false);
+                }
+            } else if (menu == 'cached') {
+                container.innerHTML += `
+Draw bookmarks for cached portals (slow):<br>
+<a href="#" class="dialogbutton" onclick="${self.namespace}addbookmarksanywherecached('visited',false); return false;">Visited (<span name="count_visitedCached"></span>)</a>
+<a href="#" class="dialogbutton" onclick="${self.namespace}addbookmarksanywherecached('captured',false); return false;">Captured (<span name="count_capturedCached"></span>)</a>
+<a href="#" class="dialogbutton" onclick="${self.namespace}addbookmarksanywherecached('Visited but never Captured',false); return false;">Visited but never Captured (<span name="count_visitednevercapturedCached"></span>)</a>
+<a href="#" class="dialogbutton" onclick="${self.namespace}addbookmarksanywherecached('scoutControlled',false); return false;">Scout Controlled (<span name="count_scoutControlledCached"></span>)</a>
+<hr>
+<a href="#" class="dialogbutton" onclick="${self.namespace}bookmarks('main'); return false;">Visible portals menu...</a>
+<a href="#" class="dialogbutton" onclick="${self.namespace}bookmarks('remove'); return false;">Remove bookmarks menu...</a>
+`;
+            } else if (menu == 'remove') {
+                container.innerHTML += `
+Remove bookmarks for visible portals:<br>
+<a href="#" class="dialogbutton" onclick="${self.namespace}removebookmarksvisible('visited'); return false;">Remove from Visited portals (<span name="count_bookmarksalreadyvisited"></span>)</a>
+<a href="#" class="dialogbutton" onclick="${self.namespace}removebookmarksvisible('captured'); return false;">Remove from Captured portals (<span name="count_bookmarksalreadycaptured"></span>)</a>
+<a href="#" class="dialogbutton" onclick="if (confirm('Are you sure to delete all visible bookmarks?')) ${self.namespace}removebookmarksvisible('all'); return false;">Remove all visible bookmarks (<span name="count_bookmarksvisible"></span>)</a>
+<a href="#" class="dialogbutton" onclick="if (confirm('Are you sure to delete ALL bookmarks?')) ${self.namespace}removeallbookmarks(); return false;">Remove ALL bookmarks (<span name="count_bookmarks"></span>)</a>
+<hr>
+<a href="#" class="dialogbutton" onclick="${self.namespace}bookmarks('main'); return false;">Visible portals menu...</a>
+`;
+                if (window.plugin.portalhistorysupport) {
+                    container.innerHTML += `
+<a href="#" class="dialogbutton" onclick="${self.namespace}bookmarks('cached'); return false;">Portal History Bookmarks menu...</a>
+`;
+                }
+            }
+
+            container.querySelector(`input[type=checkbox][name=replacebookmarks]`).checked = self.settings.replacebookmarks;
+            container.querySelector(`input[type=checkbox][name=replacebookmarks]`).addEventListener('click',function(e) {
+                self.settings.replacebookmarks = this.checked;
+                self.storesettings();
+            },false);
+
+            if (window.plugin.bookmarksAddon) {
+                $(container.querySelector(`input[type=color]`)).spectrum({
+                    ...self.colorpickeroptions,
+                    change: function(color) {
+                        self.settings.bookmarkscolor = color.toHexString();
+                        self.storesettings();
+                    },
+                    color: self.settings.bookmarkscolor,
+                });
+            }
+
+            self.updatemenu(container);
         }
 
+        let bookmarksbutton = (window.plugin.bookmarks? { 'Bookmarks plugin': function() { window.plugin.bookmarks.manualOpt(); } } : {});
         window.dialog({
-            html: html,
-            id: self.pluginname + '-dialog',
-            dialogClass: 'ui-dialog-' + self.pluginname,
-            title: self.title + ' - Bookmarks',
+            html: container,
+            id: `${self.pluginname}-dialog`,
+            title: `${self.title} - Bookmarks`,
             width: 'auto'
         }).dialog('option', 'buttons', {
             '< Main menu': function() { self.menu(); },
-            'Bookmarks plugin': function() { if (window.plugin.bookmarks) window.plugin.bookmarks.manualOpt(); },
+            ...bookmarksbutton,
             'Close': function() { $(this).dialog('close'); },
         });
-
-        self.updatemenu();
-
-        if (window.plugin.bookmarksAddon) {
-            $('#' + self.id + '_colorbookmarks').spectrum($.extend({}, self.colorpickeroptions, {
-                change: function(color) {
-                    self.settings.bookmarkscolor = color.toHexString();
-                    self.storesettings();
-                },
-                color: self.settings.bookmarkscolor,
-            }));
-        }
     };
 
     self.getBookmarkPortalGuids = function() {
@@ -946,8 +1171,13 @@ version 0.0.1.20210206.120400
         let visiblebounds = window.map.getBounds();
         for (const ID in window.plugin.bookmarks.bkmrksObj.portals) {
             for (const bkmrkid in window.plugin.bookmarks.bkmrksObj.portals[ID].bkmrk) {
-                let latlng = JSON.parse('[' + window.plugin.bookmarks.bkmrksObj.portals[ID].bkmrk[bkmrkid].latlng + ']');
-                guidlist[window.plugin.bookmarks.bkmrksObj.portals[ID].bkmrk[bkmrkid].guid] = visiblebounds.contains(latlng);
+                let bookmark = window.plugin.bookmarks.bkmrksObj.portals[ID].bkmrk[bkmrkid];
+                let latlng = JSON.parse('[' + bookmark.latlng + ']');
+                guidlist[bookmark.guid] = {
+                    ...bookmark,
+                    folder: window.plugin.bookmarks.bkmrksObj.portals[ID].label,
+                    visible: visiblebounds.contains(latlng)
+                }
             }
         }
         return guidlist;
@@ -956,11 +1186,43 @@ version 0.0.1.20210206.120400
     self.count = function() {
         let bookmarkportalguids = self.getBookmarkPortalGuids();
         let displayBounds = window.map.getBounds();
-        let count = { total: 0, history: 0, nevervisited: 0, nevervisitedCached: 0, visited: 0, visitedCached: 0, visitednevercapturedCached: 0, nevercaptured: 0, nevercapturedCached: 0, captured: 0, capturedCached: 0, neverscoutControlled: 0, neverscoutControlledCached: 0, scoutControlled: 0, scoutControlledCached: 0, nevercapturedenl: 0, capturedenl: 0, nevercapturedres: 0, capturedres: 0, nevercapturedneutral: 0, capturedneutral: 0, bookmarks: 0, bookmarksvisible: 0, bookmarksalreadyvisited: 0, bookmarksalreadycaptured: 0 };
+        let count = {
+            total: 0,
+            history: 0,
+            nevervisited: 0,
+            nevervisitedCached: 0,
+            visited: 0,
+            visitedCached: 0,
+            visitednevercapturedCached: 0,
+            nevercaptured: 0,
+            nevercapturedCached: 0,
+            captured: 0,
+            capturedCached: 0,
+            neverscoutControlled: 0,
+            neverscoutControlledCached: 0,
+            scoutControlled: 0,
+            scoutControlledCached: 0,
+            enl: 0,
+            nevercapturedenl: 0,
+            capturedenl: 0,
+            res: 0,
+            nevercapturedres: 0,
+            capturedres: 0,
+            mac: 0,
+            nevercapturedmac: 0,
+            capturedmac: 0,
+            neutral: 0,
+            nevercapturedneutral: 0,
+            capturedneutral: 0,
+            bookmarks: 0,
+            bookmarksvisible: 0,
+            bookmarksalreadyvisited: 0,
+            bookmarksalreadycaptured: 0
+        };
 
         count.bookmarks = Object.keys(bookmarkportalguids).length;
         for (const guid in bookmarkportalguids) {
-            if (bookmarkportalguids[guid]) count.bookmarksvisible++;
+            if (bookmarkportalguids[guid].visible) count.bookmarksvisible++;
         }
         for (const guid in window.portals) {
             let portal = window.portals[guid];
@@ -971,10 +1233,23 @@ version 0.0.1.20210206.120400
                     if (portal.options.data.history.visited) count.visited++; else count.nevervisited++;
                     if (portal.options.data.history.captured) count.captured++; else count.nevercaptured++;
                     if (portal.options.data.history.scoutControlled) count.scoutControlled++; else count.neverscoutControlled++;
-                    if (portal.options.team == window.TEAM_ENL) if (portal.options.data.history.captured) count.capturedenl++; else count.nevercapturedenl++;
-                    if (portal.options.team == window.TEAM_RES) if (portal.options.data.history.captured) count.capturedres++; else count.nevercapturedres++;
-                    if (portal.options.team == window.TEAM_NONE) if (portal.options.data.history.captured) count.capturedneutral++; else count.nevercapturedneutral++;
-                    if (bookmarkportalguids[guid]) { // bookmark for portal exists and is visible
+                    if (portal.options.team == window.TEAM_ENL) {
+                        count.enl++;
+                        if (portal.options.data.history.captured) count.capturedenl++; else count.nevercapturedenl++;
+                    }
+                    if (portal.options.team == window.TEAM_RES) {
+                        count.res++;
+                        if (portal.options.data.history.captured) count.capturedres++; else count.nevercapturedres++;
+                    }
+                    if (portal.options.team == (window.TEAM_MAC || 3)) {
+                        count.mac++;
+                        if (portal.options.data.history.captured) count.capturedmac++; else count.nevercapturedmac++;
+                    }
+                    if (portal.options.team == window.TEAM_NONE) {
+                        count.neutral++;
+                        if (portal.options.data.history.captured) count.capturedneutral++; else count.nevercapturedneutral++;
+                    }
+                    if (bookmarkportalguids[guid]?.visible) { // bookmark for portal exists and is visible
                         if (portal.options.data.history.visited) count.bookmarksalreadyvisited++;
                         if (portal.options.data.history.captured) count.bookmarksalreadycaptured++;
                     }
@@ -997,45 +1272,78 @@ version 0.0.1.20210206.120400
         return count;
     };
 
-    self.updatemenu = function() {
-        if (!$('#dialog-' + self.pluginname + '-dialog').length) return;
+    self.updatemenu = function(container) {
+        if (!(container instanceof HTMLElement)) container = window.DIALOGS[`dialog-${self.pluginname}-dialog`];
+        if (!container) return;
 
-        for (const layername in self.toggle_layers) {
-            $('#' + self.id + '_' + layername).text((self.settings.invertresults?self.toggle_layernamesinverted[layername]:self.toggle_layernames[layername]));
-            $('#' + self.id + 'show' + layername + 'toggle').prop("checked",self.layeractive(layername));
+        let count = self.count();
+        for (let id in count) {
+            container.querySelectorAll(`span[name=count_${id}]`).forEach((el)=>{
+                el.innerHTML = count[id];
+            });
         }
-
-        var count = self.count();
-        for (const id in count) {
-            $('#' + self.id + '_count_' + id).html(count[id]);
+        if (container.querySelector('div[name=layerrows]')) {
+            for (const layername in self.toggle_layers) {
+                let row = container.querySelector(`div[name=${layername}-row]`);
+                row.querySelector('span[name=layer]').innerHTML = (self.settings.invertresults?self.toggle_layernamesinverted[layername]:self.toggle_layernames[layername]);
+                row.querySelector('input[type=checkbox]').checked = self.layeractive(layername);
+                row.querySelector('span[name=count]').innerHTML = (self.settings.invertresults?count[`never${layername}`]:count[layername]) + '/' + (layername.match(/captured/) ? count[layername.replace('captured','')] : count.total);
+                row.querySelector('span[name=count]').setAttribute('title',(self.settings.invertresults?self.layerdescriptioninverted[layername]:self.layerdescription[layername]));
+            }
         }
     };
 
     self.menu = function() {
-        var html = '<div>' +
-            'Visible portals: <span id="' + self.id + '_count_total"></span><br />' +
-            'With history: <span id="' + self.id + '_count_history"></span><br />';
-        html +=
-            '<input type="checkbox" onclick="' + self.namespace + 'settings.showwhenzoomedout = this.checked; ' + self.namespace + 'onzoomend(); ' + self.namespace + 'storesettings();" id="showwhenzoomedouttoggle"' + (self.settings.showwhenzoomedout?' checked':'') + '>' +
-            '<label for="showwhenzoomedouttoggle" style="user-select: none">Show markers when zooming out</label><br />';
-        html +=
-            '<input type="checkbox" onclick="' + self.namespace + 'settings.invertresults = this.checked; ' + self.namespace + 'invertresults(); ' + self.namespace + 'storesettings(); ' + self.namespace + 'menu();" id="invertresultstoggle"' + (self.settings.invertresults?' checked':'') + '>' +
-            '<label for="invertresultstoggle" style="user-select: none">Invert history results</label><br />';
+        let container = document.createElement('div');
+        container.innerHTML = `
+Visible portals with history: <span name="count_history"></span><br>
+Total visible portals: <span name="count_total"></span><br>
+<label><input type="checkbox" name="showwhenzoomedout">Show markers at Links zoom level</label><br>
+<label><input type="checkbox" name="invertresults">Invert layers to Never</label><br>
+Show/hide layers:<br>
+<div name="layerrows"></div>
+<span class="footer">version ${self.version} by ${self.author}</span>
+</div>
+`;
+
         for (const layername in self.toggle_layers) {
-            html +=
-                '<input type="color" id="' + self.id + '_color' + layername + '" /> ' +
-                '<input type="checkbox" onclick="' + self.namespace + 'displaytogglelayer(\'' + layername + '\',this.checked);" id="' + self.id + 'show' + layername + 'toggle"' + (self.layeractive(layername)?' checked':'') + '>' +
-                '<label for="' + self.id + 'show' + layername + 'toggle" style="user-select: none"><span id="' + self.id + '_' + layername + '">' + self.toggle_layernames[layername] + '</span> portals</label> (<span id="' + self.id + '_count_' + (self.settings.invertresults ? 'never' : '') + layername + '"></span>)<br />';
+            let row = container.querySelector('div[name=layerrows]').appendChild(document.createElement('div'));
+            row.setAttribute('name',`${layername}-row`);
+            row.innerHTML = `<input type="color"><label><input type="checkbox"><span name="layer"></span> portals (<span name="count"></span>)</label>`;
+            row.querySelector('input[type=checkbox]').addEventListener('click',function(e) {
+                self.displaytogglelayer(layername,this.checked);
+            },false);
+            $(row.querySelector('input[type=color]')).spectrum({
+                ...self.colorpickeroptions,
+                change: function(color) {
+                    self.settings.color[layername] = color.toHexString();
+                    self.storesettings();
+                    self.updateMarkers(layername);
+                },
+                color: self.settings.color[layername]
+            });
         }
-        html +=
-            '<span style="font-style: italic; font-size: smaller">version ' + self.version + ' by ' + self.author + '</span>' +
-            '</div>';
+
+        container.querySelector('input[name=showwhenzoomedout]').checked = self.settings.showwhenzoomedout;
+        container.querySelector('input[name=showwhenzoomedout]').addEventListener('click',function(e) {
+            self.settings.showwhenzoomedout = this.checked;
+            self.onzoomend();
+            self.storesettings();
+        },false);
+        container.querySelector('input[name=invertresults]').checked = self.settings.invertresults;
+        container.querySelector('input[name=invertresults]').addEventListener('click',function(e) {
+            self.settings.invertresults = this.checked;
+            self.invertresults();
+            self.storesettings();
+            self.updatemenu(container);
+        },false);
+
+        self.updatemenu(container);
 
         if (window.useAndroidPanes()) window.show('map'); // hide sidepane
         window.dialog({
-            html: html,
-            id: self.pluginname + '-dialog',
-            dialogClass: 'ui-dialog-' + self.pluginname,
+            html: container,
+            id: `${self.pluginname}-dialog`,
             title: self.title,
             width: 'auto'
         }).dialog('option', 'buttons', {
@@ -1043,19 +1351,6 @@ version 0.0.1.20210206.120400
             'About': function() { self.about(); },
             'Ok': function() { $(this).dialog('close'); },
         });
-
-        for (const layername in self.toggle_layers) {
-            $('#' + self.id + '_color' + layername).spectrum($.extend({}, self.colorpickeroptions, {
-                change: function(color) {
-                    self.settings.color[layername] = color.toHexString();
-                    self.storesettings();
-                    self.updateMarkers(layername);
-                },
-                color: self.settings.color[layername]
-            }));
-        }
-
-        self.updatemenu();
     };
 
     self.setupColorpickerSpectrum = function() {
@@ -1265,32 +1560,36 @@ version 0.0.1.20210206.120400
         let disableplugin = false;
         if (!window.plugin.portalagentstatus && !localStorage[oldlocalstoragesettings]) return disableplugin;
 
-        let html = '<div class="' + self.pluginname + '">Thank you for choosing this plugin.<br />' +
-            '<br />' +
-            'The plugin was recently renamed from "Portal Agent Status" to "' + self.title + '".<br />' +
-            '<br />';
+        let container = document.createElement('div');
+        container.innerHTML = `
+<p>Thank you for choosing this plugin.</p>
+
+<p>The plugin was recently renamed from "Portal Agent Status" to "${self.title}".</p>
+`;
         if (window.plugin.portalagentstatus) {
-            html +=
-                'You now have both plugins activated and this can cause a conflict.<br />' +
-                'Before you can use this new plugin, you must manually <u>disable and/or remove the old plugin</u> "Portal Agent Status".<br />' +
-            '<br />' +
-            'The new plugin will not run until this is changed.<br />';
+            container.innerHTML += `
+<p>You now have both plugins activated and this can cause a conflict.<br>
+Before you can use this new plugin, you must manually <u>disable and/or remove the old plugin</u> "Portal Agent Status".</p>
+
+<p>The new plugin will not run until this is changed.</p>
+`;
             disableplugin = true;
         } else if (localStorage[oldlocalstoragesettings]) {
-            html += 'You need to check the new plugin settings because the old settings are not compatible.<br />' +
-                '<a class="dialogbutton" href="#" onclick="' + self.namespace + 'menu(); return false;">Main menu</a>' +
-                '<a class="dialogbutton" href="#" onclick="' + self.namespace + 'about(); return false;">About</a><br />' +
-                'There have been a lot of changes, so make sure you check out the About menu.<br />';
+            container.innerHTML += `
+<p>You need to check the new plugin settings because the old settings are not compatible and have been deleted.<br>
+<a class="dialogbutton" href="#" onclick="${self.namespace}menu(); return false;">Main menu</a>
+<a class="dialogbutton" href="#" onclick="${self.namespace}about(); return false;">About</a>
+There have been a lot of changes, so make sure you check out the About menu.</p>
+`;
             localStorage.removeItem(oldlocalstoragesettings);
         }
-        html +=
-            '<span style="font-style: italic; font-size: smaller">version ' + self.version + ' by ' + self.author + '</span>' +
-            '</div>';
+        container.innerHTML += `
+<span class="footer">version ${self.version} by ${self.author}</span>
+`;
 
         window.dialog({
-            html: html,
-            id: self.pluginname + '-dialog',
-            dialogClass: 'ui-dialog-' + self.pluginname,
+            html: container,
+            id: `${self.pluginname}-dialog`,
             title: self.title,
             width: 'auto'
         });
@@ -1299,23 +1598,25 @@ version 0.0.1.20210206.120400
     };
 
     self.missingPortalHistorySupportplugin = function() {
-        if (window.plugin.portalhistorysupport) return false; // plugin found
+        let container = document.createElement('div');
+        container.innerHTML = `
+<p>This plugin can make use of another plugin: Portal History Support<br>
+You can download it here: <a href="https://softspot.nl/ingress/" target="_blank">softspot.nl</a></p>
 
-        let html = '<div class="' + self.pluginname + '">Thank you for choosing this plugin.<br />' +
-            '<br />' +
-            'This plugin requires another plugin: Portal History Support<br />' +
-            'You can download it here: <a href="https://softspot.nl/ingress/" target="_blank">softspot.nl</a><br />' +
-            '<br />' +
-            'This plugin will not run until it is installed.<br />' +
-            '<span style="font-style: italic; font-size: smaller">version ' + self.version + ' by ' + self.author + '</span>' +
-            '</div>';
+<p>You will get more bookmark features when it is installed:<br>
+You can draw bookmarks on cached portal with history, without the need to load them or have them within viewing range.</p>
+
+<span class="footer">version ${self.version} by ${self.author}</span>
+`;
 
         window.dialog({
-            html: html,
-            id: self.pluginname + '-dialog',
-            dialogClass: 'ui-dialog-' + self.pluginname,
+            html: container,
+            id: `${self.pluginname}-dialog`,
             title: self.title,
             width: 'auto'
+        }).dialog('option', 'buttons', {
+            '< Main menu': function() { self.menu(); },
+            'Close': function() { $(this).dialog('close'); }
         });
 
         return true;
@@ -1323,14 +1624,13 @@ version 0.0.1.20210206.120400
 
     self.setup = function() {
         if ('pluginloaded' in self) {
-            console.log('IITC plugin already loaded: ' + self.title + ' version ' + self.version);
+            console.log(`IITC plugin already loaded: ${self.title} version ${self.version}`);
             return;
         } else {
             self.pluginloaded = true;
         }
 
         if (self.checkforolderplugin()) return; // prevent conflicts with the previous plugin
-        if (self.missingPortalHistorySupportplugin()) return; // check for required plugin
         self.moveHistoryToNewPlugin(); // convert old history data to new plugin
 
         self.setupPortalsList();
@@ -1343,7 +1643,7 @@ version 0.0.1.20210206.120400
 
         window.addHook('mapDataRefreshEnd', function() { setTimeout(self.layersbringToFront,100); self.updatemenu(); });
         window.addHook('portalSelected', function(data) { self.onportalSelected(data); self.layersbringToFront(); self.updatemenu(); });
-        window.addHook('portalDetailLoaded', function() { setTimeout(self.layersbringToFront,100); });
+        window.addHook('portalDetailLoaded', function() { setTimeout(self.layersbringToFront,100); self.updatemenu(); });
         window.addHook('portalAdded', self.onportalAdded);
         window.addHook('portalRemoved', self.onportalRemoved);
 
@@ -1354,19 +1654,52 @@ version 0.0.1.20210206.120400
         window.map.on('moveend', function() { self.clearbookmarktimerlist(); self.updatemenu(); });
         if (window.plugin.bookmarks) window.addHook('pluginBkmrksEdit', self.updatemenu);
 
-        $('#toolbox').append('<a onclick="' + self.namespace + 'menu(); return false;" href="#">' + self.title + '</a>');
+        let toolboxlink = document.getElementById('toolbox').appendChild(document.createElement('a'));
+        toolboxlink.textContent = self.title;
+        toolboxlink.addEventListener('click', function(e) {
+            e.preventDefault();
+            self.menu();
+        }, false);
 
-        $('head').append(
-            '<style>' +
-            '.' + self.pluginname + ' a.dialogbutton { display:block; color:#ffce00; border:1px solid #ffce00; padding:3px 0; margin:10px auto; width:80%; min-width: 232px; text-align:center; background:rgba(8,48,78,.9); }' +
-            '</style>');
+        let stylesheet = document.body.appendChild(document.createElement('style'));
+        stylesheet.innerHTML = `
+#dialog-${self.pluginname}-dialog label {
+    user-select: none;
+}
+#dialog-${self.pluginname}-dialog .footer {
+    font-style: italic;
+    font-size: smaller;
+}
+#dialog-${self.pluginname}-dialog a.dialogbutton {
+    display: block;
+    color: #ffce00;
+    border: 1px solid #ffce00;
+    padding: 3px 0;
+    margin: 10px auto;
+    width: 80%;
+    min-width: 232px;
+    text-align: center;
+    background: rgba(8,48,78,.9);
+}
+div[name=layerrows] {
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+`;
 
-        console.log('IITC plugin loaded: ' + self.title + ' version ' + self.version);
+        console.log(`IITC plugin loaded: ${self.title} version ${self.version}`);
     };
 
     var setup = function() {
         (window.iitcLoaded?self.setup():window.addHook('iitcLoaded',self.setup));
     };
+
+    // Added to support About IITC details and changelog:
+    plugin_info.script.version = plugin_info.script.version.replace(/\.\d{8}\.\d{6}$/,'');
+    plugin_info.buildName = 'softspot.nl';
+    plugin_info.dateTimeVersion = self.version.replace(/^.*(\d{4})(\d{2})(\d{2})\.(\d{6})/,'$1-$2-$3-$4');
+    plugin_info.pluginId = self.id;
+    let changelog = [{version:'This is a <a href="https://softspot.nl/ingress/" target="_blank">softspot.nl</a> plugin by ' + self.author,changes:[]},...self.changelog.replace(/^.*?version /s,'').split(/\nversion /).map((v)=>{v=v.split(/\n/).map((l)=>{return l.replace(/^- /,'')}).filter((l)=>{return l != "";}); return {version:v.shift(),changes:v}})];
 
     setup.info = plugin_info; //add the script info data to the function as a property
     if(!window.bootPlugins) window.bootPlugins = [];
@@ -1380,4 +1713,3 @@ var info = {};
 if (typeof GM_info !== 'undefined' && GM_info && GM_info.script) info.script = { version: GM_info.script.version, name: GM_info.script.name, description: GM_info.script.description };
 script.appendChild(document.createTextNode('('+ wrapper +')('+JSON.stringify(info)+');'));
 (document.body || document.head || document.documentElement).appendChild(script);
-

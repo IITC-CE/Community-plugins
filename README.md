@@ -878,10 +878,10 @@ Shows under field throw range at 500m
 
 
 
-[danielondiordna-2.1.0.20220711.235400] Show your personal unique portal history for Visited, Captured or Scout Controlled portals with layers. Choose your own colors. Place bookmarks. Invert results! Add three extra Portals List plugin columns. Requires CORE subscription.
+[danielondiordna-2.2.0.20240525.141200] Show your personal unique portal history for Visited, Captured or Scout Controlled portals with layers. Choose your own colors for Resistance, Enlightened, Machina and Neutral portals. Place bookmarks. Invert results! Add three extra Portals List plugin columns. Does not require CORE subscription.
 
 *Depends*: [portalhistorysupport@DanielOnDiordna](#portal-history-support-for-all-iitc-versions-(with-cache)-by-danielondiordna)  |
-*Version:* 2.1.0.20220711.235400
+*Version:* 2.2.0.20240525.141200
 
 
   

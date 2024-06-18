@@ -2,7 +2,7 @@
 
 A collection of amazing plugins made by community.
 
-There are now 115 plugins from 33 authors in the collection.
+There are now 116 plugins from 34 authors in the collection.
 
 > Note: You must install IITC-CE on your [desktop](https://iitc.app/download_desktop)
 or [mobile device](https://iitc.app/download_mobile) to use IITC plugins.
@@ -323,6 +323,19 @@ Hides any portal that doesn&#39;t have 8 resonators.
 Hides any portal that doesn&#39;t have a link or field from it.
 
 *Version:* 0.1
+
+
+  
+### [Highlight almost-8 portals](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Artoria2e5/highlight-7miss1.user.js) by Artoria2e5
+
+**Anti-features:** **[scraper](/CONTRIBUTING.md#anti-features)** 
+
+
+
+Find portals that are 1/2/3 resonators to level 8. Makes its own requests; use with caution.
+
+*[Homepage](https://github.com/Artoria2e5/misc/issues)* |
+*Version:* 0.1.2
 
 
   

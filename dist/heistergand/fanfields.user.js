@@ -3,7 +3,7 @@
 // @name            Fan Fields 2 
 // @id              fanfields@heistergand
 // @category        Layer
-// @version         2.6.0.20240428
+// @version         2.6.2.20240630
 // @description     Calculate how to link the portals to create the largest tidy set of nested fields. Enable from the layer chooser.
 // @downloadURL     https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/heistergand/fanfields.user.js
 // @updateURL       https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/heistergand/fanfields.meta.js
@@ -50,6 +50,18 @@ function wrapper(plugin_info) {
     /* exported setup, changelog --eslint */
     let arcname = window.PLAYER.team === 'ENLIGHTENED' ? 'Arc' : '***';
     var changelog = [
+        {
+            version: '2.6.2',
+            changes: [
+                'NEW: Task list now contains a single navigation link for each portal.',
+            ],
+        },
+        {
+            version: '2.6.1',
+            changes: [
+                'FIX: Counts of outgoing links and sbul are now correct when respecting intel and using outbounding mode.',
+            ],
+        },
         {
             version: '2.6.0',
             changes: [
@@ -604,7 +616,8 @@ function wrapper(plugin_info) {
 
         text+="</tr></thead><tbody>";
         let linkDetailText = '';
-        var gmnav='http://maps.google.com/maps/dir/'
+        var gmnav='http://maps.google.com/maps/dir/';
+
         thisplugin.sortedFanpoints.forEach(function(portal, index) {
             
             var p, title, lat, lng;
@@ -644,15 +657,21 @@ function wrapper(plugin_info) {
             text+='<td>' + (index) + '</td>';
 
             // Action
+
             text+='<td>';
-            text+='Capture';
+            text+='  <label class="plugin_fanfields_exportText_Label" for="plugin_fanfields_exportText_' + portal.guid + '">Capture</label>';
+            text+='  <input type="checkbox" id="plugin_fanfields_exportText_' + portal.guid + '" plugin_fanfields_exportText_toggle="toggle">';
             text+='</td>';
+
+
+
+
 
             // Portal Name
             // text+='<td>'+ title + '</td>';
+            let uriTitle=encodeURIComponent(title);
             text+='<td>';
-            text+='  <label for="plugin_fanfields_exportText_' + portal.guid + '">'+ title + '</label>';
-            text+='  <input type="checkbox" id="plugin_fanfields_exportText_' + portal.guid + '" plugin_fanfields_exportText_toggle="toggle">';
+            text+=`  <a href="https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&query_destination_id=(${uriTitle})" target="_blank">${title}</a>`;
             text+='</td>';
 
             // Keys
@@ -725,8 +744,22 @@ function wrapper(plugin_info) {
         }
 
         const toggleFunction = function() {
+            $('[plugin_fanfields_exportText_toggle="toggle"]').each(function() {
+                const $toggle = $(this);
+                const $label = $toggle.prev('.plugin_fanfields_exportText_Label');
+                const $details = $toggle.parents().next('.plugin_fanfields_exportText_LinkDetails');
+
+                if ($details.length) {
+                    $label.addClass('has-children');
+                } else {
+                    $toggle.remove(); // Entferne die Checkbox, wenn keine Kind-Elemente vorhanden sind
+                    $label.css('cursor', 'default'); // Ändere den Cursor zurück auf Standard
+                }
+            });
             $('[plugin_fanfields_exportText_toggle="toggle"]').change(function(){
+                const isChecked = $(this).is(':checked');
                 $(this).parents().next('.plugin_fanfields_exportText_LinkDetails').toggle();
+                $(this).prev('.plugin_fanfields_exportText_Label').attr('aria-expanded', isChecked);
             });
         };
 
@@ -1015,6 +1048,24 @@ function wrapper(plugin_info) {
                                                    '[plugin_fanfields_exportText_toggle="toggle"] {\n' +
                                                    '  display: none; '+
                                                    '}\n').appendTo("head");
+
+        $("<style>").prop("type", "text/css").html('\n' +
+                                                   '.plugin_fanfields_exportText_Label {\n' +
+                                                   '    cursor: pointer;\n' +
+                                                   '    display: inline-block;\n' +
+                                                   '    padding-left: 12px;\n' +
+                                                   '    padding-right: 3px;\n' +
+                                                   '    position: relative;\n' +
+                                                   '}\n' +
+                                                   '.plugin_fanfields_exportText_Label.has-children::before {\n' +
+                                                   '    content: "\\25B9";\n /* (▹) */\n' +
+                                                   '    position: absolute;\n' +
+                                                   '    left: 0;\n' +
+                                                   '}\n' +
+                                                   '.plugin_fanfields_exportText_Label.has-children[aria-expanded="true"]::before {\n' +
+                                                   '    content: "\\25BF";\n /* (▿) */\n' +
+                                                   '}\n'
+                                                  ).appendTo("head");
 
 
         $("<style>").prop("type", "text/css").html('\n' +
@@ -1393,7 +1444,7 @@ function wrapper(plugin_info) {
         for (i in plugin.drawTools.drawnItems._layers) {
             var layer = plugin.drawTools.drawnItems._layers[i];
             if (layer instanceof L.Marker) {
-                
+
                 console.log("Marker found")
                 // Todo: make this an array by color
                 thisplugin.startingMarker = map.project(layer.getLatLng(), thisplugin.PROJECT_ZOOM);
@@ -1771,29 +1822,31 @@ function wrapper(plugin_info) {
                 const distance = thisplugin.distanceTo(a, b);
 
                 if (pb===0) {
-                    var maxLinks = 8 + thisplugin.availableSBUL * 8
+                    var maxLinks = 8 + thisplugin.availableSBUL * 8;
                     if (thisplugin.stardirection == thisplugin.starDirENUM.RADIATING && centerOutgoings < maxLinks ) {
+                        outbound = 1;
+                    }
+                    else {
+                        thisplugin.centerKeys++;
+                    }
+
+                    if (outbound == 1) {
                         a = this.sortedFanpoints[pb].point;
                         b = this.sortedFanpoints[pa].point;
                         console.log("outbound");
                         centerOutgoings++;
-                        if (centerOutgoings > 8) {
-                            // count sbul
-                            centerSbul = Math.ceil(((centerOutgoings-8) / 8));
-                        }
-                        outbound = 1;
                     }
-                    else thisplugin.centerKeys++;
                 }
 
-                possibleline = {a: a,
-                                b: b,
-                                bearing: bearing,
-                                isJetLink: false,
-                                isFanLink: (pb===0),
-                                counts: true,
-                                distance: distance
-                               };
+                possibleline = {
+                    a: a,
+                    b: b,
+                    bearing: bearing,
+                    isJetLink: false,
+                    isFanLink: (pb===0),
+                    counts: true,
+                    distance: distance
+                };
                 intersection = 0;
                 maplinks = [];
 
@@ -1805,26 +1858,35 @@ function wrapper(plugin_info) {
                     for (i in maplinks) {
                         if (this.intersects(possibleline,maplinks[i]) ) {
                             intersection++;
+                            if (possibleline.isFanLink && outbound == 1) centerOutgoings--;
                             //console.log("FANPOINTS: " + pa + " - "+pb+" bearing: " + bearing + " " + this.bearingWord(bearing) + "(crosslink)");
                             break;
                         }
                     }
                     if (this.linkExists(maplinks, possibleline)) {
                         possibleline.counts = false;
+                        if (possibleline.isFanLink && outbound == 1) centerOutgoings--;
                     }
                 }
 
                 for (i in donelinks) {
                     if (this.intersects(possibleline,donelinks[i])) {
                         intersection++;
+                        if (possibleline.isFanLink && outbound == 1) centerOutgoings--;
                         break;
                     }
                 }
                 for (i in fanlinks) {
                     if (this.intersects(possibleline,fanlinks[i])) {
                         intersection++;
+                        if (possibleline.isFanLink && outbound == 1) centerOutgoings--;
                         break;
                     }
+                }
+
+                if (centerOutgoings > 8 && centerOutgoings < maxLinks) {
+                    // count sbul
+                    centerSbul = Math.ceil((centerOutgoings - 8) / 8);
                 }
 
                 if (intersection === 0) {

@@ -707,7 +707,7 @@ Calculate how to link the portals to create the largest tidy set of nested field
 *Recommends*: [bookmarks@ZasoGD](#) [draw-tools-plus@zaso](#) [liveInventory@DanielOnDiordna](#live-inventory-by-eisfrei---fork-by-danielondiordna) [keys@xelio](#)  |
 *[Homepage](https://github.com/Heistergand/fanfields2/)* |
 *[Issue tracker](https://github.com/Heistergand/fanfields2/issues)* |
-*Version:* 2.6.0.20240428
+*Version:* 2.6.2.20240630
 
 
   

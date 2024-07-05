@@ -3,6 +3,9 @@ name: Check plugin updates
 on:
   schedule:
     - cron: '0 0 * * *'  # every day at midnight
+  push:
+    branches:
+      - master
 
 jobs:
   deploy:
@@ -21,6 +24,11 @@ jobs:
       - name: Install Dependencies
         run: npm install
         working-directory: ./tools
+
+      - name: Restore correct mtime
+        run: |
+          sudo apt install git-restore-mtime
+          git restore-mtime
 
       - name: Update plugins list
         run: npm run update-all

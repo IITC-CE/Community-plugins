@@ -189,6 +189,15 @@ export const get_dist_plugins = () => {
     const plugins = [];
     for (const [filepath, ,] of files) {
         const metajs = fs.readFileSync(filepath, 'utf8');
+
+        let meta_stats;
+        const dist_stats = fs.statSync(filepath);
+        try {
+            meta_stats = fs.statSync(filepath.replace('../dist/', '../metadata/').replace('.meta.js', '.yml'));
+        } catch {
+            continue;
+        }
+
         const meta = parseMeta(metajs);
         for (const mergeKey of ['antiFeatures', 'tags', 'depends', 'recommends']) {
             if (meta[mergeKey] !== undefined) {
@@ -196,6 +205,8 @@ export const get_dist_plugins = () => {
             }
         }
         id_link_map[meta.id] = dist_plugin_relative_link(meta.name, meta.author);
+        meta.createdAt = meta_stats.birthtime.toISOString();
+        meta.editedAt = dist_stats.birthtime.toISOString();
         plugins.push(meta);
     }
 
@@ -222,7 +233,7 @@ export const get_dist_plugins = () => {
         }
     }
 
-    return get_plugins_in_categories(plugins);
+    return plugins;
 };
 
 export const check_duplicate_plugins = () => {
@@ -236,16 +247,15 @@ export const check_duplicate_plugins = () => {
     }
 };
 
-export const get_stat_counters = (cat) => {
-    let count_plugins = 0;
+export const get_stat_counters = (plugins) => {
+    let count_plugins = plugins.length;
     let authors = [];
-    for (const [, plugins] of Object.entries(cat)) {
-        count_plugins += plugins.length;
-        for (const plugin of plugins) {
-            if (plugin.author !== undefined && !authors.includes(plugin.author)) {
-                authors.push(plugin.author);
-            }
+
+    for (const plugin of plugins) {
+        if (plugin.author !== undefined && !authors.includes(plugin.author)) {
+            authors.push(plugin.author);
         }
     }
+
     return {count_plugins: count_plugins, count_authors: authors.length};
 };

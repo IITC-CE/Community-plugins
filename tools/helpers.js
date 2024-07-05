@@ -54,8 +54,13 @@ const get_all_dist_files = () => {
  * @returns {Object<string, string>}
  */
 export const read_metadata_file = (filepath) => {
-    const f = fs.readFileSync(filepath, 'utf8');
-    const metadata = YAML.parse(f);
+    let metadata;
+    try {
+        const f = fs.readFileSync(filepath, 'utf8');
+        metadata = YAML.parse(f);
+    } catch {
+        return null;
+    }
     if (metadata.updateURL === undefined || metadata.downloadURL === undefined) {
         throw new Error(`${filepath} is missing updateURL or downloadURL`);
     }
@@ -242,6 +247,7 @@ export const check_duplicate_plugins = () => {
     for (const [filepath, author, filename] of metadata_files) {
         console.log(`Checking ${author}/${filename}`);
         const metadata = read_metadata_file(filepath);
+        if (metadata === null) continue;
         if (metadata.downloadURL in urls) {throw new Error(`Duplicate plugin ${author}/${filename}`);}
         urls.push(metadata.downloadURL);
     }

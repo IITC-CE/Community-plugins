@@ -9,6 +9,7 @@ export const run_update = async (metadata_files) => {
         console.log(`Checking ${author}/${filename}`);
         const metadata = helpers.read_metadata_file(filepath);
 
+        if (metadata === null) continue;
         if (await helpers.is_plugin_update_available(metadata, author, filename)) {
             console.log(`Updating ${author}/${filename}`);
             await helpers.update_plugin(metadata, author, filename);

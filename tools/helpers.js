@@ -211,14 +211,7 @@ export const get_dist_plugins = async () => {
     const plugins = [];
     for (const [filepath, ,] of files) {
         const metajs = fs.readFileSync(filepath, 'utf8');
-
-        let meta_stats;
         const dist_stats = fs.statSync(filepath);
-        try {
-            meta_stats = fs.statSync(filepath.replace('../dist/', '../metadata/').replace('.meta.js', '.yml'));
-        } catch {
-            continue;
-        }
 
         const meta = parseMeta(metajs);
         for (const mergeKey of ['antiFeatures', 'depends', 'recommends']) {
@@ -229,8 +222,7 @@ export const get_dist_plugins = async () => {
         meta.description = remove_brackets(meta.description || "");
         meta.id_hash = meta.id.replace("@", "-by-");
         community_plugins_ids.push(meta.id_hash);
-        meta.addedAt = meta_stats.birthtime.toISOString();
-        meta.updatedAt = dist_stats.birthtime.toISOString();
+        meta.updatedAt = dist_stats.mtime.toISOString();
         plugins.push(meta);
     }
 

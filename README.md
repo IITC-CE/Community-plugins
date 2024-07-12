@@ -2,7 +2,7 @@
 
 A collection of amazing plugins made by community.
 
-There are now 116 plugins from 34 authors in the collection.
+There are now 117 plugins from 35 authors in the collection.
 
 > Note: You must install IITC-CE on your [desktop](https://iitc.app/download_desktop)
 or [mobile device](https://iitc.app/download_mobile) to use IITC plugins.
@@ -437,6 +437,19 @@ Add to the sidebar a countdown timer to next checkpoint.
 Estimate the portal decaying.
 
 *Version:* 0.0.3.20200723.162738
+
+
+  
+### [Draw Best Link Star](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Tarsi210/draw-best-link-star.user.js) by Tarsi210
+
+
+
+
+
+Build the best link star in an area.
+
+*Depends*: [draw-tools](#)  |
+*Version:* 0.0.7
 
 
   

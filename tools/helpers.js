@@ -195,6 +195,16 @@ const get_core_plugins_unique_ids = async () => {
     return ids;
 }
 
+const remove_brackets = (input) => {
+  if (input.startsWith('[')) {
+    const endIndex = input.indexOf('] ');
+    if (endIndex !== -1) {
+      return input.slice(endIndex + 2);
+    }
+  }
+  return input;
+}
+
 export const get_dist_plugins = async () => {
     const files = get_all_dist_files();
     const community_plugins_ids = [];
@@ -216,6 +226,7 @@ export const get_dist_plugins = async () => {
                 meta[mergeKey] = meta[mergeKey].split('|');
             }
         }
+        meta.description = remove_brackets(meta.description || "");
         meta.id_hash = meta.id.replace("@", "-by-");
         community_plugins_ids.push(meta.id_hash);
         meta.addedAt = meta_stats.birthtime.toISOString();

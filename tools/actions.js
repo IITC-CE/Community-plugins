@@ -21,9 +21,9 @@ export const run_update = async (metadata_files) => {
     return is_updated;
 };
 
-export const render_readme = () => {
+export const render_readme = async () => {
     const template = fs.readFileSync('templates/README.njk', 'utf8');
-    const plugins = get_dist_plugins();
+    const plugins = await get_dist_plugins();
     const markers = get_stat_counters(plugins);
     markers.collection = get_plugins_in_categories(plugins);
 
@@ -34,8 +34,8 @@ export const render_readme = () => {
     console.log('README.md updated');
 };
 
-export const make_plugins_json = () => {
-    const plugins = get_dist_plugins();
+export const make_plugins_json = async () => {
+    const plugins = await get_dist_plugins();
     const meta_data = {
         plugins,
         version: 2

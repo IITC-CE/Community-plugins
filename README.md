@@ -448,7 +448,7 @@ Estimate the portal decaying.
 
 Build the best link star in an area.
 
-*Depends*: [draw-tools](#)  |
+*Depends*: [draw-tools@breunigs](#)  |
 *Version:* 0.0.7
 
 

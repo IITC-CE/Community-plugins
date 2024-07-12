@@ -1,3 +1,4 @@
 downloadURL: https://raw.githubusercontent.com/Tarsi210/draw-best-link-star/main/iitc-plugin-best-link-star.user.js
 updateURL: https://raw.githubusercontent.com/Tarsi210/draw-best-link-star/main/iitc-plugin-best-link-star.user.js
 author: Tarsi210
+depends: draw-tools@breunigs

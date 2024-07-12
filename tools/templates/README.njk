@@ -35,11 +35,9 @@ See the [Contributing](CONTRIBUTING.md) documentation.
 {%- endif %}
 
 {% if plugin._depends_links -%}
-    *Depends*: {% for depend_id, depend_link in plugin._depends_links %}[{{ depend_id }}]({{ depend_link }}) {% endfor %} |
+    *Depends*: {% for dep in plugin._depends_links %}{{ dep.id }} {% endfor %} |
 {% endif %}{% if plugin._recommends_links -%}
-   *Recommends*: {% for recommend_id, recommend_link in plugin._recommends_links %}[{{ recommend_id }}]({{ recommend_link }}) {% endfor %} |
-{% endif %}{% if plugin.tags -%}
-    *Tags*: {{ plugin.tags|join(",") }} |
+    *Recommends*: {% for dep in plugin._recommends_links %}{{ dep.id }} {% endfor %} |
 {% endif %}{% if plugin.homepageURL -%}
     *[Homepage]({{ plugin.homepageURL }})* |
 {% endif %}{% if plugin.issueTracker -%}

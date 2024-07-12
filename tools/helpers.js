@@ -54,8 +54,13 @@ const get_all_dist_files = () => {
  * @returns {Object<string, string>}
  */
 export const read_metadata_file = (filepath) => {
-    const f = fs.readFileSync(filepath, 'utf8');
-    const metadata = YAML.parse(f);
+    let metadata;
+    try {
+        const f = fs.readFileSync(filepath, 'utf8');
+        metadata = YAML.parse(f);
+    } catch {
+        return null;
+    }
     if (metadata.updateURL === undefined || metadata.downloadURL === undefined) {
         throw new Error(`${filepath} is missing updateURL or downloadURL`);
     }
@@ -136,7 +141,7 @@ export const update_plugin = async (metadata, author, filename) => {
     if (meta.skipMatchCheck) {delete meta.skipMatchCheck;}
     if (meta.name === undefined) throw new Error(`name is missing in ${filename}`);
     meta.id = filename.replace(/\.yml$/, '')+'@'+author;
-    for (const mergeKey of ['antiFeatures', 'tags', 'depends', 'recommends']) {
+    for (const mergeKey of ['antiFeatures', 'depends', 'recommends']) {
         if (typeof meta[mergeKey] === 'object') {
             meta[mergeKey] = meta[mergeKey].join('|');
         }
@@ -171,58 +176,100 @@ export const get_plugins_in_categories = (metadata) => {
     return orderedDict(data);
 };
 
-const dist_plugin_relative_link = (name, author) => {
-    let link = name;
-    if (author !== undefined) {
-        link += ' by ' + author;
+const get_core_plugins_unique_ids = async () => {
+    const core_meta_response = await fetch("https://iitc.app/build/release/meta.json")
+    if (!core_meta_response.ok) {
+        throw new Error(`Response status: ${core_meta_response.status}`);
     }
-    link = link.toLowerCase();
-    link = link.replace(/[^A-Za-z\d -_]/g, '');
-    link = link.replace(/ /g, '-');
-    link = '#'+link;
-    return link;
-};
+    const ids = [];
+    const core_meta = await core_meta_response.json();
+    for (const cat in core_meta["categories"]) {
+        const category = core_meta.categories[cat]
+        if (category.plugins !== undefined) {
+            for (const pl of category.plugins) {
+                const hash = pl.id+"-by-"+pl.author
+                ids.push(hash);
+            }
+        }
+    }
+    return ids;
+}
 
-export const get_dist_plugins = () => {
+const remove_brackets = (input) => {
+  if (input.startsWith('[')) {
+    const endIndex = input.indexOf('] ');
+    if (endIndex !== -1) {
+      return input.slice(endIndex + 2);
+    }
+  }
+  return input;
+}
+
+export const get_dist_plugins = async () => {
     const files = get_all_dist_files();
-    const id_link_map = {};
+    const community_plugins_ids = [];
     const plugins = [];
     for (const [filepath, ,] of files) {
         const metajs = fs.readFileSync(filepath, 'utf8');
+        const dist_stats = fs.statSync(filepath);
+
         const meta = parseMeta(metajs);
-        for (const mergeKey of ['antiFeatures', 'tags', 'depends', 'recommends']) {
+        for (const mergeKey of ['antiFeatures', 'depends', 'recommends']) {
             if (meta[mergeKey] !== undefined) {
                 meta[mergeKey] = meta[mergeKey].split('|');
             }
         }
-        id_link_map[meta.id] = dist_plugin_relative_link(meta.name, meta.author);
+        meta.description = remove_brackets(meta.description || "");
+        meta.id_hash = meta.id.replace("@", "-by-");
+        community_plugins_ids.push(meta.id_hash);
+        meta.updatedAt = dist_stats.mtime.toISOString();
         plugins.push(meta);
     }
+
+    const core_plugins_ids = await get_core_plugins_unique_ids();
 
     for (const plugin of plugins) {
         if (plugin['depends'] !== undefined) {
             plugin._depends_links = [];
             for (const depend of plugin['depends']) {
-                if (id_link_map[depend] === undefined) {
-                    plugin._depends_links.push([depend, '#']);
-                } else {
-                    plugin._depends_links.push([depend, id_link_map[depend]]);
+                const dep_hash = depend.replace("@", "-by-");
+                const dep_info = {
+                    id: depend,
+                    hash: null,
+                    source: null
                 }
+                if (core_plugins_ids.includes(dep_hash)) {
+                    dep_info.hash = dep_hash;
+                    dep_info.source = "core";
+                } else if (community_plugins_ids.includes(dep_hash)) {
+                    dep_info.hash = dep_hash;
+                    dep_info.source = "community";
+                }
+                plugin._depends_links.push(dep_info);
             }
         }
         if (plugin['recommends'] !== undefined) {
             plugin._recommends_links = [];
             for (const recommend of plugin['recommends']) {
-                if (id_link_map[recommend] === undefined) {
-                    plugin._recommends_links.push([recommend, '#']);
-                } else {
-                    plugin._recommends_links.push([recommend, id_link_map[recommend]]);
+                const dep_hash = recommend.replace("@", "-by-");
+                const dep_info = {
+                    id: recommend,
+                    hash: null,
+                    source: null
                 }
+                if (core_plugins_ids.includes(dep_hash)) {
+                    dep_info.hash = dep_hash;
+                    dep_info.source = "core";
+                } else if (community_plugins_ids.includes(dep_hash)) {
+                    dep_info.hash = dep_hash;
+                    dep_info.source = "community";
+                }
+                plugin._recommends_links.push(dep_info);
             }
         }
     }
 
-    return get_plugins_in_categories(plugins);
+    return plugins;
 };
 
 export const check_duplicate_plugins = () => {
@@ -231,21 +278,21 @@ export const check_duplicate_plugins = () => {
     for (const [filepath, author, filename] of metadata_files) {
         console.log(`Checking ${author}/${filename}`);
         const metadata = read_metadata_file(filepath);
+        if (metadata === null) continue;
         if (metadata.downloadURL in urls) {throw new Error(`Duplicate plugin ${author}/${filename}`);}
         urls.push(metadata.downloadURL);
     }
 };
 
-export const get_stat_counters = (cat) => {
-    let count_plugins = 0;
+export const get_stat_counters = (plugins) => {
+    let count_plugins = plugins.length;
     let authors = [];
-    for (const [, plugins] of Object.entries(cat)) {
-        count_plugins += plugins.length;
-        for (const plugin of plugins) {
-            if (plugin.author !== undefined && !authors.includes(plugin.author)) {
-                authors.push(plugin.author);
-            }
+
+    for (const plugin of plugins) {
+        if (plugin.author !== undefined && !authors.includes(plugin.author)) {
+            authors.push(plugin.author);
         }
     }
+
     return {count_plugins: count_plugins, count_authors: authors.length};
 };

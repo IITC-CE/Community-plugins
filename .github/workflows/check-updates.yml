@@ -6,6 +6,7 @@ on:
   push:
     branches:
       - master
+  workflow_dispatch:
 
 jobs:
   deploy:
@@ -29,6 +30,10 @@ jobs:
         run: |
           sudo apt install git-restore-mtime
           git restore-mtime
+
+      - name: Set force environment variable if manually triggered
+        if: github.event_name == 'workflow_dispatch'
+        run: echo "FORCE_RENDER=true" >> $GITHUB_ENV
 
       - name: Update plugins list
         run: npm run update-all

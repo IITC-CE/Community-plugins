@@ -3,7 +3,7 @@
 // @id             draw-best-link-star@Tarsi210
 // @name           Draw Best Link Star
 // @category       Info
-// @version        0.0.7
+// @version        0.0.8
 // @namespace      https://www.nathanpralle.com
 // @description    Build the best link star in an area.
 // @updateURL      https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Tarsi210/draw-best-link-star.meta.js
@@ -45,16 +45,20 @@ function wrapper(plugin_info) {
         const modalContent = `
             <div id="linkStarModalContent">
 				<table>
+                    <TR>
+						<TD align="right"><label for="targetPortal"><font color="#000">Target Portal:</label></TD>
+						<TD><div id="linkStarModalTargetPortal"><font color="#0000FF">Auto-Select Best Portal</font></div></TD>
+					</TR>
 					<TR>
-						<TD align="right"><label for="searchRadius">Search Radius (meters):</label></TD>
+						<TD align="right"><label for="searchRadius"><font color="#000">Search Radius (meters):</label></TD>
 						<TD><input style="color:#0000FF" type="number" id="searchRadius" name="searchRadius" value="1000"></TD>
 					</TR>
 					<TR>
-						<TD align="right"><label for="maxPortals">Maximum number of portals:</label></TD>
+						<TD align="right"><label for="maxPortals"><font color="#000">Maximum number of portals:</label></TD>
 						<TD><input style="color:#0000FF" type="number" id="maxPortals" name="maxPortals" value="100"></TD>
 					</TR>
 					<TR>
-						<TD align="right"><label for="ignoreCrossedLinks">Ignore crossed links:</label></TD>
+						<TD align="right"><label for="ignoreCrossedLinks"><font color="#000">Ignore crossed links:</label></TD>
 						<TD><input type="checkbox" id="ignoreCrossedLinks" name="ignoreCrossedLinks" checked></TD>
 					</TR>
 					<TR>
@@ -88,6 +92,7 @@ function wrapper(plugin_info) {
     window.plugin.drawBestLinkStar.showModal=function(callback) {
         const modal = document.getElementById('linkStarModal');
         const submitButton = document.getElementById('submitButton');
+		const linkStarModalTargetPortal=document.getElementById('linkStarModalTargetPortal');
         submitButton.onclick = () => {
             const searchRadius = parseInt(document.getElementById('searchRadius').value, 10);
             const maxLinks = parseInt(document.getElementById('maxPortals').value, 10);
@@ -105,6 +110,13 @@ function wrapper(plugin_info) {
             });
 
         };
+        let bestPortal = getSelectedPortal(); // Use selected portal if available
+		if (bestPortal) {
+			const portalName = bestPortal.options.data.title;
+			const portalUrl = `https://intel.ingress.com/?pll=${bestPortal.getLatLng().lat},${bestPortal.getLatLng().lng}`;
+			const newContent = `<a style="color:#0000FF" href="${portalUrl}">${portalName}</a>`;
+			linkStarModalTargetPortal.innerHTML = newContent;
+		}
         modal.style.display = 'block';
     }
 
@@ -259,7 +271,7 @@ function wrapper(plugin_info) {
 		const encodedUri = encodeURI(csvContent);
 		const link = document.createElement("a");
 		link.setAttribute("href", encodedUri);
-		link.setAttribute("download", `${bestPortal.options.data.title} Linking Plan.csv`);
+		link.setAttribute("download", `${bestPortal.options.data.title} Link Star Plan.csv`);
 		document.body.appendChild(link);
 		return link;
 	}
@@ -287,9 +299,13 @@ function wrapper(plugin_info) {
 			return;
 		}
         const totalVisiblePortals = visiblePortals.length;
+		let userSelectedPortal = 0;
 		let bestPortal = getSelectedPortal(); // Use selected portal if available
 		if (!bestPortal) {
 			bestPortal = findBestPortal(visiblePortals, searchRadius);
+		}
+		else{
+			userSelectedPortal=1;
 		}
 		if (!bestPortal) {
 			alert("No suitable portal found (or selected) for creating a link star.");
@@ -352,11 +368,19 @@ function wrapper(plugin_info) {
 
         const portalName = bestPortal.options.data.title;
 		const portalUrl = `https://intel.ingress.com/?pll=${bestPortal.getLatLng().lat},${bestPortal.getLatLng().lng}`;
-        const message = `
-            <div>
-                <b>Best Target Portal with radius of ${searchRadius} meters:</b><BR>
-                &nbsp;&nbsp;&nbsp;<a style="color:#0000FF" href="${portalUrl}" target="_blank">${portalName}</a><BR>
-                ${drawData.length} of possible ${maxLinks} links in the radius (${totalVisiblePortals} visible portals)<BR>
+		let message = '';
+        if(userSelectedPortal){
+			message = `
+				<div>
+					<font color="#000"><b>Choosing portals within ${searchRadius} meters of Selected Portal:</b><BR>`;
+		}
+		else{
+			message = `
+				<div>
+					<font color="#000"><b>Best Target Portal with radius of ${searchRadius} meters:</b><BR>`;
+		}
+		message+=`&nbsp;&nbsp;&nbsp;<a style="color:#0000FF" href="${portalUrl}" target="_blank">${portalName}</a><BR>
+                <font color="#000">${drawData.length} of possible ${maxLinks} links in the radius (${totalVisiblePortals} visible portals)<BR>
                 Total Travel Distance: ${totalDistance.toFixed(1)} km (${totalMiles.toFixed(1)} miles)<BR>
                 &nbsp;&nbsp;&nbsp;<a style="color:#0000FF" href="${csvLink.href}" download="${csvLink.download}">Download portal visit order (CSV)</a><BR>
             </div>

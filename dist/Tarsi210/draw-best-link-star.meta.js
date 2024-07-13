@@ -3,7 +3,7 @@
 // @id             draw-best-link-star@Tarsi210
 // @name           Draw Best Link Star
 // @category       Info
-// @version        0.0.7
+// @version        0.0.8
 // @namespace      https://www.nathanpralle.com
 // @description    Build the best link star in an area.
 // @updateURL      https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Tarsi210/draw-best-link-star.meta.js

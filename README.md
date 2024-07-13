@@ -26,7 +26,7 @@ See the [Contributing](CONTRIBUTING.md) documentation.
 
 
 
-[danielondiordna-4.2.1.20220926.214200] Add a lot of extra non-standard functionality. Read the About info for all details. Filters for Done and To-Do banners, on the Map and Browse page (Sign in required). Filter Offline or Online banners from the Browse list. !!! Be aware that using these Plugin Filters will transfer very large amounts of Bannergress data !!!
+Add a lot of extra non-standard functionality. Read the About info for all details. Filters for Done and To-Do banners, on the Map and Browse page (Sign in required). Filter Offline or Online banners from the Browse list. !!! Be aware that using these Plugin Filters will transfer very large amounts of Bannergress data !!!
 
 *[Homepage](https://softspot.nl/ingress/plugins/documentation/bannergress-plugin-addon.user.js.html)* |
 *Version:* 4.2.1.20220926.214200
@@ -39,9 +39,9 @@ See the [Contributing](CONTRIBUTING.md) documentation.
 
 
 
-[danielondiordna-2.1.0.20240227.204800] Bookmark plugin add-on, to replace the default yellow marker by a color marker (color change requires colorpicker or drawtools), and show bookmark names (layer), including optional scaling. Modified export file with timestamp in text/plain format. Also an option for bookmarks export to kml file format (for google maps). Add/remove bookmarks with filters for level, faction, captured, visited and resonator counts. Integrated Spectrum Colorpicker 1.8.1
+Bookmark plugin add-on, to replace the default yellow marker by a color marker (color change requires colorpicker or drawtools), and show bookmark names (layer), including optional scaling. Modified export file with timestamp in text/plain format. Also an option for bookmarks export to kml file format (for google maps). Add/remove bookmarks with filters for level, faction, captured, visited and resonator counts. Integrated Spectrum Colorpicker 1.8.1
 
-*Depends*: [bookmarks@ZasoGD](#)  |
+*Depends*: bookmarks@ZasoGD  |
 *Version:* 2.1.0.20240227.204800
 
 
@@ -52,9 +52,9 @@ See the [Contributing](CONTRIBUTING.md) documentation.
 
 
 
-[danielondiordna-1.1.1.20221027.234600] Add-on to add extra functionality for the missions plugin (up to version 0.3.0): 1: Optionally search for all missions within visible range, not just the top 25 (be aware: using this option will increase your server requests). 2: Sort the loaded missions by title (including roman numbers). 3: Show and remove stored missions. 4: Selected mission color changed to red. 5. Displayed missions show filled start portal. 6. Banner view for stored missions. 7. Transfer missions (export/import). 8. Missions routes layer can show a colorful path. 9. Redraw opened missions after IITC reloads.
+Add-on to add extra functionality for the missions plugin (up to version 0.3.0): 1: Optionally search for all missions within visible range, not just the top 25 (be aware: using this option will increase your server requests). 2: Sort the loaded missions by title (including roman numbers). 3: Show and remove stored missions. 4: Selected mission color changed to red. 5. Displayed missions show filled start portal. 6. Banner view for stored missions. 7. Transfer missions (export/import). 8. Missions routes layer can show a colorful path. 9. Redraw opened missions after IITC reloads.
 
-*Depends*: [missions@jonatkins](#)  |
+*Depends*: missions@jonatkins  |
 *Version:* 1.1.1.20221027.234600
 
 
@@ -65,7 +65,7 @@ See the [Contributing](CONTRIBUTING.md) documentation.
 
 
 
-[danielondiordna-1.0.1.20220712.094300] Add-on to set an API KEY for the Thunderforest map tiles (OpenCycleMap). To make things easier, the Add-on already includes the code from the OpenCycleMap plugin.
+Add-on to set an API KEY for the Thunderforest map tiles (OpenCycleMap). To make things easier, the Add-on already includes the code from the OpenCycleMap plugin.
 
 *Version:* 1.0.1.20220712.094300
 
@@ -77,9 +77,9 @@ See the [Contributing](CONTRIBUTING.md) documentation.
 
 
 
-[danielondiordna-1.0.0.20210724.002500] Change Pan Control to pan whole screens
+Change Pan Control to pan whole screens
 
-*Depends*: [pan-control@fragger](#)  |
+*Depends*: pan-control@fragger  |
 *Version:* 1.0.0.20210724.002500
 
 
@@ -90,9 +90,9 @@ See the [Contributing](CONTRIBUTING.md) documentation.
 
 
 
-[danielondiordna-1.3.1.20240209.233200] Add-on to the player tracker plugin: Adjust history limit of 3 hours to another value. Toggle name labels, last action time, toggle/adjust player colors, focus on players, display 1 single player. Integrated Marker Label plugin and Spectrum Colorpicker 1.8.1 plugin. Supports Machina U̶͚̓̍N̴̖̈K̠͔̍͑̂͜N̞̥͋̀̉Ȯ̶̹͕̀W̶̢͚͑̚͝Ṉ̨̟̒̅&#39; player.
+Add-on to the player tracker plugin: Adjust history limit of 3 hours to another value. Toggle name labels, last action time, toggle/adjust player colors, focus on players, display 1 single player. Integrated Marker Label plugin and Spectrum Colorpicker 1.8.1 plugin. Supports Machina U̶͚̓̍N̴̖̈K̠͔̍͑̂͜N̞̥͋̀̉Ȯ̶̹͕̀W̶̢͚͑̚͝Ṉ̨̟̒̅&#39; player.
 
-*Depends*: [player-activity-tracker@breunigs](#)  |
+*Depends*: player-activity-tracker@breunigs  |
 *Version:* 1.3.1.20240209.233200
 
 
@@ -103,9 +103,9 @@ See the [Contributing](CONTRIBUTING.md) documentation.
 
 
 
-[danielondiordna-1.1.0.20230321.232000] Add-on to only display portals for visible/enabled layers, a fix for Unclaimed/Placeholder Portals, added level filters and load portal details.
+Add-on to only display portals for visible/enabled layers, a fix for Unclaimed/Placeholder Portals, added level filters and load portal details.
 
-*Depends*: [portals-list@teo96](#)  |
+*Depends*: portals-list@teo96  |
 *Version:* 1.1.0.20230321.232000
 
 
@@ -173,7 +173,7 @@ Cache the data of visible portals and use this to populate the map when possible
 
 
 
-[danielondiordna-1.0.0.20220711.233600] Use the layer selector to toggle Keep all portals and Keep all links, to keep all out of view portals and links loaded (be aware that currently destroyed links are not removed when these options are switched on)
+Use the layer selector to toggle Keep all portals and Keep all links, to keep all out of view portals and links loaded (be aware that currently destroyed links are not removed when these options are switched on)
 
 *Version:* 1.0.0.20220711.233600
 
@@ -188,7 +188,7 @@ Cache the data of visible portals and use this to populate the map when possible
 
 
 
-[danielondiordna-2.2.1.20230824.100900] Show date and time on the map, configurable time formatting, select a manual timezone, or automated timezones with your free GeoNames account.
+Show date and time on the map, configurable time formatting, select a manual timezone, or automated timezones with your free GeoNames account.
 
 *Version:* 2.2.1.20230824.100900
 
@@ -236,7 +236,7 @@ Saves the current enabled layers (base, overlays and hightlighter). Restore it j
 
 
 
-[local-2019-02-14] LocalStorageManager plugin by GMOogway.
+LocalStorageManager plugin by GMOogway.
 
 *Version:* 0.1.0.20190214
 
@@ -248,10 +248,10 @@ Saves the current enabled layers (base, overlays and hightlighter). Restore it j
 
 
 
-[danielondiordna-0.0.5.20210724.002500] Easily add or remove bookmarks for all portals within visible range per team. This plugin requires the Bookmarks plugin and optionally the Bookmarks add-on (to enable color bookmarks).
+Easily add or remove bookmarks for all portals within visible range per team. This plugin requires the Bookmarks plugin and optionally the Bookmarks add-on (to enable color bookmarks).
 
-*Depends*: [bookmarks@ZasoGD](#)  |
-*Recommends*: [bookmarks-add-on@danielondiordna](#)  |
+*Depends*: bookmarks@ZasoGD  |
+*Recommends*: bookmarks-add-on@danielondiordna  |
 *Version:* 0.0.5.20210724.002500
 
 
@@ -294,7 +294,7 @@ Add an image to your map.
 
 Import KML/GPX/Geojson/TCX into DrawTools
 
-*Depends*: [draw-tools@breunigs](#)  |
+*Depends*: draw-tools@breunigs  |
 *Version:* 1.0.1
 
 
@@ -357,7 +357,7 @@ Use the portal fill color to denote if the portal needs recharging and how much.
 
 
 
-[danielondiordna-1.0.0.20231019.224200] Highlight portals with resonators by owner
+Highlight portals with resonators by owner
 
 *Version:* 1.0.0.20231019.224200
 
@@ -369,7 +369,7 @@ Use the portal fill color to denote if the portal needs recharging and how much.
 
 ![preview](https://raw.githubusercontent.com/xificurk/iitc-plugins/master/images/portal-highlighter-uniques-opacity.png)
 
-[xificurk-2023-03-04-150308] Use stroke and fill opacity to denote player&#39;s unique visits and captures. Requires uniques plugin.
+Use stroke and fill opacity to denote player&#39;s unique visits and captures. Requires uniques plugin.
 
 *[Homepage](https://github.com/xificurk/iitc-plugins)* |
 *[Issue tracker](https://github.com/xificurk/iitc-plugins/issues)* |
@@ -395,7 +395,7 @@ Highlighter for unique visited/captured/scout controlled portals
 
 
 
-[danielondiordna-0.0.1.20210724.002500] Highlighters to make use of captured history data. Highlighters to hide all or only all captured portals, with or without ENL and RES portals. Requires CORE subscription
+Highlighters to make use of captured history data. Highlighters to hide all or only all captured portals, with or without ENL and RES portals. Requires CORE subscription
 
 *Version:* 0.0.1.20210724.002500
 
@@ -448,8 +448,8 @@ Estimate the portal decaying.
 
 Build the best link star in an area.
 
-*Depends*: [draw-tools@breunigs](#)  |
-*Version:* 0.0.7
+*Depends*: draw-tools@breunigs  |
+*Version:* 0.0.8
 
 
   
@@ -461,7 +461,7 @@ Build the best link star in an area.
 
 Quickly replace one portal with another in Draw Tools
 
-*Depends*: [draw-tools@breunigs](#)  |
+*Depends*: draw-tools@breunigs  |
 *Version:* 1.0.7
 
 
@@ -472,7 +472,7 @@ Quickly replace one portal with another in Draw Tools
 
 
 
-[danielondiordna-0.1.6.20210724.002500] Quickly show a list of details for your favorite list of portals.
+Quickly show a list of details for your favorite list of portals.
 
 *Version:* 0.1.6.20210724.002500
 
@@ -509,7 +509,7 @@ Estimate the portal decaying.
 
 
 
-[EisFrei-0.0.17.20210724.002500] Show current in-game inventory. Requires CORE subscription. Fork by DanielOnDiordna https://github.com/DanielOndiordna/IngressLiveInventory extras: menu buttons, refresh feedback, portals list key count, capsule view, keys in capsule view on portals, zoom keys, draw bookmarks.
+Show current in-game inventory. Requires CORE subscription. Fork by DanielOnDiordna https://github.com/DanielOndiordna/IngressLiveInventory extras: menu buttons, refresh feedback, portals list key count, capsule view, keys in capsule view on portals, zoom keys, draw bookmarks.
 
 *[Homepage](https://github.com/EisFrei/IngressLiveInventory)* |
 *Version:* 0.0.17.20210724.002500
@@ -522,7 +522,7 @@ Estimate the portal decaying.
 
 
 
-[danielondiordna-0.0.3.20210724.002500] Show portal info about resonators and mods for the selected portal directly on the map.
+Show portal info about resonators and mods for the selected portal directly on the map.
 
 *Version:* 0.0.3.20210724.002500
 
@@ -546,9 +546,9 @@ View inventory and highlight portals with keys at any zoom. Can be used with the
 
 
 
-[2022-11-30-2310] Counts portals by level and faction inside polygons or search result.
+Counts portals by level and faction inside polygons or search result.
 
-*Depends*: [draw-tools@breunigs](#)  |
+*Depends*: draw-tools@breunigs  |
 *Version:* 2.2.5.20221130.2310
 
 
@@ -639,7 +639,7 @@ Exports portals to a CSV list
 
 Plugin for planning fields in IITC
 
-*Recommends*: [draw-tools@breunigs](#) [draw-tools-plus@zaso](#)  |
+*Recommends*: draw-tools@breunigs draw-tools-plus@zaso  |
 *[Homepage](https://www.youtube.com/@57Cell)* |
 *[Issue tracker](https://github.com/mike40033/iitc-57Cell/issues)* |
 *Version:* 2.1.8.20240202
@@ -652,7 +652,7 @@ Plugin for planning fields in IITC
 
 
 
-[danielondiordna-0.0.4.20210724.002500] Show the S2 cells areas on the map at portal zoom level. A tiny area instead of a score region. Also shows larger S2 cells when zooming out. Using geoJson instead of geodesicPolyline.
+Show the S2 cells areas on the map at portal zoom level. A tiny area instead of a score region. Also shows larger S2 cells when zooming out. Using geoJson instead of geodesicPolyline.
 
 *Version:* 0.0.4.20210724.002500
 
@@ -678,7 +678,7 @@ Simulate the destruction of portal links: hide its links and fields.
 
 Edit and improve Draw tools.
 
-*Depends*: [draw-tools@breunigs](#)  |
+*Depends*: draw-tools@breunigs  |
 *Version:* 0.1.10.20210103.185428
 
 
@@ -689,7 +689,7 @@ Edit and improve Draw tools.
 
 
 
-[danielondiordna-1.1.3.20210724.002500] Plan a route for your drone (manually), draw your route between portals in range. Mark hacked portals. Use the drone half range layer to see if portals are within range. Import/export data functions available. Integrated Spectrum Colorpicker 1.8.1
+Plan a route for your drone (manually), draw your route between portals in range. Mark hacked portals. Use the drone half range layer to see if portals are within range. Import/export data functions available. Integrated Spectrum Colorpicker 1.8.1
 
 *Version:* 1.1.3.20210724.002500
 
@@ -716,8 +716,8 @@ Shows drone flight distance between portals
 
 Calculate how to link the portals to create the largest tidy set of nested fields. Enable from the layer chooser.
 
-*Depends*: [draw-tools@breunigs](#)  |
-*Recommends*: [bookmarks@ZasoGD](#) [draw-tools-plus@zaso](#) [liveInventory@DanielOnDiordna](#live-inventory-by-eisfrei---fork-by-danielondiordna) [keys@xelio](#)  |
+*Depends*: draw-tools@breunigs  |
+*Recommends*: bookmarks@ZasoGD draw-tools-plus@zaso liveInventory@DanielOnDiordna keys@xelio  |
 *[Homepage](https://github.com/Heistergand/fanfields2/)* |
 *[Issue tracker](https://github.com/Heistergand/fanfields2/issues)* |
 *Version:* 2.6.2.20240630
@@ -730,7 +730,7 @@ Calculate how to link the portals to create the largest tidy set of nested field
 
 
 
-[danielondiordna-2.2.0.20230320.000500] This plugin gives you free choice to style colors and opacity for portals, links (width) and fields, including the new Machina portals and links.
+This plugin gives you free choice to style colors and opacity for portals, links (width) and fields, including the new Machina portals and links.
 
 *Version:* 2.2.0.20230320.000500
 
@@ -756,7 +756,7 @@ View a Glympse tag directly on the Intel map.
 
 
 
-[danielondiordna-0.0.1.20210724.002500] Place an image on the map, to help draw field art
+Place an image on the map, to help draw field art
 
 *Version:* 0.0.1.20210724.002500
 
@@ -768,9 +768,9 @@ View a Glympse tag directly on the Intel map.
 
 
 
-[iitc-20190311.013370] Highlights level 19 cells where portal limit is reached, in order to see where you would best submit new candidates
+Highlights level 19 cells where portal limit is reached, in order to see where you would best submit new candidates
 
-*Depends*: [s2celldrawer@wintervorst](#s2-cell-drawer-by-wintervorst)  |
+*Depends*: s2celldrawer@wintervorst  |
 *Version:* 0.0.7.20190311.013370
 
 
@@ -832,7 +832,7 @@ Shows Visited/Captured/Scouted status above portal markers
 
 
 
-[iitc-20190613.013370] Shows the &#39;too close&#39; radius of existing portals, in order to see where you can search for and submit new candidates
+Shows the &#39;too close&#39; radius of existing portals, in order to see where you can search for and submit new candidates
 
 *Version:* 1.0.12.20190613.013370
 
@@ -844,7 +844,7 @@ Shows Visited/Captured/Scouted status above portal markers
 
 
 
-[danielondiordna-0.0.9.20210724.002500] Quickly draw and move links from portal to portal on the map. Show crosslinks, for links on the map, as well as for drawn links. Store/Restore your projects. Added great circle support. Added fields layer. Export list of used portals with link count. Integrated Spectrum Colorpicker 1.8.1
+Quickly draw and move links from portal to portal on the map. Show crosslinks, for links on the map, as well as for drawn links. Store/Restore your projects. Added great circle support. Added fields layer. Export list of used portals with link count. Integrated Spectrum Colorpicker 1.8.1
 
 *Version:* 0.0.9.20210724.002500
 
@@ -856,7 +856,7 @@ Shows Visited/Captured/Scouted status above portal markers
 
 
 
-[iitc-20181209.010307] Allows drawing of s2cells and creates a layerselected hook
+Allows drawing of s2cells and creates a layerselected hook
 
 *Version:* 0.0.4.20181209.010307
 
@@ -868,7 +868,7 @@ Shows Visited/Captured/Scouted status above portal markers
 
 
 
-[danielondiordna-1.0.0.20220711.234400] Show smaller portals when zooming out.
+Show smaller portals when zooming out.
 
 *Version:* 1.0.0.20220711.234400
 
@@ -880,7 +880,7 @@ Shows Visited/Captured/Scouted status above portal markers
 
 
 
-[danielondiordna-0.0.1.20210724.002500] Show public toilet locations in The Netherlands (using data from hogenood.nl)
+Show public toilet locations in The Netherlands (using data from hogenood.nl)
 
 *Version:* 0.0.1.20210724.002500
 
@@ -904,9 +904,9 @@ Shows under field throw range at 500m
 
 
 
-[danielondiordna-2.2.0.20240525.141200] Show your personal unique portal history for Visited, Captured or Scout Controlled portals with layers. Choose your own colors for Resistance, Enlightened, Machina and Neutral portals. Place bookmarks. Invert results! Add three extra Portals List plugin columns. Does not require CORE subscription.
+Show your personal unique portal history for Visited, Captured or Scout Controlled portals with layers. Choose your own colors for Resistance, Enlightened, Machina and Neutral portals. Place bookmarks. Invert results! Add three extra Portals List plugin columns. Does not require CORE subscription.
 
-*Depends*: [portalhistorysupport@DanielOnDiordna](#portal-history-support-for-all-iitc-versions-(with-cache)-by-danielondiordna)  |
+*Depends*: portalhistorysupport@DanielOnDiordna  |
 *Version:* 2.2.0.20240525.141200
 
 
@@ -949,7 +949,7 @@ Place markers on the map for your candidates in Wayfarer.
 
 Create link prolongations.
 
-*Recommends*: [draw-tools@breunigs](#) [draw-tools-plus@zaso](#) [bookmarks@ZasoGD](#) [font-awesome@zaso](#)  |
+*Recommends*: draw-tools@breunigs draw-tools-plus@zaso bookmarks@ZasoGD font-awesome@zaso  |
 *Version:* 0.1.2
 
 
@@ -999,7 +999,7 @@ GL layer
 
 
 
-[local-2019-01-08] Add autonavi.com (China) map layers by GMOogway
+Add autonavi.com (China) map layers by GMOogway
 
 *Version:* 0.3.0.20190108
 
@@ -1011,7 +1011,7 @@ GL layer
 
 
 
-[xificurk-2023-01-30-201555] Seznam map tiles.
+Seznam map tiles.
 
 *[Homepage](https://github.com/xificurk/iitc-plugins)* |
 *[Issue tracker](https://github.com/xificurk/iitc-plugins/issues)* |
@@ -1030,7 +1030,7 @@ GL layer
 
 Advanced version of Player Tracker
 
-*Depends*: [player-activity-tracker@breunigs](#)  |
+*Depends*: player-activity-tracker@breunigs  |
 *Version:* 0.0.1
 
 
@@ -1041,7 +1041,7 @@ Advanced version of Player Tracker
 
 
 
-[2019-08-21-192931] Allow manual entry of portals glyphed during Aurora Glyph Hack Challenge. Use the &#39;highlighter-aurora&#39; plugin to show the portals on the map, and &#39;sync&#39; to share between multiple browsers or desktop/mobile.
+Allow manual entry of portals glyphed during Aurora Glyph Hack Challenge. Use the &#39;highlighter-aurora&#39; plugin to show the portals on the map, and &#39;sync&#39; to share between multiple browsers or desktop/mobile.
 
 *Version:* 0.1.1.20190821.192931
 
@@ -1053,7 +1053,7 @@ Advanced version of Player Tracker
 
 
 
-[danielondiordna-1.0.1.20221019.225200] With this plugin you can backup all your localstorage data, so you can save it to a text file, and you can also restore all data. This can be usefull to transfer your settings to another device, or to make a backup before reinstalling IITC. You can also view or delete stored data.
+With this plugin you can backup all your localstorage data, so you can save it to a text file, and you can also restore all data. This can be usefull to transfer your settings to another device, or to make a backup before reinstalling IITC. You can also view or delete stored data.
 
 *Version:* 1.0.1.20221019.225200
 
@@ -1065,7 +1065,7 @@ Advanced version of Player Tracker
 
 
 
-[danielondiordna-0.0.1.20210724.002500] Display the Console log in a window, captures console.log and console.warn. Execute Javascript commands with the eval field, results are displayed with JSON.stringify formatting
+Display the Console log in a window, captures console.log and console.warn. Execute Javascript commands with the eval field, results are displayed with JSON.stringify formatting
 
 *Version:* 0.0.1.20210724.002500
 
@@ -1079,7 +1079,7 @@ Advanced version of Player Tracker
 
 Copy portal info to clipboard or send it to Discord in the format the PokeNav Discord bot needs.
 
-*Recommends*: [s2check@Alfonso_M](#)  |
+*Recommends*: s2check@Alfonso_M  |
 *[Homepage](https://github.com/MaxEtMoritz/PNavCopy)* |
 *[Issue tracker](https://github.com/MaxEtMoritz/PNavCopy/issues)* |
 *Version:* 1.7.6
@@ -1153,7 +1153,7 @@ Defines the area inside which a portal can link under a field.
 
 
 
-[danielondiordna-1.0.0.20220614.235300] Instead of clicking a link you can copy/paste any URL into IITC with this Goto Intel Link plugin. Support for portal links, map/perma links, mission links, and also support for portal and mission links created in the Ingress Prime scanner.
+Instead of clicking a link you can copy/paste any URL into IITC with this Goto Intel Link plugin. Support for portal links, map/perma links, mission links, and also support for portal and mission links created in the Ingress Prime scanner.
 
 *Version:* 1.0.0.20220614.235300
 
@@ -1191,7 +1191,7 @@ Storage favorite logs.
 
 
 
-[danielondiordna-1.0.0.20211027.195200] Add some improvements for IITC mobile, such as a close button for the portal details/info screen, a full screen button.
+Add some improvements for IITC mobile, such as a close button for the portal details/info screen, a full screen button.
 
 *Version:* 1.0.0.20211027.195200
 
@@ -1227,7 +1227,7 @@ Export portals from bookmarks, current view or polygon
 
 
 
-[0.3.4] Shows small box with a basic portal information. This is similar to mobile info.
+Shows small box with a basic portal information. This is similar to mobile info.
 
 *Version:* 0.3.4
 
@@ -1239,7 +1239,7 @@ Export portals from bookmarks, current view or polygon
 
 
 
-[xificurk-2020-11-22-121942] Show uniques visit/captures based on GDPR game_log
+Show uniques visit/captures based on GDPR game_log
 
 *[Homepage](https://github.com/xificurk/iitc-plugins)* |
 *[Issue tracker](https://github.com/xificurk/iitc-plugins/issues)* |
@@ -1277,7 +1277,7 @@ Add a To Do List.
 
 
 
-[2019-12-24-211839] Allow manual entry of portals deployed during Umbra Deploy Challenge. Use the &#39;highlighter-umbra&#39; plugin to show the portals on the map, and &#39;sync&#39; to share between multiple browsers or desktop/mobile.
+Allow manual entry of portals deployed during Umbra Deploy Challenge. Use the &#39;highlighter-umbra&#39; plugin to show the portals on the map, and &#39;sync&#39; to share between multiple browsers or desktop/mobile.
 
 *Version:* 0.1.1.20191224.211839
 
@@ -1307,7 +1307,7 @@ Ingress Mission Authoring Tool Total Conversion, adding categories for missions,
 
 
 
-[danielondiordna-3.0.0.20240307.220600] Plan a route with multiple portals and open Google Maps (max 9 waypoints) or Apple Maps (iOS 16+ supports waypoints) to start your navigation.
+Plan a route with multiple portals and open Google Maps (max 9 waypoints) or Apple Maps (iOS 16+ supports waypoints) to start your navigation.
 
 *[Homepage](https://softspot.nl/ingress/plugins/documentation/iitc-plugin-maps-route-planner.user.js.html)* |
 *Version:* 3.0.0.20240307.220600
@@ -1347,7 +1347,7 @@ Append a pocket box containing some restricted details of the selected portal.
 
 
 
-[3ch01c-2017-01-03] Show resonator energy percentage on resonator energy bar in portal detail panel.
+Show resonator energy percentage on resonator energy bar in portal detail panel.
 
 *Version:* 0.1.0.20170103
 
@@ -1362,7 +1362,7 @@ Append a pocket box containing some restricted details of the selected portal.
 
 
 
-[danielondiordna-1.1.0.20231019.181300] Filter the &#39;all&#39; comms pane, options to show only created Control Fields and their MUs, filter for capture, deploy, link, destroy or drone actions, filter faction or public chat, or filter all actions by faction
+Filter the &#39;all&#39; comms pane, options to show only created Control Fields and their MUs, filter for capture, deploy, link, destroy or drone actions, filter faction or public chat, or filter all actions by faction
 
 *Version:* 1.1.0.20231019.181300
 
@@ -1374,7 +1374,7 @@ Append a pocket box containing some restricted details of the selected portal.
 
 
 
-[danielondiordna-0.0.1.20210724.002500] Font awesome: Get vector icons and social logos on your website with Font Awesome, the web&#39;s most popular icon set and toolkit (https://fontawesome.com/ using source: https://www.bootstrapcdn.com/fontawesome/).
+Font awesome: Get vector icons and social logos on your website with Font Awesome, the web&#39;s most popular icon set and toolkit (https://fontawesome.com/ using source: https://www.bootstrapcdn.com/fontawesome/).
 
 *Version:* 0.0.1.20210724.002500
 
@@ -1386,7 +1386,7 @@ Append a pocket box containing some restricted details of the selected portal.
 
 
 
-[danielondiordna-0.0.3.20210724.002500] Load more COMMS history without scrolling back, usefull for other plugins
+Load more COMMS history without scrolling back, usefull for other plugins
 
 *Version:* 0.0.3.20210724.002500
 
@@ -1398,7 +1398,7 @@ Append a pocket box containing some restricted details of the selected portal.
 
 
 
-[danielondiordna-0.0.3.20210725.160300] With this plugin the Portal History will be implemented into all versions of IITC. This plugin injects functionality from the IITC-CE release (version 0.32.0) plus extra modifications into all IITC versions (IITC.me / IITC-CE 0.31.1). Code will be injected into the IITC core. History results are cached and re-used automatically. Details from your COMMS captured portals are loaded automatically. Portal history requires CORE subscription.
+With this plugin the Portal History will be implemented into all versions of IITC. This plugin injects functionality from the IITC-CE release (version 0.32.0) plus extra modifications into all IITC versions (IITC.me / IITC-CE 0.31.1). Code will be injected into the IITC core. History results are cached and re-used automatically. Details from your COMMS captured portals are loaded automatically. Portal history requires CORE subscription.
 
 *Version:* 0.0.3.20210725.160300
 
@@ -1410,7 +1410,7 @@ Append a pocket box containing some restricted details of the selected portal.
 
 
 
-[danielondiordna-2.0.0.20210724.002500] See more portals and links when zooming out: zoom level all links changes to all portals, zoom level links&gt;300m changes to all links. Beware: This plugin will cause slightly more data usage when zooming out.
+See more portals and links when zooming out: zoom level all links changes to all portals, zoom level links&gt;300m changes to all links. Beware: This plugin will cause slightly more data usage when zooming out.
 
 *Version:* 2.0.0.20210724.002500
 
@@ -1422,7 +1422,7 @@ Append a pocket box containing some restricted details of the selected portal.
 
 
 
-[danielondiordna-0.0.3.20210724.002500] Display an Unfreeze button, to use in case of IITC app hang after using zoom on mobile devices.
+Display an Unfreeze button, to use in case of IITC app hang after using zoom on mobile devices.
 
 *Version:* 0.0.3.20210724.002500
 
@@ -1509,7 +1509,7 @@ A control to enable/disable the zoom map by scroll mouse.
 
 
 
-[danielondiordna-1.2.0.20240122.225900] Override the portal and links display levels for every zoom level. Using this method can cause more bandwidth usage when showing more details at higher zoom levels.
+Override the portal and links display levels for every zoom level. Using this method can cause more bandwidth usage when showing more details at higher zoom levels.
 
 *Version:* 1.2.0.20240122.225900
 

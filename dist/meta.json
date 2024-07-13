@@ -1,0 +1,2707 @@
+{
+  "plugins": [
+    {
+      "author": "3ch01c",
+      "id": "barcodes@3ch01c",
+      "name": "Replace player names with more easily remembered names",
+      "category": "Portal Info",
+      "version": "0.1.0.20170103",
+      "namespace": "https://github.com/jonatkins/ingress-intel-total-conversion",
+      "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/3ch01c/barcodes.meta.js",
+      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/3ch01c/barcodes.user.js",
+      "description": "Show resonator energy percentage on resonator energy bar in portal detail panel.",
+      "include": [
+        "https://*.ingress.com/intel*",
+        "http://*.ingress.com/intel*",
+        "https://*.ingress.com/mission/*",
+        "http://*.ingress.com/mission/*"
+      ],
+      "match": [
+        "https://*.ingress.com/intel*",
+        "http://*.ingress.com/intel*",
+        "https://*.ingress.com/mission/*",
+        "http://*.ingress.com/mission/*"
+      ],
+      "grant": [
+        "none"
+      ],
+      "id_hash": "barcodes-by-3ch01c",
+      "updatedAt": "2022-08-16T21:52:27.000Z"
+    },
+    {
+      "author": "3ch01c",
+      "id": "spamfilter@3ch01c",
+      "name": "spam-filter",
+      "category": "Misc",
+      "version": "0.0.7",
+      "namespace": "https://github.com/3ch01c/ingress-intel-total-conversion",
+      "description": "This is a spam filter plugin which filters out SPAM from Comm messages.",
+      "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/3ch01c/spamfilter.meta.js",
+      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/3ch01c/spamfilter.user.js",
+      "include": [
+        "https://*.ingress.com/intel*",
+        "http://*.ingress.com/intel*",
+        "https://*.ingress.com/mission/*",
+        "http://*.ingress.com/mission/*"
+      ],
+      "match": [
+        "https://*.ingress.com/intel*",
+        "http://*.ingress.com/intel*",
+        "https://*.ingress.com/mission/*",
+        "http://*.ingress.com/mission/*",
+        "https://intel.ingress.com/*"
+      ],
+      "grant": [
+        "none"
+      ],
+      "id_hash": "spamfilter-by-3ch01c",
+      "updatedAt": "2022-08-16T21:52:27.000Z"
+    },
+    {
+      "author": "57Cell",
+      "id": "fieldplanner@57Cell",
+      "name": "57Cell's Field Planner",
+      "version": "2.1.8.20240202",
+      "description": "Plugin for planning fields in IITC",
+      "category": "Layer",
+      "namespace": "https://github.com/jonatkins/ingress-intel-total-conversion",
+      "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/57Cell/fieldplanner.meta.js",
+      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/57Cell/fieldplanner.user.js",
+      "preview": "https://github.com/mike40033/iitc-57Cell/blob/4f9d4496b40de650ae83d5ca2a0d20ecd00530cc/plugins/homogeneous-fields/Screenshot_2023-10-15_015218.png?raw=true",
+      "issueTracker": "https://github.com/mike40033/iitc-57Cell/issues",
+      "recommends": [
+        "draw-tools@breunigs",
+        "draw-tools-plus@zaso"
+      ],
+      "homepageURL": "https://www.youtube.com/@57Cell",
+      "include": [
+        "https://intel.ingress.com/*",
+        "http://intel.ingress.com/*",
+        "https://*.ingress.com/intel*",
+        "http://*.ingress.com/intel*",
+        "https://*.ingress.com/mission/*",
+        "http://*.ingress.com/mission/*"
+      ],
+      "match": [
+        "https://intel.ingress.com/*",
+        "http://intel.ingress.com/*",
+        "https://*.ingress.com/intel*",
+        "http://*.ingress.com/intel*",
+        "https://*.ingress.com/mission/*",
+        "http://*.ingress.com/mission/*"
+      ],
+      "grant": [
+        "none"
+      ],
+      "id_hash": "fieldplanner-by-57Cell",
+      "updatedAt": "2024-02-06T00:29:14.000Z",
+      "_recommends_links": [
+        {
+          "id": "draw-tools@breunigs",
+          "hash": "draw-tools-by-breunigs",
+          "source": "core"
+        },
+        {
+          "id": "draw-tools-plus@zaso",
+          "hash": null,
+          "source": null
+        }
+      ]
+    },
+    {
+      "author": "633KYN35D with significant code from EisFrei",
+      "id": "inventoryParser@633KYN35D",
+      "name": "Inventory Parser",
+      "category": "Info",
+      "version": "0.0.5",
+      "namespace": "https://github.com/633KYN35D/iitc-inventory-parser",
+      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/633KYN35D/inventoryParser.user.js",
+      "homepageURL": "https://github.com/633KYN35D/iitc-inventory-parser/",
+      "description": "Parse Inventory from Ingress",
+      "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/633KYN35D/inventoryParser.meta.js",
+      "include": [
+        "https://intel.ingress.com/*"
+      ],
+      "match": [
+        "https://intel.ingress.com/*"
+      ],
+      "grant": [
+        "none"
+      ],
+      "id_hash": "inventoryParser-by-633KYN35D",
+      "updatedAt": "2022-08-16T21:52:27.000Z"
+    },
+    {
+      "author": "Artoria2e5",
+      "name": "Highlight almost-8 portals",
+      "category": "Highlighter",
+      "version": "0.1.2",
+      "id": "highlight-7miss1@Artoria2e5",
+      "description": "Find portals that are 1/2/3 resonators to level 8. Makes its own requests; use with caution.",
+      "namespace": "https://github.com/IITC-CE/ingress-intel-total-conversion",
+      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Artoria2e5/highlight-7miss1.user.js",
+      "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Artoria2e5/highlight-7miss1.meta.js",
+      "icon": "https://cdn.jsdelivr.net/gh/Artoria2e5/misc@master/ingress/highlight-7miss1.svg",
+      "screenshot": "https://cdn.jsdelivr.net/gh/Artoria2e5/misc@master/ingress/highlight-7miss1.png",
+      "homepageURL": "https://github.com/Artoria2e5/misc/issues",
+      "antiFeatures": [
+        "scraper"
+      ],
+      "match": [
+        "https://intel.ingress.com/*",
+        "https://intel-x.ingress.com/*"
+      ],
+      "grant": [
+        "none"
+      ],
+      "id_hash": "highlight-7miss1-by-Artoria2e5",
+      "updatedAt": "2024-06-18T10:46:55.000Z"
+    },
+    {
+      "author": "BlancLapin",
+      "id": "advanced_player_tracker@BlancLapin",
+      "name": "Advanced Tracker Player",
+      "category": "Misc",
+      "version": "0.0.1",
+      "namespace": "https://tempuri.org/iitc/advanced-player-tracker",
+      "description": "Advanced version of Player Tracker",
+      "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/BlancLapin/advanced_player_tracker.meta.js",
+      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/BlancLapin/advanced_player_tracker.user.js",
+      "depends": [
+        "player-activity-tracker@breunigs"
+      ],
+      "include": [
+        "http://www.ingress.com/intel*",
+        "https://www.ingress.com/intel*"
+      ],
+      "match": [
+        "http://www.ingress.com/intel*",
+        "https://www.ingress.com/intel*"
+      ],
+      "grant": [
+        "none"
+      ],
+      "id_hash": "advanced_player_tracker-by-BlancLapin",
+      "updatedAt": "2022-12-12T10:38:19.000Z",
+      "_depends_links": [
+        {
+          "id": "player-activity-tracker@breunigs",
+          "hash": "player-activity-tracker-by-breunigs",
+          "source": "core"
+        }
+      ]
+    },
+    {
+      "author": "DanielOnDiordna",
+      "name": "Backup/restore all data",
+      "category": "Misc",
+      "version": "1.0.1.20221019.225200",
+      "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/backup-restore-alldata.meta.js",
+      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/backup-restore-alldata.user.js",
+      "description": "With this plugin you can backup all your localstorage data, so you can save it to a text file, and you can also restore all data. This can be usefull to transfer your settings to another device, or to make a backup before reinstalling IITC. You can also view or delete stored data.",
+      "id": "backup-restore-alldata@DanielOnDiordna",
+      "namespace": "https://softspot.nl/ingress/",
+      "match": [
+        "https://intel.ingress.com/*"
+      ],
+      "grant": [
+        "none"
+      ],
+      "id_hash": "backup-restore-alldata-by-DanielOnDiordna",
+      "updatedAt": "2023-10-20T00:28:58.000Z"
+    },
+    {
+      "author": "DanielOnDiordna",
+      "name": "Bannergress: Add-on",
+      "version": "4.2.1.20220926.214200",
+      "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/bannergress-plugin-addon.meta.js",
+      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/bannergress-plugin-addon.user.js",
+      "description": "Add a lot of extra non-standard functionality. Read the About info for all details. Filters for Done and To-Do banners, on the Map and Browse page (Sign in required). Filter Offline or Online banners from the Browse list. !!! Be aware that using these Plugin Filters will transfer very large amounts of Bannergress data !!!",
+      "category": "Addon",
+      "id": "bannergress-plugin-addon@DanielOnDiordna",
+      "runAt": "document-end",
+      "namespace": "https://softspot.nl/ingress/",
+      "homepageURL": "https://softspot.nl/ingress/plugins/documentation/bannergress-plugin-addon.user.js.html",
+      "match": [
+        "https://bannergress.com/*"
+      ],
+      "grant": [
+        "none"
+      ],
+      "id_hash": "bannergress-plugin-addon-by-DanielOnDiordna",
+      "updatedAt": "2022-09-27T00:48:40.000Z"
+    },
+    {
+      "author": "DanielOnDiordna",
+      "name": "OpenCycleMap.org map tiles add-on",
+      "version": "1.0.1.20220712.094300",
+      "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/basemap-opencyclemap-addon.meta.js",
+      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/basemap-opencyclemap-addon.user.js",
+      "description": "Add-on to set an API KEY for the Thunderforest map tiles (OpenCycleMap). To make things easier, the Add-on already includes the code from the OpenCycleMap plugin.",
+      "namespace": "https://softspot.nl/ingress/",
+      "id": "basemap-opencyclemap-addon@DanielOnDiordna",
+      "category": "Addon",
+      "match": [
+        "https://intel.ingress.com/*"
+      ],
+      "grant": [
+        "none"
+      ],
+      "id_hash": "basemap-opencyclemap-addon-by-DanielOnDiordna",
+      "updatedAt": "2022-08-16T21:52:27.000Z"
+    },
+    {
+      "author": "DanielOnDiordna",
+      "name": "Bookmarks add-on",
+      "category": "Addon",
+      "version": "2.1.0.20240227.204800",
+      "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/bookmarks-addon.meta.js",
+      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/bookmarks-addon.user.js",
+      "description": "Bookmark plugin add-on, to replace the default yellow marker by a color marker (color change requires colorpicker or drawtools), and show bookmark names (layer), including optional scaling. Modified export file with timestamp in text/plain format. Also an option for bookmarks export to kml file format (for google maps). Add/remove bookmarks with filters for level, faction, captured, visited and resonator counts. Integrated Spectrum Colorpicker 1.8.1",
+      "id": "bookmarks-addon@DanielOnDiordna",
+      "namespace": "https://softspot.nl/ingress/",
+      "depends": [
+        "bookmarks@ZasoGD"
+      ],
+      "match": [
+        "https://intel.ingress.com/*"
+      ],
+      "grant": [
+        "none"
+      ],
+      "id_hash": "bookmarks-addon-by-DanielOnDiordna",
+      "updatedAt": "2024-02-28T00:28:47.000Z",
+      "_depends_links": [
+        {
+          "id": "bookmarks@ZasoGD",
+          "hash": "bookmarks-by-ZasoGD",
+          "source": "core"
+        }
+      ]
+    },
+    {
+      "author": "DanielOnDiordna",
+      "name": "Cells areas at portal level",
+      "category": "Layer",
+      "version": "0.0.4.20210724.002500",
+      "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/cells.meta.js",
+      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/cells.user.js",
+      "description": "Show the S2 cells areas on the map at portal zoom level. A tiny area instead of a score region. Also shows larger S2 cells when zooming out. Using geoJson instead of geodesicPolyline.",
+      "id": "cells@DanielOnDiordna",
+      "namespace": "https://softspot.nl/ingress/",
+      "match": [
+        "https://intel.ingress.com/*"
+      ],
+      "grant": [
+        "none"
+      ],
+      "id_hash": "cells-by-DanielOnDiordna",
+      "updatedAt": "2022-06-16T01:16:32.000Z"
+    },
+    {
+      "author": "DanielOnDiordna",
+      "name": "Console log",
+      "category": "Misc",
+      "version": "0.0.1.20210724.002500",
+      "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/consolelog.meta.js",
+      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/consolelog.user.js",
+      "description": "Display the Console log in a window, captures console.log and console.warn. Execute Javascript commands with the eval field, results are displayed with JSON.stringify formatting",
+      "id": "consolelog@DanielOnDiordna",
+      "namespace": "https://softspot.nl/ingress/",
+      "match": [
+        "https://intel.ingress.com/*"
+      ],
+      "grant": [
+        "none"
+      ],
+      "id_hash": "consolelog-by-DanielOnDiordna",
+      "updatedAt": "2022-06-16T01:16:32.000Z"
+    },
+    {
+      "author": "DanielOnDiordna",
+      "id": "date-time@DanielOnDiordna",
+      "name": "Date and time",
+      "category": "Controls",
+      "version": "2.2.1.20230824.100900",
+      "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/date-time.meta.js",
+      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/date-time.user.js",
+      "description": "Show date and time on the map, configurable time formatting, select a manual timezone, or automated timezones with your free GeoNames account.",
+      "namespace": "https://softspot.nl/ingress/",
+      "match": [
+        "https://intel.ingress.com/*"
+      ],
+      "grant": [
+        "none"
+      ],
+      "id_hash": "date-time-by-DanielOnDiordna",
+      "updatedAt": "2023-08-25T00:27:55.000Z"
+    },
+    {
+      "author": "DanielOnDiordna",
+      "name": "Drone route planner",
+      "category": "Layer",
+      "version": "1.1.3.20210724.002500",
+      "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/drone-route-planner.meta.js",
+      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/drone-route-planner.user.js",
+      "description": "Plan a route for your drone (manually), draw your route between portals in range. Mark hacked portals. Use the drone half range layer to see if portals are within range. Import/export data functions available. Integrated Spectrum Colorpicker 1.8.1",
+      "id": "drone-route-planner@DanielOnDiordna",
+      "namespace": "https://softspot.nl/ingress/",
+      "match": [
+        "https://intel.ingress.com/*"
+      ],
+      "grant": [
+        "none"
+      ],
+      "id_hash": "drone-route-planner-by-DanielOnDiordna",
+      "updatedAt": "2022-06-16T01:16:32.000Z"
+    },
+    {
+      "author": "DanielOnDiordna",
+      "name": "Favorite portal details",
+      "category": "Info",
+      "version": "0.1.6.20210724.002500",
+      "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/favorite-portal-details.meta.js",
+      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/favorite-portal-details.user.js",
+      "description": "Quickly show a list of details for your favorite list of portals.",
+      "id": "favorite-portal-details@DanielOnDiordna",
+      "namespace": "https://softspot.nl/ingress/",
+      "match": [
+        "https://intel.ingress.com/*"
+      ],
+      "grant": [
+        "none"
+      ],
+      "id_hash": "favorite-portal-details-by-DanielOnDiordna",
+      "updatedAt": "2022-06-16T01:16:32.000Z"
+    },
+    {
+      "author": "DanielOnDiordna",
+      "name": "Filter Comms for MU and more",
+      "category": "Tweak",
+      "version": "1.1.0.20231019.181300",
+      "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/filter-comms.meta.js",
+      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/filter-comms.user.js",
+      "description": "Filter the 'all' comms pane, options to show only created Control Fields and their MUs, filter for capture, deploy, link, destroy or drone actions, filter faction or public chat, or filter all actions by faction",
+      "id": "filter-comms@DanielOnDiordna",
+      "namespace": "https://softspot.nl/ingress/",
+      "match": [
+        "https://intel.ingress.com/*"
+      ],
+      "grant": [
+        "none"
+      ],
+      "id_hash": "filter-comms-by-DanielOnDiordna",
+      "updatedAt": "2023-10-20T00:28:58.000Z"
+    },
+    {
+      "author": "DanielOnDiordna",
+      "name": "Font awesome integration",
+      "category": "Tweak",
+      "version": "0.0.1.20210724.002500",
+      "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/fontawesomeintegration.meta.js",
+      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/fontawesomeintegration.user.js",
+      "description": "Font awesome: Get vector icons and social logos on your website with Font Awesome, the web's most popular icon set and toolkit (https://fontawesome.com/ using source: https://www.bootstrapcdn.com/fontawesome/).",
+      "id": "fontawesomeintegration@DanielOnDiordna",
+      "namespace": "https://softspot.nl/ingress/",
+      "match": [
+        "https://intel.ingress.com/*"
+      ],
+      "grant": [
+        "none"
+      ],
+      "id_hash": "fontawesomeintegration-by-DanielOnDiordna",
+      "updatedAt": "2022-06-16T01:16:32.000Z"
+    },
+    {
+      "author": "DanielOnDiordna",
+      "name": "Free Styler",
+      "category": "Layer",
+      "version": "2.2.0.20230320.000500",
+      "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/freestyler.meta.js",
+      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/freestyler.user.js",
+      "description": "This plugin gives you free choice to style colors and opacity for portals, links (width) and fields, including the new Machina portals and links.",
+      "id": "freestyler@DanielOnDiordna",
+      "namespace": "https://softspot.nl/ingress/",
+      "match": [
+        "https://intel.ingress.com/*",
+        "https://intel-x.ingress.com/*"
+      ],
+      "grant": [
+        "none"
+      ],
+      "id_hash": "freestyler-by-DanielOnDiordna",
+      "updatedAt": "2023-04-22T00:30:21.000Z"
+    },
+    {
+      "author": "DanielOnDiordna",
+      "name": "Goto Ingress intel link",
+      "version": "1.0.0.20220614.235300",
+      "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/gotolink.meta.js",
+      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/gotolink.user.js",
+      "description": "Instead of clicking a link you can copy/paste any URL into IITC with this Goto Intel Link plugin. Support for portal links, map/perma links, mission links, and also support for portal and mission links created in the Ingress Prime scanner.",
+      "namespace": "https://softspot.nl/ingress/",
+      "category": "Misc",
+      "id": "gotolink@DanielOnDiordna",
+      "match": [
+        "https://intel.ingress.com/*"
+      ],
+      "grant": [
+        "none"
+      ],
+      "id_hash": "gotolink-by-DanielOnDiordna",
+      "updatedAt": "2022-08-16T21:52:27.000Z"
+    },
+    {
+      "author": "DanielOnDiordna",
+      "name": "Highlight Resonator Owners",
+      "category": "Highlighter",
+      "version": "1.0.0.20231019.224200",
+      "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/highlight-resonator-owners.meta.js",
+      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/highlight-resonator-owners.user.js",
+      "description": "Highlight portals with resonators by owner",
+      "id": "highlight-resonator-owners@DanielOnDiordna",
+      "namespace": "https://softspot.nl/ingress/",
+      "match": [
+        "https://intel.ingress.com/*"
+      ],
+      "grant": [
+        "none"
+      ],
+      "id_hash": "highlight-resonator-owners-by-DanielOnDiordna",
+      "updatedAt": "2023-10-20T00:28:58.000Z"
+    },
+    {
+      "author": "DanielOnDiordna",
+      "name": "History Highlighters",
+      "category": "Highlighter",
+      "version": "0.0.1.20210724.002500",
+      "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/historyhighlighter.meta.js",
+      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/historyhighlighter.user.js",
+      "description": "Highlighters to make use of captured history data. Highlighters to hide all or only all captured portals, with or without ENL and RES portals. Requires CORE subscription",
+      "id": "historyhighlighter@DanielOnDiordna",
+      "namespace": "https://softspot.nl/ingress/",
+      "match": [
+        "https://intel.ingress.com/*"
+      ],
+      "grant": [
+        "none"
+      ],
+      "id_hash": "historyhighlighter-by-DanielOnDiordna",
+      "updatedAt": "2022-06-16T01:16:32.000Z"
+    },
+    {
+      "author": "DanielOnDiordna",
+      "id": "imageOverlay@DanielOnDiordna",
+      "name": "imageOverlay",
+      "category": "Layer",
+      "version": "0.0.1.20210724.002500",
+      "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/imageOverlay.meta.js",
+      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/imageOverlay.user.js",
+      "description": "Place an image on the map, to help draw field art",
+      "namespace": "https://softspot.nl/ingress/",
+      "match": [
+        "https://intel.ingress.com/*"
+      ],
+      "grant": [
+        "none"
+      ],
+      "id_hash": "imageOverlay-by-DanielOnDiordna",
+      "updatedAt": "2022-08-16T21:52:27.000Z"
+    },
+    {
+      "author": "@Chyld314 @DanielOndiordna",
+      "name": "IMATTC",
+      "version": "1.12.4.20230113.110500",
+      "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/imattc.meta.js",
+      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/imattc.user.js",
+      "description": "Ingress Mission Authoring Tool Total Conversion, adding categories for missions, show banner preview, export json, download images, and more.",
+      "id": "imattc@DanielOnDiordna",
+      "category": "Mission Creator",
+      "match": [
+        "http://missions.ingress.com/",
+        "http://missions.ingress.com/edit*",
+        "https://missions.ingress.com/",
+        "https://missions.ingress.com/edit*",
+        "https://missions.ingress.com/about"
+      ],
+      "grant": [
+        "none"
+      ],
+      "id_hash": "imattc-by-DanielOnDiordna",
+      "updatedAt": "2023-01-14T00:31:35.000Z"
+    },
+    {
+      "author": "DanielOnDiordna",
+      "name": "Keep all data",
+      "version": "1.0.0.20220711.233600",
+      "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/keepalldata.meta.js",
+      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/keepalldata.user.js",
+      "description": "Use the layer selector to toggle Keep all portals and Keep all links, to keep all out of view portals and links loaded (be aware that currently destroyed links are not removed when these options are switched on)",
+      "namespace": "https://softspot.nl/ingress/",
+      "category": "Cache",
+      "id": "keepalldata@DanielOnDiordna",
+      "match": [
+        "https://intel.ingress.com/*"
+      ],
+      "grant": [
+        "none"
+      ],
+      "id_hash": "keepalldata-by-DanielOnDiordna",
+      "updatedAt": "2022-08-16T21:52:27.000Z"
+    },
+    {
+      "author": "EisFrei - fork by DanielOnDiordna",
+      "name": "Live Inventory",
+      "category": "Info",
+      "version": "0.0.17.20210724.002500",
+      "homepageURL": "https://github.com/EisFrei/IngressLiveInventory",
+      "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/liveInventory.meta.js",
+      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/liveInventory.user.js",
+      "description": "Show current in-game inventory. Requires CORE subscription. Fork by DanielOnDiordna https://github.com/DanielOndiordna/IngressLiveInventory extras: menu buttons, refresh feedback, portals list key count, capsule view, keys in capsule view on portals, zoom keys, draw bookmarks.",
+      "id": "liveInventory@DanielOnDiordna",
+      "namespace": "https://softspot.nl/ingress/",
+      "match": [
+        "https://intel.ingress.com/*"
+      ],
+      "grant": [
+        "none"
+      ],
+      "id_hash": "liveInventory-by-DanielOnDiordna",
+      "updatedAt": "2022-06-16T01:16:32.000Z"
+    },
+    {
+      "author": "DanielOnDiordna",
+      "name": "Load more COMMS history",
+      "category": "Tweak",
+      "version": "0.0.3.20210724.002500",
+      "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/loadmorecommshistory.meta.js",
+      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/loadmorecommshistory.user.js",
+      "description": "Load more COMMS history without scrolling back, usefull for other plugins",
+      "id": "loadmorecommshistory@DanielOnDiordna",
+      "namespace": "https://softspot.nl/ingress/",
+      "match": [
+        "https://intel.ingress.com/*"
+      ],
+      "grant": [
+        "none"
+      ],
+      "id_hash": "loadmorecommshistory-by-DanielOnDiordna",
+      "updatedAt": "2022-06-16T01:16:32.000Z"
+    },
+    {
+      "author": "DanielOnDiordna",
+      "name": "Maps Route Planner",
+      "category": "Navigate",
+      "version": "3.0.0.20240307.220600",
+      "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/maps-route-planner.meta.js",
+      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/maps-route-planner.user.js",
+      "description": "Plan a route with multiple portals and open Google Maps (max 9 waypoints) or Apple Maps (iOS 16+ supports waypoints) to start your navigation.",
+      "id": "maps-route-planner@DanielOnDiordna",
+      "namespace": "https://softspot.nl/ingress/",
+      "homepageURL": "https://softspot.nl/ingress/plugins/documentation/iitc-plugin-maps-route-planner.user.js.html",
+      "match": [
+        "https://intel.ingress.com/*"
+      ],
+      "grant": [
+        "none"
+      ],
+      "id_hash": "maps-route-planner-by-DanielOnDiordna",
+      "updatedAt": "2024-03-08T00:30:06.000Z"
+    },
+    {
+      "author": "DanielOnDiordna",
+      "name": "Missions add-on",
+      "category": "Addon",
+      "version": "1.1.1.20221027.234600",
+      "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/missions-addon.meta.js",
+      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/missions-addon.user.js",
+      "description": "Add-on to add extra functionality for the missions plugin (up to version 0.3.0): 1: Optionally search for all missions within visible range, not just the top 25 (be aware: using this option will increase your server requests). 2: Sort the loaded missions by title (including roman numbers). 3: Show and remove stored missions. 4: Selected mission color changed to red. 5. Displayed missions show filled start portal. 6. Banner view for stored missions. 7. Transfer missions (export/import). 8. Missions routes layer can show a colorful path. 9. Redraw opened missions after IITC reloads.",
+      "id": "missions-addon@DanielOnDiordna",
+      "namespace": "https://softspot.nl/ingress/",
+      "depends": [
+        "missions@jonatkins"
+      ],
+      "match": [
+        "https://intel.ingress.com/*"
+      ],
+      "grant": [
+        "none"
+      ],
+      "id_hash": "missions-addon-by-DanielOnDiordna",
+      "updatedAt": "2022-12-12T10:38:19.000Z",
+      "_depends_links": [
+        {
+          "id": "missions@jonatkins",
+          "hash": "missions-by-jonatkins",
+          "source": "core"
+        }
+      ]
+    },
+    {
+      "author": "DanielOnDiordna",
+      "name": "Mobile improvements",
+      "category": "Misc",
+      "version": "1.0.0.20211027.195200",
+      "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/mobileimprovements.meta.js",
+      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/mobileimprovements.user.js",
+      "description": "Add some improvements for IITC mobile, such as a close button for the portal details/info screen, a full screen button.",
+      "id": "mobileimprovements@DanielOnDiordna",
+      "namespace": "https://softspot.nl/ingress/",
+      "match": [
+        "https://intel.ingress.com/*"
+      ],
+      "grant": [
+        "none"
+      ],
+      "id_hash": "mobileimprovements-by-DanielOnDiordna",
+      "updatedAt": "2022-06-16T01:16:32.000Z"
+    },
+    {
+      "author": "DanielOnDiordna",
+      "name": "Onscreen Portal Details",
+      "category": "Info",
+      "version": "0.0.3.20210724.002500",
+      "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/onscreenportaldetails.meta.js",
+      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/onscreenportaldetails.user.js",
+      "description": "Show portal info about resonators and mods for the selected portal directly on the map.",
+      "id": "onscreenportaldetails@DanielOnDiordna",
+      "namespace": "https://softspot.nl/ingress/",
+      "match": [
+        "https://intel.ingress.com/*"
+      ],
+      "grant": [
+        "none"
+      ],
+      "id_hash": "onscreenportaldetails-by-DanielOnDiordna",
+      "updatedAt": "2022-06-16T01:16:32.000Z"
+    },
+    {
+      "author": "DanielOnDiordna",
+      "name": "pan control add-on",
+      "category": "Addon",
+      "version": "1.0.0.20210724.002500",
+      "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/pan-control-add-on.meta.js",
+      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/pan-control-add-on.user.js",
+      "description": "Change Pan Control to pan whole screens",
+      "id": "pan-control-add-on@DanielOnDiordna",
+      "namespace": "https://softspot.nl/ingress/",
+      "depends": [
+        "pan-control@fragger"
+      ],
+      "match": [
+        "https://intel.ingress.com/*"
+      ],
+      "grant": [
+        "none"
+      ],
+      "id_hash": "pan-control-add-on-by-DanielOnDiordna",
+      "updatedAt": "2022-12-12T10:38:19.000Z",
+      "_depends_links": [
+        {
+          "id": "pan-control@fragger",
+          "hash": "pan-control-by-fragger",
+          "source": "core"
+        }
+      ]
+    },
+    {
+      "author": "DanielOnDiordna",
+      "name": "Player Tracker add-on",
+      "category": "Addon",
+      "version": "1.3.1.20240209.233200",
+      "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/player-tracker-addon.meta.js",
+      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/player-tracker-addon.user.js",
+      "description": "Add-on to the player tracker plugin: Adjust history limit of 3 hours to another value. Toggle name labels, last action time, toggle/adjust player colors, focus on players, display 1 single player. Integrated Marker Label plugin and Spectrum Colorpicker 1.8.1 plugin. Supports Machina U̶͚̓̍N̴̖̈K̠͔̍͑̂͜N̞̥͋̀̉Ȯ̶̹͕̀W̶̢͚͑̚͝Ṉ̨̟̒̅' player.",
+      "id": "player-tracker-addon@DanielOnDiordna",
+      "namespace": "https://softspot.nl/ingress/",
+      "depends": [
+        "player-activity-tracker@breunigs"
+      ],
+      "match": [
+        "https://intel.ingress.com/*"
+      ],
+      "grant": [
+        "none"
+      ],
+      "id_hash": "player-tracker-addon-by-DanielOnDiordna",
+      "updatedAt": "2024-02-10T00:28:17.000Z",
+      "_depends_links": [
+        {
+          "id": "player-activity-tracker@breunigs",
+          "hash": "player-activity-tracker-by-breunigs",
+          "source": "core"
+        }
+      ]
+    },
+    {
+      "author": "DanielOnDiordna",
+      "name": "Portal History Support for all IITC versions (with cache)",
+      "category": "Tweak",
+      "version": "0.0.3.20210725.160300",
+      "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/portalhistorysupport.meta.js",
+      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/portalhistorysupport.user.js",
+      "description": "With this plugin the Portal History will be implemented into all versions of IITC. This plugin injects functionality from the IITC-CE release (version 0.32.0) plus extra modifications into all IITC versions (IITC.me / IITC-CE 0.31.1). Code will be injected into the IITC core. History results are cached and re-used automatically. Details from your COMMS captured portals are loaded automatically. Portal history requires CORE subscription.",
+      "id": "portalhistorysupport@DanielOnDiordna",
+      "namespace": "https://softspot.nl/ingress/",
+      "match": [
+        "https://intel.ingress.com/*"
+      ],
+      "grant": [
+        "none"
+      ],
+      "id_hash": "portalhistorysupport-by-DanielOnDiordna",
+      "updatedAt": "2022-06-16T01:16:32.000Z"
+    },
+    {
+      "author": "DanielOnDiordna",
+      "name": "Portals list add-on",
+      "category": "Addon",
+      "version": "1.1.0.20230321.232000",
+      "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/portals-list-addon.meta.js",
+      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/portals-list-addon.user.js",
+      "description": "Add-on to only display portals for visible/enabled layers, a fix for Unclaimed/Placeholder Portals, added level filters and load portal details.",
+      "id": "portals-list-addon@DanielOnDiordna",
+      "namespace": "https://softspot.nl/ingress/",
+      "depends": [
+        "portals-list@teo96"
+      ],
+      "match": [
+        "https://intel.ingress.com/*"
+      ],
+      "grant": [
+        "none"
+      ],
+      "id_hash": "portals-list-addon-by-DanielOnDiordna",
+      "updatedAt": "2023-03-22T00:30:29.000Z",
+      "_depends_links": [
+        {
+          "id": "portals-list@teo96",
+          "hash": "portals-list-by-teo96",
+          "source": "core"
+        }
+      ]
+    },
+    {
+      "author": "DanielOnDiordna",
+      "name": "Quick Draw Links",
+      "category": "Layer",
+      "version": "0.0.9.20210724.002500",
+      "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/quick-draw-links.meta.js",
+      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/quick-draw-links.user.js",
+      "description": "Quickly draw and move links from portal to portal on the map. Show crosslinks, for links on the map, as well as for drawn links. Store/Restore your projects. Added great circle support. Added fields layer. Export list of used portals with link count. Integrated Spectrum Colorpicker 1.8.1",
+      "id": "quick-draw-links@DanielOnDiordna",
+      "namespace": "https://softspot.nl/ingress/",
+      "match": [
+        "https://intel.ingress.com/*"
+      ],
+      "grant": [
+        "none"
+      ],
+      "id_hash": "quick-draw-links-by-DanielOnDiordna",
+      "updatedAt": "2022-06-16T01:16:32.000Z"
+    },
+    {
+      "author": "DanielOnDiordna",
+      "name": "See More",
+      "category": "Tweak",
+      "version": "2.0.0.20210724.002500",
+      "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/see-more.meta.js",
+      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/see-more.user.js",
+      "description": "See more portals and links when zooming out: zoom level all links changes to all portals, zoom level links>300m changes to all links. Beware: This plugin will cause slightly more data usage when zooming out.",
+      "id": "see-more@DanielOnDiordna",
+      "namespace": "https://softspot.nl/ingress/",
+      "antiFeatures": [
+        "highLoad"
+      ],
+      "match": [
+        "https://intel.ingress.com/*"
+      ],
+      "grant": [
+        "none"
+      ],
+      "id_hash": "see-more-by-DanielOnDiordna",
+      "updatedAt": "2022-12-12T10:38:19.000Z"
+    },
+    {
+      "author": "DanielOnDiordna",
+      "name": "Show smaller portals",
+      "version": "1.0.0.20220711.234400",
+      "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/smallerportals.meta.js",
+      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/smallerportals.user.js",
+      "description": "Show smaller portals when zooming out.",
+      "namespace": "https://softspot.nl/ingress/",
+      "category": "Layer",
+      "id": "smallerportals@DanielOnDiordna",
+      "match": [
+        "https://intel.ingress.com/*"
+      ],
+      "grant": [
+        "none"
+      ],
+      "id_hash": "smallerportals-by-DanielOnDiordna",
+      "updatedAt": "2022-08-16T21:52:27.000Z"
+    },
+    {
+      "author": "DanielOnDiordna",
+      "name": "Team bookmarks",
+      "category": "Controls",
+      "version": "0.0.5.20210724.002500",
+      "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/team-bookmarks.meta.js",
+      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/team-bookmarks.user.js",
+      "description": "Easily add or remove bookmarks for all portals within visible range per team. This plugin requires the Bookmarks plugin and optionally the Bookmarks add-on (to enable color bookmarks).",
+      "id": "team-bookmarks@DanielOnDiordna",
+      "namespace": "https://softspot.nl/ingress/",
+      "depends": [
+        "bookmarks@ZasoGD"
+      ],
+      "recommends": [
+        "bookmarks-add-on@danielondiordna"
+      ],
+      "match": [
+        "https://intel.ingress.com/*"
+      ],
+      "grant": [
+        "none"
+      ],
+      "id_hash": "team-bookmarks-by-DanielOnDiordna",
+      "updatedAt": "2022-12-12T10:38:19.000Z",
+      "_depends_links": [
+        {
+          "id": "bookmarks@ZasoGD",
+          "hash": "bookmarks-by-ZasoGD",
+          "source": "core"
+        }
+      ],
+      "_recommends_links": [
+        {
+          "id": "bookmarks-add-on@danielondiordna",
+          "hash": null,
+          "source": null
+        }
+      ]
+    },
+    {
+      "author": "DanielOnDiordna",
+      "name": "Toilet locations",
+      "category": "Layer",
+      "version": "0.0.1.20210724.002500",
+      "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/toiletlocations.meta.js",
+      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/toiletlocations.user.js",
+      "description": "Show public toilet locations in The Netherlands (using data from hogenood.nl)",
+      "id": "toiletlocations@DanielOnDiordna",
+      "namespace": "https://softspot.nl/ingress/",
+      "match": [
+        "https://intel.ingress.com/*"
+      ],
+      "grant": [
+        "none"
+      ],
+      "id_hash": "toiletlocations-by-DanielOnDiordna",
+      "updatedAt": "2022-06-16T01:16:32.000Z"
+    },
+    {
+      "author": "DanielOnDiordna",
+      "name": "Unfreeze button",
+      "category": "Tweak",
+      "version": "0.0.3.20210724.002500",
+      "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/unfreezebutton.meta.js",
+      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/unfreezebutton.user.js",
+      "description": "Display an Unfreeze button, to use in case of IITC app hang after using zoom on mobile devices.",
+      "id": "unfreezebutton@DanielOnDiordna",
+      "namespace": "https://softspot.nl/ingress/",
+      "match": [
+        "https://intel.ingress.com/*"
+      ],
+      "grant": [
+        "none"
+      ],
+      "id_hash": "unfreezebutton-by-DanielOnDiordna",
+      "updatedAt": "2022-06-16T01:16:32.000Z"
+    },
+    {
+      "author": "DanielOnDiordna",
+      "name": "Unique Portal History",
+      "category": "Layer",
+      "version": "2.2.0.20240525.141200",
+      "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/uniqueportalhistory.meta.js",
+      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/uniqueportalhistory.user.js",
+      "description": "Show your personal unique portal history for Visited, Captured or Scout Controlled portals with layers. Choose your own colors for Resistance, Enlightened, Machina and Neutral portals. Place bookmarks. Invert results! Add three extra Portals List plugin columns. Does not require CORE subscription.",
+      "id": "uniqueportalhistory@DanielOnDiordna",
+      "namespace": "https://softspot.nl/ingress/",
+      "depends": [
+        "portalhistorysupport@DanielOnDiordna"
+      ],
+      "antiFeatures": [
+        "scraper"
+      ],
+      "match": [
+        "https://intel.ingress.com/*"
+      ],
+      "grant": [
+        "none"
+      ],
+      "id_hash": "uniqueportalhistory-by-DanielOnDiordna",
+      "updatedAt": "2024-05-25T00:30:58.000Z",
+      "_depends_links": [
+        {
+          "id": "portalhistorysupport@DanielOnDiordna",
+          "hash": "portalhistorysupport-by-DanielOnDiordna",
+          "source": "community"
+        }
+      ]
+    },
+    {
+      "author": "DanielOnDiordna",
+      "name": "Zoom Override",
+      "category": "Tweaks",
+      "version": "1.2.0.20240122.225900",
+      "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/zoom-override.meta.js",
+      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/zoom-override.user.js",
+      "description": "Override the portal and links display levels for every zoom level. Using this method can cause more bandwidth usage when showing more details at higher zoom levels.",
+      "id": "zoom-override@DanielOnDiordna",
+      "namespace": "https://softspot.nl/ingress/",
+      "antiFeatures": [
+        "highLoad"
+      ],
+      "match": [
+        "https://intel.ingress.com/*"
+      ],
+      "grant": [
+        "none"
+      ],
+      "id_hash": "zoom-override-by-DanielOnDiordna",
+      "updatedAt": "2024-01-23T00:32:22.000Z"
+    },
+    {
+      "author": "EisFrei",
+      "id": "portalHistoryFlags@EisFrei",
+      "name": "Portal History Flags",
+      "category": "Layer",
+      "version": "0.0.10",
+      "namespace": "https://github.com/EisFrei/IngressPortalHistoryFlags",
+      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/EisFrei/portalHistoryFlags.user.js",
+      "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/EisFrei/portalHistoryFlags.meta.js",
+      "homepageURL": "https://github.com/EisFrei/IngressPortalHistoryFlags",
+      "description": "Shows Visited/Captured/Scouted status above portal markers",
+      "issueTracker": "https://github.com/EisFrei/IngressPortalHistoryFlags/issues",
+      "include": [
+        "https://intel.ingress.com/*"
+      ],
+      "match": [
+        "https://intel.ingress.com/*"
+      ],
+      "grant": [
+        "none"
+      ],
+      "id_hash": "portalHistoryFlags-by-EisFrei",
+      "updatedAt": "2022-08-16T21:52:27.000Z"
+    },
+    {
+      "author": "GMOogway",
+      "id": "basemap-gaode@GMOogway",
+      "name": "Map layers from GAODE by GMOogway",
+      "category": "Map Tiles",
+      "version": "0.3.0.20190108",
+      "description": "Add autonavi.com (China) map layers by GMOogway",
+      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/GMOogway/basemap-gaode.user.js",
+      "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/GMOogway/basemap-gaode.meta.js",
+      "namespace": "https://github.com/GMOogway/iitc-plugins",
+      "include": [
+        "https://intel.ingress.com/*"
+      ],
+      "match": [
+        "https://intel.ingress.com/*"
+      ],
+      "grant": [
+        "none"
+      ],
+      "id_hash": "basemap-gaode-by-GMOogway",
+      "updatedAt": "2022-08-16T21:52:27.000Z"
+    },
+    {
+      "author": "GMOogway",
+      "id": "local-storage-manager@GMOogway",
+      "name": "Local Storage Manager",
+      "category": "Controls",
+      "version": "0.1.0.20190214",
+      "description": "LocalStorageManager plugin by GMOogway.",
+      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/GMOogway/local-storage-manager.user.js",
+      "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/GMOogway/local-storage-manager.meta.js",
+      "namespace": "https://github.com/GMOogway/iitc-plugins",
+      "include": [
+        "https://intel.ingress.com/*"
+      ],
+      "match": [
+        "https://intel.ingress.com/*"
+      ],
+      "grant": [
+        "none"
+      ],
+      "id_hash": "local-storage-manager-by-GMOogway",
+      "updatedAt": "2022-08-16T21:52:27.000Z"
+    },
+    {
+      "author": "Guschtel",
+      "id": "inventory-overview@Guschtel",
+      "name": "Ingress Inventory Overview (based on Ingress Live Inventory from Freamstern)",
+      "category": "Utilities",
+      "version": "0.0.7",
+      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Guschtel/inventory-overview.user.js",
+      "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Guschtel/inventory-overview.meta.js",
+      "description": "View inventory and shows portals you have keys from",
+      "match": [
+        "*://intel.ingress.com/*",
+        "*://*.ingress.com/mission/*"
+      ],
+      "grant": [
+        "none"
+      ],
+      "id_hash": "inventory-overview-by-Guschtel",
+      "updatedAt": "2022-08-16T21:52:27.000Z"
+    },
+    {
+      "author": "Jormund",
+      "id": "poly-counts2@Jormund",
+      "name": "Poly Counts 2",
+      "category": "Info",
+      "version": "2.2.5.20221130.2310",
+      "namespace": "https://github.com/jonatkins/ingress-intel-total-conversion",
+      "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Jormund/poly-counts2.meta.js",
+      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Jormund/poly-counts2.user.js",
+      "description": "Counts portals by level and faction inside polygons or search result.",
+      "depends": [
+        "draw-tools@breunigs"
+      ],
+      "match": [
+        "https://intel.ingress.com/*",
+        "https://intel-x.ingress.com/*",
+        "https://*.ingress.com/intel*"
+      ],
+      "grant": [
+        "none"
+      ],
+      "id_hash": "poly-counts2-by-Jormund",
+      "updatedAt": "2023-03-06T00:36:00.000Z",
+      "_depends_links": [
+        {
+          "id": "draw-tools@breunigs",
+          "hash": "draw-tools-by-breunigs",
+          "source": "core"
+        }
+      ]
+    },
+    {
+      "author": "Loskir",
+      "id": "dt-replace-portal@Loskir",
+      "name": "Draw Tools Replace Portal",
+      "description": "Quickly replace one portal with another in Draw Tools",
+      "category": "Info",
+      "version": "1.0.7",
+      "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Loskir/dt-replace-portal.meta.js",
+      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Loskir/dt-replace-portal.user.js",
+      "depends": [
+        "draw-tools@breunigs"
+      ],
+      "match": [
+        "https://intel.ingress.com/*"
+      ],
+      "grant": [
+        "none"
+      ],
+      "id_hash": "dt-replace-portal-by-Loskir",
+      "updatedAt": "2022-12-12T10:38:19.000Z",
+      "_depends_links": [
+        {
+          "id": "draw-tools@breunigs",
+          "hash": "draw-tools-by-breunigs",
+          "source": "core"
+        }
+      ]
+    },
+    {
+      "author": "MaxEtMoritz",
+      "id": "PNavCopy@MaxEtMoritz",
+      "name": "Copy PokeNav Command",
+      "category": "Misc",
+      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/MaxEtMoritz/PNavCopy.user.js",
+      "version": "1.7.6",
+      "namespace": "https://github.com/MaxEtMoritz/PNavCopy",
+      "description": "Copy portal info to clipboard or send it to Discord in the format the PokeNav Discord bot needs.",
+      "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/MaxEtMoritz/PNavCopy.meta.js",
+      "issueTracker": "https://github.com/MaxEtMoritz/PNavCopy/issues",
+      "homepageURL": "https://github.com/MaxEtMoritz/PNavCopy",
+      "antiFeatures": [
+        "export"
+      ],
+      "recommends": [
+        "s2check@Alfonso_M"
+      ],
+      "include": [
+        "http://intel.ingress.com/*",
+        "https://intel.ingress.com/*"
+      ],
+      "grant": [
+        "none"
+      ],
+      "id_hash": "PNavCopy-by-MaxEtMoritz",
+      "updatedAt": "2022-08-16T21:52:27.000Z",
+      "_recommends_links": [
+        {
+          "id": "s2check@Alfonso_M",
+          "hash": null,
+          "source": null
+        }
+      ]
+    },
+    {
+      "author": "MaxEtMoritz",
+      "name": "Glympse",
+      "category": "Layer",
+      "version": "0.0.1",
+      "namespace": "https://github.com/MaxEtMoritz/iitc-glympse",
+      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/MaxEtMoritz/glympsemap.user.js",
+      "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/MaxEtMoritz/glympsemap.meta.js",
+      "description": "View a Glympse tag directly on the Intel map.",
+      "icon": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeBAMAAADJHrORAAAAKlBMVEUA9DhAebw5b7Y5b7Y5b7Y5b7ZYhsH///+fudzi6vRIpdttlclPwO45b7bf8WGPAAAAAXRSTlMAQObYZgAAANhJREFUGNNlkTsOwjAMhqvcgE48lsYDonAqunECE7Ex0KxlqSommFDVhW5cocqhsJ20hfIPkb78fiR2FLEUACTRIPDqUQVOfrG/gFGDrWcx7H0A89I5V3eeCbdOJAlk68ZzzAFK7Lqmu0fgpiNHB6YkRth2d+lIzrPijuEFALvySIe19uJ5g8Q5klrhFE8AJfN19Kd8qKoSz74eYkaV1j5fcWxBvEAT3pejaakrpwmniIayuVzC/9VSHE0mA6KAuXAxzudNeOsHyt9Y2dewgem8p/v429f3Pj/UdGXDkoFlRwAAAABJRU5ErkJggg==",
+      "icon64": "data:image/png;base64,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",
+      "preview": "https://github.com/MaxEtMoritz/iitc-glympse/blob/master/images/Screenshot%202022-08-12%20163456.png",
+      "issueTracker": "https://github.com/MaxEtMoritz/iitc-glympse/issues",
+      "homepageURL": "https://github.com/MaxEtMoritz/iitc-glympse",
+      "id": "glympsemap@MaxEtMoritz",
+      "match": [
+        "*://intel.ingress.com/*"
+      ],
+      "grant": [
+        "none"
+      ],
+      "id_hash": "glympsemap-by-MaxEtMoritz",
+      "updatedAt": "2022-08-16T21:52:27.000Z"
+    },
+    {
+      "author": "Hevne",
+      "name": "ImageOverlay2",
+      "id": "ImageOverlay2@McBen",
+      "category": "Draw",
+      "version": "0.0.0",
+      "namespace": "https://github.com/jonatkins/ingress-intel-total-conversion",
+      "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/McBen/ImageOverlay2.meta.js",
+      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/McBen/ImageOverlay2.user.js",
+      "description": "Add an image to your map.",
+      "icon64": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAOxAAADsQBlSsOGwAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAA2xSURBVHic3Zt5cJ3VecZ/3/3urrtfyZK1WF4kS5YsSw4QswbGmBBDCI4JbUJpyzAQmGba0jS0TOiStklaQgJkUloomaZpghmGYYgxNkmcmIFaGDtEkq3Fi2RL8qJdutLV3b+tf3y+17rSlaUrXUltnhmPR0dnec+j8z7nPee8H6ws3Cs8/oqhGPhvQAU+BD65suYsH6zA00AI0Kb8U4EfoxPzO4v7gW4uT7qwsFDbvn27VlFRoQmCkCRiEvg6OlHLAmEZxtgKvAB8CsDhcFBXV0dZWVmqwuTkJC0tLfT39yeLLqKvlJ+gE7NkWEoC/MDfAV8BRKPRSFVVFZs2bcJgMGRsMDg4SHNzM8FgMFl0FPjzy/8vCZaCABPwJ8A/AG5BEFizZg319fVYrVdWdqxgC6NVf4wp2EP+qR9jSOiTVlWVs2fP0tbWhiRJoOvDq8CTwGCujc01ATuA7wM1AH6/n4aGBvx+f6qCZF/N6OZHiTnXXTFClfB2v42z910ETQEgkUjQ3t5OV1cXmqaBLpzfA/4ZiOfK4FwRUAU8B9wFYLPZqKurY+3atakKqsnO+MYvMVl0IxqZXUCUgvjO7CFv4MqKDwQCtLS0MDw8nCzqQhfKN3Jh+GIJ8ALfQF/yRlEUqa6uprq6GlEUL49gIFi+k/F1n0M1mNMai0oUVbSiTTPDGuzG3/FDTOG+VFlfXx/Nzc2Ew+Fk0SHgCaB1MRNYKAFG4GHgm0ABQFlZGfX19djt9lSlWH4dI9UPI1s86YNqCq5L7+HpfB3ZXsho7ZeJOdZMG0Ijb+g3+E+/OkMfWltbkWUZQAb+E/gbYJgFYCEE3A48D9QB+Hw+GhoayM/PT1WQ7UWM1jxE1F01ramGffwk/taXERPBtN9Ei65ntOoPkI2OdANVCXfvAdw9+xFUSa8bjdLe3k53d3dSHwLAM5ftSmQzmWwIqAS+hR7QYLPZqK2tZd26dQiC3o0mWglU/h6TJbfO8HNLdBB/28uYg92zDqAhENywi4nyu1AFY9rvjIkJvJ2vpenD2NgYLS0tjIyMJItOA38J7J/vpOZDgAP4GvAUYBFFkcrKSmpqajAajSnDQ2XbCWy4H1W0pDUWlSi+06+S1984X5tQjDYCmx8h5N86w0TLZC/5HT/EFLqYKrtw4QLHjx8nEokki36Frg/tc411NQIMwIPAd4BCgOLiYrZu3UpeXl6qku7nDyFbfOkdT/FzQZXnsiMjJEfJvPVBURQ6Ozvp6OhI6oME/Dt6MDYx2xizEXAbevhaD+D1emloaKCgoCBVQc4rYnTTVfy87T8Q47OOmxUiRdsYq3pwFn3Yj7vnQJo+nDhxgt7e3mS1UeCfgH8FlOl9ZyLgu+h+hNVqTe3n8/Fzc2wIf+tLWK7i5wuFhkCw4j4m1tyZWR/OvEbe4BV9GB4epqWlhUAgkCw6CtyCvjJSyERAp9VqrSgtLaWurg6TyZQy4Kp+3rmHvEuHFznNuZGNPmiaRnd3N01NTaiqCrAGuDC1TUYCVq9eXbF+/Xr8fj9Wq5WYv46RTUvj5wuF5ChltPbRzPoweAz/mT0pfXjrrbeS54oZBBiZBaqqMjExwaRjA+GGr84YxDHaiq/9FQxSaPGzWQBMoYsUHf17IsU3MbrxARQxGYAJhAu3ITnLKD7y9Jz9zEpAEjJi2s+CpuDp3ou7e9+CDM817H2N2IaaGWx4gpi7MlWuTQu7Z8OcBEyFgIYmiATW7ybqq8V7eg+W0PnsLM4hNNFCqORWAuV3o5pdun1ZBrdZEYCmYv7gm8jXPkbMU0X/J79B3vDHeDtfxxgbzaqrxUATRMLFtxBYdy+KxQOaHhcIaIRWZXe/mh0BgHjpKOJAM3LVvcibv0h41XVE/HW4ew7gPv8LBHX+obhidiEoCQxKbF71NQQiq64lsOE+ZHshALaxDrxn38Ac7CFQ81C208meAACUBMaONxDPHUTa8ocoG+5kfMNuQqW34e16Q9+Ptdmv8iR7EcE1nyG0+kYEVcZ56T1cFw4ixsdnbRP11RCo+H0STl31LRNdeM++iTVwakFTSGJhBFyGEBvHfOwHaGf2IX3iy8hFDQzXPkaw7A58Z17DMtGVVj/u3kCwfCeRgk+gISBoCqpoZaL8LoJlnyZv8CPcve+m3QPEPRsJbNhNzKNHnObwJdzn9pI39JvFmJ7CoghIQhjvwXzo6yhFDcjXPEbcvZ7+a5/GPnIc75k9yLZ8Jss+TSS/HgCDEsPZ9z9ECrYixiewBM8xWfwpQqtvJlR0E7bASayjrcS91ak2xtgInp795F16HyGHF8U5ISAJcaAF8d0/Ra68G2nzA0Ty64n4t8DlMNoYG8V1/pc4+z5AUGJE/HUIqoTvzB7c3W8zWbaDydLbifpqiPpq9DbxMTzn9uLobwRtRii/aOSUAABUGePpvRh7DiFtfRR5/Q7E2Bi+c29iHziauvSEy2GooJ8nRCmE59zPcPe+S7DkNgKVX0RMBCn58KnUQWcpkPl2MheIT2LoOQSAZbyTvP4P0yYP6EIppO/bghLHMXBEN04KL+nkYSkJmA80NevAJddYFgK0WbdELeUCK4UVISDhKGV48+PIjhLizrWM1DyCbM2fpfXSIvcimAFJAuKu9Yyv/SzR/AZAxTHwEZpgIFR0I+HCbTj63sfT8w5o6nKYBSwTAarZyVD9E0Ty6xE0hbyBI3h69mGKDADgznubifW7mCy9ndDqm3EMfrQcZgHLRIBUUIesJnBdOIir9+cY42NpvzeH+yho/Tec7krGN+xmsvjW5TALWGINEORYajlrGsiKijDL0ziAJprBcOVvIkrBWevmCku6Agwjp7Due0Q/OVbsJLL2TiJrbsc+cBTv+QOpmH96vC9GR/BcPIjj4ntLaR6wDC4ghAYw/fZljCffRK7+PErFTiLFNxEtvhHbUBOKxU3cXaEbEx3C072PvIEjM4OmrAeeX3yxLBoAIERGMDW9grH9deSNn0Ou3kVk1TW6EbmceJZYNgKSEOJBTK0/xTjwMbE7nsMU7qfk6N8uyUFnPli5MEzWkzzExMSKTR5W+iywpJifBmRHgCCgWf/vZrcq094O54OsCNAwEN/1E+StD4NoynqwpULCWU7/Dd8mVHBN1m3nFsHQIAYlnnoP1AxGpE1fQKm4E9PHL2HoXvq9ejaoJgejmx8l7Ktj+pI3B8/Nq485V4Bh4jzmN7+EqfuXaYcU1eQkfsOTJO55BdVXeZUelgCCyETFF7hwy/OEfVuYOnmjFGTV8R9QcOLFeXWVaQVIkiQxNDSE3+/HZrMhyDGMR15APLEH+aYnkfNrU5UVZwnqZ76POHQc4+FnEGKzX23nApHCaxmt+iMUkzOtXFAlPL37cXe/k9pVQqEQLS0tyYdRmPY0Dkx7+NNxPhKJ3BqLxZySJCHLMlarFYPBgCCFEc8exDjcjlZYh2a6kimi5hUhV9+LYPMiDLQgzHWktXmRK+/GGBvRLzznQMJRyvDWrzJRegda2vO8Rt7wbyls+g620VZAQ5Ik2traOHbsWDLtNgr8I3BgPgScAV6SZVkOhULb4vG4KR6Po6oqVqsVQRAQQgOIp/dikKNoq2rRkgcYwYDq34hSdQ+G+ARC4OyiCVCNeYzWPcbYxgeQzenpdpbQBQqbn8V14dcY1ASaptHb20tjYyODg4PJe4h3gHuAtzP1P9dmWQp8WxTFB91ut+ByufB6vbhcrlQFzWhFue5xpLU7ZlxviZMXMTY+i2Gsc0bHmncdsZ0vYg2coqjpmQyWiUysu4fxtXehCek7jlGaxHfyv7APN6XKhoeHaW5uZnw85YLN6IlSH1xtgvO9kdwGvGA2m69PEuDz+dKSnzVHIfKNX0vTh+QAmfThagRk4+fZ5gRNRyYXyIRLwI8URTkXDodviEajjkQika4Picv6MNKBWrRlFn3wIAwc1/Uhgwtc3c+bKGx6JuXniqJw8uRJjhw5kswDkoAXgc8D7zPP7wzmSwCXOzyOrg9SKBS6IZFIGDPpg/H0XgxyLIM+VKFs/CyGeBAhOpYiwD7SMrufhy9S2PQsrou6n4OeF3j48GH6+vqSfv4rYBf6BxZZZZIv5lK+Al0f7ne73Xg8HjweD07nlGVrsiFd9xXk8ttm6IMxMohsL8QUG0W2uNGmZ35JE/hP/gjb8PFUWYbM0FPoGW0z1H2+yMWrxHbgebPZvCWpD36/H4tlyhJ2lSDd/FfInrkDJoMq4e7+Ge7en6cCrwy5wWPo29qL6AnTC0aunmWSWaXP2u32VR6PB7fbjd/vv5I2D6gl25C2/Rmq1TvTEE3FMfQR3tOvYpD0lNcM2Z+Lzg6fMW4uOpkCL/DXgiD8hdPpNLvdbrxeLx6PJ5VoiSCgbNqNXPdg6nxhCV/E3/oS5vClVEcZvg/4Nfq21pZLg5fqYW4j8Jwoincn9cHr9eJwTDmummxo1z2Oa6IN+8iJVHGGL0Q60b8gy8kXItOx1C+TO9Djh9pM+mA2m/F6dXeIx+N0dHRM/UZoHPgX9JzlnH0jNB3ZbIMLwTngFUVRRsPh8PWxWMw6dds0m82YzWa6urpobGxM/tVV4KfAvcAvmEcw8/8FBcDLgiDILpdLKy8v12prazWHwzH1E9pDXM5Q/11GPfCe0WjUnE5ncuJngd0ra9by4z70v/hTLOO3wtPxv8EA3YCUDCjNAAAAAElFTkSuQmCC",
+      "include": [
+        "https://intel.ingress.com/*"
+      ],
+      "id_hash": "ImageOverlay2-by-McBen",
+      "updatedAt": "2022-08-16T21:52:27.000Z"
+    },
+    {
+      "author": "McBen",
+      "name": "KMLImport",
+      "id": "KMLImport@McBen",
+      "category": "Draw",
+      "version": "1.0.1",
+      "namespace": "https://github.com/jonatkins/ingress-intel-total-conversion",
+      "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/McBen/KMLImport.meta.js",
+      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/McBen/KMLImport.user.js",
+      "description": "Import KML/GPX/Geojson/TCX into DrawTools",
+      "icon64": "data:image/png;base64,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",
+      "depends": [
+        "draw-tools@breunigs"
+      ],
+      "include": [
+        "https://intel.ingress.com/*"
+      ],
+      "id_hash": "KMLImport-by-McBen",
+      "updatedAt": "2022-12-12T10:38:19.000Z",
+      "_depends_links": [
+        {
+          "id": "draw-tools@breunigs",
+          "hash": "draw-tools-by-breunigs",
+          "source": "core"
+        }
+      ]
+    },
+    {
+      "author": "McBen",
+      "name": "PLink",
+      "id": "PLink@McBen",
+      "category": "Portal Info",
+      "version": "1.1",
+      "namespace": "https://github.com/jonatkins/ingress-intel-total-conversion",
+      "description": "Enhance Portal Links",
+      "icon64": "data:image/png;base64,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",
+      "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/McBen/PLink.meta.js",
+      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/McBen/PLink.user.js",
+      "include": [
+        "https://intel.ingress.com/*"
+      ],
+      "id_hash": "PLink-by-McBen",
+      "updatedAt": "2022-08-16T21:52:27.000Z"
+    },
+    {
+      "author": "NvlblNm",
+      "name": "Pogo Tools w/ PoGOHWH",
+      "id": "s2check@NvlblNm",
+      "category": "Layer",
+      "namespace": "https://gitlab.com/NvlblNm/pogo-s2/",
+      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/NvlblNm/s2check.user.js",
+      "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/NvlblNm/s2check.meta.js",
+      "homepageURL": "https://gitlab.com/NvlblNm/pogo-s2/",
+      "supportURL": "https://discord.gg/niawayfarer",
+      "version": "0.105",
+      "description": "Pokemon Go tools over IITC. Support in #tools-chat on https://discord.gg/niawayfarer",
+      "match": [
+        "https://intel.ingress.com/*"
+      ],
+      "grant": [
+        "none"
+      ],
+      "id_hash": "s2check-by-NvlblNm",
+      "updatedAt": "2024-05-14T10:02:58.000Z"
+    },
+    {
+      "author": "NvlblNm",
+      "id": "wayfarer-planner@NvlblNm",
+      "name": "Wayfarer Planner",
+      "category": "Layer",
+      "version": "1.181",
+      "namespace": "https://gitlab.com/NvlblNm/wayfarer/",
+      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/NvlblNm/wayfarer-planner.user.js",
+      "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/NvlblNm/wayfarer-planner.meta.js",
+      "homepageURL": "https://gitlab.com/NvlblNm/wayfarer/",
+      "description": "Place markers on the map for your candidates in Wayfarer.",
+      "match": [
+        "https://intel.ingress.com/*"
+      ],
+      "grant": [
+        "none"
+      ],
+      "id_hash": "wayfarer-planner-by-NvlblNm",
+      "updatedAt": "2024-06-16T00:36:28.000Z"
+    },
+    {
+      "author": "Perringaiden",
+      "name": "Hide portals that aren't fully deployed.",
+      "category": "Highlighter",
+      "version": "0.2",
+      "description": "Hides any portal that doesn't have 8 resonators.",
+      "id": "wolf-deployed-highlighter@Perringaiden",
+      "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Perringaiden/wolf-deployed-highlighter.meta.js",
+      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Perringaiden/wolf-deployed-highlighter.user.js",
+      "match": [
+        "https://intel.ingress.com/*"
+      ],
+      "grant": [
+        "none"
+      ],
+      "id_hash": "wolf-deployed-highlighter-by-Perringaiden",
+      "updatedAt": "2022-08-16T01:51:36.000Z"
+    },
+    {
+      "author": "Perringaiden",
+      "id": "wolf-fielded-link-radius@Perringaiden",
+      "name": "Fielded Link Radius",
+      "category": "Misc",
+      "version": "0.3",
+      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Perringaiden/wolf-fielded-link-radius.user.js",
+      "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Perringaiden/wolf-fielded-link-radius.meta.js",
+      "description": "Defines the area inside which a portal can link under a field.",
+      "include": [
+        "*://*.ingress.com/*"
+      ],
+      "match": [
+        "*://*.ingress.com/*"
+      ],
+      "grant": [
+        "none"
+      ],
+      "id_hash": "wolf-fielded-link-radius-by-Perringaiden",
+      "updatedAt": "2022-09-01T05:30:46.000Z"
+    },
+    {
+      "author": "Perringaiden",
+      "name": "Hide portals that aren't linked or fielded.",
+      "category": "Highlighter",
+      "version": "0.1",
+      "description": "Hides any portal that doesn't have a link or field from it.",
+      "id": "wolf-linked-highlighter@Perringaiden",
+      "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Perringaiden/wolf-linked-highlighter.meta.js",
+      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Perringaiden/wolf-linked-highlighter.user.js",
+      "match": [
+        "https://intel.ingress.com/*"
+      ],
+      "grant": [
+        "none"
+      ],
+      "id_hash": "wolf-linked-highlighter-by-Perringaiden",
+      "updatedAt": "2022-08-16T01:51:36.000Z"
+    },
+    {
+      "author": "Perringaiden",
+      "name": "Highlight field anchors that need recharging",
+      "category": "Highlighter",
+      "version": "0.4",
+      "description": "Use the portal fill color to denote if the portal needs recharging and how much. Yellow: above 85%. Orange: above 50%. Red: above 15%. Magenta: below 15%.",
+      "id": "wolf-recharge@Perringaiden",
+      "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Perringaiden/wolf-recharge.meta.js",
+      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Perringaiden/wolf-recharge.user.js",
+      "match": [
+        "https://intel.ingress.com/*"
+      ],
+      "grant": [
+        "none"
+      ],
+      "id_hash": "wolf-recharge-by-Perringaiden",
+      "updatedAt": "2022-11-04T00:42:36.000Z"
+    },
+    {
+      "author": "Perringaiden",
+      "id": "wolf-uncaptured@Perringaiden",
+      "name": "Non Captured/Visited/Scout Highlighters",
+      "category": "Misc",
+      "version": "0.7",
+      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Perringaiden/wolf-uncaptured.user.js",
+      "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Perringaiden/wolf-uncaptured.meta.js",
+      "include": [
+        "*://*.ingress.com/*"
+      ],
+      "match": [
+        "*://*.ingress.com/*"
+      ],
+      "grant": [
+        "none"
+      ],
+      "description": "",
+      "id_hash": "wolf-uncaptured-by-Perringaiden",
+      "updatedAt": "2022-08-16T21:52:27.000Z"
+    },
+    {
+      "author": "Tarsi210",
+      "id": "draw-best-link-star@Tarsi210",
+      "name": "Draw Best Link Star",
+      "category": "Info",
+      "version": "0.0.8",
+      "namespace": "https://www.nathanpralle.com",
+      "description": "Build the best link star in an area.",
+      "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Tarsi210/draw-best-link-star.meta.js",
+      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Tarsi210/draw-best-link-star.user.js",
+      "depends": [
+        "draw-tools@breunigs"
+      ],
+      "include": [
+        "https://intel.ingress.com/*"
+      ],
+      "match": [
+        "https://intel.ingress.com/*"
+      ],
+      "grant": [
+        "none"
+      ],
+      "id_hash": "draw-best-link-star-by-Tarsi210",
+      "updatedAt": "2024-07-13T00:34:21.087Z",
+      "_depends_links": [
+        {
+          "id": "draw-tools@breunigs",
+          "hash": "draw-tools-by-breunigs",
+          "source": "core"
+        }
+      ]
+    },
+    {
+      "author": "VE6SRV",
+      "id": "DroneRange@VE6SRV",
+      "name": "dronerange",
+      "category": "Layer",
+      "version": "0.1",
+      "namespace": "https://github.com/VE6SRV/iitc-plugins",
+      "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/VE6SRV/DroneRange.meta.js",
+      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/VE6SRV/DroneRange.user.js",
+      "homepageURL": "https://gitbub.com/VE6SRV/iitc-plugins",
+      "description": "Shows drone flight distance between portals",
+      "include": [
+        "https://*.ingress.com/intel*",
+        "http://*.ingress.com/intel*",
+        "https://*.ingress.com/mission/*",
+        "http://*.ingress.com/mission/*"
+      ],
+      "match": [
+        "https://*.ingress.com/intel*",
+        "http://*.ingress.com/intel*",
+        "https://*.ingress.com/mission/*",
+        "http://*.ingress.com/mission/*"
+      ],
+      "grant": [
+        "none"
+      ],
+      "id_hash": "DroneRange-by-VE6SRV",
+      "updatedAt": "2022-08-16T21:52:27.000Z"
+    },
+    {
+      "author": "Zaso",
+      "name": "Bring Portals To Front",
+      "category": "Tweaks",
+      "version": "0.0.2.20200216.174028",
+      "description": "Bring the portals layers to front. Prevents that fields and drawn items cover them, making them unclickable.",
+      "id": "bring-portals-to-front@Zaso",
+      "namespace": "https://github.com/IITC-CE/ingress-intel-total-conversion",
+      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Zaso/bring-portals-to-front.user.js",
+      "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Zaso/bring-portals-to-front.meta.js",
+      "match": [
+        "https://intel.ingress.com/*"
+      ],
+      "grant": [
+        "none"
+      ],
+      "id_hash": "bring-portals-to-front-by-Zaso",
+      "updatedAt": "2022-08-16T21:52:27.000Z"
+    },
+    {
+      "author": "Zaso",
+      "name": "Chat Message Length",
+      "category": "Tweaks",
+      "version": "0.1.3.20200216.174028",
+      "description": "Counts the chat message characters.",
+      "id": "chat-message-length@Zaso",
+      "namespace": "https://github.com/IITC-CE/ingress-intel-total-conversion",
+      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Zaso/chat-message-length.user.js",
+      "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Zaso/chat-message-length.meta.js",
+      "match": [
+        "https://intel.ingress.com/*"
+      ],
+      "grant": [
+        "none"
+      ],
+      "id_hash": "chat-message-length-by-Zaso",
+      "updatedAt": "2022-08-16T21:52:27.000Z"
+    },
+    {
+      "author": "Zaso",
+      "name": "Check Point Timer",
+      "category": "Info",
+      "version": "0.1.2.20200216.174028",
+      "description": "Add to the sidebar a countdown timer to next checkpoint.",
+      "id": "check-point-timer@Zaso",
+      "namespace": "https://github.com/IITC-CE/ingress-intel-total-conversion",
+      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Zaso/check-point-timer.user.js",
+      "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Zaso/check-point-timer.meta.js",
+      "match": [
+        "https://intel.ingress.com/*"
+      ],
+      "grant": [
+        "none"
+      ],
+      "id_hash": "check-point-timer-by-Zaso",
+      "updatedAt": "2022-08-16T21:52:27.000Z"
+    },
+    {
+      "author": "Zaso",
+      "name": "Decay Calculator",
+      "category": "Info",
+      "version": "0.0.3.20200723.162738",
+      "description": "Estimate the portal decaying.",
+      "id": "decay-calculator@Zaso",
+      "namespace": "https://github.com/IITC-CE/ingress-intel-total-conversion",
+      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Zaso/decay-calculator.user.js",
+      "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Zaso/decay-calculator.meta.js",
+      "match": [
+        "https://intel.ingress.com/*"
+      ],
+      "grant": [
+        "none"
+      ],
+      "id_hash": "decay-calculator-by-Zaso",
+      "updatedAt": "2022-08-16T21:52:27.000Z"
+    },
+    {
+      "author": "Zaso",
+      "name": "Destroyed Links Simulator",
+      "category": "Layer",
+      "version": "0.0.8.20200216.174029",
+      "description": "Simulate the destruction of portal links: hide its links and fields.",
+      "id": "destroyed-links-simulator@Zaso",
+      "namespace": "https://github.com/IITC-CE/ingress-intel-total-conversion",
+      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Zaso/destroyed-links-simulator.user.js",
+      "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Zaso/destroyed-links-simulator.meta.js",
+      "match": [
+        "https://intel.ingress.com/*"
+      ],
+      "grant": [
+        "none"
+      ],
+      "id_hash": "destroyed-links-simulator-by-Zaso",
+      "updatedAt": "2022-08-16T21:52:27.000Z"
+    },
+    {
+      "author": "Zaso",
+      "name": "Draw tools plus",
+      "category": "Layer",
+      "version": "0.1.10.20210103.185428",
+      "description": "Edit and improve Draw tools.",
+      "id": "draw-tools-plus@Zaso",
+      "namespace": "https://github.com/IITC-CE/ingress-intel-total-conversion",
+      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Zaso/draw-tools-plus.user.js",
+      "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Zaso/draw-tools-plus.meta.js",
+      "depends": [
+        "draw-tools@breunigs"
+      ],
+      "match": [
+        "https://intel.ingress.com/*"
+      ],
+      "grant": [
+        "none"
+      ],
+      "id_hash": "draw-tools-plus-by-Zaso",
+      "updatedAt": "2022-12-12T10:38:19.000Z",
+      "_depends_links": [
+        {
+          "id": "draw-tools@breunigs",
+          "hash": "draw-tools-by-breunigs",
+          "source": "core"
+        }
+      ]
+    },
+    {
+      "author": "Zaso",
+      "name": "Emoji Chat",
+      "category": "Tweaks",
+      "version": "0.0.2.20200216.174029",
+      "description": "Add Emoji support and append an Emoji Keyboard.",
+      "id": "emoji-chat@Zaso",
+      "namespace": "https://github.com/IITC-CE/ingress-intel-total-conversion",
+      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Zaso/emoji-chat.user.js",
+      "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Zaso/emoji-chat.meta.js",
+      "match": [
+        "https://intel.ingress.com/*"
+      ],
+      "grant": [
+        "none"
+      ],
+      "id_hash": "emoji-chat-by-Zaso",
+      "updatedAt": "2022-08-16T21:52:27.000Z"
+    },
+    {
+      "author": "Zaso",
+      "name": "Fake Message Location",
+      "category": "Misc",
+      "version": "0.1.1.20200216.174029",
+      "description": "Set a location. The COMM messages you send will have the setted location.",
+      "id": "fake-message-location@Zaso",
+      "namespace": "https://github.com/IITC-CE/ingress-intel-total-conversion",
+      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Zaso/fake-message-location.user.js",
+      "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Zaso/fake-message-location.meta.js",
+      "match": [
+        "https://intel.ingress.com/*"
+      ],
+      "grant": [
+        "none"
+      ],
+      "id_hash": "fake-message-location-by-Zaso",
+      "updatedAt": "2022-08-16T21:52:27.000Z"
+    },
+    {
+      "author": "Zaso",
+      "name": "Font Awesome",
+      "category": "Tweaks",
+      "version": "0.0.4.20200216.174029",
+      "description": "Add Font Awesome Icons.",
+      "id": "font-awesome@Zaso",
+      "namespace": "https://github.com/IITC-CE/ingress-intel-total-conversion",
+      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Zaso/font-awesome.user.js",
+      "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Zaso/font-awesome.meta.js",
+      "match": [
+        "https://intel.ingress.com/*"
+      ],
+      "grant": [
+        "none"
+      ],
+      "id_hash": "font-awesome-by-Zaso",
+      "updatedAt": "2022-08-16T21:52:27.000Z"
+    },
+    {
+      "author": "Zaso",
+      "name": "Free Sidebar",
+      "category": "Controls",
+      "version": "0.0.5.20240307.074938",
+      "description": "Reduces use of sidebar.",
+      "id": "free-sidebar@Zaso",
+      "namespace": "https://github.com/IITC-CE/ingress-intel-total-conversion",
+      "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Zaso/free-sidebar.meta.js",
+      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Zaso/free-sidebar.user.js",
+      "match": [
+        "https://intel.ingress.com/*",
+        "https://intel-x.ingress.com/*"
+      ],
+      "grant": [
+        "none"
+      ],
+      "id_hash": "free-sidebar-by-Zaso",
+      "updatedAt": "2024-03-08T00:30:06.000Z"
+    },
+    {
+      "author": "Zaso",
+      "name": "Hide UI Zaso",
+      "category": "Controls",
+      "version": "0.1.4.20200528.070838",
+      "description": "Hide all UI for screenshot.",
+      "id": "hide-ui@Zaso",
+      "namespace": "https://github.com/IITC-CE/ingress-intel-total-conversion",
+      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Zaso/hide-ui.user.js",
+      "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Zaso/hide-ui.meta.js",
+      "match": [
+        "https://intel.ingress.com/*"
+      ],
+      "grant": [
+        "none"
+      ],
+      "id_hash": "hide-ui-by-Zaso",
+      "updatedAt": "2022-08-16T21:52:27.000Z"
+    },
+    {
+      "author": "Zaso",
+      "name": "Last Action Timestamp",
+      "category": "Info",
+      "version": "0.0.3.20200216.174029",
+      "description": "Estimate the portal decaying.",
+      "id": "last-action-timestamp@Zaso",
+      "namespace": "https://github.com/IITC-CE/ingress-intel-total-conversion",
+      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Zaso/last-action-timestamp.user.js",
+      "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Zaso/last-action-timestamp.meta.js",
+      "match": [
+        "https://intel.ingress.com/*"
+      ],
+      "grant": [
+        "none"
+      ],
+      "id_hash": "last-action-timestamp-by-Zaso",
+      "updatedAt": "2022-08-16T21:52:27.000Z"
+    },
+    {
+      "author": "Zaso",
+      "name": "Layers Profiles",
+      "category": "Controls",
+      "version": "0.1.4",
+      "description": "Saves the current enabled layers (base, overlays and hightlighter). Restore it just a click.",
+      "id": "layers-profiles@Zaso",
+      "namespace": "https://github.com/IITC-CE/ingress-intel-total-conversion",
+      "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Zaso/layers-profiles.meta.js",
+      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Zaso/layers-profiles.user.js",
+      "match": [
+        "https://intel.ingress.com/*",
+        "https://intel-x.ingress.com/*"
+      ],
+      "grant": [
+        "none"
+      ],
+      "id_hash": "layers-profiles-by-Zaso",
+      "updatedAt": "2022-12-19T00:28:57.000Z"
+    },
+    {
+      "author": "Zaso",
+      "name": "Link Prolongation",
+      "category": "Layers",
+      "version": "0.1.2",
+      "description": "Create link prolongations.",
+      "id": "link-prolongation@Zaso",
+      "namespace": "https://github.com/IITC-CE/ingress-intel-total-conversion",
+      "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Zaso/link-prolongation.meta.js",
+      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Zaso/link-prolongation.user.js",
+      "recommends": [
+        "draw-tools@breunigs",
+        "draw-tools-plus@zaso",
+        "bookmarks@ZasoGD",
+        "font-awesome@zaso"
+      ],
+      "match": [
+        "https://intel.ingress.com/*",
+        "https://intel-x.ingress.com/*"
+      ],
+      "grant": [
+        "none"
+      ],
+      "id_hash": "link-prolongation-by-Zaso",
+      "updatedAt": "2022-12-19T00:28:57.000Z",
+      "_recommends_links": [
+        {
+          "id": "draw-tools@breunigs",
+          "hash": "draw-tools-by-breunigs",
+          "source": "core"
+        },
+        {
+          "id": "draw-tools-plus@zaso",
+          "hash": null,
+          "source": null
+        },
+        {
+          "id": "bookmarks@ZasoGD",
+          "hash": "bookmarks-by-ZasoGD",
+          "source": "core"
+        },
+        {
+          "id": "font-awesome@zaso",
+          "hash": null,
+          "source": null
+        }
+      ]
+    },
+    {
+      "author": "Zaso",
+      "name": "LocalStorage Manager",
+      "category": "Debug",
+      "version": "0.1.1.20200216.174029",
+      "description": "Manage LocalStorage: import, export and delete.",
+      "id": "localstorage-manager@Zaso",
+      "namespace": "https://github.com/IITC-CE/ingress-intel-total-conversion",
+      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Zaso/localstorage-manager.user.js",
+      "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Zaso/localstorage-manager.meta.js",
+      "match": [
+        "https://intel.ingress.com/*"
+      ],
+      "grant": [
+        "none"
+      ],
+      "id_hash": "localstorage-manager-by-Zaso",
+      "updatedAt": "2022-08-16T21:52:27.000Z"
+    },
+    {
+      "author": "Zaso",
+      "name": "Logs Diary",
+      "category": "Misc",
+      "version": "0.0.2.20200216.174029",
+      "description": "Storage favorite logs.",
+      "id": "logs-diary@Zaso",
+      "namespace": "https://github.com/IITC-CE/ingress-intel-total-conversion",
+      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Zaso/logs-diary.user.js",
+      "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Zaso/logs-diary.meta.js",
+      "match": [
+        "https://intel.ingress.com/*"
+      ],
+      "grant": [
+        "none"
+      ],
+      "id_hash": "logs-diary-by-Zaso",
+      "updatedAt": "2022-08-16T21:52:27.000Z"
+    },
+    {
+      "author": "Zaso",
+      "name": "Minify Some Portals Details",
+      "category": "Tweaks",
+      "version": "0.0.4.20200216.174030",
+      "description": "Minify some Portal Details in sidebar: mod slots and resonators info",
+      "id": "minify-some-portal-details@Zaso",
+      "namespace": "https://github.com/IITC-CE/ingress-intel-total-conversion",
+      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Zaso/minify-some-portal-details.user.js",
+      "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Zaso/minify-some-portal-details.meta.js",
+      "match": [
+        "https://intel.ingress.com/*"
+      ],
+      "grant": [
+        "none"
+      ],
+      "id_hash": "minify-some-portal-details-by-Zaso",
+      "updatedAt": "2022-08-16T21:52:27.000Z"
+    },
+    {
+      "author": "Zaso",
+      "name": "Player Ranges",
+      "category": "Layer",
+      "version": "0.3.1.20210103.154230",
+      "description": "Add one or more player markers and his ranges (hack/deploy range and xmp ranges) on the map.",
+      "id": "player-ranges@Zaso",
+      "namespace": "https://github.com/IITC-CE/ingress-intel-total-conversion",
+      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Zaso/player-ranges.user.js",
+      "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Zaso/player-ranges.meta.js",
+      "match": [
+        "https://intel.ingress.com/*"
+      ],
+      "grant": [
+        "none"
+      ],
+      "id_hash": "player-ranges-by-Zaso",
+      "updatedAt": "2022-08-16T21:52:27.000Z"
+    },
+    {
+      "author": "Zaso",
+      "name": "Pocket Portal Details",
+      "category": "Portal Info",
+      "version": "0.0.6.20200723.154151",
+      "description": "Append a pocket box containing some restricted details of the selected portal.",
+      "id": "pocket-portal-details@Zaso",
+      "namespace": "https://github.com/IITC-CE/ingress-intel-total-conversion",
+      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Zaso/pocket-portal-details.user.js",
+      "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Zaso/pocket-portal-details.meta.js",
+      "match": [
+        "https://intel.ingress.com/*"
+      ],
+      "grant": [
+        "none"
+      ],
+      "id_hash": "pocket-portal-details-by-Zaso",
+      "updatedAt": "2022-08-16T21:52:27.000Z"
+    },
+    {
+      "author": "Zaso",
+      "name": "Portal Hack Range",
+      "category": "Layer",
+      "version": "0.0.7.20200216.174030",
+      "description": "Add a circle around the portals to show the range where you can hack the portal.",
+      "id": "portal-hack-range@Zaso",
+      "namespace": "https://github.com/IITC-CE/ingress-intel-total-conversion",
+      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Zaso/portal-hack-range.user.js",
+      "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Zaso/portal-hack-range.meta.js",
+      "match": [
+        "https://intel.ingress.com/*"
+      ],
+      "grant": [
+        "none"
+      ],
+      "id_hash": "portal-hack-range-by-Zaso",
+      "updatedAt": "2022-08-16T21:52:27.000Z"
+    },
+    {
+      "author": "Zaso",
+      "name": "Scroll Sleep",
+      "category": "Tweaks",
+      "version": "0.0.3.20200216.174030",
+      "description": "A control to enable/disable the zoom map by scroll mouse.",
+      "id": "scroll-sleep@Zaso",
+      "namespace": "https://github.com/IITC-CE/ingress-intel-total-conversion",
+      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Zaso/scroll-sleep.user.js",
+      "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Zaso/scroll-sleep.meta.js",
+      "match": [
+        "https://intel.ingress.com/*"
+      ],
+      "grant": [
+        "none"
+      ],
+      "id_hash": "scroll-sleep-by-Zaso",
+      "updatedAt": "2022-08-16T21:52:27.000Z"
+    },
+    {
+      "author": "Zaso",
+      "name": "To Do List",
+      "category": "Misc",
+      "version": "0.0.3.20200216.174030",
+      "description": "Add a To Do List.",
+      "id": "todo-list@Zaso",
+      "namespace": "https://github.com/IITC-CE/ingress-intel-total-conversion",
+      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Zaso/todo-list.user.js",
+      "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Zaso/todo-list.meta.js",
+      "match": [
+        "https://intel.ingress.com/*"
+      ],
+      "grant": [
+        "none"
+      ],
+      "id_hash": "todo-list-by-Zaso",
+      "updatedAt": "2022-08-16T21:52:27.000Z"
+    },
+    {
+      "author": "azrael-42",
+      "id": "dronehelper@azrael-42",
+      "name": "Drone Helper",
+      "category": "Misc",
+      "version": "0.5.3.2",
+      "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/azrael-42/dronehelper.meta.js",
+      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/azrael-42/dronehelper.user.js",
+      "homepageURL": "https://github.com/azrael-42/IITC-Drone-Helper/",
+      "description": "Display area drone can \"see\" from currently selected portal. Manually record if drone has visited portals",
+      "match": [
+        "https://intel.ingress.com/*"
+      ],
+      "grant": [
+        "none"
+      ],
+      "id_hash": "dronehelper-by-azrael-42",
+      "updatedAt": "2022-08-16T21:52:27.000Z"
+    },
+    {
+      "author": "birkett83",
+      "name": "Landgrab",
+      "category": "Misc",
+      "version": "0.2",
+      "description": "A mini-game based on ingress and IITC",
+      "id": "landgrab@birkett83",
+      "namespace": "https://github.com/IITC-CE/ingress-intel-total-conversion",
+      "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/birkett83/landgrab.meta.js",
+      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/birkett83/landgrab.user.js",
+      "issueTracker": "https://github.com/birkett83/landgrab/issues",
+      "homepageURL": "https://birkett83.github.io/landgrab/",
+      "preview": "https://github.com/birkett83/landgrab/raw/main/assets/landgrab.png",
+      "match": [
+        "https://intel.ingress.com/*"
+      ],
+      "grant": [
+        "none"
+      ],
+      "id_hash": "landgrab-by-birkett83",
+      "updatedAt": "2022-08-16T21:52:27.000Z"
+    },
+    {
+      "author": "blsmit5728",
+      "id": "direct-link@blsmit5728",
+      "name": "Direct Link",
+      "version": "1.0.0",
+      "namespace": "https://github.com",
+      "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/blsmit5728/direct-link.meta.js",
+      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/blsmit5728/direct-link.user.js",
+      "description": "Direct Link",
+      "runAt": "document-start",
+      "category": "Misc",
+      "match": [
+        "*://*.ingress.com/intel*",
+        "*://*.ingress.com/mission/*",
+        "*://mission-author-dot-betaspike.appspot.com/*",
+        "*://intel.ingress.com/*",
+        "*://opr.ingress.com/*"
+      ],
+      "grant": [
+        "none"
+      ],
+      "id_hash": "direct-link-by-blsmit5728",
+      "updatedAt": "2022-12-12T10:38:19.000Z"
+    },
+    {
+      "author": "blsmit5728",
+      "id": "throwrange@blsmit5728",
+      "name": "Under-Field Throw Range",
+      "category": "Layer",
+      "version": "1.1.2",
+      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/blsmit5728/throwrange.user.js",
+      "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/blsmit5728/throwrange.meta.js",
+      "description": "Shows under field throw range at 500m",
+      "match": [
+        "*://intel.ingress.com/*",
+        "*://*.ingress.com/mission/*"
+      ],
+      "grant": [
+        "none"
+      ],
+      "id_hash": "throwrange-by-blsmit5728",
+      "updatedAt": "2022-08-16T21:52:27.000Z"
+    },
+    {
+      "author": "Eccenux",
+      "id": "short-portal-info@eccenux",
+      "namespace": "https://github.com/jonatkins/ingress-intel-total-conversion",
+      "name": "Short portal info",
+      "category": "Misc",
+      "version": "0.3.4",
+      "description": "Shows small box with a basic portal information. This is similar to mobile info.",
+      "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/eccenux/short-portal-info.meta.js",
+      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/eccenux/short-portal-info.user.js",
+      "include": [
+        "https://*.ingress.com/intel*",
+        "http://*.ingress.com/intel*"
+      ],
+      "match": [
+        "https://*.ingress.com/intel*",
+        "http://*.ingress.com/intel*",
+        "https://intel.ingress.com/*"
+      ],
+      "grant": [
+        "none"
+      ],
+      "id_hash": "short-portal-info-by-eccenux",
+      "updatedAt": "2022-11-16T00:38:16.000Z"
+    },
+    {
+      "author": "Heistergand",
+      "name": "Fan Fields 2 ",
+      "id": "fanfields@heistergand",
+      "category": "Layer",
+      "version": "2.6.2.20240630",
+      "description": "Calculate how to link the portals to create the largest tidy set of nested fields. Enable from the layer chooser.",
+      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/heistergand/fanfields.user.js",
+      "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/heistergand/fanfields.meta.js",
+      "icon": "https://raw.githubusercontent.com/Heistergand/fanfields2/master/fanfields2-32.png",
+      "icon64": "https://raw.githubusercontent.com/Heistergand/fanfields2/master/fanfields2-64.png",
+      "supportURL": "https://github.com/Heistergand/fanfields2/issues",
+      "namespace": "https://github.com/Heistergand/fanfields2",
+      "issueTracker": "https://github.com/Heistergand/fanfields2/issues",
+      "homepageURL": "https://github.com/Heistergand/fanfields2/",
+      "depends": [
+        "draw-tools@breunigs"
+      ],
+      "recommends": [
+        "bookmarks@ZasoGD",
+        "draw-tools-plus@zaso",
+        "liveInventory@DanielOnDiordna",
+        "keys@xelio"
+      ],
+      "preview": "https://raw.githubusercontent.com/Heistergand/fanfields2/master/FanFields2.png",
+      "match": [
+        "https://intel.ingress.com/*"
+      ],
+      "include": [
+        "https://intel.ingress.com/*"
+      ],
+      "grant": [
+        "none"
+      ],
+      "id_hash": "fanfields-by-heistergand",
+      "updatedAt": "2024-07-01T00:38:39.000Z",
+      "_depends_links": [
+        {
+          "id": "draw-tools@breunigs",
+          "hash": "draw-tools-by-breunigs",
+          "source": "core"
+        }
+      ],
+      "_recommends_links": [
+        {
+          "id": "bookmarks@ZasoGD",
+          "hash": "bookmarks-by-ZasoGD",
+          "source": "core"
+        },
+        {
+          "id": "draw-tools-plus@zaso",
+          "hash": null,
+          "source": null
+        },
+        {
+          "id": "liveInventory@DanielOnDiordna",
+          "hash": "liveInventory-by-DanielOnDiordna",
+          "source": "community"
+        },
+        {
+          "id": "keys@xelio",
+          "hash": "keys-by-xelio",
+          "source": "core"
+        }
+      ]
+    },
+    {
+      "author": "itayo",
+      "id": "IngressMaxFields@itayo",
+      "name": "Ingress Maxfields",
+      "category": "Information",
+      "version": "0.2.0.0",
+      "namespace": "http://github.com/jonatkins/ingress-intel-total-conversion",
+      "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/itayo/IngressMaxFields.meta.js",
+      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/itayo/IngressMaxFields.user.js",
+      "description": "Exports portals in the format for http://www.ingress-maxfield.com/ and allow direct transfer to site",
+      "include": [
+        "https://intel.ingress.com/*"
+      ],
+      "match": [
+        "https://intel.ingress.com/*"
+      ],
+      "grant": [
+        "none"
+      ],
+      "id_hash": "IngressMaxFields-by-itayo",
+      "updatedAt": "2023-08-08T00:32:43.000Z"
+    },
+    {
+      "author": "jaiperdu",
+      "name": "Custom Google map",
+      "category": "Map Tiles",
+      "version": "0.1.2",
+      "description": "Add a customizable Version of Google map tiles as a base layer.",
+      "id": "basemap-google-custom@jaiperdu",
+      "namespace": "https://github.com/IITC-CE/ingress-intel-total-conversion",
+      "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/jaiperdu/basemap-google-custom.meta.js",
+      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/jaiperdu/basemap-google-custom.user.js",
+      "match": [
+        "https://intel.ingress.com/*"
+      ],
+      "grant": [
+        "none"
+      ],
+      "id_hash": "basemap-google-custom-by-jaiperdu",
+      "updatedAt": "2022-06-16T00:17:06.000Z"
+    },
+    {
+      "author": "jaiperdu",
+      "name": "Cache visible portals",
+      "category": "Cache",
+      "version": "0.4.3",
+      "description": "Cache the data of visible portals and use this to populate the map when possible",
+      "id": "cache-portals@jaiperdu",
+      "namespace": "https://github.com/IITC-CE/ingress-intel-total-conversion",
+      "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/jaiperdu/cache-portals.meta.js",
+      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/jaiperdu/cache-portals.user.js",
+      "match": [
+        "https://intel.ingress.com/*"
+      ],
+      "grant": [
+        "none"
+      ],
+      "id_hash": "cache-portals-by-jaiperdu",
+      "updatedAt": "2022-06-16T00:17:06.000Z"
+    },
+    {
+      "author": "jaiperdu",
+      "name": "COMM Filter Tab",
+      "category": "COMM",
+      "version": "0.4.12",
+      "description": "Show virus in the regular Comm and add a new tab with portal/player name filter and event type filter.",
+      "id": "comm-filter-tab@jaiperdu",
+      "namespace": "https://github.com/IITC-CE/ingress-intel-total-conversion",
+      "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/jaiperdu/comm-filter-tab.meta.js",
+      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/jaiperdu/comm-filter-tab.user.js",
+      "match": [
+        "https://intel.ingress.com/*"
+      ],
+      "grant": [
+        "none"
+      ],
+      "id_hash": "comm-filter-tab-by-jaiperdu",
+      "updatedAt": "2024-02-25T00:32:24.000Z"
+    },
+    {
+      "author": "jaiperdu",
+      "name": "Dialog List",
+      "category": "Misc",
+      "version": "0.1.0",
+      "description": "List open dialogs in the sidebar",
+      "id": "dialogs@jaiperdu",
+      "namespace": "https://github.com/IITC-CE/ingress-intel-total-conversion",
+      "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/jaiperdu/dialogs.meta.js",
+      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/jaiperdu/dialogs.user.js",
+      "match": [
+        "https://intel.ingress.com/*"
+      ],
+      "grant": [
+        "none"
+      ],
+      "id_hash": "dialogs-by-jaiperdu",
+      "updatedAt": "2022-06-16T00:17:06.000Z"
+    },
+    {
+      "author": "jaiperdu",
+      "name": "Glify layer",
+      "category": "Map Tiles",
+      "version": "0.1.1",
+      "description": "GL layer",
+      "id": "glify-layer@jaiperdu",
+      "namespace": "https://github.com/IITC-CE/ingress-intel-total-conversion",
+      "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/jaiperdu/glify-layer.meta.js",
+      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/jaiperdu/glify-layer.user.js",
+      "match": [
+        "https://intel.ingress.com/*"
+      ],
+      "grant": [
+        "none"
+      ],
+      "id_hash": "glify-layer-by-jaiperdu",
+      "updatedAt": "2023-05-05T00:29:16.000Z"
+    },
+    {
+      "author": "jaiperdu",
+      "name": "Highlight uniques captured/visited/scanned",
+      "category": "Highlighter",
+      "version": "1.5.5",
+      "description": "Highlighter for unique visited/captured/scout controlled portals",
+      "id": "highlight-intel-uniques@jaiperdu",
+      "namespace": "https://github.com/IITC-CE/ingress-intel-total-conversion",
+      "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/jaiperdu/highlight-intel-uniques.meta.js",
+      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/jaiperdu/highlight-intel-uniques.user.js",
+      "match": [
+        "https://intel.ingress.com/*"
+      ],
+      "grant": [
+        "none"
+      ],
+      "id_hash": "highlight-intel-uniques-by-jaiperdu",
+      "updatedAt": "2022-06-16T00:17:06.000Z"
+    },
+    {
+      "author": "jaiperdu",
+      "name": "Ingress Icons",
+      "category": "Appearance",
+      "version": "0.1.2",
+      "description": "Bring ameba64/ingress-items icons into IITC",
+      "id": "ingress-icons@jaiperdu",
+      "namespace": "https://github.com/IITC-CE/ingress-intel-total-conversion",
+      "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/jaiperdu/ingress-icons.meta.js",
+      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/jaiperdu/ingress-icons.user.js",
+      "preview": "https://i.ibb.co/nsprM3s/IITC-Ingress-Icons-by-jaiperdu-desktop.jpg",
+      "match": [
+        "https://intel.ingress.com/*"
+      ],
+      "grant": [
+        "none"
+      ],
+      "id_hash": "ingress-icons-by-jaiperdu",
+      "updatedAt": "2022-11-14T00:35:45.000Z"
+    },
+    {
+      "author": "jaiperdu",
+      "name": "Default base maps with labels above fields",
+      "category": "Map Tiles",
+      "version": "0.2.3",
+      "description": "Print labels as an overlay of intel layer",
+      "id": "labels_layer@jaiperdu",
+      "namespace": "https://github.com/IITC-CE/ingress-intel-total-conversion",
+      "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/jaiperdu/labels_layer.meta.js",
+      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/jaiperdu/labels_layer.user.js",
+      "match": [
+        "https://intel.ingress.com/*"
+      ],
+      "grant": [
+        "none"
+      ],
+      "id_hash": "labels_layer-by-jaiperdu",
+      "updatedAt": "2022-06-16T00:17:06.000Z"
+    },
+    {
+      "author": "jaiperdu",
+      "name": "MUs Tab",
+      "category": "COMM",
+      "version": "0.1.1",
+      "description": "Add a MUs tab scoring the MU",
+      "id": "muTab@jaiperdu",
+      "namespace": "https://github.com/IITC-CE/ingress-intel-total-conversion",
+      "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/jaiperdu/muTab.meta.js",
+      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/jaiperdu/muTab.user.js",
+      "match": [
+        "https://intel.ingress.com/*"
+      ],
+      "grant": [
+        "none"
+      ],
+      "id_hash": "muTab-by-jaiperdu",
+      "updatedAt": "2023-10-20T00:28:58.000Z"
+    },
+    {
+      "author": "jaiperdu",
+      "name": "Player Inventory",
+      "category": "Info",
+      "version": "0.4.4",
+      "description": "View inventory and highlight portals with keys at any zoom. Can be used with the official plugins Keys and Keys on map to show the number of keys on the map.",
+      "id": "player-inventory@jaiperdu",
+      "namespace": "https://github.com/IITC-CE/ingress-intel-total-conversion",
+      "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/jaiperdu/player-inventory.meta.js",
+      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/jaiperdu/player-inventory.user.js",
+      "match": [
+        "https://intel.ingress.com/*"
+      ],
+      "grant": [
+        "none"
+      ],
+      "id_hash": "player-inventory-by-jaiperdu",
+      "updatedAt": "2022-11-19T14:34:46.000Z"
+    },
+    {
+      "author": "jaiperdu",
+      "name": "Portals pictures",
+      "category": "Info",
+      "version": "0.1.4",
+      "description": "Show portal pictures in a dialog",
+      "id": "portals-pictures@jaiperdu",
+      "namespace": "https://github.com/IITC-CE/ingress-intel-total-conversion",
+      "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/jaiperdu/portals-pictures.meta.js",
+      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/jaiperdu/portals-pictures.user.js",
+      "match": [
+        "https://intel.ingress.com/*"
+      ],
+      "grant": [
+        "none"
+      ],
+      "id_hash": "portals-pictures-by-jaiperdu",
+      "updatedAt": "2022-11-14T00:35:45.000Z"
+    },
+    {
+      "author": "modkin",
+      "id": "multi_export@modkin",
+      "name": "Portal Multi Export",
+      "category": "Misc",
+      "version": "0.11",
+      "namespace": "https://github.com/jonatkins/ingress-intel-total-conversion",
+      "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/modkin/multi_export.meta.js",
+      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/modkin/multi_export.user.js",
+      "description": "Export portals from bookmarks, current view or polygon",
+      "include": [
+        "http*://*intel.ingress.com/*"
+      ],
+      "match": [
+        "https://intel.ingress.com/*"
+      ],
+      "grant": [
+        "none"
+      ],
+      "id_hash": "multi_export-by-modkin",
+      "updatedAt": "2022-08-16T21:52:27.000Z"
+    },
+    {
+      "author": "mrDinckleman",
+      "id": "aurora@mrDinckleman",
+      "name": "Aurora Glyph Hack Challenge",
+      "category": "Misc",
+      "version": "0.1.1.20190821.192931",
+      "description": "Allow manual entry of portals glyphed during Aurora Glyph Hack Challenge. Use the 'highlighter-aurora' plugin to show the portals on the map, and 'sync' to share between multiple browsers or desktop/mobile.",
+      "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/mrDinckleman/aurora.meta.js",
+      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/mrDinckleman/aurora.user.js",
+      "namespace": "https://github.com/mrDinckleman/iitc-plugins",
+      "include": [
+        "https://intel.ingress.com/*"
+      ],
+      "match": [
+        "https://intel.ingress.com/*"
+      ],
+      "grant": [
+        "none"
+      ],
+      "id_hash": "aurora-by-mrDinckleman",
+      "updatedAt": "2022-08-16T21:52:27.000Z"
+    },
+    {
+      "author": "mrDinckleman",
+      "id": "umbra@mrDinckleman",
+      "name": "Umbra Deploy Challenge",
+      "category": "Misc",
+      "version": "0.1.1.20191224.211839",
+      "description": "Allow manual entry of portals deployed during Umbra Deploy Challenge. Use the 'highlighter-umbra' plugin to show the portals on the map, and 'sync' to share between multiple browsers or desktop/mobile.",
+      "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/mrDinckleman/umbra.meta.js",
+      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/mrDinckleman/umbra.user.js",
+      "namespace": "https://github.com/mrDinckleman/iitc-plugins",
+      "include": [
+        "https://intel.ingress.com/*"
+      ],
+      "match": [
+        "https://intel.ingress.com/*"
+      ],
+      "grant": [
+        "none"
+      ],
+      "id_hash": "umbra-by-mrDinckleman",
+      "updatedAt": "2022-08-16T21:52:27.000Z"
+    },
+    {
+      "author": "Kofirs2634 aka Nerotu",
+      "id": "portals_gallery_script@nerotu",
+      "name": "Portals Gallery",
+      "description": "Creates the gallery of portals that can be used to solve the First Saturday passcode.",
+      "category": "Info",
+      "version": "1.2.1",
+      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/nerotu/portals_gallery_script.user.js",
+      "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/nerotu/portals_gallery_script.meta.js",
+      "match": [
+        "https://intel.ingress.com/*",
+        "https://intel-x.ingress.com/*"
+      ],
+      "grant": [
+        "none"
+      ],
+      "id_hash": "portals_gallery_script-by-nerotu",
+      "updatedAt": "2022-11-26T00:31:05.000Z"
+    },
+    {
+      "author": "Wintervorst",
+      "id": "occupied19cells@wintervorst",
+      "name": "L19 Cells for Ingress",
+      "category": "Layer",
+      "version": "0.0.7.20190311.013370",
+      "namespace": "https://github.com/jonatkins/ingress-intel-total-conversion",
+      "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/wintervorst/occupied19cells.meta.js",
+      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/wintervorst/occupied19cells.user.js",
+      "description": "Highlights level 19 cells where portal limit is reached, in order to see where you would best submit new candidates",
+      "depends": [
+        "s2celldrawer@wintervorst"
+      ],
+      "include": [
+        "https://*.ingress.com/intel*",
+        "http://*.ingress.com/intel*",
+        "https://*.ingress.com/mission/*",
+        "http://*.ingress.com/mission/*"
+      ],
+      "match": [
+        "https://*.ingress.com/intel*",
+        "http://*.ingress.com/intel*",
+        "https://*.ingress.com/mission/*",
+        "http://*.ingress.com/mission/*"
+      ],
+      "grant": [
+        "none"
+      ],
+      "id_hash": "occupied19cells-by-wintervorst",
+      "updatedAt": "2022-08-16T21:52:27.000Z",
+      "_depends_links": [
+        {
+          "id": "s2celldrawer@wintervorst",
+          "hash": "s2celldrawer-by-wintervorst",
+          "source": "community"
+        }
+      ]
+    },
+    {
+      "author": "Wintervorst",
+      "id": "s2celldrawer@wintervorst",
+      "name": "S2 Cell Drawer",
+      "category": "Layer",
+      "version": "0.0.4.20181209.010307",
+      "namespace": "https://github.com/jonatkins/ingress-intel-total-conversion",
+      "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/wintervorst/s2celldrawer.meta.js",
+      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/wintervorst/s2celldrawer.user.js",
+      "description": "Allows drawing of s2cells and creates a layerselected hook",
+      "include": [
+        "https://*.ingress.com/intel*",
+        "http://*.ingress.com/intel*",
+        "https://*.ingress.com/mission/*",
+        "http://*.ingress.com/mission/*"
+      ],
+      "match": [
+        "https://*.ingress.com/intel*",
+        "http://*.ingress.com/intel*",
+        "https://*.ingress.com/mission/*",
+        "http://*.ingress.com/mission/*"
+      ],
+      "grant": [
+        "none"
+      ],
+      "id_hash": "s2celldrawer-by-wintervorst",
+      "updatedAt": "2022-08-16T21:52:27.000Z"
+    },
+    {
+      "author": "Wintervorst",
+      "id": "submitrange@wintervorst",
+      "name": "Portal submitrange",
+      "category": "Layer",
+      "version": "1.0.12.20190613.013370",
+      "namespace": "https://github.com/jonatkins/ingress-intel-total-conversion",
+      "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/wintervorst/submitrange.meta.js",
+      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/wintervorst/submitrange.user.js",
+      "description": "Shows the 'too close' radius of existing portals, in order to see where you can search for and submit new candidates",
+      "match": [
+        "https://intel.ingress.com/*",
+        "http://intel.ingress.com/*",
+        "https://*.ingress.com/mission/*",
+        "http://*.ingress.com/mission/*"
+      ],
+      "include": [
+        "https://*.ingress.com/mission/*",
+        "http://*.ingress.com/mission/*"
+      ],
+      "grant": [
+        "none"
+      ],
+      "id_hash": "submitrange-by-wintervorst",
+      "updatedAt": "2022-08-16T21:52:27.000Z"
+    },
+    {
+      "author": "xMAXIMx",
+      "id": "agent-profile-link@xMAXIMx",
+      "name": "Agent profile link",
+      "description": "Adds agent profile link in search bar of IITC",
+      "version": "0.1",
+      "category": "Info",
+      "namespace": "https://zxc.one",
+      "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/xMAXIMx/agent-profile-link.meta.js",
+      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/xMAXIMx/agent-profile-link.user.js",
+      "include": [
+        "*://*.ingress.com/*"
+      ],
+      "match": [
+        "*://*.ingress.com/*"
+      ],
+      "id_hash": "agent-profile-link-by-xMAXIMx",
+      "updatedAt": "2023-05-10T16:59:19.000Z"
+    },
+    {
+      "author": "xMAXIMx",
+      "id": "scanner-link-copy@xMAXIMx",
+      "name": "Scanner link-copy",
+      "version": "0.2.1",
+      "description": "Adds scanner link (copy mode) to IITC",
+      "category": "Info",
+      "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/xMAXIMx/scanner-link-copy.meta.js",
+      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/xMAXIMx/scanner-link-copy.user.js",
+      "include": [
+        "*://*.ingress.com/*"
+      ],
+      "match": [
+        "*://*.ingress.com/*"
+      ],
+      "id_hash": "scanner-link-copy-by-xMAXIMx",
+      "updatedAt": "2022-08-16T21:52:27.000Z"
+    },
+    {
+      "author": "xMAXIMx",
+      "id": "scanner-link@xMAXIMx",
+      "name": "Scanner link",
+      "version": "0.1",
+      "description": "Adds scanner link to IITC",
+      "category": "Info",
+      "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/xMAXIMx/scanner-link.meta.js",
+      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/xMAXIMx/scanner-link.user.js",
+      "include": [
+        "*://*.ingress.com/*"
+      ],
+      "match": [
+        "*://*.ingress.com/*"
+      ],
+      "id_hash": "scanner-link-by-xMAXIMx",
+      "updatedAt": "2022-08-16T21:52:27.000Z"
+    },
+    {
+      "author": "xificurk",
+      "id": "basemap-seznam@xificurk",
+      "name": "Seznam map tiles",
+      "category": "Map Tiles",
+      "version": "0.2.0.20230130.201555",
+      "namespace": "https://github.com/xificurk/iitc-plugins",
+      "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/xificurk/basemap-seznam.meta.js",
+      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/xificurk/basemap-seznam.user.js",
+      "description": "Seznam map tiles.",
+      "issueTracker": "https://github.com/xificurk/iitc-plugins/issues",
+      "homepageURL": "https://github.com/xificurk/iitc-plugins",
+      "include": [
+        "https://intel.ingress.com/*",
+        "http://intel.ingress.com/*",
+        "https://*.ingress.com/intel*",
+        "http://*.ingress.com/intel*",
+        "https://*.ingress.com/mission/*",
+        "http://*.ingress.com/mission/*"
+      ],
+      "match": [
+        "https://intel.ingress.com/*",
+        "http://intel.ingress.com/*",
+        "https://*.ingress.com/intel*",
+        "http://*.ingress.com/intel*",
+        "https://*.ingress.com/mission/*",
+        "http://*.ingress.com/mission/*"
+      ],
+      "grant": [
+        "none"
+      ],
+      "id_hash": "basemap-seznam-by-xificurk",
+      "updatedAt": "2023-01-31T19:14:11.000Z"
+    },
+    {
+      "author": "xificurk",
+      "id": "portal-highlighter-uniques-opacity@xificurk",
+      "name": "Highlight unique visits/captures using opacity",
+      "category": "Highlighter",
+      "version": "0.2.1.20230304.150308",
+      "namespace": "https://github.com/xificurk/iitc-plugins",
+      "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/xificurk/portal-highlighter-uniques-opacity.meta.js",
+      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/xificurk/portal-highlighter-uniques-opacity.user.js",
+      "description": "Use stroke and fill opacity to denote player's unique visits and captures. Requires uniques plugin.",
+      "issueTracker": "https://github.com/xificurk/iitc-plugins/issues",
+      "homepageURL": "https://github.com/xificurk/iitc-plugins",
+      "preview": "https://raw.githubusercontent.com/xificurk/iitc-plugins/master/images/portal-highlighter-uniques-opacity.png",
+      "include": [
+        "https://intel.ingress.com/*",
+        "http://intel.ingress.com/*",
+        "https://*.ingress.com/intel*",
+        "http://*.ingress.com/intel*",
+        "https://*.ingress.com/mission/*",
+        "http://*.ingress.com/mission/*"
+      ],
+      "match": [
+        "https://intel.ingress.com/*",
+        "http://intel.ingress.com/*",
+        "https://*.ingress.com/intel*",
+        "http://*.ingress.com/intel*",
+        "https://*.ingress.com/mission/*",
+        "http://*.ingress.com/mission/*"
+      ],
+      "grant": [
+        "none"
+      ],
+      "id_hash": "portal-highlighter-uniques-opacity-by-xificurk",
+      "updatedAt": "2023-03-05T00:38:33.000Z"
+    },
+    {
+      "author": "xificurk",
+      "id": "uniques-gdpr@xificurk",
+      "name": "show uniques visit/captures based on GDPR game_log",
+      "category": "Misc",
+      "version": "0.1.0.20201122.121942",
+      "namespace": "https://github.com/xificurk/iitc-plugins",
+      "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/xificurk/uniques-gdpr.meta.js",
+      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/xificurk/uniques-gdpr.user.js",
+      "description": "Show uniques visit/captures based on GDPR game_log",
+      "issueTracker": "https://github.com/xificurk/iitc-plugins/issues",
+      "homepageURL": "https://github.com/xificurk/iitc-plugins",
+      "include": [
+        "https://intel.ingress.com/*",
+        "http://intel.ingress.com/*",
+        "https://*.ingress.com/intel*",
+        "http://*.ingress.com/intel*",
+        "https://*.ingress.com/mission/*",
+        "http://*.ingress.com/mission/*"
+      ],
+      "match": [
+        "https://intel.ingress.com/*",
+        "http://intel.ingress.com/*",
+        "https://*.ingress.com/intel*",
+        "http://*.ingress.com/intel*",
+        "https://*.ingress.com/mission/*",
+        "http://*.ingress.com/mission/*"
+      ],
+      "grant": [
+        "none"
+      ],
+      "id_hash": "uniques-gdpr-by-xificurk",
+      "updatedAt": "2022-08-16T21:52:27.000Z"
+    },
+    {
+      "author": "xificurk",
+      "id": "uniques-heatmap@xificurk",
+      "name": "Unique visits/captures heatmap",
+      "category": "Layer",
+      "version": "0.2.1.20210207.174711",
+      "namespace": "https://github.com/xificurk/iitc-plugins",
+      "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/xificurk/uniques-heatmap.meta.js",
+      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/xificurk/uniques-heatmap.user.js",
+      "description": "Display heatmap of all portals that the player did NOT visit/capture.",
+      "issueTracker": "https://github.com/xificurk/iitc-plugins/issues",
+      "homepageURL": "https://github.com/xificurk/iitc-plugins",
+      "preview": "https://raw.githubusercontent.com/xificurk/iitc-plugins/master/images/uniques-heatmap-explorer.png",
+      "include": [
+        "https://intel.ingress.com/*",
+        "http://intel.ingress.com/*",
+        "https://*.ingress.com/intel*",
+        "http://*.ingress.com/intel*",
+        "https://*.ingress.com/mission/*",
+        "http://*.ingress.com/mission/*"
+      ],
+      "match": [
+        "https://intel.ingress.com/*",
+        "http://intel.ingress.com/*",
+        "https://*.ingress.com/intel*",
+        "http://*.ingress.com/intel*",
+        "https://*.ingress.com/mission/*",
+        "http://*.ingress.com/mission/*"
+      ],
+      "grant": [
+        "none"
+      ],
+      "id_hash": "uniques-heatmap-by-xificurk",
+      "updatedAt": "2022-08-16T21:52:27.000Z"
+    },
+    {
+      "author": "Zetaphor",
+      "id": "ingress_export@zetaphor",
+      "name": "Ingress Portal CSV Export",
+      "category": "Information",
+      "version": "0.0.5",
+      "namespace": "http://github.com/Zetaphor/IITC-Ingress-Portal-CSV-Export",
+      "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/zetaphor/ingress_export.meta.js",
+      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/zetaphor/ingress_export.user.js",
+      "description": "Exports portals to a CSV list",
+      "antiFeatures": [
+        "scraper",
+        "export"
+      ],
+      "include": [
+        "https://*ingress.com/intel*",
+        "http://*ingress.com/intel*"
+      ],
+      "match": [
+        "https://*ingress.com/intel*",
+        "http://*ingress.com/intel*",
+        "https://intel.ingress.com/*",
+        "http://intel.ingress.com/*"
+      ],
+      "grant": [
+        "none"
+      ],
+      "id_hash": "ingress_export-by-zetaphor",
+      "updatedAt": "2022-12-12T10:38:19.000Z"
+    }
+  ],
+  "version": 2
+}

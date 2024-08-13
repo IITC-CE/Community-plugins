@@ -703,7 +703,7 @@ Plan a route for your drone (manually), draw your route between portals in range
 
 Shows drone flight distance between portals
 
-*[Homepage](https://gitbub.com/VE6SRV/iitc-plugins)* |
+*[Homepage](https://github.com/VE6SRV/iitc-plugins)* |
 *Version:* 0.1
 
 

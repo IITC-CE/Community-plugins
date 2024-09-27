@@ -282,7 +282,7 @@ Manage LocalStorage: import, export and delete.
 
 Add an image to your map.
 
-*Version:* 0.0.0
+*Version:* 1.0
 
 
   

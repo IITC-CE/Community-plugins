@@ -1185,17 +1185,17 @@ Storage favorite logs.
 
 
   
-### [Mediagress](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/IngressPlus/mediagress.user.js) by Mediagress
+### [Mediagress](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/IngressPlus/mediagress.user.js) by IngressPlus
 
 **Anti-features:** **[export](/CONTRIBUTING.md#anti-features)** 
 
 ![preview](https://ingress.plus/images/mediagress_upload.jpg)
 
-Upload your media to Mediagress
+Upload and contribute your Media to Mediagress. Requires a C.O.R.E. subscription to access your Inventory.
 
 *[Homepage](https://ingress.plus/media)* |
 *[Issue tracker](https://github.com/dedo1911/ingress-plus/issues)* |
-*Version:* 1.0.3
+*Version:* 1.0.4
 
 
   

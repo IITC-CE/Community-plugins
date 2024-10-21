@@ -1,0 +1,7 @@
+updateURL: https://ingress.plus/mediagress.user.js
+downloadURL: https://ingress.plus/mediagress.user.js
+preview: https://ingress.plus/images/mediagress_upload.jpg
+issueTracker: https://github.com/dedo1911/ingress-plus/issues
+homepageURL: https://ingress.plus/media
+antiFeatures:
+  - export

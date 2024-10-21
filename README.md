@@ -2,7 +2,7 @@
 
 A collection of amazing plugins made by community.
 
-There are now 117 plugins from 35 authors in the collection.
+There are now 118 plugins from 36 authors in the collection.
 
 > Note: You must install IITC-CE on your [desktop](https://iitc.app/download_desktop)
 or [mobile device](https://iitc.app/download_mobile) to use IITC plugins.
@@ -1182,6 +1182,20 @@ A mini-game based on ingress and IITC
 Storage favorite logs.
 
 *Version:* 0.0.2.20200216.174029
+
+
+  
+### [Mediagress](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/IngressPlus/mediagress.user.js) by IngressPlus
+
+**Anti-features:** **[export](/CONTRIBUTING.md#anti-features)** 
+
+![preview](https://ingress.plus/images/mediagress_upload.jpg)
+
+Upload and contribute your Media to Mediagress. Requires a C.O.R.E. subscription to access your Inventory.
+
+*[Homepage](https://ingress.plus/media)* |
+*[Issue tracker](https://github.com/dedo1911/ingress-plus/issues)* |
+*Version:* 1.0.4
 
 
   

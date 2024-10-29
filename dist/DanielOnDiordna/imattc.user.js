@@ -1,7 +1,7 @@
 // ==UserScript==
 // @author         @Chyld314 @DanielOndiordna
 // @name           IMATTC
-// @version        1.12.4.20230113.110500
+// @version        1.12.5.20241028.234600
 // @updateURL      https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/imattc.meta.js
 // @downloadURL    https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/imattc.user.js
 // @description    Ingress Mission Authoring Tool Total Conversion, adding categories for missions, show banner preview, export json, download images, and more.
@@ -19,9 +19,12 @@
 // removed from the Tampermonkey headers:
 // @require      https://code.jquery.com/ui/1.10.4/jquery-ui.min.js
 
-var imattcversion = "1.12.4.20230113.110500";
+var imattcversion = "1.12.5.20241028.234600";
 var changelog = `
 Changelog:
+
+version 1.12.5.20241028.234600
+- added auto confirm for repeating confirm messages when deleting or unpublishing multiple missions or canceling reviews
 
 version 1.12.4.20230113.110500
 - hide the not-working submit button displayed with the checkboxes buttons (not implemented yet)
@@ -2057,4 +2060,29 @@ function init() {
     }
     */
     `;
+
+    // auto confirm repeating confirm messages
+    let originalconfirm = window.confirm;
+    let lastconfirmmessage = null;
+    let timerid = null;
+    let timeout = 5000; // 5 seconds
+    window.confirm = function(message) {
+        if (timerid) {
+            clearTimeout(timerid);
+            timerid = null;
+        }
+        if (message.match(/This action permanently deletes the mission from DataStore|Click okay to unpublish mission|Click okay to cancel review/)) {
+            if (lastconfirmmessage == message) {
+                console.log("Skipping repeated confirm",message);
+            } else if (!originalconfirm(message)) return false;
+
+            lastconfirmmessage = message;
+            timerid = setTimeout(function() {
+                timerid = null;
+                lastconfirmmessage = null;
+            },timeout);
+            return true;
+        }
+        return originalconfirm(message);
+    }
 })();

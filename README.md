@@ -1308,7 +1308,7 @@ Allow manual entry of portals deployed during Umbra Deploy Challenge. Use the &#
 
 Ingress Mission Authoring Tool Total Conversion, adding categories for missions, show banner preview, export json, download images, and more.
 
-*Version:* 1.12.4.20230113.110500
+*Version:* 1.12.5.20241028.234600
 
 
   

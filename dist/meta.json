@@ -511,7 +511,7 @@
     {
       "author": "@Chyld314 @DanielOndiordna",
       "name": "IMATTC",
-      "version": "1.12.4.20230113.110500",
+      "version": "1.12.5.20241028.234600",
       "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/imattc.meta.js",
       "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/imattc.user.js",
       "description": "Ingress Mission Authoring Tool Total Conversion, adding categories for missions, show banner preview, export json, download images, and more.",
@@ -528,7 +528,7 @@
         "none"
       ],
       "id_hash": "imattc-by-DanielOnDiordna",
-      "updatedAt": "2023-01-14T00:31:35.000Z"
+      "updatedAt": "2024-10-29T00:40:53.117Z"
     },
     {
       "author": "DanielOnDiordna",
@@ -1087,7 +1087,7 @@
         "none"
       ],
       "id_hash": "mediagress-by-IngressPlus",
-      "updatedAt": "2024-10-21T12:04:01.503Z"
+      "updatedAt": "2024-10-21T12:04:11.000Z"
     },
     {
       "author": "Jormund",

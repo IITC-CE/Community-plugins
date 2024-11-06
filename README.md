@@ -536,7 +536,7 @@ Show portal info about resonators and mods for the selected portal directly on t
 
 View inventory and highlight portals with keys at any zoom. Can be used with the official plugins Keys and Keys on map to show the number of keys on the map.
 
-*Version:* 0.4.4
+*Version:* 0.4.5
 
 
   

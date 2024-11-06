@@ -528,7 +528,7 @@
         "none"
       ],
       "id_hash": "imattc-by-DanielOnDiordna",
-      "updatedAt": "2024-10-29T00:40:53.117Z"
+      "updatedAt": "2024-10-29T00:41:08.000Z"
     },
     {
       "author": "DanielOnDiordna",
@@ -2298,7 +2298,7 @@
       "author": "jaiperdu",
       "name": "Player Inventory",
       "category": "Info",
-      "version": "0.4.4",
+      "version": "0.4.5",
       "description": "View inventory and highlight portals with keys at any zoom. Can be used with the official plugins Keys and Keys on map to show the number of keys on the map.",
       "id": "player-inventory@jaiperdu",
       "namespace": "https://github.com/IITC-CE/ingress-intel-total-conversion",
@@ -2311,7 +2311,7 @@
         "none"
       ],
       "id_hash": "player-inventory-by-jaiperdu",
-      "updatedAt": "2022-11-19T14:34:46.000Z"
+      "updatedAt": "2024-11-06T00:39:23.111Z"
     },
     {
       "author": "jaiperdu",

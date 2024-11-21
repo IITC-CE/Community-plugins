@@ -2311,7 +2311,7 @@
         "none"
       ],
       "id_hash": "player-inventory-by-jaiperdu",
-      "updatedAt": "2024-11-06T00:39:23.111Z"
+      "updatedAt": "2024-11-06T00:39:26.000Z"
     },
     {
       "author": "jaiperdu",
@@ -2422,7 +2422,7 @@
       "id": "occupied19cells@wintervorst",
       "name": "L19 Cells for Ingress",
       "category": "Layer",
-      "version": "0.0.7.20190311.013370",
+      "version": "0.0.8.20241120.013370",
       "namespace": "https://github.com/jonatkins/ingress-intel-total-conversion",
       "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/wintervorst/occupied19cells.meta.js",
       "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/wintervorst/occupied19cells.user.js",
@@ -2440,13 +2440,15 @@
         "https://*.ingress.com/intel*",
         "http://*.ingress.com/intel*",
         "https://*.ingress.com/mission/*",
-        "http://*.ingress.com/mission/*"
+        "http://*.ingress.com/mission/*",
+        "https://intel.ingress.com/*",
+        "http://intel.ingress.com/*"
       ],
       "grant": [
         "none"
       ],
       "id_hash": "occupied19cells-by-wintervorst",
-      "updatedAt": "2022-08-16T21:52:27.000Z",
+      "updatedAt": "2024-11-21T00:42:18.427Z",
       "_depends_links": [
         {
           "id": "s2celldrawer@wintervorst",
@@ -2460,7 +2462,7 @@
       "id": "s2celldrawer@wintervorst",
       "name": "S2 Cell Drawer",
       "category": "Layer",
-      "version": "0.0.4.20181209.010307",
+      "version": "0.0.5.20241120.010307",
       "namespace": "https://github.com/jonatkins/ingress-intel-total-conversion",
       "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/wintervorst/s2celldrawer.meta.js",
       "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/wintervorst/s2celldrawer.user.js",
@@ -2475,20 +2477,22 @@
         "https://*.ingress.com/intel*",
         "http://*.ingress.com/intel*",
         "https://*.ingress.com/mission/*",
-        "http://*.ingress.com/mission/*"
+        "http://*.ingress.com/mission/*",
+        "https://intel.ingress.com/*",
+        "http://intel.ingress.com/*"
       ],
       "grant": [
         "none"
       ],
       "id_hash": "s2celldrawer-by-wintervorst",
-      "updatedAt": "2022-08-16T21:52:27.000Z"
+      "updatedAt": "2024-11-21T00:42:18.579Z"
     },
     {
       "author": "Wintervorst",
       "id": "submitrange@wintervorst",
       "name": "Portal submitrange",
       "category": "Layer",
-      "version": "1.0.12.20190613.013370",
+      "version": "1.0.13.20241120.013370",
       "namespace": "https://github.com/jonatkins/ingress-intel-total-conversion",
       "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/wintervorst/submitrange.meta.js",
       "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/wintervorst/submitrange.user.js",
@@ -2507,7 +2511,7 @@
         "none"
       ],
       "id_hash": "submitrange-by-wintervorst",
-      "updatedAt": "2022-08-16T21:52:27.000Z"
+      "updatedAt": "2024-11-21T00:42:18.743Z"
     },
     {
       "author": "xMAXIMx",

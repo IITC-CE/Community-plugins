@@ -771,7 +771,7 @@ Place an image on the map, to help draw field art
 Highlights level 19 cells where portal limit is reached, in order to see where you would best submit new candidates
 
 *Depends*: s2celldrawer@wintervorst  |
-*Version:* 0.0.7.20190311.013370
+*Version:* 0.0.8.20241120.013370
 
 
   
@@ -834,7 +834,7 @@ Shows Visited/Captured/Scouted status above portal markers
 
 Shows the &#39;too close&#39; radius of existing portals, in order to see where you can search for and submit new candidates
 
-*Version:* 1.0.12.20190613.013370
+*Version:* 1.0.13.20241120.013370
 
 
   
@@ -858,7 +858,7 @@ Quickly draw and move links from portal to portal on the map. Show crosslinks, f
 
 Allows drawing of s2cells and creates a layerselected hook
 
-*Version:* 0.0.4.20181209.010307
+*Version:* 0.0.5.20241120.010307
 
 
   

@@ -3,7 +3,7 @@
 // @id             inventory-overview@Guschtel
 // @name           Ingress Inventory Overview (based on Ingress Live Inventory from Freamstern)
 // @category       Utilities
-// @version        0.0.7
+// @version        0.0.8
 // @downloadURL    https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Guschtel/inventory-overview.user.js
 // @updateURL      https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Guschtel/inventory-overview.meta.js
 // @description    View inventory and shows portals you have keys from
@@ -309,7 +309,7 @@ function wrapper(plugin_info) {
  	}
  
  	function exportKeys() {
- 		const str = ['Name\tLink\tGUID\tKeys', ...thisPlugin.keyCount.map((el) => [el.portalCoupler.portalTitle, `https//intel.ingress.com/?pll=${el._latlng.lat},${el._latlng.lng}`, el.portalCoupler.portalGuid, el.count].join('\t'))].join('\n');
+ 		const str = ['Name\tLink\tGUID\tKeys', ...thisPlugin.keyCount.map((el) => [el.portalCoupler.portalTitle, `https://intel.ingress.com/?pll=${el._latlng.lat},${el._latlng.lng}`, el.portalCoupler.portalGuid, el.count].join('\t'))].join('\n');
  		navigator.clipboard.writeText(str);
  	}
  

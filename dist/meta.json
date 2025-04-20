@@ -1045,7 +1045,7 @@
       "id": "inventory-overview@Guschtel",
       "name": "Ingress Inventory Overview (based on Ingress Live Inventory from Freamstern)",
       "category": "Utilities",
-      "version": "0.0.7",
+      "version": "0.0.8",
       "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Guschtel/inventory-overview.user.js",
       "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Guschtel/inventory-overview.meta.js",
       "description": "View inventory and shows portals you have keys from",
@@ -1057,7 +1057,7 @@
         "none"
       ],
       "id_hash": "inventory-overview-by-Guschtel",
-      "updatedAt": "2022-08-16T21:52:27.000Z"
+      "updatedAt": "2025-04-20T01:18:50.834Z"
     },
     {
       "author": "IngressPlus",
@@ -2448,7 +2448,7 @@
         "none"
       ],
       "id_hash": "occupied19cells-by-wintervorst",
-      "updatedAt": "2024-11-21T00:42:18.427Z",
+      "updatedAt": "2024-11-21T00:42:19.000Z",
       "_depends_links": [
         {
           "id": "s2celldrawer@wintervorst",
@@ -2485,7 +2485,7 @@
         "none"
       ],
       "id_hash": "s2celldrawer-by-wintervorst",
-      "updatedAt": "2024-11-21T00:42:18.579Z"
+      "updatedAt": "2024-11-21T00:42:19.000Z"
     },
     {
       "author": "Wintervorst",
@@ -2511,7 +2511,7 @@
         "none"
       ],
       "id_hash": "submitrange-by-wintervorst",
-      "updatedAt": "2024-11-21T00:42:18.743Z"
+      "updatedAt": "2024-11-21T00:42:19.000Z"
     },
     {
       "author": "xMAXIMx",

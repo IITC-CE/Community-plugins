@@ -2,10 +2,10 @@
 // @author         DanielOnDiordna
 // @name           Player Tracker add-on
 // @category       Addon
-// @version        1.3.1.20240209.233200
+// @version        2.0.0.20250424.223800
 // @updateURL      https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/player-tracker-addon.meta.js
 // @downloadURL    https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/player-tracker-addon.user.js
-// @description    [danielondiordna-1.3.1.20240209.233200] Add-on to the player tracker plugin: Adjust history limit of 3 hours to another value. Toggle name labels, last action time, toggle/adjust player colors, focus on players, display 1 single player. Integrated Marker Label plugin and Spectrum Colorpicker 1.8.1 plugin. Supports Machina U̶͚̓̍N̴̖̈K̠͔̍͑̂͜N̞̥͋̀̉Ȯ̶̹͕̀W̶̢͚͑̚͝Ṉ̨̟̒̅' player.
+// @description    [danielondiordna-2.0.0.20250424.223800] Add-on to the player tracker plugin: Adjust history limit of 3 hours to another value. Toggle name labels, last action time, toggle/adjust player colors, focus on players, display 1 single player. Integrated Marker Label plugin and Spectrum Colorpicker 1.8.1 plugin. Supports Machina _̶̱̍_̴̳͉̆̈́M̷͔̤͒Ą̷̍C̴̼̕ͅH̶̹͕̼̾Ḭ̵̇̾̓N̵̺͕͒̀̍Ä̴̞̰́_̴̦̀͆̓_̷̣̈́  player.
 // @id             player-tracker-addon@DanielOnDiordna
 // @namespace      https://softspot.nl/ingress/
 // @depends        player-activity-tracker@breunigs
@@ -23,10 +23,16 @@ function wrapper(plugin_info) {
     var self = window.plugin.playerTrackerAddon;
     self.id = 'playerTrackerAddon';
     self.title = 'Player Tracker add-on';
-    self.version = '1.3.1.20240209.233200';
+    self.version = '2.0.0.20250424.223800';
     self.author = 'DanielOnDiordna';
     self.changelog = `
 Changelog:
+
+version 2.0.0.20250424.223800
+- version 2 with a lot of changes to the inner workings of the plugin
+- fix for Player Tracker version 0.14.0 and IITC 0.40.0
+- add-on will now run right after Player Tracker setup to place the Machine layer chooser under the others
+- Machina Unknown U̶͚̓̍N̴̖̈K̠͔̍͑̂͜N̞̥͋̀̉Ȯ̶̹͕̀W̶̢͚͑̚͝Ṉ̨̟̒̅' renamed to Machina _̶̱̍_̴̳͉̆̈́M̷͔̤͒Ą̷̍C̴̼̕ͅH̶̹͕̼̾Ḭ̵̇̾̓N̵̺͕͒̀̍Ä̴̞̰́_̴̦̀͆̓_̷̣̈́
 
 version 1.3.1.20240209.233200
 - minor fix to display player nickname on the labels (fix for Player Tracker version 0.12.3.20240201.073623 IITC-CE 0.37.1 beta)
@@ -104,16 +110,19 @@ version 0.0.1.20181030.212900
         showlastaction: true,
         maxdisplayevents: 10,
         showdatetime: true,
-        hidedatetoday: false,
-        hideonyourportalactions: false
+        hidedatetoday: false
     };
+    // hideonyourportalactions: false
     self.displayselectedplayer = false;
     self.selectedplayer = '';
     self.drawData_backup = '';
     self.ago_backup = '';
 
+    let unknown = 'U̶͚̓̍N̴̖̈K̠͔̍͑̂͜N̞̥͋̀̉Ȯ̶̹͕̀W̶̢͚͑̚͝Ṉ̨̟̒̅';
+    let machina = '_̶̱̍_̴̳͉̆̈́M̷͔̤͒Ą̷̍C̴̼̕ͅH̶̹͕̼̾Ḭ̵̇̾̓N̵̺͕͒̀̍Ä̴̞̰́_̴̦̀͆̓_̷̣̈́';
+
     self.restoresettings = function() {
-        if (typeof localStorage[self.localstoragesettings] != 'string' || localStorage[self.localstoragesettings] == '') return;
+        if (!Object.keys(localStorage).includes(self.localstoragesettings) || localStorage.getItem(self.localstoragesettings) == '') return;
 
         function isObject(element) {
             return (typeof element == 'object' && element instanceof Object && !(element instanceof Array));
@@ -134,25 +143,25 @@ version 0.0.1.20181030.212900
         }
 
         try {
-            let settings = JSON.parse(localStorage[self.localstoragesettings]);
+            let settings = JSON.parse(localStorage.getItem(self.localstoragesettings));
             parseSettings(settings,self.settings);
 
             // convert old settings here if needed
 
             let storechanges = false;
-            if (localStorage['plugin-playerTrackerOverride-limit']) {
-                self.settings.limit = parseFloat(localStorage['plugin-playerTrackerOverride-limit']);
-                delete(localStorage['plugin-playerTrackerOverride-limit']);
+            if (Object.keys(localStorage).includes('plugin-playerTrackerOverride-limit')) {
+                self.settings.limit = parseFloat(localStorage.getItem('plugin-playerTrackerOverride-limit'));
+                localStorage.removeItem('plugin-playerTrackerOverride-limit');
                 storechanges = true;
             }
-            if (localStorage['plugin-playerTrackerOverride-showlabels']) {
-                self.settings.showlabels = localStorage['plugin-playerTrackerOverride-showlabels'] === '1';
-                delete(localStorage['plugin-playerTrackerOverride-showlabels']);
+            if (Object.keys(localStorage).includes('plugin-playerTrackerOverride-showlabels')) {
+                self.settings.showlabels = localStorage.getItem('plugin-playerTrackerOverride-showlabels') === '1';
+                localStorage.removeItem('plugin-playerTrackerOverride-showlabels');
                 storechanges = true;
             }
-            if (localStorage['plugin-playerTrackerOverride-color']) {
-                self.settings.applyrandomcolors = localStorage['plugin-playerTrackerOverride-color'] === '1';
-                delete(localStorage['plugin-playerTrackerOverride-color']);
+            if (Object.keys(localStorage).includes('plugin-playerTrackerOverride-color')) {
+                self.settings.applyrandomcolors = localStorage.getItem('plugin-playerTrackerOverride-color') === '1';
+                localStorage.removeItem('plugin-playerTrackerOverride-color');
                 storechanges = true;
             }
 
@@ -165,11 +174,16 @@ version 0.0.1.20181030.212900
                 self.storesettings();
             }
         } catch(e) {
+            console.log(`${self.title} - Failed to restore localStorage settings`,e);
             return false;
         }
     };
     self.storesettings = function() {
-        localStorage[self.localstoragesettings] = JSON.stringify(self.settings);
+        try {
+            localStorage.setItem(self.localstoragesettings,JSON.stringify(self.settings));
+        } catch(e) {
+            console.warn(`${self.title} - Failed to store localStorage settings`,e);
+        }
     };
 
     self.setlimit = function(hours) {
@@ -187,121 +201,108 @@ version 0.0.1.20181030.212900
         self.resettracks();
     };
 
-    self.makeoptionshtml = function(options,selection) {
-        var optionslist = [];
-        if (typeof selection !== 'string') selection = selection.toString();
-        if (options instanceof Array) {
-            var cnt;
-            for (cnt = 0; cnt < options.length; cnt++) {
-                if (typeof options[cnt] !== 'string') options[cnt] = options[cnt].toString();
-                optionslist.push('<option' + (options[cnt] === selection?' selected':'') + '>' + options[cnt].replace(/&/g, "&amp;").replace(/>/g, "&gt;").replace(/</g, "&lt;") + '</option>');
-            }
-        } else if (options instanceof Object) {
-            var key;
-            for (key of Object.keys(options).sort(function(a, b) {return -(options[b] - options[a])})) {
-                if (typeof options[key] !== 'string') options[key] = options[key].toString();
-                optionslist.push('<option value="' + options[key].replace(/&/g, "&amp;").replace(/>/g, "&gt;").replace(/</g, "&lt;").replace(/"/g, "&quot;") + '"' + (options[key] === selection?' selected':'') + '>' + key.replace(/&/g, "&amp;").replace(/>/g, "&gt;").replace(/</g, "&lt;") + '</option>');
-            }
-        }
-        return optionslist.join('\n');
-    };
-
     self.labelsetup = function() {
-        if (self.settings.showlabels) {
-            // documentation: https://github.com/jacobtoye/Leaflet.iconlabel
-            // create a label for each marker, override the original code:
+        // documentation: https://github.com/jacobtoye/Leaflet.iconlabel
+        // create a label for each marker, override the original code:
 
-            // optional:
-            //  iconSize: new L.Point(24, 24),
-            //  labelClassName: 'custom-label-formatting-class',
-            if (!self.iconEnl_backup) {
-                self.iconEnl_backup = window.plugin.playerTracker.iconEnl;
-                window.plugin.playerTracker.iconEnl = L.Icon.Label.extend({
-                    options: {
-                        iconUrl: window.plugin.playerTracker.iconEnl.prototype.options.iconUrl,
-                        iconRetinaUrl: window.plugin.playerTracker.iconEnl.prototype.options.iconRetinaUrl,
-                        shadowUrl: null,
-                        iconSize: new L.Point(25, 41),
-                        iconAnchor: new L.Point(0, -28),
-                        labelAnchor: new L.Point(16, -18),
-                        wrapperAnchor: new L.Point(12, 13)
-                    }
-                });
+        // optional:
+        //  iconSize: new L.Point(24, 24),
+        //  labelClassName: 'custom-label-formatting-class',
+
+        if (!window.plugin.playerTracker.iconEnl) return; // playerTracker setup is not ready yet
+
+        self.iconLabelEnl = window.L.Icon.Label.extend({
+            options: {
+                iconUrl: window.plugin.playerTracker.iconEnl.prototype.options.iconUrl,
+                iconRetinaUrl: window.plugin.playerTracker.iconEnl.prototype.options.iconRetinaUrl,
+                shadowUrl: null,
+                iconSize: new window.L.Point(25, 41),
+                iconAnchor: new window.L.Point(0, -28),
+                labelAnchor: new window.L.Point(16, -18),
+                wrapperAnchor: new window.L.Point(12, 13)
             }
-            if (!self.iconRes_backup) {
-                self.iconRes_backup = window.plugin.playerTracker.iconRes;
-                window.plugin.playerTracker.iconRes = L.Icon.Label.extend({
-                    options: {
-                        iconUrl: window.plugin.playerTracker.iconRes.prototype.options.iconUrl,
-                        iconRetinaUrl: window.plugin.playerTracker.iconRes.prototype.options.iconRetinaUrl,
-                        shadowUrl: null,
-                        iconSize: new L.Point(25, 41),
-                        iconAnchor: new L.Point(0, -28),
-                        labelAnchor: new L.Point(16, -18),
-                        wrapperAnchor: new L.Point(12, 13)
-                    }
-                });
+        });
+
+        self.iconLabelRes = window.L.Icon.Label.extend({
+            options: {
+                iconUrl: window.plugin.playerTracker.iconRes.prototype.options.iconUrl,
+                iconRetinaUrl: window.plugin.playerTracker.iconRes.prototype.options.iconRetinaUrl,
+                shadowUrl: null,
+                iconSize: new window.L.Point(25, 41),
+                iconAnchor: new window.L.Point(0, -28),
+                labelAnchor: new window.L.Point(16, -18),
+                wrapperAnchor: new window.L.Point(12, 13)
             }
-            if (!self.iconMac_backup) {
-                self.iconMac_backup = window.plugin.playerTracker.iconMac;
-                window.plugin.playerTracker.iconMac = window.L.Icon.Label.extend({
-                    options: {
-                        iconUrl: window.plugin.playerTracker.iconMac.prototype.options.iconUrl,
-                        iconRetinaUrl: window.plugin.playerTracker.iconMac.prototype.options.iconRetinaUrl,
-                        shadowUrl: null,
-                        iconSize: new window.L.Point(25, 41),
-                        iconAnchor: new window.L.Point(0, -28),
-                        labelAnchor: new window.L.Point(16, -18),
-                        wrapperAnchor: new window.L.Point(12, 13)
-                    }
-                });
+        });
+
+        self.iconLabelMac = window.L.Icon.Label.extend({
+            options: {
+                iconUrl: window.plugin.playerTracker.iconMac.prototype.options.iconUrl,
+                iconRetinaUrl: window.plugin.playerTracker.iconMac.prototype.options.iconRetinaUrl,
+                shadowUrl: null,
+                iconSize: new window.L.Point(25, 41),
+                iconAnchor: new window.L.Point(0, -28),
+                labelAnchor: new window.L.Point(16, -18),
+                wrapperAnchor: new window.L.Point(12, 13)
             }
-        } else {
-            if (self.iconEnl_backup) {
-                window.plugin.playerTracker.iconEnl = self.iconEnl_backup;
-                self.iconEnl_backup = undefined;
-            }
-            if (self.iconRes_backup) {
-                window.plugin.playerTracker.iconRes = self.iconRes_backup;
-                self.iconRes_backup = undefined;
-            }
-            if (self.iconMac_backup) {
-                window.plugin.playerTracker.iconMac = self.iconMac_backup;
-                self.iconMac_backup = undefined;
-            }
-        }
-        self.modify_drawData();
+        });
     };
 
-    self.colorsetup = function() {
-        if (!self.processNewData_backup) {
-            self.processNewData_backup = window.plugin.playerTracker.processNewData;
-            var processNewData_override = window.plugin.playerTracker.processNewData.toString();
-            processNewData_override = processNewData_override.replace('var limit','if (!data) return;\n  var limit');
-            processNewData_override = processNewData_override.replace(/( +)(events: \[newEvent\])/,'$1$2,\n$1color: ' + self.namespace + 'getPlayerColor(plrname,json[2].plext.team)');
-            eval('window.plugin.playerTracker.processNewData = ' + processNewData_override);
-        }
-        // restore
-        /*
-    if (self.processNewData_backup) {
-      eval('window.plugin.playerTracker.processNewData = ' + self.processNewData_backup.toString());
-      self.processNewData_backup = undefined;
+    function replaceText(source,search,replace) {
+        let result = source.replace(search,replace);
+        if (result == source) console.warn(`${self.title} - ${(new Error()).stack?.split("\n")[2]?.trim().split(" ")[1]} replaceText failed: ${search}`);
+        return result;
     }
-  }
-  */
 
-        self.modify_drawData();
-    };
+    function functionExists(functionname) {
+        let functionexists = false;
+        try {
+            functionexists = typeof(eval(functionname)) == 'function';
+        } catch(e) {
+            functionexists = false;
+        }
+        return functionexists;
+    }
 
-    self.actionssetup = function() {
+    function replaceFunction(functionname,functiontext) {
+        if (!functionExists(functionname)) {
+            console.warn(`${self.title} - ${(new Error()).stack?.split("\n")[2]?.trim().split(" ")[1]} function does not exist: ${functionname}`);
+            return;
+        }
+
+        try {
+            eval(`${functionname} = ${functiontext}`);
+        } catch(e) {
+            console.warn(`${self.title} - ${(new Error()).stack?.split("\n")[2]?.trim().split(" ")[1]} replace function failed: ${functionname}`,e,functiontext);
+        }
+    }
+
+    self.modify_processNewData = function() {
+        if (!functionExists('window.plugin.playerTracker.processNewData')) return;
+
         let processNewData_override = window.plugin.playerTracker.processNewData.toString();
-        processNewData_override = processNewData_override.replace(/(, address);/,'$1, action;');
-        processNewData_override = processNewData_override.replace(/( +)(case 'TEXT':)/,'$1$2\n$1  action = markup[1].plain;');
-        processNewData_override = processNewData_override.replace(/( +)(address: address)/,'$1$2,\n$1actions: [action]');
-        eval('window.plugin.playerTracker.processNewData = ' + processNewData_override);
+
+        // prevent errors with invalid data argument
+        processNewData_override = replaceText(processNewData_override,/( +)(var limit)/,'$1if (!data) return;\n$1$2');
+
+        // add color to all stored players
+        processNewData_override = replaceText(processNewData_override,/( +)(events: \[newEvent\])/,`$1$2,\n$1color: ${self.namespace}settings.applyrandomcolors ? ${self.namespace}getRandomTeamColor(plrname,json[2].plext.team) : window.PLAYER_TRACKER_LINE_COLOUR`);
+
+        // add variable action:
+        processNewData_override = replaceText(processNewData_override,/( address);/,'$1, action;');
+        // fill action with value markup[1].plain:
+        processNewData_override = replaceText(processNewData_override,/( +)(case 'TEXT':)/,'$1$2\n$1  action = markup[1].plain;');
+        // fill actions with array
+        processNewData_override = replaceText(processNewData_override,/( +)(address: address)/,'$1$2,\n$1actions: [action]');
+
+        // remove team check, to include machina/neutral
+        processNewData_override = replaceText(processNewData_override,/ \|\| !\[window\.TEAM_RES.*\) {/,') {');
+
+        replaceFunction('window.plugin.playerTracker.processNewData',processNewData_override);
     };
 
     self.resettracks = function() {
+        if (!window.plugin.playerTracker.drawnTracesEnl) return;
         window.plugin.playerTracker.drawnTracesEnl.clearLayers();
         window.plugin.playerTracker.drawnTracesRes.clearLayers();
         window.plugin.playerTracker.drawnTracesMac.clearLayers();
@@ -309,71 +310,130 @@ version 0.0.1.20181030.212900
     };
 
     self.modify_drawData = function() {
+        if (!functionExists('window.plugin.playerTracker.drawData')) return;
         if (!self.drawData_backup) {
             self.drawData_backup = window.plugin.playerTracker.drawData.toString();
         }
-        var drawData_override = self.drawData_backup;
+        let drawData_override = self.drawData_backup;
 
-        if (self.settings.showlabels) {
-            if (drawData_override.indexOf('iconEnl()') >= 0) {
-                drawData_override = drawData_override.replace('iconEnl()','iconEnl({ labelText: (plrname || playerData.nick) + (' + self.namespace + 'settings.showlastaction?\', \' + window.plugin.playerTracker.ago(playerData.events[playerData.events.length - 1].time,now):\'\') })');
-                drawData_override = drawData_override.replace('iconRes()','iconRes({ labelText: (plrname || playerData.nick) + (' + self.namespace + 'settings.showlastaction?\', \' + window.plugin.playerTracker.ago(playerData.events[playerData.events.length - 1].time,now):\'\') })');
-            }
+        if (drawData_override.search(/var polyLineByAgeRes/) >= 0) {
+            // pre 0.40.0, add polyLineByAgeMac
+            drawData_override = replaceText(drawData_override,/(var polyLineByAgeRes.*?\n)/s,'$1var polyLineByAgeMac = {};\n');
+            drawData_override = replaceText(drawData_override,/(else\n)/s,'else if(playerData.team === \'NEUTRAL\')\n        { if (!polyLineByAgeMac[plrname]) polyLineByAgeMac[plrname] = [[], [], [], []]; polyLineByAgeMac[plrname][ageBucket].push(line); }\n      $1');
         }
 
-        if (drawData_override.indexOf('displayselectedplayer') < 0) {
-            drawData_override = drawData_override.replace('if(!playerData','if (' + self.namespace + 'displayselectedplayer && plrname !== ' + self.namespace + 'selectedplayer) {\nreturn true;\n}\nif(!playerData');
+        // add class for Machina
+        drawData_override = replaceText(drawData_override,/(addClass\('nickname.*?)('enl')/,`$1(playerData.team === 'NEUTRAL' ? 'mac' : $2)`);
+        // add Machina icon
+        drawData_override = replaceText(drawData_override,/(var icon =.*?) : (.*?);/s,`$1 : (playerData.team === 'NEUTRAL' ? new window.plugin.playerTracker.iconMac() : $2);`);
+
+        if (functionExists('window.plugin.playerTracker.getDrawnTracesByTeam')) {
+            let getDrawnTracesByTeam_string = window.plugin.playerTracker.getDrawnTracesByTeam.toString();
+            // 0.40.0: return team === 'RESISTANCE' ? window.plugin.playerTracker.drawnTracesRes : window.plugin.playerTracker.drawnTracesEnl;
+            getDrawnTracesByTeam_string = replaceText(getDrawnTracesByTeam_string,/(return .*?) : (.*?);/,'$1 : (team === \'NEUTRAL\' ? plugin.playerTracker.drawnTracesMac : $2);');
+            replaceFunction('window.plugin.playerTracker.getDrawnTracesByTeam',getDrawnTracesByTeam_string);
+        } else {
+            // 0.39.1: m.addTo(playerData.team === 'RESISTANCE' ? plugin.playerTracker.drawnTracesRes : plugin.playerTracker.drawnTracesEnl);
+            drawData_override = replaceText(drawData_override,/(m.addTo\(.*?) : (.*?);/s,'$1 : (playerData.team === \'NEUTRAL\' ? plugin.playerTracker.drawnTracesMac : $2);');
         }
 
-        if (drawData_override.indexOf('var polyLineByAgeEnl = [') >= 0) {
-            drawData_override = drawData_override.replace('var polyLineByAgeEnl = ','var polyLineByAgeEnl = {}; //');
-            drawData_override = drawData_override.replace('var polyLineByAgeRes = ','var polyLineByAgeRes = {}; //');
-            drawData_override = drawData_override.replace('polyLineByAgeRes[ageBucket].push(line);','{ if (!polyLineByAgeRes[plrname]) polyLineByAgeRes[plrname] = [[], [], [], []]; polyLineByAgeRes[plrname][ageBucket].push(line); }');
-            drawData_override = drawData_override.replace('polyLineByAgeEnl[ageBucket].push(line);','{ if (!polyLineByAgeEnl[plrname]) polyLineByAgeEnl[plrname] = [[], [], [], []]; polyLineByAgeEnl[plrname][ageBucket].push(line); }');
-            drawData_override = drawData_override.replace('$.each(polyLineByAgeEnl, function(i, polyLine) {','$.each(polyLineByAgeEnl, function(plrname, polyLineByAge) {\n$.each(polyLineByAge, function(i, polyLine) {');
-            drawData_override = drawData_override.replace('color: PLAYER_TRACKER_LINE_COLOUR,','color: window.plugin.playerTracker.stored[plrname].color,');
-            drawData_override = drawData_override.replace('$.each(polyLineByAgeRes, function(i, polyLine) {','});\n$.each(polyLineByAgeRes, function(plrname, polyLineByAge) {\n$.each(polyLineByAge, function(i, polyLine) {');
-            drawData_override = drawData_override.replace('color: PLAYER_TRACKER_LINE_COLOUR,','color: window.plugin.playerTracker.stored[plrname].color,');
+        if (drawData_override.search(/var polyLineByAgeRes/) >= 0) {
+            // pre 0.40.0, add polyLineByAgeMac
+            drawData_override = replaceText(drawData_override,/\}$/s,`
+    $.each(polyLineByAgeMac, function(plrname, polyLineByAge) {
+        $.each(polyLineByAge, function(i, polyLine) {
+            if(polyLine.length === 0) return true;
+
+            var opts = {
+                weight: 2-0.25*i,
+                color: window.plugin.playerTracker.stored[plrname].color,
+                interactive: false,
+                opacity: 1-0.2*i,
+                dashArray: "5,8"
+            };
+
+            $.each(polyLine, function(ind,poly) {
+                L.polyline(poly, opts).addTo(plugin.playerTracker.drawnTracesMac);
+            });
+        });
+    });
+    //console.log('NEUTRAL PLAYER INJECTED');
+}`);
+        }
+
+        // add icons with labels
+        drawData_override = replaceText(drawData_override,/(new .*?icon)(Enl|Res|Mac)(\(\))/g,`(${self.namespace}settings.showlabels ? new ${self.namespace}iconLabel$2({ labelText: (plrname || playerData.nick) + (${self.namespace}settings.showlastaction?', ' + ${self.namespace}ago(playerData.events[playerData.events.length - 1].time,now):'') }) : $1$2$3)`);
+
+        drawData_override = replaceText(drawData_override,/( +)(if\s*\(!playerData)/,`$1if (${self.namespace}displayselectedplayer && plrname !== ${self.namespace}selectedplayer) return true;\n$1$2`);
+
+        if (drawData_override.match(/var polyLineByAgeEnl = \[/)) {
+            // pre 0.40.0:
+            drawData_override = replaceText(drawData_override,'var polyLineByAgeEnl = ','var polyLineByAgeEnl = {}; //');
+            drawData_override = replaceText(drawData_override,'var polyLineByAgeRes = ','var polyLineByAgeRes = {}; //');
+            drawData_override = replaceText(drawData_override,'polyLineByAgeRes[ageBucket].push(line);','{ if (!polyLineByAgeRes[plrname]) polyLineByAgeRes[plrname] = [[], [], [], []]; polyLineByAgeRes[plrname][ageBucket].push(line); }');
+            drawData_override = replaceText(drawData_override,'polyLineByAgeEnl[ageBucket].push(line);','{ if (!polyLineByAgeEnl[plrname]) polyLineByAgeEnl[plrname] = [[], [], [], []]; polyLineByAgeEnl[plrname][ageBucket].push(line); }');
+
+            drawData_override = replaceText(drawData_override,'$.each(polyLineByAgeEnl, function(i, polyLine) {','$.each(polyLineByAgeEnl, function(plrname, polyLineByAge) {\n$.each(polyLineByAge, function(i, polyLine) {');
+            drawData_override = replaceText(drawData_override,'color: PLAYER_TRACKER_LINE_COLOUR,','color: window.plugin.playerTracker.stored[plrname].color,');
+            drawData_override = replaceText(drawData_override,'$.each(polyLineByAgeRes, function(i, polyLine) {','});\n$.each(polyLineByAgeRes, function(plrname, polyLineByAge) {\n$.each(polyLineByAge, function(i, polyLine) {');
+            drawData_override = replaceText(drawData_override,'color: PLAYER_TRACKER_LINE_COLOUR,','color: window.plugin.playerTracker.stored[plrname].color,');
+
             drawData_override = drawData_override + ');}';
+        } else {
+            // from 0.40.0:
+            drawData_override = replaceText(drawData_override,'color: window.PLAYER_TRACKER_LINE_COLOUR,','color: window.plugin.playerTracker.stored[playerName].color,');
         }
 
-        drawData_override = drawData_override.replace('for(var i = evtsLength - 2; i >= 0 && i >= evtsLength - 10; i--) {','for(var i = evtsLength - 2; i >= 0 && i >= evtsLength - ' + self.namespace + 'settings.maxdisplayevents; i--) {');
-        drawData_override = drawData_override.replace(/' ago'/g,'(' + self.namespace + 'settings.showdatetime?\'\':\' ago\')');
+        // 0.39.1: for(var i = evtsLength - 2; i >= 0 && i >= evtsLength - 10; i--) {
+        // 0.40.0: for (let i = evtsLength - 2; i >= 0 && i >= evtsLength - window.PLAYER_TRACKER_MAX_DISPLAY_EVENTS; i--) {
+        drawData_override = replaceText(drawData_override,/(for\s*\()(var|let)( i = evtsLength - 2; i >= 0 && i >= evtsLength - )(10|window\.PLAYER_TRACKER_MAX_DISPLAY_EVENTS)(; i--\) \{)/,'$1$2$3' + self.namespace + 'settings.maxdisplayevents$5');
 
-        if (self.settings.showcenter) {
-            if (drawData_override.indexOf('var m = L.marker(gllfe(last),') >= 0) {
-                drawData_override = drawData_override.replace('var m = L.marker(gllfe(last),','var screen = map.getBounds();\n    var markerpos = gllfe(last);\n    if (screen.contains(markerpos)) markerpos = L.latLng(screen._southWest.lat + (screen._northEast.lat - screen._southWest.lat)/2,screen._southWest.lng + (screen._northEast.lng - screen._southWest.lng)/2);\n    var m = L.marker(markerpos,');
-            }
-        }
-        eval('window.plugin.playerTracker.drawData = ' + drawData_override);
+        drawData_override = replaceText(drawData_override,/ ago = (plugin\.playerTracker\.ago|IITC\.utils\.formatAgo);/,` ago = ${self.namespace}ago;`);
+        drawData_override = replaceText(drawData_override,/(' ago')/g,`(${self.namespace}settings.showdatetime?'':$1)`);
+
+        // 0.39.1: var m = L.marker(gllfe(last), { icon: icon, opacity: absOpacity, desc: popup[0], title: tooltip });
+        // 0.40.0: const markerPos = gllfe(last);
+        //         var m = L.marker(markerPos, { icon: icon, opacity: absOpacity, desc: popup[0], title: tooltip });
+        if (drawData_override.match(/const markerPos/)) drawData_override = replaceText(drawData_override,/ +const markerPos = gllfe\(last\);\n/,'');
+        drawData_override = replaceText(drawData_override,/( +)(var m = L.marker)/,`
+$1let markerPos = gllfe(last);
+$1if (${self.namespace}settings.showcenter) {
+$1$1let screen = window.map.getBounds();
+$1$1if (screen.contains(markerPos)) markerPos = window.L.latLng(screen._southWest.lat + (screen._northEast.lat - screen._southWest.lat)/2,screen._southWest.lng + (screen._northEast.lng - screen._southWest.lng)/2);
+$1}
+$1$2`);
+
+        replaceFunction('window.plugin.playerTracker.drawData',drawData_override);
     };
 
     self.modify_ago = function() {
+        if (functionExists('window.plugin.playerTracker.ago')) {
+            window.plugin.playerTracker.ago = self.ago;
+            return;
+        }
+
+        /*
         if (!self.ago_backup) {
             self.ago_backup = window.plugin.playerTracker.ago.toString();
         }
-        var ago_override = self.ago_backup;
-        if (ago_override.indexOf('var returnVal = m') >= 0) {
-            if (ago_override.indexOf('function(time, now) {') === 0) {
-                ago_override = ago_override.replace('function(time, now) {','function(time, now) {\nif (' + self.namespace + 'settings.showdatetime) {\n        if (!(time instanceof Date)) {\n            if (time) {\n                time = new Date(time);\n            } else {\n                time = new Date();\n            }\n        }\n        return (' + self.namespace + 'settings.hidedatetoday && new Date().toDateString() == time.toDateString()?"":[time.getFullYear(),time.getMonth()+1,time.getDate()].join(\'-\') + \' \') + [time.getHours(),(\'0\' + time.getMinutes()).slice(-2)].join(\':\');\n}');
-            } else if (ago_override.indexOf('function (time, now) {') === 0) { // fix for IITC on iOS
-                ago_override = ago_override.replace('function (time, now) {','function(time, now) {\nif (' + self.namespace + 'settings.showdatetime) {\n        if (!(time instanceof Date)) {\n            if (time) {\n                time = new Date(time);\n            } else {\n                time = new Date();\n            }\n        }\n        return (' + self.namespace + 'settings.hidedatetoday && new Date().toDateString() == time.toDateString()?"":[time.getFullYear(),time.getMonth()+1,time.getDate()].join(\'-\') + \' \') + [time.getHours(),(\'0\' + time.getMinutes()).slice(-2)].join(\':\');\n}');
+        let ago_override = self.ago_backup;
+        if (ago_override.match(/var returnVal = m/)) {
+            if (ago_override.match(/function\(time, now\) \{/)) {
+                ago_override = replaceText(ago_override,/(function\(time, now\) \{\n)( +)/,`$1$2if (${self.namespace}settings.showdatetime) {\n$2$2if (!(time instanceof Date)) {\n$2$2$2if (time) {\n$2$2$2$2time = new Date(time);\n$2$2$2} else {\n$2$2$2$2time = new Date();\n$2$2$2}\n$2$2}\n$2$2return (${self.namespace}settings.hidedatetoday && new Date().toDateString() == time.toDateString()?"":[time.getFullYear(),time.getMonth()+1,time.getDate()].join('-') + ' ') + [time.getHours(),('0' + time.getMinutes()).slice(-2)].join(':');\n$2}\n$2`);
+            } else if (ago_override.match(/function \(time, now\) \{/)) { // fix for IITC on iOS
+                ago_override = replaceText(ago_override,/(function \(time, now\) \{\n)( +)/,`$1$2if (${self.namespace}settings.showdatetime) {\n$2$2if (!(time instanceof Date)) {\n$2$2$2if (time) {\n$2$2$2$2time = new Date(time);\n$2$2$2} else {\n$2$2$2$2time = new Date();\n$2$2$2}\n$2$2}\n$2$2return (${self.namespace}settings.hidedatetoday && new Date().toDateString() == time.toDateString()?"":[time.getFullYear(),time.getMonth()+1,time.getDate()].join('-') + ' ') + [time.getHours(),('0' + time.getMinutes()).slice(-2)].join(':');\n$2}\n$2`);
             }
         }
-        eval('window.plugin.playerTracker.ago = ' + ago_override);
+        replaceFunction('window.plugin.playerTracker.ago',ago_override);
+        */
     };
 
-    self.centersetup = function() {
-        self.modify_drawData();
-        window.plugin.playerTracker.drawData();
-    };
-
-    self.getRandomColor = function(plrname,team) {
+    self.getRandomTeamColor = function(plrname,team) {
         //  return '#' + (Math.random().toString(16) + '00000000').slice(2, 8).toUpperCase();
         if (!plrname) plrname = '';
 
-        var hash = 0;
-        for (var i = 0; i < plrname.length; i++) {
+        let hash = 0;
+        for (let i = 0; i < plrname.length; i++) {
             hash = plrname.charCodeAt(i) + ((hash << 5) - hash);
         }
 
@@ -381,7 +441,7 @@ version 0.0.1.20181030.212900
         hash %= 200;
         hash += 55; // result: number from 55 to 255
 
-        var randomcolor = hash.toString(16).toUpperCase();
+        let randomcolor = hash.toString(16).toUpperCase();
         if (team === 'ENLIGHTENED') {
             // random green color
             return '#00' + randomcolor + '00';
@@ -396,27 +456,14 @@ version 0.0.1.20181030.212900
         return '#' + (hash.toString(16) + '00000000').slice(2, 8).toUpperCase();
     };
 
-    self.getPlayerColor = function(plrname,team) {
-        if (window.plugin.playerTracker.stored && window.plugin.playerTracker.stored[plrname]) {
-            team = window.plugin.playerTracker.stored[plrname].team;
-            if (window.plugin.playerTracker.stored[plrname].color) return window.plugin.playerTracker.stored[plrname].color;
-            if (self.settings.applyrandomcolors) {
-                window.plugin.playerTracker.stored[plrname].color = self.getRandomColor(plrname,team);
-                return window.plugin.playerTracker.stored[plrname].color;
-            }
-        }
-
-        if (self.settings.applyrandomcolors) return self.getRandomColor(plrname,team);
-        return window.PLAYER_TRACKER_LINE_COLOUR;
-    };
-
     self.showlist = function() {
         if (!window.plugin.playerTracker.stored) return;
-        var resultsE = [];
-        var resultsR = [];
-        var resultsU = [];
-        $.each(window.plugin.playerTracker.stored, function(plrname, player) {
-            var text = plrname + ' ' + window.plugin.playerTracker.ago(player.events[player.events.length-1].time, new Date().getTime()) + (self.settings.showdatetime?'':' ago') + (player.events.length>1?' (' + player.events.length + ' events)':'');
+        let resultsE = [];
+        let resultsR = [];
+        let resultsU = [];
+
+        for (const [plrname, player] of Object.entries(window.plugin.playerTracker.stored)) {
+            let text = `${plrname} ${self.ago(player.events[player.events.length-1].time, new Date().getTime())}${self.settings.showdatetime ? '' : ' ago'}${player.events.length > 1 ? ` (${player.events.length} events)`:''}`;
 
             if (player.team === "ENLIGHTENED") {
                 resultsE.push(text);
@@ -425,191 +472,184 @@ version 0.0.1.20181030.212900
             } else {
                 resultsR.push(text);
             }
-        });
+        }
         alert('ENLIGHTENED:\n' + resultsE.sort(function(a,b) { return (a.toLowerCase() < b.toLowerCase()?-1:(a.toLowerCase() > b.toLowerCase()?1:0)); }).join('\n') + '\n' +
               '\nRESISTANCE:\n' + resultsR.sort(function(a,b) { return (a.toLowerCase() < b.toLowerCase()?-1:(a.toLowerCase() > b.toLowerCase()?1:0)); }).join('\n') + '\n' +
-              '\nU̶͚̓̍N̴̖̈K̠͔̍͑̂͜N̞̥͋̀̉Ȯ̶̹͕̀W̶̢͚͑̚͝Ṉ̨̟̒̅:\n' + resultsU.sort(function(a,b) { return (a.toLowerCase() < b.toLowerCase()?-1:(a.toLowerCase() > b.toLowerCase()?1:0)); }).join('\n'));
-    };
-
-    self.playerselectlist = function(selectedname) {
-        if (!window.plugin.playerTracker.stored || window.plugin.playerTracker.stored.length === 0) return 'nothing stored';
-
-        var list = [];
-        var players = Object.keys(window.plugin.playerTracker.stored).sort(function(a,b) { return (a.toLowerCase() < b.toLowerCase()?-1:(a.toLowerCase() > b.toLowerCase()?1:0)); });
-        if (players.length === 0) {
-            self.selectedplayer = '';
-            return '<span id="' + self.id + '_selectplayer">nothing stored</span>';
-        }
-
-        if (!selectedname) selectedname = self.selectedplayer;
-        if (!selectedname) selectedname = players[0];
-        var selectednamefound = false;
-        for (var index in players) {
-            var plrname = players[index];
-            list.push('<option style="color: ' + self.getPlayerColor(plrname) + '" value="' + plrname + '"' + (plrname === selectedname?' selected':'')+ '>' + plrname + ' ' + window.plugin.playerTracker.stored[plrname].team + '</option>');
-            if (plrname === selectedname) selectednamefound = true;
-        }
-        self.selectedplayer = (selectednamefound?selectedname:'');
-
-        return '<select id="' + self.id + '_selectplayer" style="color:' + window.plugin.playerTracker.stored[selectedname].color + ';" onchange="' + self.namespace + 'selectedplayer = this.value; if (' + self.namespace + 'displayselectedplayer) ' + self.namespace + 'resettracks(); this.style.color=window.plugin.playerTracker.stored[this.value].color; $(\'#' + self.id + '_playercolor\').spectrum(\'set\',window.plugin.playerTracker.stored[this.value].color);">' + list.join('\n') + '</select>';
+              `\n${machina}:\n` + resultsU.sort(function(a,b) { return (a.toLowerCase() < b.toLowerCase()?-1:(a.toLowerCase() > b.toLowerCase()?1:0)); }).join('\n'));
     };
 
     self.setSelectedPlayerColor = function(color) {
-        var plyrname = $('#' + self.id + '_selectplayer option:selected').val();
-        window.plugin.playerTracker.stored[plyrname].color = color;
-        $('#' + self.id + '_selectplayer').css('color',color);
-        $('#' + self.id + '_selectplayer option:selected').css('color',color);
+        if (!self.selectedplayer || !window.plugin.playerTracker?.stored[self.selectedplayer]) return;
+        window.plugin.playerTracker.stored[self.selectedplayer].color = color;
+
+        let playerselectlist_select = document.querySelector(`select[name=${self.id}_playerselectlist]`);
+        if (playerselectlist_select) {
+            playerselectlist_select.style.color = color;
+            playerselectlist_select.options[playerselectlist_select.options.selectedIndex].style.color = color;
+        }
+
         self.resettracks();
     };
 
-    self.updateplayerlist = function() {
-        if (!document.getElementById(self.id + '_selectplayer')) return;
-        var newlist = self.playerselectlist($('#' + self.id + '_selectplayer option:selected').val());
-        if (newlist !== $('#' + self.id + '_selectplayer').html()) $('#' + self.id + '_selectplayer').replaceWith(newlist);
-        $('#' + self.id + '_playercolor').spectrum('set',(window.plugin.playerTracker.stored && window.plugin.playerTracker.stored[$('#' + self.id + '_selectplayer option:selected').val()] && window.plugin.playerTracker.stored[$('#' + self.id + '_selectplayer option:selected').val()].color?window.plugin.playerTracker.stored[$('#' + self.id + '_selectplayer option:selected').val()].color:'black'));
+    self.updateplayerlist = function(playerselectlist_select,input_playercolor) {
+        if (!playerselectlist_select) playerselectlist_select = document.querySelector(`select[name=${self.id}_playerselectlist]`);
+        if (!input_playercolor) input_playercolor = document.querySelector(`input[name=${self.id}_playercolor]`);
+        if (!playerselectlist_select || !input_playercolor) return;
+
+        while (playerselectlist_select.options.length) { // remove all options
+            playerselectlist_select.options.remove(0);
+        }
+        if (!Object.keys(window.plugin.playerTracker?.stored || {}).length) {
+            let option = playerselectlist_select.appendChild(document.createElement('option'));
+            option.text = 'no players found';
+            self.selectedplayer = undefined;
+            playerselectlist_select.style.color = 'black';
+            $(input_playercolor).spectrum('set','black');
+        } else {
+            Object.keys(window.plugin.playerTracker?.stored).sort(function(a,b) { return (a.toLowerCase() < b.toLowerCase()?-1:(a.toLowerCase() > b.toLowerCase()?1:0)); }).forEach(plrname => {
+                let option = playerselectlist_select.appendChild(document.createElement('option'));
+                option.value = plrname;
+                option.text = `${plrname} ${window.plugin.playerTracker?.stored[plrname]?.team || ''}`;
+                option.style.color = window.plugin.playerTracker.stored[plrname]?.color || window.PLAYER_TRACKER_LINE_COLOUR;
+                if (!self.selectedplayer) self.selectedplayer = plrname;
+                if (plrname == self.selectedplayer) {
+                    option.selected = true;
+                    playerselectlist_select.style.color = option.style.color;
+                    $(input_playercolor).spectrum('set',option.style.color);
+                }
+            });
+        }
     };
 
     self.viewselectedplayer = function() {
-        var plyrname = $('#' + self.id + '_selectplayer option:selected').val();
-        if (!window.plugin.playerTracker.stored || !window.plugin.playerTracker.stored[plyrname]) return;
-        var lasteventlatlng = window.plugin.playerTracker.stored[plyrname].events[window.plugin.playerTracker.stored[plyrname].events.length-1].latlngs[0];
+        let plyrname = self.selectedplayer;
+        if (!plyrname || !window.plugin.playerTracker?.stored[plyrname]?.events) return;
+
+        let lasteventlatlng = window.plugin.playerTracker.stored[plyrname].events[window.plugin.playerTracker.stored[plyrname].events.length-1].latlngs[0];
         // map.fitBounds(window.plugin.quickdrawlinks.drawnItems.getBounds());
-        var position = new L.LatLng(lasteventlatlng[0],lasteventlatlng[1]);
-        window.map.setView(position, map.getZoom());
+        let position = new window.L.LatLng(lasteventlatlng[0],lasteventlatlng[1]);
+        window.map.setView(position, window.map.getZoom());
     };
 
     self.menu = function() {
-        var limitchoices = {'30 minutes':0.5,'1 hour':1,'2 hours':2,'3 hours (default)':3,'4 hours':4,'5 hours':5,'6 hours':6,'12 hours':12,'1 day':24,'2 days':48,'3 days':72,'4 days':96,'5 days':120,'6 days':144,'1 week':168};
-        var maxdisplayeventschoices = {'1':1,'5':5,'10 (default)':10,'15':15,'20':20,'25':25,'30':30,'40':40};
+        let limitchoices = {'30 minutes':0.5,'1 hour':1,'2 hours':2,'3 hours (default)':3,'4 hours':4,'5 hours':5,'6 hours':6,'12 hours':12,'1 day':24,'2 days':48,'3 days':72,'4 days':96,'5 days':120,'6 days':144,'1 week':168};
+        let maxdisplayeventschoices = {'1':1,'5':5,'10 (default)':10,'15':15,'20':20,'25':25,'30':30,'40':40};
 
         let container = document.createElement('div');
-        container.className = self.id + 'menu';
+        container.className = `${self.id}menu`;
+        container.innerHTML = `
+<input type="hidden" autofocus>
+<label><input type="checkbox" name="${self.id}_showlabels">Show player name labels</label><br>
+<label><input type="checkbox" name="${self.id}_showlastaction">Display time on labels</label><br>
+<label><input type="checkbox" name="${self.id}_showdatetime">Show date+time instead of 'ago'</label><br>
+<label><input type="checkbox" name="${self.id}_hidedatetoday">Hide date if it is today</label><br>
+Event history: <select name="${self.id}_history"></select><br>
+History lines: <select name="${self.id}_historylines"></select><br>
+<label title="This is a nice feature to make screenshots of all players on the map."><input type="checkbox" name="${self.id}_showcenter">Center all visible players on the map</label><br>
+<input type="text" name="${self.id}_playercolor"> Adjust color for selected player:<br>
+<select name="${self.id}_playerselectlist"></select><br>
+<label><input type="checkbox" name="${self.id}_randomcolor">Apply random team colors</label><br>
+<label><input type="checkbox" name="${self.id}_selectedplayer">Display selected player only</label><br>
+<a href="#" name="${self.id}_focus">Focus on selected player</a>
+<a href="#" name="${self.id}_showlist">Show list of stored players</a>
+<div class="${self.id}author">${self.title} version ${self.version} by ${self.author}</div>
+`;
 
-        let hiddenautofocusinput = container.appendChild(document.createElement('input')); // added to prevent auto focus on first element
-        hiddenautofocusinput.type = 'hidden';
-        hiddenautofocusinput.autofocus = 'autofocus';
-
-        let showlabelsarea = container.appendChild(document.createElement('label'));
-        let showlabels = showlabelsarea.appendChild(document.createElement('input'));
-        showlabels.type = 'checkbox';
+        let showlabels = container.querySelector(`input[name=${self.id}_showlabels]`);
         showlabels.checked = self.settings.showlabels;
-        showlabelsarea.appendChild(document.createTextNode('Show player name labels'));
 
-        container.appendChild(document.createElement('br'));
-
-        let showlastactionarea = container.appendChild(document.createElement('label'));
-        let showlastaction = showlastactionarea.appendChild(document.createElement('input'));
-        showlastaction.type = 'checkbox';
+        let showlastaction = container.querySelector(`input[name=${self.id}_showlastaction]`);
         showlastaction.checked = self.settings.showlastaction;
         showlastaction.disabled = !self.settings.showlabels;
-        showlastactionarea.appendChild(document.createTextNode('Display time on labels'));
 
-        container.appendChild(document.createElement('br'));
-
-        let showdatetimearea = container.appendChild(document.createElement('label'));
-        let showdatetime = showdatetimearea.appendChild(document.createElement('input'));
-        showdatetime.type = 'checkbox';
+        let showdatetime = container.querySelector(`input[name=${self.id}_showdatetime]`);
         showdatetime.checked = self.settings.showdatetime;
-        showdatetime.disabled = !(self.settings.showlabels && self.settings.showlastaction);
-        showdatetimearea.appendChild(document.createTextNode("Show date+time instead of 'ago'"));
+        //showdatetime.disabled = !(self.settings.showlabels && self.settings.showlastaction);
 
-        container.appendChild(document.createElement('br'));
-
-        let hidedatetodayarea = container.appendChild(document.createElement('label'));
-        let hidedatetoday = hidedatetodayarea.appendChild(document.createElement('input'));
-        hidedatetoday.type = 'checkbox';
+        let hidedatetoday = container.querySelector(`input[name=${self.id}_hidedatetoday]`);
         hidedatetoday.checked = self.settings.hidedatetoday;
-        hidedatetoday.disabled = !(self.settings.showlabels && self.settings.showlastaction && self.settings.showdatetime);
-        hidedatetodayarea.appendChild(document.createTextNode('Hide date if it is today'));
+        hidedatetoday.disabled = !self.settings.showdatetime; //!(self.settings.showlabels && self.settings.showlastaction && self.settings.showdatetime);
 
-        container.appendChild(document.createElement('br'));
+        // <label><input type="checkbox" name="${self.id}_hideonyourportalactions">Hide "on your portal" actions</label><br>
+        // let hideonyourportalactions = container.querySelector(`input[name=${self.id}_hideonyourportalactions]`);
+        // hideonyourportalactions.checked = self.settings.hideonyourportalactions;
 
-        let hideonyourportalactionsarea = container.appendChild(document.createElement('label'));
-        let hideonyourportalactions = hideonyourportalactionsarea.appendChild(document.createElement('input'));
-        hideonyourportalactions.type = 'checkbox';
-        hideonyourportalactions.checked = self.settings.hideonyourportalactions;
-        hideonyourportalactionsarea.appendChild(document.createTextNode('Hide "on your portal" actions'));
+        function applySettings() {
+            window.map.closePopup(window.plugin.playerTracker.playerPopup);
+            self.resettracks();
+            showlastaction.disabled = !self.settings.showlabels;
+            //showdatetime.disabled = !(self.settings.showlabels && self.settings.showlastaction);
+            hidedatetoday.disabled = !self.settings.showdatetime; //!(self.settings.showlabels && self.settings.showlastaction && self.settings.showdatetime);
+        }
 
         showlabels.addEventListener('change', function(e) {
             e.preventDefault();
             self.settings.showlabels = this.checked;
             self.storesettings();
-            self.labelsetup();
-            self.resettracks();
-            showlastaction.disabled = !self.settings.showlabels;
-            showdatetime.disabled = !(self.settings.showlabels && self.settings.showlastaction);
-            hidedatetoday.disabled = !(self.settings.showlabels && self.settings.showlastaction && self.settings.showdatetime);
+            applySettings();
         },false);
 
         showlastaction.addEventListener('change', function(e) {
             e.preventDefault();
             self.settings.showlastaction = this.checked;
             self.storesettings();
-            self.labelsetup();
-            self.resettracks();
-            showlastaction.disabled = !self.settings.showlabels;
-            showdatetime.disabled = !(self.settings.showlabels && self.settings.showlastaction);
-            hidedatetoday.disabled = !(self.settings.showlabels && self.settings.showlastaction && self.settings.showdatetime);
+            applySettings();
         },false);
 
         showdatetime.addEventListener('change', function(e) {
             e.preventDefault();
             self.settings.showdatetime = this.checked;
             self.storesettings();
-            self.labelsetup();
-            self.resettracks();
-            showlastaction.disabled = !self.settings.showlabels;
-            showdatetime.disabled = !(self.settings.showlabels && self.settings.showlastaction);
-            hidedatetoday.disabled = !(self.settings.showlabels && self.settings.showlastaction && self.settings.showdatetime);
+            applySettings();
         },false);
 
         hidedatetoday.addEventListener('change', function(e) {
             e.preventDefault();
             self.settings.hidedatetoday = this.checked;
             self.storesettings();
-            self.labelsetup();
-            self.resettracks();
-            showlastaction.disabled = !self.settings.showlabels;
-            showdatetime.disabled = !(self.settings.showlabels && self.settings.showlastaction);
-            hidedatetoday.disabled = !(self.settings.showlabels && self.settings.showlastaction && self.settings.showdatetime);
+            applySettings();
         },false);
 
+        /*
         hideonyourportalactions.addEventListener('change', function(e) {
             e.preventDefault();
             self.settings.hideonyourportalactions = this.checked;
             self.storesettings();
             self.resettracks();
         },false);
+        */
 
-        let othersettings = container.appendChild(document.createElement('div'));
-        othersettings.className = self.id + 'menu';
-        othersettings.innerHTML =
-            'History: <select onchange="' + self.namespace + 'setlimit(this.value);">' + self.makeoptionshtml(limitchoices,self.settings.limit) + '</select><br />' +
-            'History lines: <select onchange="' + self.namespace + 'setmaxdisplayevents(this.value);">' + self.makeoptionshtml(maxdisplayeventschoices,self.settings.maxdisplayevents) + '</select><br />' +
-            '<input type="checkbox" id="' + self.id + 'center" name="' + self.id + 'center" onclick="' + self.namespace + 'settings.showcenter = this.checked; ' + self.namespace + 'storesettings(); ' + self.namespace + 'centersetup(); ' + self.namespace + 'resettracks();"' + (self.settings.showcenter?' checked':'') + '><label for="' + self.id + 'center" title="This is a nice feature to make screenshots of all players on the map.">Center all visible players on the map</label><br />' +
-            '<input type="text" id="' + self.id + '_playercolor"> Adjust color for selected player:<br />' +
-            self.playerselectlist() + '<br />' +
-            '<label><input type="checkbox" id="' + self.id + 'randomcolor" name="' + self.id + 'randomcolor" onclick="' + self.namespace + 'settings.applyrandomcolors = this.checked; ' + self.namespace + 'storesettings(); ' + self.namespace + 'updateplayerlist(); ' + self.namespace + 'resettracks();"' + (self.settings.applyrandomcolors?' checked':'') + '>Apply random team colors</label><br />' +
-            '<label><input type="checkbox" id="' + self.id + 'selectedplayer" name="' + self.id + 'selectedplayer" onclick="' + self.namespace + 'displayselectedplayer = this.checked; ' + self.namespace + 'resettracks();"' + (self.displayselectedplayer?' checked':'') + '>Display selected player only</label><br />' +
-            '<a href="#" onclick="' + self.namespace + 'viewselectedplayer(); return false;">Focus on selected player</a>' +
-            '<a href="#" onclick="' + self.namespace + 'showlist(); return false;">Show list of stored players</a>';
+        let history_select = container.querySelector(`select[name=${self.id}_history]`);
+        for (let key of Object.keys(limitchoices).sort(function(a, b) {return -(limitchoices[b] - limitchoices[a])})) {
+            let option = history_select.appendChild(document.createElement('option'));
+            option.value = limitchoices[key].toString();
+            option.text = key;
+            if (limitchoices[key] == self.settings.limit) option.selected = true;
+        }
+        history_select.addEventListener('change', function(e) {
+            e.preventDefault();
+            self.setlimit(this.value);
+        },false);
+        let historylines_select = container.querySelector(`select[name=${self.id}_historylines]`);
+        for (let key of Object.keys(maxdisplayeventschoices).sort(function(a, b) {return -(maxdisplayeventschoices[b] - maxdisplayeventschoices[a])})) {
+            let option = historylines_select.appendChild(document.createElement('option'));
+            option.value = maxdisplayeventschoices[key].toString();
+            option.text = key;
+            if (maxdisplayeventschoices[key] == self.settings.maxdisplayevents) option.selected = true;
+        }
 
-        let author = container.appendChild(document.createElement('div'));
-        author.className = self.id + 'author';
-        author.textContent = self.title + ' version ' + self.version + ' by ' + self.author;
-
-        dialog({
-            id: 'ui-dialog-' + self.id,
-            html: container,
-            dialogClass: 'ui-dialog-' + self.id + 'Set',
-            title: self.title
-        }).dialog('option', 'buttons', {
-            'Changelog': function() { alert(self.changelog); },
-            'Close': function() { $(this).dialog('close'); }
-        });
+        let showcenter_checkbox = container.querySelector(`input[name=${self.id}_showcenter]`);
+        showcenter_checkbox.checked = self.settings.showcenter;
+        showcenter_checkbox.addEventListener('change', function(e) {
+            e.preventDefault();
+            self.settings.showcenter = this.checked;
+            self.storesettings();
+            self.resettracks();
+        },false);
 
         // need to initialise the 'spectrum' color picker
-        $('#' + self.id + '_playercolor').spectrum({
+        let input_playercolor = container.querySelector(`input[name=${self.id}_playercolor]`);
+        $(input_playercolor).spectrum({
             flat: false,
             showInput: true,
             showButtons: true,
@@ -627,8 +667,58 @@ version 0.0.1.20181030.212900
                 ['#c1c34a','#c38a4a','#c34a4a','#c34a6f'],
                 ['#000000','#666666','#bbbbbb','#ffffff']
             ],
-            change: function(color) { self.setSelectedPlayerColor(color.toHexString()); },
-            color: self.getPlayerColor($('#' + self.id + '_selectplayer option:selected').val()),
+            change: function(color) { self.setSelectedPlayerColor(color.toHexString()); }
+        });
+
+        let playerselectlist_select = container.querySelector(`select[name=${self.id}_playerselectlist]`);
+        self.updateplayerlist(playerselectlist_select,input_playercolor);
+        playerselectlist_select.addEventListener('change', function(e) {
+            e.preventDefault();
+            self.selectedplayer = this.value;
+            if (self.displayselectedplayer) self.resettracks();
+            this.style.color = this.options[this.options.selectedIndex].style.color;
+            $(input_playercolor).spectrum('set',this.style.color);
+        },false);
+
+        let randomcolor_checkbox = container.querySelector(`input[name=${self.id}_randomcolor]`);
+        randomcolor_checkbox.checked = self.settings.applyrandomcolors;
+        randomcolor_checkbox.addEventListener('change', function(e) {
+            e.preventDefault();
+            self.settings.applyrandomcolors = this.checked;
+
+            for (let [plrname, player] of Object.entries(window.plugin.playerTracker.stored)) {
+                player.color = self.settings.applyrandomcolors ? self.getRandomTeamColor(plrname,player.team) : window.PLAYER_TRACKER_LINE_COLOUR;
+            }
+
+            self.storesettings();
+            self.updateplayerlist(playerselectlist_select,input_playercolor);
+            self.resettracks();
+        },false);
+        let selectedplayer_checkbox = container.querySelector(`input[name=${self.id}_selectedplayer]`);
+        selectedplayer_checkbox.checked = self.displayselectedplayer;
+        selectedplayer_checkbox.addEventListener('change', function(e) {
+            e.preventDefault();
+            self.displayselectedplayer = this.checked;
+            self.resettracks();
+        },false);
+        let focus_button = container.querySelector(`a[name=${self.id}_focus]`);
+        focus_button.addEventListener('click', function(e) {
+            e.preventDefault();
+            self.viewselectedplayer();
+        },false);
+        let showlist_button = container.querySelector(`a[name=${self.id}_showlist]`);
+        showlist_button.addEventListener('click', function(e) {
+            e.preventDefault();
+            self.showlist();
+        },false);
+
+        window.dialog({
+            id: `ui-dialog-${self.id}`,
+            html: container,
+            title: self.title
+        }).dialog('option', 'buttons', {
+            'Changelog': function() { alert(self.changelog); },
+            'Close': function() { $(this).dialog('close'); }
         });
     };
 
@@ -1079,7 +1169,60 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
         $('head').append('<style>.sp-container{position:absolute;top:0;left:0;display:inline-block;*display:inline;*zoom:1;z-index:9999994;overflow:hidden}.sp-container.sp-flat{position:relative}.sp-container,.sp-container *{-webkit-box-sizing:content-box;-moz-box-sizing:content-box;box-sizing:content-box}.sp-top{position:relative;width:100%;display:inline-block}.sp-top-inner{position:absolute;top:0;left:0;bottom:0;right:0}.sp-color{position:absolute;top:0;left:0;bottom:0;right:20%}.sp-hue{position:absolute;top:0;right:0;bottom:0;left:84%;height:100%}.sp-clear-enabled .sp-hue{top:33px;height:77.5%}.sp-fill{padding-top:80%}.sp-sat,.sp-val{position:absolute;top:0;left:0;right:0;bottom:0}.sp-alpha-enabled .sp-top{margin-bottom:18px}.sp-alpha-enabled .sp-alpha{display:block}.sp-alpha-handle{position:absolute;top:-4px;bottom:-4px;width:6px;left:50%;cursor:pointer;border:1px solid #000;background:#fff;opacity:.8}.sp-alpha{display:none;position:absolute;bottom:-14px;right:0;left:0;height:8px}.sp-alpha-inner{border:solid 1px #333}.sp-clear{display:none}.sp-clear.sp-clear-display{background-position:center}.sp-clear-enabled .sp-clear{display:block;position:absolute;top:0;right:0;bottom:0;left:84%;height:28px}.sp-container,.sp-replacer,.sp-preview,.sp-dragger,.sp-slider,.sp-alpha,.sp-clear,.sp-alpha-handle,.sp-container.sp-dragging .sp-input,.sp-container button{-webkit-user-select:none;-moz-user-select:-moz-none;-o-user-select:none;user-select:none}.sp-container.sp-input-disabled .sp-input-container{display:none}.sp-container.sp-buttons-disabled .sp-button-container{display:none}.sp-container.sp-palette-buttons-disabled .sp-palette-button-container{display:none}.sp-palette-only .sp-picker-container{display:none}.sp-palette-disabled .sp-palette-container{display:none}.sp-initial-disabled .sp-initial{display:none}.sp-sat{background-image:-webkit-gradient(linear,0 0,100% 0,from(#FFF),to(rgba(204,154,129,0)));background-image:-webkit-linear-gradient(left,#FFF,rgba(204,154,129,0));background-image:-moz-linear-gradient(left,#fff,rgba(204,154,129,0));background-image:-o-linear-gradient(left,#fff,rgba(204,154,129,0));background-image:-ms-linear-gradient(left,#fff,rgba(204,154,129,0));background-image:linear-gradient(to right,#fff,rgba(204,154,129,0));-ms-filter:"progid:DXImageTransform.Microsoft.gradient(GradientType = 1, startColorstr=#FFFFFFFF, endColorstr=#00CC9A81)";filter:progid:DXImageTransform.Microsoft.gradient(GradientType=1,startColorstr=\'#FFFFFFFF\',endColorstr=\'#00CC9A81\')}.sp-val{background-image:-webkit-gradient(linear,0 100%,0 0,from(#000000),to(rgba(204,154,129,0)));background-image:-webkit-linear-gradient(bottom,#000000,rgba(204,154,129,0));background-image:-moz-linear-gradient(bottom,#000,rgba(204,154,129,0));background-image:-o-linear-gradient(bottom,#000,rgba(204,154,129,0));background-image:-ms-linear-gradient(bottom,#000,rgba(204,154,129,0));background-image:linear-gradient(to top,#000,rgba(204,154,129,0));-ms-filter:"progid:DXImageTransform.Microsoft.gradient(startColorstr=#00CC9A81, endColorstr=#FF000000)";filter:progid:DXImageTransform.Microsoft.gradient(startColorstr=\'#00CC9A81\',endColorstr=\'#FF000000\')}.sp-hue{background:-moz-linear-gradient(top,#ff0000 0%,#ffff00 17%,#00ff00 33%,#00ffff 50%,#0000ff 67%,#ff00ff 83%,#ff0000 100%);background:-ms-linear-gradient(top,#ff0000 0%,#ffff00 17%,#00ff00 33%,#00ffff 50%,#0000ff 67%,#ff00ff 83%,#ff0000 100%);background:-o-linear-gradient(top,#ff0000 0%,#ffff00 17%,#00ff00 33%,#00ffff 50%,#0000ff 67%,#ff00ff 83%,#ff0000 100%);background:-webkit-gradient(linear,left top,left bottom,from(#ff0000),color-stop(.17,#ffff00),color-stop(.33,#00ff00),color-stop(.5,#00ffff),color-stop(.67,#0000ff),color-stop(.83,#ff00ff),to(#ff0000));background:-webkit-linear-gradient(top,#ff0000 0%,#ffff00 17%,#00ff00 33%,#00ffff 50%,#0000ff 67%,#ff00ff 83%,#ff0000 100%);background:linear-gradient(to bottom,#ff0000 0%,#ffff00 17%,#00ff00 33%,#00ffff 50%,#0000ff 67%,#ff00ff 83%,#ff0000 100%)}.sp-1{height:17%;filter:progid:DXImageTransform.Microsoft.gradient(startColorstr=\'#ff0000\',endColorstr=\'#ffff00\')}.sp-2{height:16%;filter:progid:DXImageTransform.Microsoft.gradient(startColorstr=\'#ffff00\',endColorstr=\'#00ff00\')}.sp-3{height:17%;filter:progid:DXImageTransform.Microsoft.gradient(startColorstr=\'#00ff00\',endColorstr=\'#00ffff\')}.sp-4{height:17%;filter:progid:DXImageTransform.Microsoft.gradient(startColorstr=\'#00ffff\',endColorstr=\'#0000ff\')}.sp-5{height:16%;filter:progid:DXImageTransform.Microsoft.gradient(startColorstr=\'#0000ff\',endColorstr=\'#ff00ff\')}.sp-6{height:17%;filter:progid:DXImageTransform.Microsoft.gradient(startColorstr=\'#ff00ff\',endColorstr=\'#ff0000\')}.sp-hidden{display:none!important}.sp-cf:before,.sp-cf:after{content:"";display:table}.sp-cf:after{clear:both}.sp-cf{*zoom:1}@media (max-device-width:480px){.sp-color{right:40%}.sp-hue{left:63%}.sp-fill{padding-top:60%}}.sp-dragger{border-radius:5px;height:5px;width:5px;border:1px solid #fff;background:#000;cursor:pointer;position:absolute;top:0;left:0}.sp-slider{position:absolute;top:0;cursor:pointer;height:3px;left:-1px;right:-1px;border:1px solid #000;background:#fff;opacity:.8}.sp-container{border-radius:0;background-color:#ECECEC;border:solid 1px #f0c49B;padding:0}.sp-container,.sp-container button,.sp-container input,.sp-color,.sp-hue,.sp-clear{font:normal 12px "Lucida Grande","Lucida Sans Unicode","Lucida Sans",Geneva,Verdana,sans-serif;-webkit-box-sizing:border-box;-moz-box-sizing:border-box;-ms-box-sizing:border-box;box-sizing:border-box}.sp-top{margin-bottom:3px}.sp-color,.sp-hue,.sp-clear{border:solid 1px #666}.sp-input-container{float:right;width:100px;margin-bottom:4px}.sp-initial-disabled .sp-input-container{width:100%}.sp-input{font-size:12px!important;border:1px inset;padding:4px 5px;margin:0;width:100%;background:transparent;border-radius:3px;color:#222}.sp-input:focus{border:1px solid orange}.sp-input.sp-validation-error{border:1px solid red;background:#fdd}.sp-picker-container,.sp-palette-container{float:left;position:relative;padding:10px;padding-bottom:300px;margin-bottom:-290px}.sp-picker-container{width:172px;border-left:solid 1px #fff}.sp-palette-container{border-right:solid 1px #ccc}.sp-palette-only .sp-palette-container{border:0}.sp-palette .sp-thumb-el{display:block;position:relative;float:left;width:24px;height:15px;margin:3px;cursor:pointer;border:solid 2px transparent}.sp-palette .sp-thumb-el:hover,.sp-palette .sp-thumb-el.sp-thumb-active{border-color:orange}.sp-thumb-el{position:relative}.sp-initial{float:left;border:solid 1px #333}.sp-initial span{width:30px;height:25px;border:none;display:block;float:left;margin:0}.sp-initial .sp-clear-display{background-position:center}.sp-palette-button-container,.sp-button-container{float:right}.sp-replacer{margin:0;overflow:hidden;cursor:pointer;padding:4px;display:inline-block;*zoom:1;*display:inline;border:solid 1px #91765d;background:#eee;color:#333;vertical-align:middle}.sp-replacer:hover,.sp-replacer.sp-active{border-color:#F0C49B;color:#111}.sp-replacer.sp-disabled{cursor:default;border-color:silver;color:silver}.sp-dd{padding:2px 0;height:16px;line-height:16px;float:left;font-size:10px}.sp-preview{position:relative;width:25px;height:20px;border:solid 1px #222;margin-right:5px;float:left;z-index:0}.sp-palette{*width:220px;max-width:220px}.sp-palette .sp-thumb-el{width:16px;height:16px;margin:2px 1px;border:solid 1px #d0d0d0}.sp-container{padding-bottom:0}.sp-container button{background-color:#eee;background-image:-webkit-linear-gradient(top,#eeeeee,#cccccc);background-image:-moz-linear-gradient(top,#eeeeee,#cccccc);background-image:-ms-linear-gradient(top,#eeeeee,#cccccc);background-image:-o-linear-gradient(top,#eeeeee,#cccccc);background-image:linear-gradient(to bottom,#eeeeee,#cccccc);border:1px solid #ccc;border-bottom:1px solid #bbb;border-radius:3px;color:#333;font-size:14px;line-height:1;padding:5px 4px;text-align:center;text-shadow:0 1px 0 #eee;vertical-align:middle}.sp-container button:hover{background-color:#ddd;background-image:-webkit-linear-gradient(top,#dddddd,#bbbbbb);background-image:-moz-linear-gradient(top,#dddddd,#bbbbbb);background-image:-ms-linear-gradient(top,#dddddd,#bbbbbb);background-image:-o-linear-gradient(top,#dddddd,#bbbbbb);background-image:linear-gradient(to bottom,#dddddd,#bbbbbb);border:1px solid #bbb;border-bottom:1px solid #999;cursor:pointer;text-shadow:0 1px 0 #ddd}.sp-container button:active{border:1px solid #aaa;border-bottom:1px solid #888;-webkit-box-shadow:inset 0 0 5px 2px #aaaaaa,0 1px 0 0 #eee;-moz-box-shadow:inset 0 0 5px 2px #aaaaaa,0 1px 0 0 #eee;-ms-box-shadow:inset 0 0 5px 2px #aaaaaa,0 1px 0 0 #eee;-o-box-shadow:inset 0 0 5px 2px #aaaaaa,0 1px 0 0 #eee;box-shadow:inset 0 0 5px 2px #aaaaaa,0 1px 0 0 #eee}.sp-cancel{font-size:11px;color:#d93f3f!important;margin:0;padding:2px;margin-right:5px;vertical-align:middle;text-decoration:none}.sp-cancel:hover{color:#d93f3f!important;text-decoration:underline}.sp-palette span:hover,.sp-palette span.sp-thumb-active{border-color:#000}.sp-preview,.sp-alpha,.sp-thumb-el{position:relative;background-image:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAIAAADZF8uwAAAAGUlEQVQYV2M4gwH+YwCGIasIUwhT25BVBADtzYNYrHvv4gAAAABJRU5ErkJggg==)}.sp-preview-inner,.sp-alpha-inner,.sp-thumb-inner{display:block;position:absolute;top:0;left:0;bottom:0;right:0}.sp-palette .sp-thumb-inner{background-position:50% 50%;background-repeat:no-repeat}.sp-palette .sp-thumb-light.sp-thumb-active .sp-thumb-inner{background-image:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABIAAAASCAYAAABWzo5XAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAIVJREFUeNpiYBhsgJFMffxAXABlN5JruT4Q3wfi/0DsT64h8UD8HmpIPCWG/KemIfOJCUB+Aoacx6EGBZyHBqI+WsDCwuQ9mhxeg2A210Ntfo8klk9sOMijaURm7yc1UP2RNCMbKE9ODK1HM6iegYLkfx8pligC9lCD7KmRof0ZhjQACDAAceovrtpVBRkAAAAASUVORK5CYII=)}.sp-palette .sp-thumb-dark.sp-thumb-active .sp-thumb-inner{background-image:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABIAAAASCAYAAABWzo5XAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAadEVYdFNvZnR3YXJlAFBhaW50Lk5FVCB2My41LjEwMPRyoQAAAMdJREFUOE+tkgsNwzAMRMugEAahEAahEAZhEAqlEAZhEAohEAYh81X2dIm8fKpEspLGvudPOsUYpxE2BIJCroJmEW9qJ+MKaBFhEMNabSy9oIcIPwrB+afvAUFoK4H0tMaQ3XtlrggDhOVVMuT4E5MMG0FBbCEYzjYT7OxLEvIHQLY2zWwQ3D+9luyOQTfKDiFD3iUIfPk8VqrKjgAiSfGFPecrg6HN6m/iBcwiDAo7WiBeawa+Kwh7tZoSCGLMqwlSAzVDhoK+6vH4G0P5wdkAAAAASUVORK5CYII=)}.sp-clear-display{background-repeat:no-repeat;background-position:center;background-image:url(data:image/gif;base64,R0lGODlhFAAUAPcAAAAAAJmZmZ2dnZ6enqKioqOjo6SkpKWlpaampqenp6ioqKmpqaqqqqurq/Hx8fLy8vT09PX19ff39/j4+Pn5+fr6+vv7+wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACH5BAEAAP8ALAAAAAAUABQAAAihAP9FoPCvoMGDBy08+EdhQAIJCCMybCDAAYUEARBAlFiQQoMABQhKUJBxY0SPICEYHBnggEmDKAuoPMjS5cGYMxHW3IiT478JJA8M/CjTZ0GgLRekNGpwAsYABHIypcAgQMsITDtWJYBR6NSqMico9cqR6tKfY7GeBCuVwlipDNmefAtTrkSzB1RaIAoXodsABiZAEFB06gIBWC1mLVgBa0AAOw==)}</style>');
     }; // end setupColorpickerSpectrum
 
+    // improve the original time display function, to enable display of time in minutes, hours or days:
+    self.ago = function(time, now) {
+        if (window.plugin.playerTrackerAddon.settings.showdatetime) {
+            if (!(time instanceof Date)) {
+                if (time) {
+                    time = new Date(time);
+                } else {
+                    time = new Date();
+                }
+            }
+            // yyyy-mm-dd hh:mm
+            return (self.settings.hidedatetoday && new Date().toDateString() == time.toDateString() ? "" : [time.getFullYear(),time.getMonth()+1,time.getDate()].join('-') + ' ') + [time.getHours(),('0' + time.getMinutes()).slice(-2)].join(':');
+        }
+
+        // d h m
+        let s = (now-time) / 1000;
+        let m = Math.floor((s % 3600) / 60);
+        let h = Math.floor(s / 3600);
+        let d = Math.floor(h / 24);
+        let returnVal = m + 'm';
+        if (h > 24) {
+            h = Math.floor(h % 24);
+        }
+        if (h > 0) {
+            returnVal = h + 'h' + returnVal;
+        }
+        if (d > 0) {
+            returnVal = d + 'd' + returnVal;
+        }
+        return returnVal;
+    };
+
     self.setup = function() {
+        if (!window.plugin.playerTracker) {
+            console.warn('IITC plugin ERROR: ' + self.title + ' version ' + self.version + ' - window.plugin.playerTracker required');
+            return;
+        }
+
+        if (!window.plugin.playerTracker.drawnTracesEnl) {
+            if (window.iitcLoaded) {
+                console.warn('IITC plugin ERROR: ' + self.title + ' version ' + self.version + ' - window.plugin.playerTracker.drawnTracesEnl required');
+                return;
+            }
+            console.log('IITC plugin: ' + self.title + ' version ' + self.version + ' - wait for window.plugin.playerTracker');
+            // window.addHook('iitcLoaded',self.setup);
+            // inject add-on setup into the last function of the playerTracker setup function:
+            let playerTracker_setupUserSearch = window.plugin.playerTracker.setupUserSearch;
+            window.plugin.playerTracker.setupUserSearch = function() {
+                playerTracker_setupUserSearch();
+                self.setup();
+            }
+            return;
+        }
+
         if ('pluginloaded' in self) {
             console.log('IITC plugin already loaded: ' + self.title + ' version ' + self.version);
             return;
@@ -1087,59 +1230,35 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
             self.pluginloaded = true;
         }
 
-        if (!window.plugin.playerTracker) {
-            console.log('IITC plugin ERROR: ' + self.title + ' version ' + self.version + ' - window.plugin.playerTracker required');
-            return;
-        }
-
         self.setupMarkerlabel();
         self.setupColorpickerSpectrum();
 
         self.restoresettings();
 
-        // override original time display function, to enable display of time in minutes, hours or days:
-        window.plugin.playerTracker.ago = function(time, now) {
-            var s = (now-time) / 1000;
-            var m = Math.floor((s % 3600) / 60);
-            var h = Math.floor(s / 3600);
-            var d = Math.floor(h / 24);
-            var returnVal = m + 'm';
-            if (h > 24) {
-                h = Math.floor(h % 24);
-            }
-            if (h > 0) {
-                returnVal = h + 'h' + returnVal;
-            }
-            if (d > 0) {
-                returnVal = d + 'd' + returnVal;
-            }
-            return returnVal;
-        };
-
         // inject code for Machina:
         if (!window.plugin.playerTracker.iconMac) {
-            var iconMacImage = 'data:image/png;base64,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';
-            var iconMacRetImage = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAABQCAYAAABbAybgAAAAB3RJTUUH5wUNFhMIioDAVQAAAAlwSFlzAAALEwAACxMBAJqcGAAAAARnQU1BAACxjwv8YQUAACPGSURBVHjavVsHmFXVtf5Pu/3OnTsdZoAZytCbgNJEIwZ7CQQbGI3GkkRjTCzRp88SjYkmxsTEZ4vxGRXFXsBGUwQRRgSEoZdpDNPvvXPn1nPOev+5A8YvJrHxsr/Z36n3nLX2+tda/9pnj4Kv2BT+6aqm2Lalu3QjZNt2P69uBLPZlG7pej9D9x6bTHb3MwxV82geZLNp9NgCj6gQw4ZhCQoCQUsRpcFUZEVXsqe+JJQfiXVGGhRDj2ayWdPr80lLPC5fUa4v1zRFVWyxFYV6KIoSUoFKHo8I6vjWYF+w34yKSn1YSVGwrflAv8e3bw22qprao1jQLQ2KSyCqjTFpHQMHVGNJ007bFOm2bLuBV6J+l6duyMBByzdur60t8AX3xRLxaNy2TL/XJ5FE4ksp9KUUUVVVUaGoIpKv6/rArGWOgC0zVUUZYYsM0BQl6NcN1U1FddvSXLat3HXiaVjb1IAVu3aiMpvCt4dPwq+2r0OnaaE0vwCBQECaGhst3TDsjGnGIKjTXUatasnShJmp5TP3pWw76vH5zCSVSQPyTRRxrtMAig6RAlpjKg1zOp84ikoN4LmQR3UsxEG3gDxo8PKgXrKwXBoqMhY+efAh7FmyEpe88Ay2qBa8hBtgIZPJoDAYQprblFhiAyatHFX9nrpkLF6bp7qWStasbVesPf37lkda29rtWCb1L5XR/p0V2PhshCn0cEJrKvfP4rgcJ1ArqUSAMmu6AzrbhiOeDza8uoIO+kR5XgBv3ngLdt3wX1DHj8D08ePwysYNSLkUJDNZhPJCCIfyYYkgkUwqoila0ja9fsNTnMqk+yVNc2gWdiXBnE7FutszIimN91pfRRFHAwrvKFHIPoOH51OBUzVNGye9lqG4orh0WkClD9gW8j1uqFSkmM7M0cWtp56F5r/8ASf/4maE89zY9OyzOO3C72NZTQ00cdMSKcS7Y3ClMkh4NLg52H5NVUzb1rKKeLOWFKdVVASgh50gQJO1GZqaCvKdSdv+UtByzuWUoAJHczuPfZoiCHOr9+qp5YR26TqVyMKgBQpo9P48O5nng3mFqOvuxEXhAhy5ci2keSteOHkuXmQECw0cjOcb9sEkpAa5XKjkQOxIJ9GuucBdJFUVyVQKLh54XF6qpXRk0un3Y9nMU24oK+kqHTrjTpzO+S8t4ljikBLsOSV4ajq3RbygM8LkFBdqRUBBaAmbZzyaAR9H6TK/H1d9dzaOvu8uFD35IsZedinMKZOgK1709fvQsHoNpp08E6lPtlBpwZyBo2DEu+DlAHfyeQnThGXZyPf5AZeBRCKh0PG9loJivjuft0WPrKpui1k0Z9ZCVuSfmkHJDTVQwu0c9he538qt5SCN1wljNdcdXQxuDW49uio+4mwS998bUC329i2SrVkvyeuukeymjyTo8crIyiqRrdskdvpp8rE7KNHf3SvrfC55P6+v1J8yU14x3HKdyyOTVVXKXIaUuLwSVjUJarq4VUWqAmHL0NVWr6K+WGS457gVvWRQnl87beDgTxGl/l0RR1zk88p0buexT2fILeSWj/q7wvQR50643e4cBjVagi+F33nGgQZY8RTMpib8kL7gHTMJ3YTNlvp98IwchQcqKjDunXeQ7EkjXtwHeRNHo/3NVZjm8uLiPB8uIKwGZx2omozuTJ5eD4oZqtt7oqplSyEhMT1iZuYxXkxv7OnJf6+pTvknBoHLDUyq9Oc9bmhKS6HqsogvcXHkPUSRHzlcCd8l1ENgaBKCIoWaKtMMRX6vGrKjrI8sffIRWo336IYYuu5EDHHzWDUohgYhvuWTl56T/y6rljM0RS53BeVNjyYHisqkqygkj/LeU8OlEqal+/H3ZW5dSpgY81VdZpWXW35FbZmeV/R4UFEmuTTF5dG0nDL6ZxQJWTBGxMz0qPOL+4dH+bzqr/dsRzktUEiL9PCGdmoRJ/qSjh5ZjhqlnMIodREddfz8uZj0t6fR8b0r6T86DD76gw/exThvCD0t+7G6tRUnzT+Xv9QxZs48FOs2zinqj9qeNrytFqAr1onpAR9OzwvjQDqKNpXBPJNkSKfvMDDYzEsX9Rmm9jQ1hc1MfJSuqiM0G/tSutLBmJwLscpBhSpNzZrZnc1Ubmyr06+86jKU8rVD2KcQOscx4FYzOqkWTa+Z/JFB7Km4dfQ0PFLaB1VPPEVFCTm60Lyh1djx7ssYVzUIEnQjMLQKRx9/NMxID6aNHs7oJGjnQPy5rQ4VQ4ZhpJXGO8wt73dH6dIenEavnmT3YLqhYW5pEUb7DKimYPz0kZgY9usJb7Aya1szKUQleZPuORh9HWWK2S/giZpSKJnX510stw8dK+nFr8sPaerHCZu3dI9cD7dMYBYog0u+S49aeMaZwoyYg5KqGFLq9chfQmWyqSgsiY21km3vkNYtm8XetFVk+25JdkfEWrFU3hg/VXx0aq8SEMZZZhXIG3PPlodCRbLTG5JY9XBZYxiyrrREPu5fJbdCleXnnSNdT74iZ/s8Mk73ZMqDwZqg13OhV0FZQCdM6Lgu9knsT7hUtX0gVPuagkIZzYev+PGPRHbtkSdhSD3xvYH4foFReOnk6TKR/hEm7ot5vpj7j884UR6bOF5uVDzyamV/idVuEdtkPu5sFWk9IN1NTWK1RSV6x10it98m5r13yJaz5olL0yTAXkDfG8t37p09W8yLzpfkUdOlp7BU3ubzs6+9KLLyA5nMwXt6whFyRp9yu7+iddBvXyoP5M32u/RCB1IhRqIR3I7QRfIMxVCUaAQD6NF3PPosfv3wg3iDCcze3wz/smXQF72M9g8/xoW8vh0mTj5nPuw3l+DoEZUIzLoE5849CwHFg1lx0rxIFKn9rYhHu1A4eiQUgtpLQLe8twzmsIl4+fWn8JY7DxHmmtfeW4lKLYttr76C7UyaYy+7AKXjj8KIbA/uu+EuPLr+A1QzUg7U3WhuO6CQzeXbqjp12KgRkffWrNlHkqkMoxLnsB9JaPlDiqaMZfjTmaA+kASaiM3BGzbDvXsP2h95GOVnzcPwBX9DVXExZvbrh+BzzyEVj+PZjzeifOw4nH7WmZh0wqlwUyittBRaykYsFYErXIIYQ7OrKIxI2oRr08co3deOQo+FwQfacfKEcSioGIBj3l+GwvLhiP3x99i15F0MmnkC/vr839DZY8JNFj0l6Mfqtg7ERJQ401ljc1OU8WaNo8hwKnE6+2AOsu5EqFLuTPYH4c2k8ZuTT4DS1YbxN9yM+OYNUFqbgQONCM45H2btR9D31KH6oQcw9ehJKKyoZP1hc6zC8FeUoGnNOvjyggj1LYHudqH17Xeg72uGa8xwaPu70H9CFfK8fnjDxWjasQtj1r+PyFOvIb3sVdiNLRj5xkt4bPJxOPeISWjatR0T/R7YXT3YRObYQM/OOJlPUfczOa90MvkxZLrHcltmKlAdrJUw5N5yzdXQt9Ri/6atGDp8OBReLP/D3cibMxcJuBA5sAe2uxihk45GdlcLtK4o7FdehmvIQOx9+22YrW0oHTECLv6240AnvMVFsOpb0LpnDwKffAS1tBCKpwTaMUcjuXw5jOrB0KbPYjKMw3/ZZSj88Y/QvfID2Ns3YdfaLZg1bjCmTjkeS2s3odGtoZOByqO66GNqJJ7NbnVoyeOU/VQWTAUwTRZzCk0jOIm54OfXXIVEwMCON1dAb9yFtsYojj1qCopfWAgpCSC5rQmydgn8KzfAHDESWm0Ndiwi1v/yJ8RTaRROPRJmIIB0cxvMdAZ5lon4qvch/UsR29uCfDMNL/0o2dkE98SZ0L83h2FDR/Svj+LDm2/CgJJSrI2kcczF58CbH8DC/74bS1Od2EJy1OXUWaYlLMY6Y5ns645FrqQyQ1h76w4VsWiyJC2yj/updetx18r3saz+ANojMbzJH48vCOBAtAfq6NFI+3Ts37EXrUXFMCuKES8oRTxYCM/0sWhuaEdjQwOQHyLU/Git24e99Y1obmlGev0m+E87iZlrEJqSCXR486HNPQXNe/fCVUO4Pr8Yr+2sRQ/zy28aG/D0qpWw3/0AL5oZ7CMl6tA09C8oQXMmoVhZSx8bLIo6iWQFFZnKyEVmYjCmMBsJczwvzCau12RMpJgQTyXTfZf85wJm6l+muzlyApNJRGEw8ComriqqxNb2fczYCsbR7JMnH4kPN2/HS3zOsq4uEJnkT6wi6X9e/rZYcTGBclD5urjqWMuHoQwQZwaK8Z3jxuLZ3ftwfFEFjnnvHZxSPhR5rU1YlE5ROhOGxwenpkwxqWYtO1sRDq9We5l7b7ORpQi9NZizZ4oL9aqNFstCA7NxoxbCq8ko/nb/fchQCJ20u1Q3MEsPYXOiLRd2B/vyMX7UGOzZvouCa4hRCdZNTKEu0g2GRRKufIcBKBlUkf2FOQilHDaSdlwRCOLy++/Eypp6LN++F+9s+wREI97ev5s0xUaakBEWcCkSy77+fFrMxBH9BiIW6/6Ua/2dPYrDCBkM2LNKmjWHytSv5CyVtZO497qbUX/fg/BzVH0kByM4ij5GqRj51LcuuRinnz0XmbiJ8UcMh963HJfzFXZbG1SnhHjpRaTcHM3SStx4+/WIbNkO+iviFHKWz43i4hDWXH81vlezGc/3r0Chzd9S8ShH3scqUyHu7QwZNy3bFI/AwxSxvn4X+pWWfYbG5yyjHCydDhH7vzN9U/VgnGQx/far8QTxu2TuuagyXCysPGigEl4WV88/8hjSD/0VRX4DSkkZstFu5pgYUpEIOpavhDZmOjpYFT5y/TVo3rwT+8jbqn1lGEQoX149FBNGT8D6rhiiGzdhxpDRyNCSttJb+0kiC1dPFnmsSrtZlWaIEi+f5eFxV3sHpXTqC+llXT6PF7lj7hsO/j/D9jViaWJlfwZvnVBgrmluQkDNImAlMHH4JHznsT/hptPOYJ7Yi6b/fQZLR47JTcYZzPB6WREKZk3HPbOOwRM/+hle2bkVbZLEg396AB91NuPpn12N11MxZLKCmQXlaGXOuOqPf2CIb8v5gk4yFyUZNQirEIUvYsHhJOwMIaZSkRT9V8/RX7JYmwdpRpDc3A5vMnks4oxGb1Wl0CFj+6O5quWx3duR2rUHbw8bjZMHV6OwpxujR49A9bkXIf7UY+izaydKB58P20qhq6MbeUkPkr/9A+YPrECSv58zbz6GXX0d3vr9PXjtzO/gwYcfw4/XrEGydTfG5N8EjB6Gtv95AMPIqo39TbmZliO8QeznwNIoHEwL5cWliMYiaGPhllVs0kpetGha3aXnLGEy6nAg4ZREik3SollwJoVKqPl72Qjm84ELZ52I9g/WI8Viu//k0ajgb/8y7VTY6R7knXchjJ//HG8teBM9azehaPgQqFVlSIwdhd3BAgyuWYWhV/+YDKEFoxiS9zU0I3D5xUh7BZH6dtQ+9zzsp17Egit/Dp1USSNkaQvsTiVI/dPozsQZ+YA2hvES5iaP7oIzf6M6A244g844mKXEatbxE5tcycYAYvGysoG4IFicK2UvLa/EDkYbzfQg1L8PvEkbD/5lAYpZM3x3xhQ8fsMvYCfiSAfycfL6t+EZSw7dnYCWdaNg/hzM+GAVzCyt351EZuMn+PPDj+Kxj9fiohkzmASfRZEvjGGjRsJs348hAT+qWRqPdRnIoxylBgc6lUSQciz96//CKQzbiRqDAcCZRVBLS0tQEMijV9n0FeqlWvgWGeYvh01AlNVpM8Pj5Y/ej2FmFju725Fvu5Cs34EUa/I0ow76VaLisnl4dfkHuPnPD5IcONWjBZMVnVpRhOz61eh65kmoTHopk7WlrbAEcWHt2WfjHY74FbfdAaulE+onG6DWbsbOG2/Atgcfgc1qMd7dg8effoKMGTii0IdpHPdqDtKFP/kxXAz7LHOh6RbKWFWqrW1tlk935vA0BkoTD5Ok7Wao/HXzTowrrMLF1/6U1Hwu5n/nbCzrjqPbyTdMkG4SxPTejTB370QRk9iibBSX5pXgjPFMhykTHpNVXaoHxoZt0PfWIZtJwEMmnOqJ4MAVV6Dw2CPRyoAyZmAVYmuXcxDdsMvysa+lBTtIRKcNGgyT9x45+0zs2bQZH7V2o4VJYEp+HjpSKSgcrGCeD740S57uTktVVKXBEKPb1BS5hLT72tXLUEdB+6VIR66+FMtvvROLzzgLP3jpacSYUzSfF5sdmhxkZdF3MJTG/QgVhrFi8xZ8mGpHaWMblO5uJGMxYtaLVQ/8DzJ7d5MVE72Eri8RRYBU/q7FS7Bn/07ESQI7Kkej9NqfYP/9f0LG60YHg8/btdsx5ugjOZhFmDFmPAqGVyNYWIHX6/dgiMEEGgwgHuuWHtXsJggaVJp6RXu8s2GwR+ySgnAub5xLXE4lDAb0ZJBlHX3aK8+jgA43b+BAJGmtCDlQMJnF+tdIQIhnT/8ihAdVgmwGHjrcjBH9kO6sZ50NfH/fLjz4LB04kaD/ZXBT9XTULH4dBdOmQA2XQp05k3nHjWXX3wrP0CFIktaX9O2DIRVl+Oi992F2tKOePOOKBQtgtDWhi5FoEmsbScSQ0HW7h4Yg9Vmhah69PmZbEZ1j1m/nPkzTbVzStxofZ7J44t476FAKIowI+boPk+lPD//sKnzv+BNgf2sq9r7wEpoWLybEmlD/7ItYRqqwnLRlf4o0u9tJSQbaNDdes9NQLQWr7vsVphYaqGuI4Y/LXkHnq28gL5+1yKLF2LF+HUp+cR2qJhyFkSdOR2BAJbIs3gpZMoSZBbZc99+4aMREDKMs/nQcVXkhGG63Vai5ImXhvHrVK3ok5PXVdfdkujf5CuSEgj54rW4rLmT0uO6Kq3HGqCPw7rVX4fSZM7BkYy0GjBmFfcX5UGLtqJw6HV5iXHcFUBwKE+cWBh13LA4YGgZNnog0w0mPmSJXE6QyXah59AWs7Yyiz83Xo+vJtxFe/jqabrgRqboGjD31WEiaRdkxk/DW2loOnAd9x03G7KOOwDNnzUfjh5tJTqMYRVjVMHo1RqLCFNHNlFIXSzEvsKgqJmouLM8Lffz7YVVmy7wfyMvDh0n9Pb+T3+YXiXR1yIbf/VZ+qXtky3e/I3cXlspTilcW6LrcbRiybfpUWTdmvMSvuVasxjoxGbZcbl+OrF32/YudbCTOHOaIUaOc9Jqb4MvYKYncfqfUVVXLx8efIDXVlXKXOyi3GW55OFAsG3juWZdfto0+UrY//bSYrVtlw4XnyOJR4+XFwiK5d+AwmeAPZsbqRs0gzXPBkPyCYi1seG03tDy3x31Uc2drxclVA7Wxp58EtbwU466+FnpVP9T/5m4cPXoiMstqMHj2LBZFdfiI+WLOoGGoYRLcv20LJtx6KzBoEEmeiqNYfz+94Fl8tHF9L0/iuY62ltznhj17dsLLcOuZOhlR/tbcWos81uB7U1mE3AylPUkYkTZMu+R7MAv9aFqxBn0uvhzo2x+B7Vsx4VvTWJ+skWwoLxKNxVZHYS1icqqDy2DqNNQjClT18TL42qerqh1Z9o5YPUlhYSN2wpTuhx6llcZI3dzT5Y3px8m1lG3D0cfIHG6XXXKVmBs3yOZRk8WON0pPJCb7az4STe2d+M7p4cx7MW2RvYudTEhy1zZpv/Em2XPpVWJ37JOO238tzaecJI3DjpKHArok/3y/bJsxUz4pGSDdi16WrJWVVCIjViwh6aVLZE4gZE70uD6e4HFfONTvLR7sD6gkYLpaoBnFAUW94MqTTqq5s6g484tgWCwzmZuXskl0stEuuYQC/Yr9ap9bHp82RdZNnSayd6d8eNN/yenkBqtGDZNUJiOSsSRVs17qaz7MQemQMgZJT/fePRLZs1t4oyQuPF8ecevyI7ch0tEla06bLW8O7SdLT5ktN2m6nEUI3qb7JUnhqQeFiImViMjvfGG5tLwkfazPu3yCoh13WkGhp7+qKfrIkj7ycWNjNKMqtVtXr6ndFvRW1nd1Fkz+8S3K6b+8ivE0iCaWppefeib83SYW7KzBFWs2Mism0FnQFz+9406MYiqtGH5E7kMNKzboTFR9EymmWOXTL5jlJQVwkda7hg/LGcnD4NDf7UcNw/lrF16Ab//1SZQX5SHOCPjo8KE4d+R42PmFiO7fhtLygcgyAS6+4mcIHDFICncc6G7LZOqShhaxujqsejn4mrDuosejeM9bSy4oV5Wa/gW+zHkDhkjL0qVybbBQHi4qkml8+6XhYjlj8CAxFFduhp1UX07pP0h2EVbxsUeK7Nwl2WSbWLYtZrRDtq96T5wyyON2Sef2XTRWjyRXrBA7kpbInXdI+4SJsqJqhFT5XKL5PYQg7+V7bjluhizs21ceqx4mkeNOkZtDIcmsWS4XevwyRUFmCmV87qqrLjjTCBRPKy76tKbCUKb3bUvfdA0OeiZteWbhE2dUDW0fwDG/N1wgA91eGZArVBXJ50uG64q8PftMKeNLNUYZlpji1TRZ/NOrGeFapPGk2dJ22XkiSZHWDTVyZFWFPLdwodhULvrRR5K44y5GoTbZw6h49/xzRXdmtOk/fkWXIX6f3J5fLFeqHnm6fz+505Mn97lcchsHYnPFELncn2dvuvv37beMHPvEd3XXJNmx2TVV+YfPh8/dcKN6WklFcb7CUOzxfRx2+0wXhdR1VbxeQwqpEOme9PG75S9zz5GjeO2eo6ZKCL0T2M69ikZ60FAnyR/8UOy2ZulYsFBa775HspkeMbMkRZmk7Hv0Mck0bpOproB4GBAODdBvR4yX0zkg88vK5OehoPyqtJ/cFA7LTXkhmcvwPc/llTm6kTk3GK6Z5nFdcPeZZxbfPnHKp9b4dOf5vy2Q9zsPdHvywvXtqWQkm01bzjSESXqfTltwsS5XSBUOkLbc9NwzOPe0Objv43W4ikx54TlzWcfQncigXQMGYcgLCyCePKRZgqYamqCnVVisv03W3ht+9Wvc0m8MWpk8hdziqbPOwvlMqP9DAtpILtdCdnCgh0k00QElkclNMPjzA1AMRcoKimP7rWRtUHXXvvHWW9H3afHPfQzdwmprdsUgpagkHNrV1jaUgbefD/CGvF5ntQBiJIGW1lvT9/DnW3ZuQ59AEO+n0sAnG/HAkBE4EPLBE0+iOZPG43fdgYHcTv2vG5BIR9Hwm7tQOHw8mn97G14iyztq5ED8xB3Gc6vfwxLN+dzmgk9x5QQnYUNXMok8Z+KC76NPIpAVc3d35/Z8f/AZP4x17Wam591sRj5nEaetPVBvfbh1a12fvNBrBYq6ekj10EhPMiWZrI0fzp/f+23a7o2nHdRoWzyKm46bBSft/WT7dkxmolxw7DSUspY+yTJw8plnYufCZxG79V74nl4AhckvmhDcO3061M37cFP9LqzzehGjp6Vo+U4jDUsR1mJJlPoLkd+3Ap20nMfrlW7FjPXzBWubk9HabDYZ9ZvZf/15ujq/BMFgKL23q73TySDtnZ3VFikMw7i2dtNGjk7vxITzncuh5MQ3FpHd3nPefFxwxolYUteU+2R98+DBOHfFu4i+8TLeuvuPOOKnl6ErZcDF+q2kaihuffl1vGMl0aKprFNYVvO5xR4/YmTVLornZeYMG240JrsxrLgCO1saTFVTtzN+PFNR0Gdda7K7553sv1GkMRmHmU6R7CETCOeroWDewFi8u7+ikFsSVIWOBqxFLFWHRnx7DQWGaeGFTzZhwye1uH72d1ExdDBcZ85GIrIHvhNPwZLaLZh57Q0oPuMEuFgaeyuHYMLMKRjj88Hd0YkRxWVo7WxHM8mlM02X7yXb9fhQn0xACXmRicalzUpFBgeLV9f3RBbFEsk6j2JY26zs577mfq75ySSJoEJvwH9yVyx+JUdjjAXbcDmzErSEx1md4BAnMVHGRxzTpwKTB1fj9yuXYhIFuf2iH6BqxrewfNESTBhdhXrW7XoVYfK7h1HbUIuXu7OoZR2uKRrSxGrCxXhoct9JBX4/UukkewalPj9CqWzW7fds8ljK/VkzszhqZjretszPreH4p2tRVNbbjCjZVDrtBPmBtEJ/xfnYxJgdFmc61UYyNwWjIsZCamssg7fq9hJqNn72nfMQX/sBdi5bjteWvYljBgxDpm8hhg4YgVcfegg66xyCFE0cwgOGmiu+EvRoEle4GPX2pxIIkaoPI0mMkbq4gr4IK4/VPcnEIivgqfN6vNZWBoIvpYizjIJVvDNbSvIE59P4UFtRiv3MFAGPBx0snnrZoOSmjZw1O86UaozIW7n1E+xrY7nLEPrTq3+KNjeQ5y1Dd1cnZp34bTyx9A1sYykZYRVqUwEPI2GYL0rSOZw5taMnTsSuujpE493I2KZZlBfa3hOLPJP16ut8mtHzQlfnP13q9C/Xa+XrLqXHzhoMTmNNS67kjSezO2tnFGdCTw6u0DmUWO2DdMfLsSlRLBwfyMcAFkBNtNzZ356DFiWDDxr24Jp7bkHZoBFIdCWx5MUX0NLajI7WFqxesQqbCSnH8Z3lg/m+gGTTmU7Nyi7uF8i735VMbTQZG95Mpb7SEsFcC3t9qlvXcp+uDUWtUZyvXbSVrjtrRHTRmYkPFU65hR5qLqAxYxtSqagynPecwPuP5/mWa66XaapL+hq9fMrrrDvh9heTp0rtL38pM7kfYsFfqCkyJOCTSYVFmb6qWlPtNi44PhAqPqMgrH5lBQ61QX3LFQOKqzCUP2nN4sVPECXtzqdZxoKc8Ie6eqj3Ruaccrri8CdIAZzP15Dv9xsgFbwnj0Qzp4jTed3HwcjjdkYwKDtuu0vKeU+Y7yjxqO1lmvFEteGaVOZRXTPcrn+72u8L1zRSINUSu5D4PdkWB2LKGN3jNtLp9KcT3oe6HOyHHuoMoUbcG866LvqdM9ksn7nm+ISem/XXYDOsWLweZJ2n6kYWyeQmRVfv96va4uLCwo5V+/fb/05ODV/QnM8NxH+Wfk5TYCCf1p91uTe3bPbgAyTnI39fPSmf6Q5fy9KfSBlz9xzqOR530Lec2V2NzujUlGlWcoplRVIKVk/qO2BRRzxW1x6JWLEvkPMLFcnVLIQSvZu1l6pTgaEcxGLmQs34VJiv3w4p5SzqdJYW0tecr3Q7VNt+piHetY61Tc9+wRc6+JdyIN1WWbZqUcVWaukJtYZocY84WUT5l4slv0pzBqOHVtPIjj2iJOmH2zS3t9anuKMBb96XilL6l7nJzH1NzH3P3MfDpdwfR2cNxb/CAugvapmcMISYmWVgxsqEqeyjR5Hjpg+fIk5b6HI7KSRKsNUesGX3ctsc+oZN7n2YmiOtnxHrFFXtGqlqtWFFidJIMttMH65XfL6dqChFU4EHGFazysGZkm/anZJ5AtB9nqKce7GifOUB+lpJhnmgp0BRtpUAaeMwDY7zAadEUdoDwO6iXrf5/1dkKBVgontvgKLUF3/dh3ymMdFiMANYH+BNWmbXb0S+ciD8WjI4LwoDe0uBJcMVJft1lcl9SWavdgaHPkFrLKJlol9Hpi/t7P/YHHhR+KcI5hOctSxbRZQWfHlM5Bbdsw9h/qAidiHwKg/X4mumpS9MiP+qreILj1GUHo5EeQiYwIijZSmUsxr1i3KLM3okjBjF+wlT5ANtFOQ2nt/yG5Gvzm6/iSJOm64ozr9KxCjAsYRFoeOwDqVJwSm+Pv8PHw6UnA+b/dkJSVTB+VeN3EzSA7y2kEokv5oEh0kRxypUhrQI1Yxeo4l3lYIhmCODB4khuxNLqSgYjVhu9sKpHLlI5bDl3fz9r3m4e9U3kOVr+8hnWoT9BfZZjD4VRQeFLj0IswR6Qe8o4+sVPnfd3atomko8xd3arwupQ+0bWcRpB63iyOysVB3u0D7joLCOdRimc5ZwtvkHz7sOvphK7OHmHvZ9q/DFxPDftW+aAg61NvYn2OsOPdQxtfNfPv6D3Xfw+BDk2Bzu8ST7tq+TN/5fFKEgjm9/xP4me+ofrx8qvP6h1R+8v/twyHC4LOK0dvTifQu+GCaftcY3gtSh9o195FBzME5f6eCu4yLHfcGz17DfSiVaD9f7D6dFHIg5Qeo99uZ/c5sDQ2fNZtPhfPdhVeRg28X+HP45W3Fg5NCQRfgaDPc/rYjjvK+gN4L9I/4dQvg359rh8o1D7bD5yKHmZGf6ipMkHcrFWinHSpzWc1CJ/2Xv/CZZ/D+iCHoVcfzAyS3OOs5K9MJoNfuf2LcejrzxH1HkYASLozdzOwGglv2v7M7HrczhtobT/g9EEZU6CVNwdwAAAABJRU5ErkJggg==';
+            let iconMacImage = 'data:image/png;base64,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';
+            let iconMacRetImage = 'data:image/png;base64,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';
             window.plugin.playerTracker.iconMac = window.L.Icon.Default.extend({options: {
                 iconUrl: iconMacImage,
                 iconRetinaUrl: iconMacRetImage
             }});
         }
 
-        // inject code for Machina:
+        // add layer chooser for Machina:
         if (!window.plugin.playerTracker.drawnTracesMac) {
             window.plugin.playerTracker.drawnTracesMac = new window.L.LayerGroup();
 
             if ('addOverlay' in window.layerChooser) {
-                window.layerChooser.addOverlay(window.plugin.playerTracker.drawnTracesMac, 'Player Tracker U̶͚̓̍N̴̖̈K̠͔̍͑̂͜N̞̥͋̀̉Ȯ̶̹͕̀W̶̢͚͑̚͝Ṉ̨̟̒̅',{default: true});
+                window.layerChooser.addOverlay(window.plugin.playerTracker.drawnTracesMac, `Player Tracker ${machina}`,{default: true});
             } else { // before IITC 0.34:
-                window.addLayerGroup('Player Tracker U̶͚̓̍N̴̖̈K̠͔̍͑̂͜N̞̥͋̀̉Ȯ̶̹͕̀W̶̢͚͑̚͝Ṉ̨̟̒̅', window.plugin.playerTracker.drawnTracesMac, true);
+                window.addLayerGroup(`Player Tracker ${machina}`, window.plugin.playerTracker.drawnTracesMac, true);
             }
 
             window.map.on('layeradd',function(obj) {
-                if(obj.layer === window.plugin.playerTracker.drawnTracesMac) {
+                if (obj.layer === window.plugin.playerTracker.drawnTracesMac) {
                     obj.layer.eachLayer(function(marker) {
-                        if(marker._icon) window.setupTooltips($(marker._icon));
+                        if (marker._icon) window.setupTooltips($(marker._icon));
                     });
                 }
             });
@@ -1147,81 +1266,55 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
         try {
             self.labelsetup();
-            self.colorsetup();
-            self.actionssetup();
-            self.centersetup();
+            self.modify_processNewData();
+            self.modify_drawData();
             self.modify_ago();
             self.resettracks();
         } catch(e) {
-            console.log('PLAYERTRACKERADDON - ERROR: setup failed');
+            console.warn('IITC plugin ERROR: ' + self.title + ' version ' + self.version + ' - setup failed');
             return;
         }
 
         // inject code for Machina:
-        if (!window.plugin.playerTracker.closeIconTooltips.toString().match(/Mac/)) {
+        if (functionExists('window.plugin.playerTracker.closeIconTooltips') && !window.plugin.playerTracker.closeIconTooltips.toString().match(/Mac/)) {
             let original_closeIconTooltips = window.plugin.playerTracker.closeIconTooltips;
             window.plugin.playerTracker.closeIconTooltips = function() {
                 original_closeIconTooltips();
-                window.plugin.playerTracker.drawnTracesMac.eachLayer(function(layer) {
-                    if ($(layer._icon)) { $(layer._icon).tooltip('close');}
+                window.plugin.playerTracker.drawnTracesMac.eachLayer(function (layer) {
+                    if ($(layer._icon)) {
+                        $(layer._icon).tooltip('close');
+                    }
                 });
             };
-            let original_zoomListener = window.plugin.playerTracker.zoomListener;
-            window.plugin.playerTracker.zoomListener = function() {
-                original_zoomListener();
-                if(window.map.getZoom() < window.PLAYER_TRACKER_MIN_ZOOM) {
-                    window.plugin.playerTracker.drawnTracesMac.clearLayers();
+            if (functionExists('window.plugin.playerTracker.zoomListener')) {
+                let original_zoomListener = window.plugin.playerTracker.zoomListener;
+                window.plugin.playerTracker.zoomListener = function() {
+                    original_zoomListener();
+                    if (window.map.getZoom() < window.PLAYER_TRACKER_MIN_ZOOM) {
+                        window.plugin.playerTracker.drawnTracesMac.clearLayers();
+                    }
+                };
+            }
+        }
+
+        if (functionExists('window.plugin.playerTracker.handleData')) {
+            // add Machina clearLayers
+            let handleData_override = window.plugin.playerTracker.handleData.toString();
+            handleData_override = replaceText(handleData_override,'}',`  ${self.namespace}updateplayerlist();\n}`);
+            if (!handleData_override.match(/drawnTracesMac/)) {
+                handleData_override = replaceText(handleData_override,/(clearLayers.*?\n)/s,'$1  window.plugin.playerTracker.drawnTracesMac.clearLayers();\n');
+            }
+            replaceFunction('window.plugin.playerTracker.handleData',handleData_override);
+
+            // replace the playerTracker publicChatDataAvailable handleData hook:
+            for (let callback of window._hooks.publicChatDataAvailable) {
+                if (callback.toString().match('playerTracker')) {
+                    window.removeHook('publicChatDataAvailable',callback);
+                    break;
                 }
-            };
-
-            let drawData_string = window.plugin.playerTracker.drawData.toString();
-            drawData_string = drawData_string.replace(/(var polyLineByAgeRes.*?\n)/s,'$1var polyLineByAgeMac = {};\n');
-            drawData_string = drawData_string.replace(/(else\n)/s,'else if(playerData.team === \'NEUTRAL\')\n        { if (!polyLineByAgeMac[plrname]) polyLineByAgeMac[plrname] = [[], [], [], []]; polyLineByAgeMac[plrname][ageBucket].push(line); }\n      $1');
-            drawData_string = drawData_string.replace(/(addClass\('nickname.*?)('enl')/,'$1(playerData.team === \'NEUTRAL\' ? \'mac\' : $2)');
-            drawData_string = drawData_string.replace(/(var icon =.*?) : (.*?);/s,'$1 : (playerData.team === \'NEUTRAL\' ? new plugin.playerTracker.iconMac({ labelText: (plrname || playerData.nick) + (window.plugin.playerTrackerAddon.settings.showlastaction?\', \' + window.plugin.playerTracker.ago(playerData.events[playerData.events.length - 1].time,now):\'\') }) : $2);');
-            drawData_string = drawData_string.replace(/(m.addTo\(.*?) : (.*?);/s,'$1 : (playerData.team === \'NEUTRAL\' ? plugin.playerTracker.drawnTracesMac : $2);\n');
-            drawData_string = drawData_string.replace(/\}$/s,`
-    $.each(polyLineByAgeMac, function(plrname, polyLineByAge) {
-        $.each(polyLineByAge, function(i, polyLine) {
-            if(polyLine.length === 0) return true;
-
-            var opts = {
-                weight: 2-0.25*i,
-                color: window.plugin.playerTracker.stored[plrname].color,
-                interactive: false,
-                opacity: 1-0.2*i,
-                dashArray: "5,8"
-            };
-
-            $.each(polyLine, function(ind,poly) {
-                L.polyline(poly, opts).addTo(plugin.playerTracker.drawnTracesMac);
-            });
-        });
-    });
-    //console.log('NEUTRAL PLAYER INJECTED');
-}`);
-            //console.log(drawData_string);
-            try {
-                eval('window.plugin.playerTracker.drawData = ' + drawData_string);
-            } catch(e) {
-                console.log('PLAYERTRACKERADDON - ERROR: injecting code for drawData failed');
             }
+            window.addHook('publicChatDataAvailable',window.plugin.playerTracker.handleData);
         }
-
-        // inject an extra function into the playerTracker publicChatDataAvailable handleData hook:
-        var handleData_override = window.plugin.playerTracker.handleData.toString();
-        handleData_override = handleData_override.replace('}','  ' + self.namespace + 'updateplayerlist();\n}');
-        if (!handleData_override.match(/drawnTracesMac/)) {
-            handleData_override = handleData_override.replace(/(clearLayers.*?\n)/s,'$1  window.plugin.playerTracker.drawnTracesMac.clearLayers();\n');
-        }
-        eval('window.plugin.playerTracker.handleData = ' + handleData_override);
-        for (let callback of window._hooks.publicChatDataAvailable) {
-            if (callback.toString().match('playerTracker')) {
-                window.removeHook('publicChatDataAvailable',callback);
-                break;
-            }
-        }
-        addHook('publicChatDataAvailable',window.plugin.playerTracker.handleData);
 
         self.setlimit(self.settings.limit);
 
@@ -1233,22 +1326,47 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
             self.menu();
         }, false);
 
-        var stylesheet = document.body.appendChild(document.createElement('style'));
-        stylesheet.innerHTML = '';
-        stylesheet.innerHTML += '.' + self.id + 'menu > a { display:block; color:#ffce00; border:1px solid #ffce00; padding:3px 0; margin:10px auto; width:80%; text-align:center; background:rgba(8,48,78,.9); }';
-        stylesheet.innerHTML += '.' + self.id + 'menu > label { user-select: none; }';
-        stylesheet.innerHTML += '.' + self.id + 'author { margin-top: 14px; font-style: italic; font-size: smaller; }';
+        let stylesheet = document.body.appendChild(document.createElement('style'));
+        stylesheet.innerHTML = `
+.${self.id}menu > a { display:block; color:#ffce00; border:1px solid #ffce00; padding:3px 0; margin:10px auto; width:80%; text-align:center; background:rgba(8,48,78,.9); }
+.${self.id}menu > label { user-select: none; }
+.${self.id}author { margin-top: 14px; font-style: italic; font-size: smaller; }
+`;
 
         console.log('IITC plugin loaded: ' + self.title + ' version ' + self.version);
     };
 
-    var setup = function() {
-        (window.iitcLoaded?self.setup():window.addHook('iitcLoaded',self.setup));
-    };
+    self.runSetupRightAfterPlayerTracker = function() {
+        if (!window.plugin.playerTracker?.setupUserSearch) {
+            self.setup();
+            return;
+        }
+
+        // setupUserSearch is the last called function of the playerTracker setup
+        // inject setup for this add-on into that function, to make sure the layer chooser for machina will be placed right under the others:
+        let playerTracker_setupUserSearch = window.plugin.playerTracker.setupUserSearch;
+        window.plugin.playerTracker.setupUserSearch = function() {
+            playerTracker_setupUserSearch();
+            self.setup();
+        }
+    }
+
+    var setup = self.runSetupRightAfterPlayerTracker;
+    // set priority to boot, to make sure the add-on will run before player-activity-tracker setup:
+    setup.priority = 'boot';
+
+    // Added to support About IITC details and changelog:
+    plugin_info.script.version = plugin_info.script.version.replace(/\.\d{8}\.\d{6}$/,'');
+    plugin_info.buildName = 'softspot.nl';
+    plugin_info.dateTimeVersion = self.version.replace(/^.*(\d{4})(\d{2})(\d{2})\.(\d{6})/,'$1-$2-$3-$4');
+    plugin_info.pluginId = self.id;
+    let changelog = [{version:'This is a <a href="https://softspot.nl/ingress/" target="_blank">softspot.nl</a> plugin by ' + self.author,changes:[]},...self.changelog.replace(/^.*?version /s,'').split(/\nversion /).map((v)=>{v=v.split(/\n/).map((l)=>{return l.replace(/^- /,'')}).filter((l)=>{return l != "";}); return {version:v.shift(),changes:v}})];
 
     setup.info = plugin_info; //add the script info data to the function as a property
+    if (typeof changelog !== 'undefined') setup.info.changelog = changelog;
     if(!window.bootPlugins) window.bootPlugins = [];
     window.bootPlugins.push(setup);
+
     // if IITC has already booted, immediately run the 'setup' function
     if(window.iitcLoaded && typeof setup === 'function') setup();
 } // wrapper end

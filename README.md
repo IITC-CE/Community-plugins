@@ -796,7 +796,7 @@ Add one or more player markers and his ranges (hack/deploy range and xmp ranges)
 Pokemon Go tools over IITC. Support in #tools-chat on https://discord.gg/niawayfarer
 
 *[Homepage](https://gitlab.com/NvlblNm/pogo-s2/)* |
-*Version:* 0.106
+*Version:* 0.107
 
 
   

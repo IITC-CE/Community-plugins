@@ -8,7 +8,7 @@
 // @updateURL      https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/NvlblNm/s2check.meta.js
 // @homepageURL    https://gitlab.com/NvlblNm/pogo-s2/
 // @supportURL     https://discord.gg/niawayfarer
-// @version        0.106
+// @version        0.107
 // @description    Pokemon Go tools over IITC. Support in #tools-chat on https://discord.gg/niawayfarer
 // @match          https://intel.ingress.com/*
 // @grant          none
@@ -5329,7 +5329,7 @@
 
             const formContent = `<div class="pogo-s2-popup"><form id="submit-to-pogo-s2">
             <label>Type
-            <select name="pokestopType">
+            <select id="pogo-s2-pokestopType" name="pokestopType">
                 <option value="pokestops">PokéStop</option>
                 <option value="gyms">Gym</option>
                 <option value="powerspots">Power Spot</option>
@@ -5337,13 +5337,13 @@
             </select>
             </label>
             <label>Title
-            <input name="pokestopTitle" type="text" autocomplete="off" placeholder="Title (required)" required value="${title}">
+            <input id="pogo-s2-pokestopTitle" name="pokestopTitle" type="text" autocomplete="off" placeholder="Title (required)" required value="${title}">
             </label>
             <label>Latitude
-            <input name="pokestopLatitude" type="text" autocomplete="off" placeholder="Latitude (required)" required value="${lat}">
+            <input id="pogo-s2-pokestopLatitude" name="pokestopLatitude" type="text" autocomplete="off" placeholder="Latitude (required)" required value="${lat}">
             </label>
             <label>Longitude
-            <input name="pokestopLongitude" type="text" autocomplete="off" placeholder="Longitude (required)" required value="${lng}">
+            <input id="pogo-s2-pokestopLongitude" name="pokestopLongitude" type="text" autocomplete="off" placeholder="Longitude (required)" required value="${lng}">
             </label>
             <label>Image Url
             <input name="pokestopImageUrl" type="text" autocomplete="off" placeholder="http://?.googleusercontent.com/***" value="${imageUrl}">
@@ -5353,6 +5353,31 @@
 
             window.pokestoppopup.setContent(formContent)
             window.pokestoppopup.openOn(map)
+
+            const rootNode = window.pokestoppopup.getElement().getRootNode()
+            const titleInput = rootNode.getElementById('pogo-s2-pokestopTitle')
+            titleInput.addEventListener('change', (ev) => {
+                try {
+                    const asUrl = new URL(ev.target.value)
+                    if (asUrl.host === 'campfire.onelink.me') {
+                        const params = new URLSearchParams(
+                            atob(asUrl.searchParams.get('deep_link_sub1'))
+                        )
+                        const lat = params.get('lat')
+                        const lng = params.get('lng')
+                        rootNode.getElementById(
+                            'pogo-s2-pokestopLatitude'
+                        ).value = lat
+                        rootNode.getElementById(
+                            'pogo-s2-pokestopLongitude'
+                        ).value = lng
+                        rootNode.getElementById('pogo-s2-pokestopType').value =
+                            'powerspots'
+                        titleInput.value = 'Powerspot '
+                        titleInput.focus()
+                    }
+                } catch (e) {}
+            })
         }
 
         window.submitNewStop = function () {

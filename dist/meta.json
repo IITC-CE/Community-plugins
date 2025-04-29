@@ -1278,7 +1278,7 @@
       "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/NvlblNm/s2check.meta.js",
       "homepageURL": "https://gitlab.com/NvlblNm/pogo-s2/",
       "supportURL": "https://discord.gg/niawayfarer",
-      "version": "0.106",
+      "version": "0.107",
       "description": "Pokemon Go tools over IITC. Support in #tools-chat on https://discord.gg/niawayfarer",
       "match": [
         "https://intel.ingress.com/*"
@@ -1287,7 +1287,7 @@
         "none"
       ],
       "id_hash": "s2check-by-NvlblNm",
-      "updatedAt": "2025-04-28T01:17:07.486Z"
+      "updatedAt": "2025-04-29T01:15:07.085Z"
     },
     {
       "author": "NvlblNm",

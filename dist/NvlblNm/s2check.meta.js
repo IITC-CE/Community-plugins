@@ -8,7 +8,7 @@
 // @updateURL      https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/NvlblNm/s2check.meta.js
 // @homepageURL    https://gitlab.com/NvlblNm/pogo-s2/
 // @supportURL     https://discord.gg/niawayfarer
-// @version        0.107
+// @version        0.108
 // @description    Pokemon Go tools over IITC. Support in #tools-chat on https://discord.gg/niawayfarer
 // @match          https://intel.ingress.com/*
 // @grant          none

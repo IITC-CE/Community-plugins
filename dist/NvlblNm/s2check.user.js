@@ -8,7 +8,7 @@
 // @updateURL      https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/NvlblNm/s2check.meta.js
 // @homepageURL    https://gitlab.com/NvlblNm/pogo-s2/
 // @supportURL     https://discord.gg/niawayfarer
-// @version        0.107
+// @version        0.108
 // @description    Pokemon Go tools over IITC. Support in #tools-chat on https://discord.gg/niawayfarer
 // @match          https://intel.ingress.com/*
 // @grant          none
@@ -3707,6 +3707,10 @@
                 return
             }
 
+            // 'add' doesn't appear to fire reliably if it's complete by the time we get here
+            // but also addNearbyCircle only works if 'add' has already fired
+            // for now at least, do both
+            addNearbyCircle(guid)
             data.portal.on('add', function () {
                 addNearbyCircle(guid)
                 window.clearTimeout(relayoutTimer)
@@ -5453,77 +5457,11 @@
                 ['p', waypoint.team, waypoint.latE6, waypoint.lngE6]
             ])
         }
-        // eslint-disable-next-line camelcase
-        function get_portal_details() {
-            // eslint-disable-line camelcase
-            /// PORTAL DETAIL //////////////////////////////////////
-            // Original from IITC Plugin
 
-            let cache
-            const requestQueue = {}
-            window.portalDetail = function () {}
+        const interceptPortalDetailRequests = function () {
+            const origReq = window.portalDetail.request
 
-            window.portalDetail.setup = function () {
-                cache = new DataCache()
-
-                cache.startExpireInterval(20)
-            }
-
-            window.portalDetail.get = function (guid) {
-                return cache.get(guid)
-            }
-
-            window.portalDetail.isFresh = function (guid) {
-                return cache.isFresh(guid)
-            }
-
-            const handleResponse = function (deferred, guid, data, success) {
-                if (!data || data.error || !data.result) {
-                    success = false
-                }
-
-                if (success) {
-                    const dict = decodeArray.portal(data.result, 'detailed')
-
-                    cache.store(guid, dict)
-
-                    // entity format, as used in map data
-                    const ent = [guid, dict.timestamp, data.result]
-                    const portal =
-                        window.mapDataRequest.render.createPortalEntity(
-                            ent,
-                            'detailed'
-                        )
-
-                    // FIXME..? better way of handling sidebar refreshing...
-
-                    if (guid === selectedPortal) {
-                        renderPortalDetails(guid)
-                    }
-
-                    deferred.resolve(dict)
-                    window.runHooks('portalDetailLoaded', {
-                        guid,
-                        success,
-                        details: dict,
-                        ent,
-                        portal
-                    })
-                } else {
-                    if (data && data.error === 'RETRY') {
-                        // server asked us to try again
-                        doRequest(deferred, guid)
-                    } else {
-                        deferred.reject()
-                        window.runHooks('portalDetailLoaded', {
-                            guid,
-                            success
-                        })
-                    }
-                }
-            }
-
-            const doRequest = function (deferred, guid) {
+            window.portalDetail.request = function (guid) {
                 if (guid.includes('s2-pogo')) {
                     if (!S2.db) return
                     const transaction = S2.db.transaction(
@@ -5559,44 +5497,43 @@
                                 ['', '', []]
                             ]
                         }
-                        handleResponse(deferred, guid, data, true)
+
+                        const dict = decodeArray.portal(data.result, 'detailed')
+
+                        window.portalDetail.store(guid, dict)
+
+                        // entity format, as used in map data
+                        const ent = [guid, dict.timestamp, data.result]
+                        const portal =
+                            window.mapDataRequest.render.createPortalEntity(
+                                ent,
+                                'detailed'
+                            )
+
+                        // FIXME..? better way of handling sidebar refreshing... or is this even still needed?
+
+                        if (guid === selectedPortal) {
+                            renderPortalDetails(guid)
+                        }
+
+                        window.runHooks('portalDetailLoaded', {
+                            guid,
+                            success: true,
+                            details: dict,
+                            ent,
+                            portal
+                        })
                     }
                 } else {
-                    window.postAjax(
-                        'getPortalDetails',
-                        {
-                            guid
-                        },
-                        function (data, textStatus, jqXHR) {
-                            handleResponse(deferred, guid, data, true)
-                        },
-                        function () {
-                            handleResponse(deferred, guid, undefined, false)
-                        }
-                    )
+                    origReq(guid)
                 }
-            }
-
-            window.portalDetail.request = function (guid) {
-                if (!requestQueue[guid]) {
-                    const deferred = $.Deferred()
-                    requestQueue[guid] = deferred.promise()
-                    deferred.always(function () {
-                        delete requestQueue[guid]
-                    })
-
-                    doRequest(deferred, guid)
-                }
-
-                return requestQueue[guid]
             }
         }
 
         // Save old Portal Add Method to be reused below
 
         const setup = function () {
-            get_portal_details()
-            window.portalDetail.setup()
+            interceptPortalDetailRequests()
             thisPlugin.isSmart = window.isSmartphone()
 
             initSvgIcon()
@@ -5669,6 +5606,7 @@
             )
 
             window.addHook('portalSelected', thisPlugin.onPortalSelected)
+            window.addHook('portalDetailLoaded', thisPlugin.onPortalSelected)
 
             window.addHook('portalAdded', onPortalAdded)
             window.addHook('mapDataRefreshStart', function () {

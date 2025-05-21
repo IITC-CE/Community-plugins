@@ -117,14 +117,16 @@ function wrapper( plugin_info ) {
 
         let csvData='Player,Team,Latitude,Longitude,Portal Hit,Portal Link,Timestamp\n';
 
+        const lat=value.Lat;
+        const lng=value.Long;
         const portalLink=`https://intel.ingress.com/intel?ll=${lat},${lng}&z=17&pll=${lat},${lng}`;
 
         $.each( data, function( key, value ) {
             csvData+=[
                 value.Player,
                 value.Team,
-                value.Lat,
-                value.Long,
+                lat,
+                lng,
                 value.PortalHit,
                 portalLink,
                 value.timestamp

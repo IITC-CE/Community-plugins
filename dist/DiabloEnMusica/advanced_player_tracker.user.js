@@ -86,12 +86,18 @@ function wrapper( plugin_info ) {
 
                 if ( !alreadyLogged ) {
                     console.log( "Logging:", agentName, event );
+
+                    const lat=event.latlngs[ 0 ][ 0 ];
+                    const lng=event.latlngs[ 0 ][ 1 ];
+                    const portalLink=`https://intel.ingress.com/intel?ll=${lat},${lng}&z=17&pll=${lat},${lng}`;
+
                     window.plugin.advancedPlayerTracker.playerData.push( {
                         Player: agentName,
                         Team: playerData.team,
-                        Lat: event.latlngs[ 0 ][ 0 ],
-                        Long: event.latlngs[ 0 ][ 1 ],
+                        Lat: lat,
+                        Long: lng,
                         PortalHit: event.name,
+                        PortalLink: portalLink,
                         timestamp: event.time
                     } );
                 } else {
@@ -117,26 +123,36 @@ function wrapper( plugin_info ) {
 
         let csvData='Player,Team,Latitude,Longitude,Portal Hit,Portal Link,Timestamp\n';
 
-        const lat=value.Lat;
-        const lng=value.Long;
-        const portalLink=`https://intel.ingress.com/intel?ll=${lat},${lng}&z=17&pll=${lat},${lng}`;
-
         $.each( data, function( key, value ) {
+            const lat=value.Lat;
+            const lng=value.Long;
+            const portalLink=`https://intel.ingress.com/intel?ll=${lat},${lng}&z=17&pll=${lat},${lng}`;
+
             csvData+=[
-                value.Player,
-                value.Team,
-                lat,
-                lng,
-                value.PortalHit,
-                portalLink,
-                value.timestamp
+                `"${value.Player}"`,
+                `"${value.Team}"`,
+                `"${lat}"`,
+                `"${lng}"`,
+                `"${value.PortalHit}"`,
+                `"${portalLink}"`,
+                `"${new Date( value.timestamp ).toLocaleString( "en-US", {
+                    timeZone: "America/New_York",
+                    year: "numeric",
+                    month: "2-digit",
+                    day: "2-digit",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    second: "2-digit",
+                    hour12: false,
+                    timeZoneName: "short"
+                } ).replace( ',', '' )}"`
             ].join( ',' )+'\n';
         } );
 
         const blob=new Blob( [ csvData ], { type: 'text/csv;charset=utf-8;' } );
         const link=document.createElement( "a" );
         link.href=URL.createObjectURL( blob );
-        link.download='AdvancedPlayerTracker_Export.csv';
+        link.download='MultiAccounterData.csv';
         document.body.appendChild( link );
         link.click();
         document.body.removeChild( link );

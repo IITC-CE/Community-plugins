@@ -116,29 +116,18 @@ function wrapper( plugin_info ) {
         }
 
         let csvData='Player,Team,Latitude,Longitude,Portal Hit,Portal Link,Timestamp\n';
-        $.each( data, function( key, value ) {
-            const lat=value.Lat;
-            const lng=value.Long;
-            const portalLink=`https://intel.ingress.com/intel?ll=${lat},${lng}&z=17&pll=${lat},${lng}`;
 
+        const portalLink=`https://intel.ingress.com/intel?ll=${lat},${lng}&z=17&pll=${lat},${lng}`;
+
+        $.each( data, function( key, value ) {
             csvData+=[
                 value.Player,
                 value.Team,
-                lat,
-                lng,
+                value.Lat,
+                value.Long,
                 value.PortalHit,
-                portalLink,
-                new Date( value.timestamp ).toLocaleString( "en-US", {
-                    timeZone: "America/New_York",
-                    year: "numeric",
-                    month: "2-digit",
-                    day: "2-digit",
-                    hour: "2-digit",
-                    minute: "2-digit",
-                    second: "2-digit",
-                    hour12: false
-                } ).replace( ',', '' )
-            ].join( ',' )+'\\n';
+                value.timestamp
+            ].join( ',' )+'\n';
         } );
 
         const blob=new Blob( [ csvData ], { type: 'text/csv;charset=utf-8;' } );

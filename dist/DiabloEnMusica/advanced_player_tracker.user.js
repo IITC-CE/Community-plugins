@@ -126,6 +126,7 @@ function wrapper( plugin_info ) {
                 value.Lat,
                 value.Long,
                 value.PortalHit,
+                portalLink,
                 value.timestamp
             ].join( ',' )+'\n';
         } );

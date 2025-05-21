@@ -11,11 +11,14 @@
 // @depends        player-activity-tracker@breunigs
 // @include        http://www.ingress.com/intel*
 // @include        https://www.ingress.com/intel*
+// @include        http://intel.ingress.com/*
+// @include        https:/intel.ingress.com/*
+// @match          http://intel.ingress.com/*
+// @match          https://intel.ingress.com/*
 // @match          http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
 // @grant          none
 // ==/UserScript==
-
 
 // Wrapper function that will be stringified and injected
 // into the document. Because of this, normal closure rules

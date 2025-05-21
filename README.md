@@ -90,10 +90,10 @@ Change Pan Control to pan whole screens
 
 
 
-Add-on to the player tracker plugin: Adjust history limit of 3 hours to another value. Toggle name labels, last action time, toggle/adjust player colors, focus on players, display 1 single player. Integrated Marker Label plugin and Spectrum Colorpicker 1.8.1 plugin. Supports Machina U̶͚̓̍N̴̖̈K̠͔̍͑̂͜N̞̥͋̀̉Ȯ̶̹͕̀W̶̢͚͑̚͝Ṉ̨̟̒̅&#39; player.
+Add-on to the player tracker plugin: Adjust history limit of 3 hours to another value. Toggle name labels, last action time, toggle/adjust player colors, focus on players, display 1 single player. Integrated Marker Label plugin and Spectrum Colorpicker 1.8.1 plugin. Supports Machina _̶̱̍_̴̳͉̆̈́M̷͔̤͒Ą̷̍C̴̼̕ͅH̶̹͕̼̾Ḭ̵̇̾̓N̵̺͕͒̀̍Ä̴̞̰́_̴̦̀͆̓_̷̣̈́  player.
 
 *Depends*: player-activity-tracker@breunigs  |
-*Version:* 1.3.1.20240209.233200
+*Version:* 2.0.0.20250424.223800
 
 
   
@@ -796,7 +796,7 @@ Add one or more player markers and his ranges (hack/deploy range and xmp ranges)
 Pokemon Go tools over IITC. Support in #tools-chat on https://discord.gg/niawayfarer
 
 *[Homepage](https://gitlab.com/NvlblNm/pogo-s2/)* |
-*Version:* 0.105
+*Version:* 0.108
 
 
   
@@ -1412,9 +1412,9 @@ Load more COMMS history without scrolling back, usefull for other plugins
 
 
 
-With this plugin the Portal History will be implemented into all versions of IITC. This plugin injects functionality from the IITC-CE release (version 0.32.0) plus extra modifications into all IITC versions (IITC.me / IITC-CE 0.31.1). Code will be injected into the IITC core. History results are cached and re-used automatically. Details from your COMMS captured portals are loaded automatically. Portal history requires CORE subscription.
+With this plugin the Portal History will be implemented into all versions of IITC. This plugin injects functionality from the IITC-CE release (version 0.32.0) plus extra modifications into all IITC versions (IITC.me / IITC-CE 0.31.1). Code will be injected into the IITC core. History results are cached and re-used automatically. Details from your COMMS captured portals are loaded automatically. Temporary disabled for IITC 0.40.0
 
-*Version:* 0.0.3.20210725.160300
+*Version:* 0.0.4.20250424.230000
 
 
   
@@ -1540,7 +1540,7 @@ Override the portal and links display levels for every zoom level. Using this me
 
 View inventory and shows portals you have keys from
 
-*Version:* 0.0.7
+*Version:* 0.0.8
 
 
   

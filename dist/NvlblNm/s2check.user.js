@@ -8,7 +8,7 @@
 // @updateURL      https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/NvlblNm/s2check.meta.js
 // @homepageURL    https://gitlab.com/NvlblNm/pogo-s2/
 // @supportURL     https://discord.gg/niawayfarer
-// @version        0.105
+// @version        0.108
 // @description    Pokemon Go tools over IITC. Support in #tools-chat on https://discord.gg/niawayfarer
 // @match          https://intel.ingress.com/*
 // @grant          none
@@ -580,6 +580,7 @@
 
         let pokestops = {}
         let gyms = {}
+        let powerspots = {}
         // Portals that are marked as no PoGo items
         let notpogo = {}
 
@@ -612,6 +613,7 @@
         let regionLayer // parent layer
         let stopLayerGroup // pokestops
         let gymLayerGroup // gyms
+        let powerspotLayerGroup // powerspots
         let notpogoLayerGroup // not in PoGO
         let manualLayerGroup // manual
         let nearbyLayerGroup // circles to mark the too near limit
@@ -624,6 +626,7 @@
         // Group of items added to the layer
         const stopLayers = {}
         const gymLayers = {}
+        const powerspotLayers = {}
         const notpogoLayers = {}
         const nearbyCircles = {}
 
@@ -636,8 +639,11 @@
 
         const defaultSettings = {
             highlightGymCandidateCells: true,
-            highlightGymCenter: false,
+            displayCircle20: true,
+            displayCircle22: true,
+            displayCircle80: false,
             thisIsPogo: true,
+            highlightGymCenter: false,
             analyzeForMissingData: true,
             centerMapOnClick: true,
             grids: [
@@ -671,13 +677,29 @@
                     color: '#000000',
                     opacity: 0.5
                 },
-                nearbyCircleBorder: {
+                nearby20CircleBorder: {
                     color: '#000000',
                     opacity: 0.6
                 },
-                nearbyCircleFill: {
+                nearby20CircleFill: {
                     color: '#000000',
                     opacity: 0.4
+                },
+                nearby22CircleBorder: {
+                    color: '#1933f5',
+                    opacity: 0.6
+                },
+                nearby22CircleFill: {
+                    color: '#000000',
+                    opacity: 0
+                },
+                nearby80CircleBorder: {
+                    color: '#f2ff42',
+                    opacity: 0.6
+                },
+                nearby80CircleFill: {
+                    color: '#000000',
+                    opacity: 0
                 },
                 missingStops1: {
                     color: '#BF360C',
@@ -722,6 +744,14 @@
                 notpogoOuter: {
                     color: '#8b0000', // darkred
                     opacity: 1
+                },
+                powerspotInner: {
+                    color: '#fff829', // yellow
+                    opacity: 1
+                },
+                powerspotOuter: {
+                    color: '#fff829', // yellow
+                    opacity: 1
                 }
             },
             saveDataType: 'Gyms',
@@ -759,6 +789,32 @@
                     settings.colors.gymOuter = defaultSettings.colors.gymOuter
                     settings.colors.exGymInner =
                         defaultSettings.colors.exGymInner
+                }
+
+                if (!settings.colors.powerspotInner) {
+                    settings.colors.powerspotInner =
+                        defaultSettings.colors.powerspotInner
+                    settings.colors.powerspotOuter =
+                        defaultSettings.colors.powerspotOuter
+                }
+
+                if (!settings.colors.nearby20CircleBorder) {
+                    settings.displayCircle20 = true
+                    settings.displayCircle22 = true
+                    settings.colors.nearby20CircleBorder =
+                        settings.colors.nearbyCircleBorder ||
+                        defaultSettings.colors.nearby20CircleBorder
+                    settings.colors.nearby20CircleFill =
+                        settings.colors.nearbyCircleFill ||
+                        defaultSettings.colors.nearby20CircleFill
+                    settings.colors.nearby22CircleBorder =
+                        defaultSettings.colors.nearby22CircleBorder
+                    settings.colors.nearby22CircleFill =
+                        defaultSettings.colors.nearby22CircleFill
+                    settings.colors.nearby80CircleBorder =
+                        defaultSettings.colors.nearby80CircleBorder
+                    settings.colors.nearby80CircleFill =
+                        defaultSettings.colors.nearby80CircleFill
                 }
             } catch (e) {
                 // eslint-disable-line no-empty
@@ -799,9 +855,36 @@
                 settings.colors.gymOuter = defaultSettings.colors.gymOuter
                 settings.colors.exGymInner = defaultSettings.colors.exGymInner
             }
+            if (!settings.colors.powerspotInner) {
+                settings.colors.powerspotInner =
+                    defaultSettings.colors.powerspotInner
+                settings.colors.powerspotOuter =
+                    defaultSettings.colors.powerspotOuter
+            }
+
+            if (!settings.colors.nearby20CircleBorder) {
+                settings.displayCircle20 = true
+                settings.displayCircle22 = true
+                settings.colors.nearby20CircleBorder =
+                    settings.colors.nearbyCircleBorder ||
+                    defaultSettings.colors.nearby20CircleBorder
+                settings.colors.nearby20CircleFill =
+                    settings.colors.nearbyCircleFill ||
+                    defaultSettings.colors.nearby20CircleFill
+                settings.colors.nearby22CircleBorder =
+                    defaultSettings.colors.nearby22CircleBorder
+                settings.colors.nearby22CircleFill =
+                    defaultSettings.colors.nearby22CircleFill
+                settings.colors.nearby80CircleBorder =
+                    defaultSettings.colors.nearby80CircleBorder
+                settings.colors.nearby80CircleFill =
+                    defaultSettings.colors.nearby80CircleFill
+            }
+
             if (!settings.colors) {
                 resetColors()
             }
+
             if (typeof settings.saveDataType === 'undefined') {
                 settings.saveDataType = 'Gyms'
             }
@@ -1152,9 +1235,12 @@
             const html =
                 selectRow.replace('{{level}}', '1st') +
                 selectRow.replace('{{level}}', '2nd') +
-                `<p><input type="checkbox" id="chkHighlightCandidates" /><label for="chkHighlightCandidates">Highlight Cells that might get a Gym</label></p>
-                 <p><input type="checkbox" id="chkHighlightCenters" /><label for="chkHighlightCenters">Put an X in the center of Cells with a Gym<br />(for determining EX-eligibility)</label></p>
+                `<p><input type="checkbox" id="chkHighlightCandidates" /><label for="chkHighlightCandidates" title="1) Highlight level 17 cells with a pokéstop/gym.<br/>2) Show the amount of pokéstops needed for a new gym (in the center of level 14 cells).<br/>3) Highlight a border around level 14 cells that need 1-3 more pokéstops for a new gym.">Highlight Cells that might get a Gym</label></p>
+                 <p><input type="checkbox" id="chkDisplayCircle20" /><label for="chkDisplayCircle20" title="New wayspots within 20 meters of an existing portal will not be visible in Ingress.">Show 20m submit radius for portals</label></p>
+                 <p><input type="checkbox" id="chkDisplayCircle22" /><label for="chkDisplayCircle22" title="New wayspot may become a powerspot if it is in an occupied level 17 cell and at least 22 meters from the nearest pokéstop or gym.">Show 22m submit radius for powerspots</label></p>
+                 <p><input type="checkbox" id="chkDisplayCircle80" /><label for="chkDisplayCircle80" title="Display 80 meter circles showing how far you can be to interact with a pokéstop, gym or a powerspot.">Show 80m interaction radius</label></p>
                  <p><input type="checkbox" id="chkThisIsPogo" /><label for="chkThisIsPogo" title='Hide Ingress panes, info and whatever that clutters the map and it is useless for Pokemon Go'>This is PoGo!</label></p>
+                 <p><input type="checkbox" id="chkHighlightCenters" /><label for="chkHighlightCenters" title='Puts an X in the center of L20 cells with a Gym.'>Determine EX-eligibility</label></p>
                  <p><input type="checkbox" id="chkanalyzeForMissingData" /><label for="chkanalyzeForMissingData" title="Analyze the portal data to show the pane that suggests new Pokestops and Gyms">Analyze portal data</label></p>
                  <p><input type="checkbox" id="chkcenterMapOnClick" /><label for="chkcenterMapOnClick" title="Center map on portal when clicked in a dialog box.">Center map on click.</label></p>
                  <p><a id='PogoEditColors'>Colors</a></p>
@@ -1174,6 +1260,7 @@
                 configureGridLevelSelect(selects[i], i)
             }
 
+            // Checkbox for "Highlight Cells that might get a Gym"
             const chkHighlight = div.querySelector('#chkHighlightCandidates')
             chkHighlight.checked = settings.highlightGymCandidateCells
 
@@ -1183,16 +1270,34 @@
                 updateMapGrid()
             })
 
-            const chkHighlightCenters = div.querySelector(
-                '#chkHighlightCenters'
-            )
-            chkHighlightCenters.checked = settings.highlightGymCenter
-            chkHighlightCenters.addEventListener('change', (e) => {
-                settings.highlightGymCenter = chkHighlightCenters.checked
+            // Checkbox for 20m circle display setting
+            const chkDisplayCircle20 = div.querySelector('#chkDisplayCircle20')
+            chkDisplayCircle20.checked = settings.displayCircle20
+            chkDisplayCircle20.addEventListener('change', (e) => {
+                settings.displayCircle20 = chkDisplayCircle20.checked
                 saveSettings()
-                updateMapGrid()
+                redrawNearbyCircles() // Redraw circles to reflect updated settings
             })
 
+            // Checkbox for 22m circle display setting
+            const chkDisplayCircle22 = div.querySelector('#chkDisplayCircle22')
+            chkDisplayCircle22.checked = settings.displayCircle22
+            chkDisplayCircle22.addEventListener('change', (e) => {
+                settings.displayCircle22 = chkDisplayCircle22.checked
+                saveSettings()
+                redrawNearbyCircles() // Redraw circles to reflect updated settings
+            })
+
+            // Checkbox for 80m circle display setting
+            const chkDisplayCircle80 = div.querySelector('#chkDisplayCircle80')
+            chkDisplayCircle80.checked = settings.displayCircle80
+            chkDisplayCircle80.addEventListener('change', (e) => {
+                settings.displayCircle80 = chkDisplayCircle80.checked
+                saveSettings()
+                redrawNearbyCircles() // Redraw circles to reflect updated settings
+            })
+
+            // Checkbox for "This is PoGo!
             const chkThisIsPogo = div.querySelector('#chkThisIsPogo')
             chkThisIsPogo.checked = !!settings.thisIsPogo
             chkThisIsPogo.addEventListener('change', (e) => {
@@ -1205,6 +1310,18 @@
                 setThisIsPogo()
             })
 
+            // Checkbox for "Put an X in the center of Cells with a Gym"
+            const chkHighlightCenters = div.querySelector(
+                '#chkHighlightCenters'
+            )
+            chkHighlightCenters.checked = settings.highlightGymCenter
+            chkHighlightCenters.addEventListener('change', (e) => {
+                settings.highlightGymCenter = chkHighlightCenters.checked
+                saveSettings()
+                updateMapGrid()
+            })
+
+            // Checkbox for "Analyze portal data"
             const chkanalyzeForMissingData = div.querySelector(
                 '#chkanalyzeForMissingData'
             )
@@ -1218,6 +1335,7 @@
                 }
             })
 
+            // Checkbox for "Center map on click"
             const chkcenterMapOnClick = div.querySelector(
                 '#chkcenterMapOnClick'
             )
@@ -1287,11 +1405,27 @@
                     .replace('{{width}}', '') +
                 selectRow
                     .replace('{{title}}', '20m submit radius border')
-                    .replace(/{{id}}/g, 'nearbyCircleBorder')
+                    .replace(/{{id}}/g, 'nearby20CircleBorder')
                     .replace('{{width}}', '') +
                 selectRow
                     .replace('{{title}}', '20m submit radius fill')
-                    .replace(/{{id}}/g, 'nearbyCircleFill')
+                    .replace(/{{id}}/g, 'nearby20CircleFill')
+                    .replace('{{width}}', '') +
+                selectRow
+                    .replace('{{title}}', '22m submit radius border')
+                    .replace(/{{id}}/g, 'nearby22CircleBorder')
+                    .replace('{{width}}', '') +
+                selectRow
+                    .replace('{{title}}', '22m submit radius fill')
+                    .replace(/{{id}}/g, 'nearby22CircleFill')
+                    .replace('{{width}}', '') +
+                selectRow
+                    .replace('{{title}}', '80m interact radius border')
+                    .replace(/{{id}}/g, 'nearby80CircleBorder')
+                    .replace('{{width}}', '') +
+                selectRow
+                    .replace('{{title}}', '80m interact radius fill')
+                    .replace(/{{id}}/g, 'nearby80CircleFill')
                     .replace('{{width}}', '') +
                 selectRow
                     .replace('{{title}}', '1 more stop to get a gym')
@@ -1337,6 +1471,14 @@
                     .replace('{{title}}', 'Not in PoGO outside')
                     .replace(/{{id}}/g, 'notpogoOuter')
                     .replace('{{width}}', '') +
+                selectRow
+                    .replace('{{title}}', 'PowerSpot inside')
+                    .replace(/{{id}}/g, 'powerspotInner')
+                    .replace('{{width}}', '') +
+                selectRow
+                    .replace('{{title}}', 'PowerSpot outside')
+                    .replace(/{{id}}/g, 'powerspotOuter')
+                    .replace('{{width}}', '') +
                 '<a id="resetColorsLink">Reset all colors</a>'
 
             const container = dialog({
@@ -1350,7 +1492,14 @@
 
             const updatedSetting = function (id) {
                 saveSettings()
-                if (id === 'nearbyCircleBorder' || id === 'nearbyCircleFill') {
+                if (
+                    id === 'nearby20CircleBorder' ||
+                    id === 'nearby20CircleFill' ||
+                    id === 'nearby22CircleBorder' ||
+                    id === 'nearby22CircleFill' ||
+                    id === 'nearby80CircleBorder' ||
+                    id === 'nearby80CircleFill'
+                ) {
                     redrawNearbyCircles()
                 } else {
                     updateMapGrid()
@@ -1394,8 +1543,12 @@
             configureItems('colors', 'cellsMissingGyms')
             configureItems('colors', 'cell17Filled')
             configureItems('colors', 'cell14Filled')
-            configureItems('colors', 'nearbyCircleBorder')
-            configureItems('colors', 'nearbyCircleFill')
+            configureItems('colors', 'nearby20CircleBorder')
+            configureItems('colors', 'nearby20CircleFill')
+            configureItems('colors', 'nearby22CircleBorder')
+            configureItems('colors', 'nearby22CircleFill')
+            configureItems('colors', 'nearby80CircleBorder')
+            configureItems('colors', 'nearby80CircleFill')
             configureItems('colors', 'missingStops1')
             configureItems('colors', 'missingStops2')
             configureItems('colors', 'missingStops3')
@@ -1407,12 +1560,16 @@
             configureItems('colors', 'gymOuter')
             configureItems('colors', 'notpogoInner')
             configureItems('colors', 'notpogoOuter')
+            configureItems('colors', 'powerspotInner')
+            configureItems('colors', 'powerspotOuter')
 
             const resetColorsLink = div.querySelector('#resetColorsLink')
             resetColorsLink.addEventListener('click', function () {
                 container.dialog('close')
                 resetColors()
-                updatedSetting('nearbyCircleBorder')
+                updatedSetting('nearby20CircleBorder')
+                updatedSetting('nearby22CircleBorder')
+                updatedSetting('nearby80CircleBorder')
                 updatedSetting()
                 editColors()
             })
@@ -2002,6 +2159,7 @@
         const KEY_STORAGE = 'plugin-pogo'
         const KEY_SETTINGS = 'plugin-pogo-settings'
 
+        const POWERSPOTS = 'powerspots'
         const GYMS = 'gyms'
         const POKESTOPS = 'pokestops'
         const NOTPOGO = 'notpogo'
@@ -2207,16 +2365,32 @@
         function loadPogoS2Data(db) {
             loadAllFromObjectStore(db, GYMS, (all) =>
                 all.forEach((gym) => {
+                    if (isNaN(gym.lat) || isNaN(gym.lng)) return
+                    delete gym.exists
                     gyms[gym.guid] = gym
                 })
             )
             loadAllFromObjectStore(db, POKESTOPS, (all) =>
                 all.forEach((pokestop) => {
+                    if (isNaN(pokestop.lat) || isNaN(pokestop.lng)) return
+                    // bugfix: when exporting, the "exists=true" parameter is being saved and after import it's a default value and prevents correctly determining missing wps
+                    // same added above for gyms and below
+                    delete pokestop.exists
                     pokestops[pokestop.guid] = pokestop
                 })
             )
+            loadAllFromObjectStore(db, POWERSPOTS, (all) =>
+                all.forEach((powerspot) => {
+                    if (isNaN(powerspot.lat) || isNaN(powerspot.lng)) return
+                    delete powerspot.exists
+                    powerspots[powerspot.guid] = powerspot
+                })
+            )
+
             loadAllFromObjectStore(db, NOTPOGO, (all) =>
                 all.forEach((nothing) => {
+                    if (isNaN(nothing.lat) || isNaN(nothing.lng)) return
+                    delete nothing.exists
                     notpogo[nothing.guid] = nothing
                 })
             )
@@ -2232,6 +2406,12 @@
             )
             loadAllFromObjectStore(db, MANUAL_WAYPOINTS, (all) =>
                 all.forEach((manualWaypoint) => {
+                    if (
+                        isNaN(manualWaypoint.latE6) ||
+                        isNaN(manualWaypoint.lngE6)
+                    ) {
+                        return
+                    }
                     waypoints[manualWaypoint.guid] = manualWaypoint
                 })
             )
@@ -2251,12 +2431,14 @@
         thisPlugin.createEmptyStorage = function () {
             gyms = {}
             pokestops = {}
+            powerspots = {}
             notpogo = {}
             ignoredCellsExtraGyms = {}
             ignoredCellsMissingGyms = {}
             waypoints = {}
             deleteAllFromObjectStore(S2.db, GYMS)
             deleteAllFromObjectStore(S2.db, POKESTOPS)
+            deleteAllFromObjectStore(S2.db, POWERSPOTS)
             deleteAllFromObjectStore(S2.db, NOTPOGO)
             deleteAllFromObjectStore(S2.db, EXTRA_GYMS)
             deleteAllFromObjectStore(S2.db, MISSING_GYMS)
@@ -2278,6 +2460,9 @@
             if (pokestops[guid]) {
                 return { type: POKESTOPS, store: pokestops }
             }
+            if (powerspots[guid]) {
+                return { type: POWERSPOTS, store: powerspots }
+            }
             if (notpogo[guid]) {
                 return { type: NOTPOGO, store: notpogo }
             }
@@ -2289,6 +2474,7 @@
         thisPlugin.onPortalSelected = function () {
             $('.pogoStop').remove()
             $('.pogoGym').remove()
+            $('.pogoPowerspot').remove()
             $('.notPogo').remove()
             const portalDetails = document.getElementById('portaldetails')
             portalDetails.classList.remove('isGym')
@@ -2306,6 +2492,7 @@
 
                     $('.pogoStop').remove()
                     $('.pogoGym').remove()
+                    $('.pogoPowerspot').remove()
                     $('.notPogo').remove()
 
                     // Show PoGo icons in the mobile status-bar
@@ -2388,6 +2575,7 @@
         thisPlugin.updateStarPortal = function () {
             $('.pogoStop').removeClass('favorite')
             $('.pogoGym').removeClass('favorite')
+            $('.pogoPowerspot').removeClass('favorite')
             $('.notPogo').removeClass('favorite')
             document.getElementById('portaldetails').classList.remove('isGym')
 
@@ -2410,6 +2598,9 @@
                     }
                     document.getElementById('PogoGymEx').checked = gym.isEx
                 }
+                if (pogoData.type === POWERSPOTS) {
+                    $('.pogoPowerspot').addClass('favorite')
+                }
                 if (pogoData.type === NOTPOGO) {
                     $('.notPogo').addClass('favorite')
                 }
@@ -2430,6 +2621,13 @@
                 const gymInLayer = gymLayers[guid]
                 gymLayerGroup.removeLayer(gymInLayer)
                 delete gymLayers[guid]
+            }
+            if (type === POWERSPOTS) {
+                delete powerspots[guid]
+                deleteFromObjectStore(S2.db, POWERSPOTS, guid)
+                const powerspotInLayer = powerspotLayers[guid]
+                powerspotLayerGroup.removeLayer(powerspotInLayer)
+                delete powerspotLayers[guid]
             }
             if (type === NOTPOGO) {
                 delete notpogo[guid]
@@ -2493,6 +2691,10 @@
             }
         }
         thisPlugin.deletePortalpogo = function (guid) {
+            if (powerspots[guid]) {
+                delete powerspots[guid]
+                deleteFromObjectStore(S2.db, POWERSPOTS, guid)
+            }
             if (gyms[guid]) {
                 delete gyms[guid]
                 deleteFromObjectStore(S2.db, GYMS, guid)
@@ -2517,6 +2719,10 @@
                 obj.exists = true
             }
 
+            if (type === POWERSPOTS) {
+                powerspots[guid] = obj
+                addItemToObjectStore(S2.db, POWERSPOTS, cleanUpSingleItem(obj))
+            }
             if (type === GYMS) {
                 updateExtraGymsCells(lat, lng)
                 gyms[guid] = obj
@@ -2579,6 +2785,7 @@
                 <div class="stop_counts">
                 <div><span>Gyms:</span>${Object.keys(gyms).length}</div>
                 <div><span>Pokestops:</span>${Object.keys(pokestops).length}</div>
+                <div><span>Power Spots: </span>${Object.keys(powerspots).length}</div>
                 <div><span>Manual waypoints:</span>${Object.keys(waypoints).length}</div>
                 </div>
                 </div>`
@@ -2707,7 +2914,8 @@
                     notpogo,
                     ignoredCellsExtraGyms,
                     ignoredCellsMissingGyms,
-                    waypoints
+                    waypoints,
+                    powerspots
                 }),
                 'IITC-pogo.json'
             )
@@ -2854,6 +3062,7 @@
             iterateStore(notpogo, NOTPOGO)
             iterateStore(gyms, GYMS)
             iterateStore(pokestops, POKESTOPS)
+            iterateStore(powerspots, POWERSPOTS)
         }
 
         thisPlugin.resetAllMarkers = function () {
@@ -2866,6 +3075,11 @@
                 const gymInLayer = gymLayers[gymGuid]
                 gymLayerGroup.removeLayer(gymInLayer)
                 delete gymLayers[gymGuid]
+            }
+            for (const powerspotGuid in powerspotLayers) {
+                const powerspotInLayer = powerspotLayers[powerspotGuid]
+                powerspotLayerGroup.removeLayer(powerspotInLayer)
+                delete powerspotLayers[powerspotGuid]
             }
             for (const notpogoGuid in notpogoLayers) {
                 const notpogoInLayer = notpogoLayers[notpogoGuid]
@@ -2897,6 +3111,7 @@
 
         thisPlugin.addStar = function (guid, lat, lng, name, type) {
             let star
+
             // Note: PoGOHWH Edition: Pokéstop and Gym markers just use CircleMarkers
             const m = navigator.userAgent.match(/Android.*Mobile/) ? 1.5 : 1.0 // Note: the isIITCm() implementation here does not work on IITC-CE-m at least
             if (type === POKESTOPS) {
@@ -2936,6 +3151,20 @@
                     pane: 'pogoPaneGyms'
                 })
             }
+            if (type === POWERSPOTS) {
+                // const powerspot = powerspots[guid]
+                star = new L.circleMarker([lat, lng], {
+                    title: name,
+                    radius: 5 * m,
+                    weight: 2 * m,
+                    color: settings.colors.powerspotOuter.color,
+                    opacity: settings.colors.powerspotOuter.opacity,
+                    fillColor: settings.colors.powerspotInner.color,
+                    fillOpacity: settings.colors.powerspotInner.opacity,
+                    pane: 'pogoPanePowerspot'
+                })
+            }
+
             if (type === NOTPOGO) {
                 star = new L.circleMarker([lat, lng], {
                     title: name,
@@ -2969,6 +3198,10 @@
                 gymLayers[guid] = star
                 star.addTo(gymLayerGroup)
             }
+            if (type === POWERSPOTS) {
+                powerspotLayers[guid] = star
+                star.addTo(powerspotLayerGroup)
+            }
             if (type === NOTPOGO) {
                 notpogoLayers[guid] = star
                 star.addTo(notpogoLayerGroup)
@@ -2984,7 +3217,8 @@
             width:auto;
         }
         .pogoStop span,
-        .pogoGym span {
+        .pogoGym span,
+        .pogoPowerspot span {
             display:inline-block;
             float:left;
             margin:3px 1px 0 4px;
@@ -2994,11 +3228,13 @@
             background-repeat:no-repeat;
         }
         .pogoStop span, .pogoStop.favorite:focus span,
-        .pogoGym span, .pogoGym.favorite:focus span {
+        .pogoGym span, .pogoGym.favorite:focus span,
+        .pogoPowerspot span, .pogoPowerspot.favorite:focus span {
             background-position:left top;
         }
         .pogoStop:focus span, .pogoStop.favorite span,
-        .pogoGym:focus span, .pogoGym.favorite span {
+        .pogoGym:focus span, .pogoGym.favorite span,
+        .pogoPowerspot:focus span, .pogoPowerspot.favorite span {
             background-position:right top;
         }
 
@@ -3032,6 +3268,9 @@
         }
         .pogoGym span {
             background-image:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAPCAMAAACyXj0lAAAC7lBMVEUAAAD///8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAQEAAAAAAAAAAAAAAAAAAAABAQEAAAABAQEBAQEAAAAAAAAAAAAAAAAAAAADAwMAAAAAAAABAQIAAAAAAAAAAAAAAAAAAAACAgIAAAAAAAABAAAAAAAAAAAAAAAAAAACAgIAAAAHBwcAAAACAgIAAAAbBgYBAQEBAQEZBgcAAAAAAAAAAAABAQEXFxcCAgICAgIHBAUBAQEGBgdyFRcRERFsFRYCAgIDAwMFBQUODg4EBAQFBQUREREFBQUGBgYTExMRCQoEBAQGBAVcIiYaGhoaGhsFBQUUFBRaJSgGBgYdFBgDAwMEBAQNDQ0ODg4fHyAjIyNYWFheLTEHBgcHBwgJCQkLCwsNDQ0PDw8RERESEhIUFBQVFRYWFhYXFxcYGBgZGRkZGRoaGhocHBwdHR0eHh4eHx8fHx8iIiIlJSUmJiYnJycpKSkqKiotLS0uLi4uLi8wMDAyMjIzMzM0NDQ2NjY4ODg6Ojo7Ozs7Oz09PT4+Pj4/Pz9DKS9DQ0NJSUpLS0xMTE1NTU1PT09QUFBRUVFSUlNXV1dZWVlbW1tcXFxeXl5eXl9jY2NkZGRmZmZoaGlsbG1wcHBycnJ1dXV7e3t/f3+AgYGBgYGFhYWIh4mPj4+THyGTk5SVlZWYmJqbm5ygoKCnp6irq6uvr6+wr7KwsLGxsbO1tbW3tri4t7m5ubu9HyDGxcjGxsfJJyjOzs7PHR7QIyTQ0NDR0dHSICHS0tLU1NTY2NjZ2dndIiPd3d3e3t7fIyTi4uLj4+PnICHn5+jq6urs6+zs7Ozu7u7w8PDw8PHx8fHx8fLy8fLy8vLzHR329vb29vf39/j4+Pj5+fn6Hh76Hx/7+/v7+/z8Hx/8/Pz8/P39Hh79/f3///+f+BszAAAAcXRSTlMAAAECAwQFBwoPFhskJSYqKy4yMzU4OTw/Q0hRW1xjZGVmb294e3+Fi4+QkZibnaWmqq+2t7m+x8nKzM3Oz9HR19fd3d/h4eLk5ebm5+rq7O7v8PDy8vP09fX19/f3+Pn5+fr6/Pz8/f3+/v7+/v7+/k5HHiYAAAGUSURBVHgBY2BkFHMMizAVYmRk5NLSVAJSUg5uwYHOlmIMjFzq+soMbHrZ3WsWNyfJ8Gh7pOTxMjJKW6fd/v79S6IFn4FXciUvg3HNoqXNk5Y3ZcXXLSrVBRooW3Dvw/lTr75nZM7Yvd6dgcF37YqGxTOrayZsubkgkpOBkd3v7MddLX2zL7cef3srSoWBIWh1z6yL2zo2XH9wpRLIZeSKu3Bj4uGj03tOv/+60IaBgSG0cWrnypldO5+8nubPDLSBI6GwpGje5KoDn3/uCxAEKvBctH9Oe+/GOy83lykyABUw+aw7sbV/yt4XPx83aTEAgXzxwSeX7t78ca3DDiTPyKBQsePd/YfPP71f5crGAAJGOduP3X3/aHW6AEQBg1ru3DM/fn47kioHFACpMHSy3/PsULc5SB6sQtI2Ov/pm2UeDEAREGLRsPK+uilaAqoApEku/NzJWHGQAASLurd1m4CYcBUuS+abQW0E8xXLQ4RBTLgS1foYfpgCEClSqwFiIYBIqzZEACrMrceKqoBbhxmqAAABho1+nW2udAAAAABJRU5ErkJggg==);
+        }
+        .pogoPowerspot span {
+            background-image:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAPCAYAAACFgM0XAAAAAXNSR0IB2cksfwAAAARnQU1BAACxjwv8YQUAAAAgY0hSTQAAeiYAAICEAAD6AAAAgOgAAHUwAADqYAAAOpgAABdwnLpRPAAAAAZiS0dEAP8A/wD/oL2nkwAAAAlwSFlzAAAuIwAALiMBeKU/dgAAAAd0SU1FB+kEGxQPLVZv3aIAAANJSURBVDjLpZBdaFtlGMf/73uSk+80S5dUmyYR7cUZbg4i9kJw2lKoUIQgdN4opV4Mx1hhxdtdlF3KvHNh64VsA29EoZGCUxgI3V0ZpR+iTQmmH2lOe3KSHE9OcnJy8nilRFydib+7l5fn9/x4GADouu7d3t6+ury8fKlQKMQMw6CxsTGWy+UQCASQz+exs7ODubm54vT09ON4PH4vFAoZ6GLnh5L3pFq8+uvPW5eqNS1menQ6Gw6y380GBCJUNB2dsgPxkZHiuVcvPE5GRu7Fx4cMBgCZTCZ6eHiYczqdQVmWMTo6ikgkgnq9DpfLBVVVoWkaJEmCIAj7MzMzKcaY0h3wYGE1akLLka8V1ElFYFCEJ+gCwQazBWi1Bmyrg0HPEGCL++9eficVTggK+1OwuLgYmJiYuFWpVK75fD5HKBRCMBhEqVQCEWFvb89IJBJ31tfXb87PzzfxDB7MfR+48LLvllk0rrk6DocdGwG9xIANHU6jjLplGoIUubNbMm5++Nl4EwBYt0BRlCvHx8d3Oedwu90Ih8OQZRkAQETy8PDwgt/v/wr/wuGX+1cUat4d/E0D8SD4WBSen6qwvFUcvSLKLzrPLgx9EPnL4egeXl1dXdrc3Dw/OTl5vdVqQVEUOJ1OqKqKjY2Nh5IkfY3n8e2PS+vnYudfG4xe95WrMMpAvC3gpNPEL/nCQ9tb+ZuDdz/S6TQlEonblUoFoigilUqh0WjAsiwkk8nM1NSU9bz9se8+Jt4O366C40yZMBpJgrQa6gMu+PxnMq9/+qZ1agAAzM7OFnZ3d596PB6Ypol2uw0AT9LpdB7/kY8+f6NwYjSe8hcYqN4B8xBqbnry3sJb/3DwZwlcLtd90zQtQRCgaVpTVdUv0COthn3fcDKLuW00Rb1p2I3eHCsrKzeOjo4om81+gj6RL2dvVJcO6Pj9b0518FM/OH9Uq9VaALL9BnC98ohkpYWGlu05wLKsgq7rW16vt95vAMguwChvcU71ngM6nQ78fv9BsVi0+w4AA9fpgGxm9xzgdru5aZrEOae+D0DEwTtEIOo5AAAbGBgoi6JI+B8nYAGxDKD3gFgsxtbW1i5KkuTpd3srNs629PrFZvTtUx1/AKLqgOdN9CgQAAAAAElFTkSuQmCC);
         }
 
         .PogoButtons {
@@ -3361,6 +3600,10 @@
 
     /* NOTE: PoGOHWH Edition: Our custom Pane needs a particular Z-index */
     .leaflet-pogoNotinpogo-pane {
+        z-index: 449;
+        pointer-events: none;
+    }
+    .leaflet-pogoPowerspot-pane {
         z-index: 450;
         pointer-events: none;
     }
@@ -3439,12 +3682,13 @@
                 margin-left: auto;
                 margin-right: auto;
                 color: #ffce00;
-                line-height: 20px;
+                line-height: 24px;
             }
             .stop_counts span{
-            width:75px;
+            width:125px;
             display:inline-block;
             font-weight:700;
+            vertical-align: top; /* Ensures alignment regardless of font height */
             }
 
     `
@@ -3463,6 +3707,10 @@
                 return
             }
 
+            // 'add' doesn't appear to fire reliably if it's complete by the time we get here
+            // but also addNearbyCircle only works if 'add' has already fired
+            // for now at least, do both
+            addNearbyCircle(guid)
             data.portal.on('add', function () {
                 addNearbyCircle(guid)
                 window.clearTimeout(relayoutTimer)
@@ -3536,44 +3784,88 @@
         }
 
         /**
-         * Draw a 20m circle around a portal
+         * Draws 20m, 22m, and 80m circles around a portal if specified in settings,
+         * with individual settings for each circle.
          */
         function addNearbyCircle(guid) {
             if (nearbyCircles[guid]) {
                 return
             }
+
             const portal = window.portals[guid]
             if (!portal) {
                 return
             }
 
-            const circleSettings = {
-                color: settings.colors.nearbyCircleBorder.color,
-                opacity: settings.colors.nearbyCircleBorder.opacity,
-                fillColor: settings.colors.nearbyCircleFill.color,
-                fillOpacity: settings.colors.nearbyCircleFill.opacity,
-                weight: 1,
-                clickable: false,
-                interactive: false
+            const center = portal._latlng
+            const circles = []
+
+            // Helper function for creating circle settings
+            function getCircleSettings(border, fill) {
+                return {
+                    color: border.color,
+                    opacity: border.opacity,
+                    fillColor: fill.color,
+                    fillOpacity: fill.opacity,
+                    weight: 1,
+                    clickable: false,
+                    interactive: false
+                }
             }
 
-            const center = portal._latlng
-            const circle = L.circle(center, 20, circleSettings)
-            nearbyLayerGroup.addLayer(circle)
-            nearbyCircles[guid] = circle
+            // Conditionally add a 20m circle with specific settings
+            if (settings.displayCircle20) {
+                const circle20Settings = getCircleSettings(
+                    settings.colors.nearby20CircleBorder,
+                    settings.colors.nearby20CircleFill
+                )
+                const circle20m = L.circle(center, 20, circle20Settings)
+                nearbyLayerGroup.addLayer(circle20m)
+                circles.push(circle20m)
+            }
+
+            // Conditionally add a 22m circle with specific settings
+            if (settings.displayCircle22) {
+                const circle22Settings = getCircleSettings(
+                    settings.colors.nearby22CircleBorder,
+                    settings.colors.nearby22CircleFill
+                )
+                const circle22m = L.circle(center, 22, circle22Settings)
+                nearbyLayerGroup.addLayer(circle22m)
+                circles.push(circle22m)
+            }
+
+            // Conditionally add an 80m circle with specific settings
+            if (settings.displayCircle80) {
+                const circle80Settings = getCircleSettings(
+                    settings.colors.nearby80CircleBorder,
+                    settings.colors.nearby80CircleFill
+                )
+                const circle80m = L.circle(center, 80, circle80Settings)
+                nearbyLayerGroup.addLayer(circle80m)
+                circles.push(circle80m)
+            }
+
+            // Store all created circles in the nearbyCircles array for this portal's guid
+            nearbyCircles[guid] = circles
         }
 
         /**
-         * Removes the 20m circle if a portal is purged
+         * Removes all circles associated with a portal if it is purged
          */
         function removeNearbyCircle(guid) {
-            const circle = nearbyCircles[guid]
-            if (circle != null) {
-                nearbyLayerGroup.removeLayer(circle)
+            const circles = nearbyCircles[guid]
+            if (circles != null) {
+                circles.forEach((circle) =>
+                    nearbyLayerGroup.removeLayer(circle)
+                )
                 delete nearbyCircles[guid]
             }
         }
 
+        /**
+         * Redraws all nearby circles on the map
+         */
         function redrawNearbyCircles() {
             const keys = Object.keys(nearbyCircles)
             keys.forEach((guid) => {
@@ -4637,7 +4929,7 @@
             'Links',
             'DEBUG Data Tiles',
             'Artifacts',
-            // 'Ornaments',
+            'Ornaments',
             'Beacons',
             'Frackers',
 
@@ -4815,7 +5107,7 @@
 
         // Based on code from jaiperdu cache-portals plugin
         function openS2DB() {
-            const version = 2
+            const version = 3
             const request = window.indexedDB.open('s2-pogo', version)
             request.onblocked = (event) => {
                 if (event.target.result.version !== version) {
@@ -4839,6 +5131,7 @@
 
                     // We have a bunch of stores to create and load with data from localstorage, if applicable
                     const upgradeDb = event.currentTarget.result
+
                     createAndLoadObjectStore(
                         upgradeDb,
                         GYMS,
@@ -4909,8 +5202,29 @@
                         }
                     )
                 }
-                // TODO: At some point we should:
-                // localStorage.removeItem(KEY_STORAGE)
+
+                if (event.oldVersion < 3) {
+                    const tmp = {}
+                    const upgradeDb = event.currentTarget.result
+
+                    createAndLoadObjectStore(
+                        upgradeDb,
+                        POWERSPOTS,
+                        'guid',
+                        tmp,
+                        (os, data) => {
+                            Object.keys(data.powerspots || {}).forEach(
+                                (powerspot) => {
+                                    os.add(data.powerspots[powerspot])
+                                    powerspots[powerspot] =
+                                        data.powerspots[powerspot]
+                                }
+                            )
+                        }
+                    )
+                }
+                // remove old localStorage data
+                localStorage.removeItem(KEY_STORAGE)
             }
             request.onsuccess = function (event) {
                 S2.db = event.target.result
@@ -5019,19 +5333,21 @@
 
             const formContent = `<div class="pogo-s2-popup"><form id="submit-to-pogo-s2">
             <label>Type
-            <select name="pokestopType">
-                <option value="pokestops">Pokestop</option>
+            <select id="pogo-s2-pokestopType" name="pokestopType">
+                <option value="pokestops">PokéStop</option>
                 <option value="gyms">Gym</option>
+                <option value="powerspots">Power Spot</option>
+                <option value="notpogo">Not in PoGo</option>
             </select>
             </label>
             <label>Title
-            <input name="pokestopTitle" type="text" autocomplete="off" placeholder="Title (required)" required value="${title}">
+            <input id="pogo-s2-pokestopTitle" name="pokestopTitle" type="text" autocomplete="off" placeholder="Title (required)" required value="${title}">
             </label>
             <label>Latitude
-            <input name="pokestopLatitude" type="text" autocomplete="off" placeholder="Latitude (required)" required value="${lat}">
+            <input id="pogo-s2-pokestopLatitude" name="pokestopLatitude" type="text" autocomplete="off" placeholder="Latitude (required)" required value="${lat}">
             </label>
             <label>Longitude
-            <input name="pokestopLongitude" type="text" autocomplete="off" placeholder="Longitude (required)" required value="${lng}">
+            <input id="pogo-s2-pokestopLongitude" name="pokestopLongitude" type="text" autocomplete="off" placeholder="Longitude (required)" required value="${lng}">
             </label>
             <label>Image Url
             <input name="pokestopImageUrl" type="text" autocomplete="off" placeholder="http://?.googleusercontent.com/***" value="${imageUrl}">
@@ -5041,6 +5357,31 @@
 
             window.pokestoppopup.setContent(formContent)
             window.pokestoppopup.openOn(map)
+
+            const rootNode = window.pokestoppopup.getElement().getRootNode()
+            const titleInput = rootNode.getElementById('pogo-s2-pokestopTitle')
+            titleInput.addEventListener('change', (ev) => {
+                try {
+                    const asUrl = new URL(ev.target.value)
+                    if (asUrl.host === 'campfire.onelink.me') {
+                        const params = new URLSearchParams(
+                            atob(asUrl.searchParams.get('deep_link_sub1'))
+                        )
+                        const lat = params.get('lat')
+                        const lng = params.get('lng')
+                        rootNode.getElementById(
+                            'pogo-s2-pokestopLatitude'
+                        ).value = lat
+                        rootNode.getElementById(
+                            'pogo-s2-pokestopLongitude'
+                        ).value = lng
+                        rootNode.getElementById('pogo-s2-pokestopType').value =
+                            'powerspots'
+                        titleInput.value = 'Powerspot '
+                        titleInput.focus()
+                    }
+                } catch (e) {}
+            })
         }
 
         window.submitNewStop = function () {
@@ -5116,71 +5457,11 @@
                 ['p', waypoint.team, waypoint.latE6, waypoint.lngE6]
             ])
         }
-        // eslint-disable-next-line camelcase
-        function get_portal_details() {
-            // eslint-disable-line camelcase
-            /// PORTAL DETAIL //////////////////////////////////////
-            // Original from IITC Plugin
 
-            let cache
-            const requestQueue = {}
-            window.portalDetail = function () {}
+        const interceptPortalDetailRequests = function () {
+            const origReq = window.portalDetail.request
 
-            window.portalDetail.setup = function () {
-                cache = new DataCache()
-
-                cache.startExpireInterval(20)
-            }
-
-            window.portalDetail.get = function (guid) {
-                return cache.get(guid)
-            }
-
-            window.portalDetail.isFresh = function (guid) {
-                return cache.isFresh(guid)
-            }
-
-            const handleResponse = function (deferred, guid, data, success) {
-                if (!data || data.error || !data.result) {
-                    success = false
-                }
-
-                if (success) {
-                    const dict = decodeArray.portal(data.result, 'detailed')
-
-                    // entity format, as used in map data
-                    const ent = [guid, dict.timestamp, data.result]
-
-                    cache.store(guid, dict)
-
-                    // FIXME..? better way of handling sidebar refreshing...
-
-                    if (guid === selectedPortal) {
-                        renderPortalDetails(guid)
-                    }
-
-                    deferred.resolve(dict)
-                    window.runHooks('portalDetailLoaded', {
-                        guid,
-                        success,
-                        details: dict,
-                        ent
-                    })
-                } else {
-                    if (data && data.error === 'RETRY') {
-                        // server asked us to try again
-                        doRequest(deferred, guid)
-                    } else {
-                        deferred.reject()
-                        window.runHooks('portalDetailLoaded', {
-                            guid,
-                            success
-                        })
-                    }
-                }
-            }
-
-            const doRequest = function (deferred, guid) {
+            window.portalDetail.request = function (guid) {
                 if (guid.includes('s2-pogo')) {
                     if (!S2.db) return
                     const transaction = S2.db.transaction(
@@ -5216,44 +5497,43 @@
                                 ['', '', []]
                             ]
                         }
-                        handleResponse(deferred, guid, data, true)
+
+                        const dict = decodeArray.portal(data.result, 'detailed')
+
+                        window.portalDetail.store(guid, dict)
+
+                        // entity format, as used in map data
+                        const ent = [guid, dict.timestamp, data.result]
+                        const portal =
+                            window.mapDataRequest.render.createPortalEntity(
+                                ent,
+                                'detailed'
+                            )
+
+                        // FIXME..? better way of handling sidebar refreshing... or is this even still needed?
+
+                        if (guid === selectedPortal) {
+                            renderPortalDetails(guid)
+                        }
+
+                        window.runHooks('portalDetailLoaded', {
+                            guid,
+                            success: true,
+                            details: dict,
+                            ent,
+                            portal
+                        })
                     }
                 } else {
-                    window.postAjax(
-                        'getPortalDetails',
-                        {
-                            guid
-                        },
-                        function (data, textStatus, jqXHR) {
-                            handleResponse(deferred, guid, data, true)
-                        },
-                        function () {
-                            handleResponse(deferred, guid, undefined, false)
-                        }
-                    )
+                    origReq(guid)
                 }
-            }
-
-            window.portalDetail.request = function (guid) {
-                if (!requestQueue[guid]) {
-                    const deferred = $.Deferred()
-                    requestQueue[guid] = deferred.promise()
-                    deferred.always(function () {
-                        delete requestQueue[guid]
-                    })
-
-                    doRequest(deferred, guid)
-                }
-
-                return requestQueue[guid]
             }
         }
 
         // Save old Portal Add Method to be reused below
 
         const setup = function () {
-            get_portal_details()
-            window.portalDetail.setup()
+            interceptPortalDetailRequests()
             thisPlugin.isSmart = window.isSmartphone()
 
             initSvgIcon()
@@ -5269,9 +5549,11 @@
             map.createPane('pogoPaneNotinpogo')
             map.createPane('pogoPaneStops')
             map.createPane('pogoPaneGyms')
+            map.createPane('pogoPanePowerspot')
 
-            thisPlugin.htmlStar = `<a class="pogoStop" accesskey="p" onclick="window.plugin.pogo.switchStarPortal('pokestops');return false;" title="Mark this portal as a pokestop [p]"><span></span></a>
-                <a class="pogoGym" accesskey="g" onclick="window.plugin.pogo.switchStarPortal('gyms');return false;" title="Mark this portal as a PokeGym [g]"><span></span></a>
+            thisPlugin.htmlStar = `<a class="pogoStop" accesskey="p" onclick="window.plugin.pogo.switchStarPortal('pokestops');return false;" title="Mark this portal as a PokéStop [p]"><span></span></a>
+                <a class="pogoGym" accesskey="g" onclick="window.plugin.pogo.switchStarPortal('gyms');return false;" title="Mark this portal as a Gym [g]"><span></span></a>
+                <a class="pogoPowerspot" accesskey="w" onclick="window.plugin.pogo.switchStarPortal('powerspots');return false;" title="Mark this portal as a Power Spot [w]"><span></span></a>
                 <a class="notPogo" onclick="window.plugin.pogo.switchStarPortal('notpogo');return false;" title="Mark this portal as a removed/Not Available in Pokemon Go"><span></span></a>
                 `
 
@@ -5324,6 +5606,7 @@
             )
 
             window.addHook('portalSelected', thisPlugin.onPortalSelected)
+            window.addHook('portalDetailLoaded', thisPlugin.onPortalSelected)
 
             window.addHook('portalAdded', onPortalAdded)
             window.addHook('mapDataRefreshStart', function () {
@@ -5341,9 +5624,11 @@
 
             // Layer - pokemon go portals
             stopLayerGroup = L.layerGroup()
-            window.addLayerGroup('PokeStops', stopLayerGroup, true)
+            window.addLayerGroup('PokéStops', stopLayerGroup, true)
             gymLayerGroup = L.layerGroup()
             window.addLayerGroup('Gyms', gymLayerGroup, true)
+            powerspotLayerGroup = L.layerGroup()
+            window.addLayerGroup('Power Spots', powerspotLayerGroup, true)
             notpogoLayerGroup = L.layerGroup()
             window.addLayerGroup('Not in PoGO', notpogoLayerGroup, true)
             regionLayer = L.layerGroup()

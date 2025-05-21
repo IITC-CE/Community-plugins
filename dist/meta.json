@@ -708,10 +708,10 @@
       "author": "DanielOnDiordna",
       "name": "Player Tracker add-on",
       "category": "Addon",
-      "version": "1.3.1.20240209.233200",
+      "version": "2.0.0.20250424.223800",
       "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/player-tracker-addon.meta.js",
       "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/player-tracker-addon.user.js",
-      "description": "Add-on to the player tracker plugin: Adjust history limit of 3 hours to another value. Toggle name labels, last action time, toggle/adjust player colors, focus on players, display 1 single player. Integrated Marker Label plugin and Spectrum Colorpicker 1.8.1 plugin. Supports Machina U̶͚̓̍N̴̖̈K̠͔̍͑̂͜N̞̥͋̀̉Ȯ̶̹͕̀W̶̢͚͑̚͝Ṉ̨̟̒̅' player.",
+      "description": "Add-on to the player tracker plugin: Adjust history limit of 3 hours to another value. Toggle name labels, last action time, toggle/adjust player colors, focus on players, display 1 single player. Integrated Marker Label plugin and Spectrum Colorpicker 1.8.1 plugin. Supports Machina _̶̱̍_̴̳͉̆̈́M̷͔̤͒Ą̷̍C̴̼̕ͅH̶̹͕̼̾Ḭ̵̇̾̓N̵̺͕͒̀̍Ä̴̞̰́_̴̦̀͆̓_̷̣̈́  player.",
       "id": "player-tracker-addon@DanielOnDiordna",
       "namespace": "https://softspot.nl/ingress/",
       "depends": [
@@ -724,7 +724,7 @@
         "none"
       ],
       "id_hash": "player-tracker-addon-by-DanielOnDiordna",
-      "updatedAt": "2024-02-10T00:28:17.000Z",
+      "updatedAt": "2025-04-25T01:16:20.000Z",
       "_depends_links": [
         {
           "id": "player-activity-tracker@breunigs",
@@ -737,10 +737,10 @@
       "author": "DanielOnDiordna",
       "name": "Portal History Support for all IITC versions (with cache)",
       "category": "Tweak",
-      "version": "0.0.3.20210725.160300",
+      "version": "0.0.4.20250424.230000",
       "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/portalhistorysupport.meta.js",
       "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/portalhistorysupport.user.js",
-      "description": "With this plugin the Portal History will be implemented into all versions of IITC. This plugin injects functionality from the IITC-CE release (version 0.32.0) plus extra modifications into all IITC versions (IITC.me / IITC-CE 0.31.1). Code will be injected into the IITC core. History results are cached and re-used automatically. Details from your COMMS captured portals are loaded automatically. Portal history requires CORE subscription.",
+      "description": "With this plugin the Portal History will be implemented into all versions of IITC. This plugin injects functionality from the IITC-CE release (version 0.32.0) plus extra modifications into all IITC versions (IITC.me / IITC-CE 0.31.1). Code will be injected into the IITC core. History results are cached and re-used automatically. Details from your COMMS captured portals are loaded automatically. Temporary disabled for IITC 0.40.0",
       "id": "portalhistorysupport@DanielOnDiordna",
       "namespace": "https://softspot.nl/ingress/",
       "match": [
@@ -750,7 +750,7 @@
         "none"
       ],
       "id_hash": "portalhistorysupport-by-DanielOnDiordna",
-      "updatedAt": "2022-06-16T01:16:32.000Z"
+      "updatedAt": "2025-04-25T01:16:20.000Z"
     },
     {
       "author": "DanielOnDiordna",
@@ -1045,7 +1045,7 @@
       "id": "inventory-overview@Guschtel",
       "name": "Ingress Inventory Overview (based on Ingress Live Inventory from Freamstern)",
       "category": "Utilities",
-      "version": "0.0.7",
+      "version": "0.0.8",
       "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Guschtel/inventory-overview.user.js",
       "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Guschtel/inventory-overview.meta.js",
       "description": "View inventory and shows portals you have keys from",
@@ -1057,7 +1057,7 @@
         "none"
       ],
       "id_hash": "inventory-overview-by-Guschtel",
-      "updatedAt": "2022-08-16T21:52:27.000Z"
+      "updatedAt": "2025-04-20T01:19:01.000Z"
     },
     {
       "author": "IngressPlus",
@@ -1278,7 +1278,7 @@
       "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/NvlblNm/s2check.meta.js",
       "homepageURL": "https://gitlab.com/NvlblNm/pogo-s2/",
       "supportURL": "https://discord.gg/niawayfarer",
-      "version": "0.105",
+      "version": "0.108",
       "description": "Pokemon Go tools over IITC. Support in #tools-chat on https://discord.gg/niawayfarer",
       "match": [
         "https://intel.ingress.com/*"
@@ -1287,7 +1287,7 @@
         "none"
       ],
       "id_hash": "s2check-by-NvlblNm",
-      "updatedAt": "2024-05-14T10:02:58.000Z"
+      "updatedAt": "2025-05-01T01:21:59.032Z"
     },
     {
       "author": "NvlblNm",
@@ -2448,7 +2448,7 @@
         "none"
       ],
       "id_hash": "occupied19cells-by-wintervorst",
-      "updatedAt": "2024-11-21T00:42:18.427Z",
+      "updatedAt": "2024-11-21T00:42:19.000Z",
       "_depends_links": [
         {
           "id": "s2celldrawer@wintervorst",
@@ -2485,7 +2485,7 @@
         "none"
       ],
       "id_hash": "s2celldrawer-by-wintervorst",
-      "updatedAt": "2024-11-21T00:42:18.579Z"
+      "updatedAt": "2024-11-21T00:42:19.000Z"
     },
     {
       "author": "Wintervorst",
@@ -2511,7 +2511,7 @@
         "none"
       ],
       "id_hash": "submitrange-by-wintervorst",
-      "updatedAt": "2024-11-21T00:42:18.743Z"
+      "updatedAt": "2024-11-21T00:42:19.000Z"
     },
     {
       "author": "xMAXIMx",

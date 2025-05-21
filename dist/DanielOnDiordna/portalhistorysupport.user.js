@@ -2,10 +2,10 @@
 // @author         DanielOnDiordna
 // @name           Portal History Support for all IITC versions (with cache)
 // @category       Tweak
-// @version        0.0.3.20210725.160300
+// @version        0.0.4.20250424.230000
 // @updateURL      https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/portalhistorysupport.meta.js
 // @downloadURL    https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/portalhistorysupport.user.js
-// @description    [danielondiordna-0.0.3.20210725.160300] With this plugin the Portal History will be implemented into all versions of IITC. This plugin injects functionality from the IITC-CE release (version 0.32.0) plus extra modifications into all IITC versions (IITC.me / IITC-CE 0.31.1). Code will be injected into the IITC core. History results are cached and re-used automatically. Details from your COMMS captured portals are loaded automatically. Portal history requires CORE subscription.
+// @description    [danielondiordna-0.0.4.20250424.230000] With this plugin the Portal History will be implemented into all versions of IITC. This plugin injects functionality from the IITC-CE release (version 0.32.0) plus extra modifications into all IITC versions (IITC.me / IITC-CE 0.31.1). Code will be injected into the IITC core. History results are cached and re-used automatically. Details from your COMMS captured portals are loaded automatically. Temporary disabled for IITC 0.40.0
 // @id             portalhistorysupport@DanielOnDiordna
 // @namespace      https://softspot.nl/ingress/
 // @match          https://intel.ingress.com/*
@@ -22,23 +22,13 @@ function wrapper(plugin_info) {
     var self = window.plugin.portalhistorysupport;
     self.id = 'portalhistorysupport';
     self.title = 'Portal History Support';
-    self.version = '0.0.3.20210725.160300';
+    self.version = '0.0.4.20250424.230000';
     self.author = 'DanielOnDiordna';
     self.changelog = `
 Changelog:
 
-version 0.0.1.20210313.210700
-- first release: part of the code was first used inside plugin Unique Portal History, but now moved to this separate plugin
-- auto load portal details if no history is returned from entity data, only load details when map status is 'done'
-- added comms monitoring for active agent captures
-- auto stop/start when zooming in/out and moving the map
-
-version 0.0.2.20210415.155400
-- fixed zoom level detection with getMapZoomTileParameters
-
-version 0.0.2.20210724.002500
-- minor fix for IITC CE where runHooks iitcLoaded is executed before addHook is defined in this plugin
-- prevent double plugin setup on hook iitcLoaded
+version 0.0.4.20250424.230000
+- this plugin will be disabled for IITC version 0.40.0 and up
 
 version 0.0.3.20210725.160300
 - checked for compatiblity with new IITC-CE release 0.32.1
@@ -46,6 +36,19 @@ version 0.0.3.20210725.160300
 - replaced loading portal details technique and added retry on fail attempts
 - added a toggle layer to turn on/off the auto load missing history
 - portal details request delay set to 20ms, portal details retry attempts set to 3
+
+version 0.0.2.20210724.002500
+- minor fix for IITC CE where runHooks iitcLoaded is executed before addHook is defined in this plugin
+- prevent double plugin setup on hook iitcLoaded
+
+version 0.0.2.20210415.155400
+- fixed zoom level detection with getMapZoomTileParameters
+
+version 0.0.1.20210313.210700
+- first release: part of the code was first used inside plugin Unique Portal History, but now moved to this separate plugin
+- auto load portal details if no history is returned from entity data, only load details when map status is 'done'
+- added comms monitoring for active agent captures
+- auto stop/start when zooming in/out and moving the map
 `;
     self.namespace = 'window.plugin.' + self.id + '.';
     self.pluginname = 'plugin-' + self.id;
@@ -339,8 +342,8 @@ version 0.0.3.20210725.160300
             details = details || 'anyknown';
             var expected = window.decodeArray.dataLen[details];
             if (expected.indexOf(a.length) === -1) {
-                log.warn('Unexpected portal data length: ' + a.length + ' (' + details + ')');
-                debugger;
+                log.warn('Unexpected portal data length: ' + a.length + ' (' + details + ')',a);
+                //debugger;
             }
 
             var data = corePortalData(a);
@@ -570,7 +573,7 @@ version 0.0.3.20210725.160300
 
                 deferred.resolve(dict);
                 //console.log('handleResponse runHooks portalDetailLoaded',guid);
-                window.runHooks ('portalDetailLoaded', {guid:guid, success:success, details:dict, ent:ent});
+//                window.runHooks ('portalDetailLoaded', {guid:guid, success:success, details:dict, ent:ent});
 
             } else {
                 if (data && data.error == "RETRY") {
@@ -578,7 +581,7 @@ version 0.0.3.20210725.160300
                     doRequest(deferred, guid);
                 } else {
                     deferred.reject();
-                    window.runHooks ('portalDetailLoaded', {guid:guid, success:success});
+//                    window.runHooks ('portalDetailLoaded', {guid:guid, success:success});
                 }
             }
 
@@ -607,6 +610,9 @@ version 0.0.3.20210725.160300
     };
 
     self.onportalDetailLoaded = function(data) {
+        console.log(self.title,'onportalDetailLoaded',data);
+        return;
+
         // data = {guid:guid, success:success, details:dict, ent:ent}
         if (data.guid != self.requestportalguid && data.guid != self.requestcommsguid) return;
 
@@ -973,6 +979,12 @@ version 0.0.3.20210725.160300
 
     var setup = function() {
         if (self.checkforolderplugin()) return; // prevent conflicts with the previous plugin
+
+        let [major,minor,revision] = window.script_info.script.version.split('.').map(number=>parseInt(number));
+        if (major > 0 || minor >= 40) {
+            console.log('IITC plugin WARNING: ' + self.title + ' version ' + self.version + ' - Plugin will not run (needs an update) on this version of IITC: ' + window.script_info.script.version);
+            return;
+        }
 
         switch (window.script_info.script.version) {
             case '0.26.0.20170108.21732': // IITC.me version

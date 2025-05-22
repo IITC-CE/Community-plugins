@@ -4,7 +4,7 @@
 // @name           Advanced Tracker Player - tweaked
 // @category       Misc
 // @version        0.0.4
-// @namespace      https://tempuri.org/iitc/advanced-player-tracker
+// @namespace      https://github.com/diacoviello/IITCCommunity-plugins/
 // @description    Advanced version of Player Tracker +
 // @depends        player-activity-tracker@breunigs
 // @include        http://www.ingress.com/intel*

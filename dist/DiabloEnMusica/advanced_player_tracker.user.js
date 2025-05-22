@@ -6,7 +6,7 @@
 // @version        0.0.4
 // @namespace      https://tempuri.org/iitc/advanced-player-tracker
 // @description    Advanced version of Player Tracker +
-// @updateURL      https://raw.githubusercontent.com/diacoviello/IITCCommunity-plugins/bffa9fca9a56bfe98aed0f17361234a49fa1466a/dist/DiabloEnMusica/advanced_player_tracker.user.js
+// @updateURL      https://raw.githubusercontent.com/diacoviello/IITCCommunity-plugins/bffa9fca9a56bfe98aed0f17361234a49fa1466a/dist/DiabloEnMusica/advanced_player_tracker.user.js 
 // @downloadURL    https://raw.githubusercontent.com/diacoviello/IITCCommunity-plugins/bffa9fca9a56bfe98aed0f17361234a49fa1466a/dist/DiabloEnMusica/advanced_player_tracker.user.js
 // @depends        player-activity-tracker@breunigs
 // @include        http://www.ingress.com/intel*

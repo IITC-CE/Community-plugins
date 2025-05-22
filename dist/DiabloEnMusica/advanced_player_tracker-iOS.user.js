@@ -5,8 +5,8 @@
 // @category       Misc
 // @version        0.0.4
 // @namespace      https://raw.githack.com/diacoviello/IITCCommunity-plugins
-// @updateURL      https://raw.githack.com/diacoviello/IITCCommunity-plugins/master/dist/DiabloEnMusica/advanced_player_tracker.user.js
-// @downloadURL    https://raw.githack.com/diacoviello/IITCCommunity-plugins/master/dist/DiabloEnMusica/advanced_player_tracker.user.js
+// @updateURL      https://raw.githack.com/diacoviello/IITCCommunity-plugins/master/dist/DiabloEnMusica/advanced_player_tracker-iOS.user.js
+// @downloadURL    https://raw.githack.com/diacoviello/IITCCommunity-plugins/master/dist/DiabloEnMusica/advanced_player_tracker-iOS.user.js
 // @description    Advanced version of Player Tracker +
 // @depends        player-activity-tracker@breunigs
 // @include        http://www.ingress.com/intel*

@@ -746,7 +746,7 @@ View a Glympse tag directly on the Intel map.
 
 *[Homepage](https://github.com/MaxEtMoritz/iitc-glympse)* |
 *[Issue tracker](https://github.com/MaxEtMoritz/iitc-glympse/issues)* |
-*Version:* 0.0.1
+*Version:* 0.0.2
 
 
   

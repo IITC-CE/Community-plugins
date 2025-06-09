@@ -1540,7 +1540,7 @@ Override the portal and links display levels for every zoom level. Using this me
 
 View inventory and shows portals you have keys from
 
-*Version:* 0.0.8
+*Version:* 0.0.11
 
 
   

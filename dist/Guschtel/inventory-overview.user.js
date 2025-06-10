@@ -3,7 +3,7 @@
 // @id             inventory-overview@Guschtel
 // @name           Ingress Inventory Overview (based on Ingress Live Inventory from Freamstern)
 // @category       Utilities
-// @version        0.0.11
+// @version        0.0.12
 // @downloadURL    https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Guschtel/inventory-overview.user.js
 // @updateURL      https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Guschtel/inventory-overview.meta.js
 // @description    View inventory and shows portals you have keys from
@@ -15,24 +15,26 @@
 
 
 function wrapper(plugin_info) {
- 
- 	// Make sure that window.plugin exists. IITC defines it as a no-op function,
- 	// and other plugins assume the same.
- 	if (typeof window.plugin !== "function") window.plugin = function () {};
- 	const KEY_SETTINGS = "plugin-live-inventory";
- 
- 	window.plugin.LiveInventory = function () {};
- 
- 	const thisPlugin = window.plugin.LiveInventory;
- 	// Name of the IITC build for first-party plugins
- 	plugin_info.buildName = "LiveInventory";
- 
- 	// Datetime-derived version of the plugin
- 	plugin_info.dateTimeVersion = "20250331202900";
- 
- 	// ID/name of the plugin
- 	plugin_info.pluginId = "liveInventory";
-      
+
+    // Make sure that window.plugin exists. IITC defines it as a no-op function,
+    // and other plugins assume the same.
+    if (typeof window.plugin !== "function") window.plugin = function () {
+    };
+    const KEY_SETTINGS = "plugin-live-inventory";
+
+    window.plugin.LiveInventory = function () {
+    };
+
+    const thisPlugin = window.plugin.LiveInventory;
+    // Name of the IITC build for first-party plugins
+    plugin_info.buildName = "LiveInventory";
+
+    // Datetime-derived version of the plugin
+    plugin_info.dateTimeVersion = "20250331202900";
+
+    // ID/name of the plugin
+    plugin_info.pluginId = "liveInventory";
+
 
     function loadScript(url) {
         let myScript = document.createElement("script");
@@ -42,344 +44,384 @@ function wrapper(plugin_info) {
 
     let chartJsUrl = "https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js";
     loadScript(chartJsUrl);
-    
- 	const translations = {
- 		BOOSTED_POWER_CUBE: 'Hypercube',
- 		CAPSULE: 'Capsule',
- 		DRONE: 'Drone',
- 		EMITTER_A: 'Resonator',
- 		EMP_BURSTER: 'XMP',
- 		EXTRA_SHIELD: 'Aegis Shield',
- 		FLIP_CARD: 'Virus',
- 		FORCE_AMP: 'Force Amp',
- 		HEATSINK: 'HS',
- 		INTEREST_CAPSULE: 'Quantum Capsule',
- 		KEY_CAPSULE: 'Key Capsule',
- 		KINETIC_CAPSULE: 'Kinetic Capsule',
- 		LINK_AMPLIFIER: 'LA',
- 		MEDIA: 'Media',
- 		MULTIHACK: 'Multi-Hack',
- 		PLAYER_POWERUP: 'Apex',
- 		PORTAL_LINK_KEY: 'Key',
- 		PORTAL_POWERUP: 'Fracker',
- 		POWER_CUBE: 'PC',
- 		RES_SHIELD: 'Shield',
- 		TRANSMUTER_ATTACK: 'ITO -',
- 		TRANSMUTER_DEFENSE: 'ITO +',
- 		TURRET: 'Turret',
- 		ULTRA_LINK_AMP: 'Ultra-Link',
- 		ULTRA_STRIKE: 'US',
- 
- 	};
 
-	 function writeTextToClipboard(text) {
-		 navigator.permissions.query({ name: "clipboard-write" }).then((result) => {
-			 if (result.state === "granted" || result.state === "prompt") {
-				 navigator.clipboard.writeText(text);
-				 console.log('Text copied to clipboard');
-			 }
-		 });
-	 }
+    const translations = {
+        BOOSTED_POWER_CUBE: 'Hypercube',
+        CAPSULE: 'Capsule',
+        DRONE: 'Drone',
+        EMITTER_A: 'Resonator',
+        EMP_BURSTER: 'XMP',
+        EXTRA_SHIELD: 'Aegis Shield',
+        FLIP_CARD: 'Virus',
+        FORCE_AMP: 'Force Amp',
+        HEATSINK: 'HS',
+        INTEREST_CAPSULE: 'Quantum Capsule',
+        KEY_CAPSULE: 'Key Capsule',
+        KINETIC_CAPSULE: 'Kinetic Capsule',
+        LINK_AMPLIFIER: 'LA',
+        MEDIA: 'Media',
+        MULTIHACK: 'Multi-Hack',
+        PLAYER_POWERUP: 'Apex',
+        PORTAL_LINK_KEY: 'Key',
+        PORTAL_POWERUP: 'Fracker',
+        POWER_CUBE: 'PC',
+        RES_SHIELD: 'Shield',
+        TRANSMUTER_ATTACK: 'ITO -',
+        TRANSMUTER_DEFENSE: 'ITO +',
+        TURRET: 'Turret',
+        ULTRA_LINK_AMP: 'Ultra-Link',
+        ULTRA_STRIKE: 'US',
 
- 	function checkSubscription(callback) {
- 		var versionStr = niantic_params.CURRENT_VERSION;
- 		var post_data = JSON.stringify({
- 			v: versionStr
- 		});
- 
- 		var result = $.ajax({
- 			url: '/r/getHasActiveSubscription',
- 			type: 'POST',
- 			data: post_data,
- 			context: {},
- 			dataType: 'json',
- 			success: [(data) => callback(null, data)],
- 			error: [(data) => callback(data)],
- 			contentType: 'application/json; charset=utf-8',
- 			beforeSend: function (req) {
- 				req.setRequestHeader('accept', '*/*');
- 				req.setRequestHeader('X-CSRFToken', readCookie('csrftoken'));
- 			}
- 		});
- 		return result;
- 	}
- 
- 
- 	function addItemToCount(item, countMap, incBy) {
- 		if (item[2] && item[2].resource && item[2].timedPowerupResource) {
- 			const key = `${item[2].resource.resourceType} ${item[2].timedPowerupResource.designation}`;
- 			if (!countMap[key]) {
- 				countMap[key] = item[2].resource;
- 				countMap[key].count = 0;
- 				countMap[key].type = `Powerup ${translations[item[2].timedPowerupResource.designation] || item[2].timedPowerupResource.designation}`;
- 			}
- 			countMap[key].count += incBy;
- 		} else if (item[2] && item[2].resource && item[2].flipCard) {
- 			const key = `${item[2].resource.resourceType} ${item[2].flipCard.flipCardType}`;
- 			if (!countMap[key]) {
- 				countMap[key] = item[2].resource;
- 				countMap[key].count = 0;
- 				countMap[key].type = `${translations[item[2].resource.resourceType]} ${item[2].flipCard.flipCardType}`;
- 			}
- 			countMap[key].flipCardType = item[2].flipCard.flipCardType;
- 			countMap[key].count += incBy;
- 		} else if (item[2] && item[2].resource) {
- 			const key = `${item[2].resource.resourceType} ${item[2].resource.resourceRarity}`;
- 			if (!countMap[key]) {
- 				countMap[key] = item[2].resource;
- 				countMap[key].count = 0;
- 				countMap[key].type = `${translations[item[2].resource.resourceType]}`;
- 			}
- 			countMap[key].count += incBy;
- 		} else if (item[2] && item[2].resourceWithLevels) {
- 			const key = `${item[2].resourceWithLevels.resourceType} ${item[2].resourceWithLevels.level}`;
- 			if (!countMap[key]) {
- 				countMap[key] = item[2].resourceWithLevels;
- 				countMap[key].count = 0;
- 				countMap[key].resourceRarity = 'COMMON';
- 				countMap[key].type = `${translations[item[2].resourceWithLevels.resourceType]} ${item[2].resourceWithLevels.level}`;
- 			}
- 			countMap[key].count += incBy;
- 		} else if (item[2] && item[2].modResource) {
- 			const key = `${item[2].modResource.resourceType} ${item[2].modResource.rarity}`;
- 			if (!countMap[key]) {
- 				countMap[key] = item[2].modResource;
- 				countMap[key].count = 0;
- 				countMap[key].type = `${translations[item[2].modResource.resourceType]}`;
- 				countMap[key].resourceRarity = countMap[key].rarity;
- 			}
- 			countMap[key].count += incBy;
- 		} else {
- 			console.log(item);
- 		}
- 	}
- 
- 	function svgToIcon(str, s) {
- 		const url = ("data:image/svg+xml," + encodeURIComponent(str)).replace(/#/g, '%23');
- 		return new L.Icon({
- 			iconUrl: url,
- 			iconSize: [s, s],
- 			iconAnchor: [s / 2, s / 2],
- 			className: 'no-pointer-events', //allows users to click on portal under the unique marker
- 		})
- 	}
- 
- 	function createIcons() {
- 		thisPlugin.keyIcon = svgToIcon(`<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-key" width="44" height="44" viewBox="0 0 24 24" stroke-width="2" stroke="#ffffff" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    };
+
+    function isMobile() {
+        return (typeof android !== "undefined" && !!android);
+    }
+
+    function isiOS() {
+        return (/iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream);
+    }
+
+    function isFirefox() {
+        return (/Firefox/i.test(navigator.userAgent));
+    }
+
+    function copyToClipboardFallbackExecCommand(text) {
+        // Optionaler Fallback mit document.execCommand
+        try {
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            textArea.style.position = "fixed";  // Vermeidet Scrollen
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            const successful = document.execCommand('copy');
+            document.body.removeChild(textArea);
+            if (successful) {
+                console.log('Fallback: Text copied successfully');
+            }
+        } catch (fallbackErr) {
+            console.error('Fallback failed:', fallbackErr);
+        }
+
+    }
+
+    function writeTextToClipboard(text) {
+        if (isiOS() || isFirefox()) {
+            try {
+                navigator.clipboard.writeText(text);
+            } catch (err) {
+                copyToClipboardFallbackExecCommand(text);
+            }
+            return;
+        }
+        navigator.permissions.query({name: "clipboard-write"}).then((result) => {
+            if (result.state === "granted" || result.state === "prompt") {
+                navigator.clipboard.writeText(text);
+                console.log('Text copied to clipboard');
+            }
+        });
+    }
+
+    function checkSubscription(callback) {
+        var versionStr = niantic_params.CURRENT_VERSION;
+        var post_data = JSON.stringify({
+            v: versionStr
+        });
+
+        var result = $.ajax({
+            url: '/r/getHasActiveSubscription',
+            type: 'POST',
+            data: post_data,
+            context: {},
+            dataType: 'json',
+            success: [(data) => callback(null, data)],
+            error: [(data) => callback(data)],
+            contentType: 'application/json; charset=utf-8',
+            beforeSend: function (req) {
+                req.setRequestHeader('accept', '*/*');
+                req.setRequestHeader('X-CSRFToken', readCookie('csrftoken'));
+            }
+        });
+        return result;
+    }
+
+
+    function addItemToCount(item, countMap, incBy) {
+        if (item[2] && item[2].resource && item[2].timedPowerupResource) {
+            const key = `${item[2].resource.resourceType} ${item[2].timedPowerupResource.designation}`;
+            if (!countMap[key]) {
+                countMap[key] = item[2].resource;
+                countMap[key].count = 0;
+                countMap[key].type = `Powerup ${translations[item[2].timedPowerupResource.designation] || item[2].timedPowerupResource.designation}`;
+            }
+            countMap[key].count += incBy;
+        } else if (item[2] && item[2].resource && item[2].flipCard) {
+            const key = `${item[2].resource.resourceType} ${item[2].flipCard.flipCardType}`;
+            if (!countMap[key]) {
+                countMap[key] = item[2].resource;
+                countMap[key].count = 0;
+                countMap[key].type = `${translations[item[2].resource.resourceType]} ${item[2].flipCard.flipCardType}`;
+            }
+            countMap[key].flipCardType = item[2].flipCard.flipCardType;
+            countMap[key].count += incBy;
+        } else if (item[2] && item[2].resource) {
+            const key = `${item[2].resource.resourceType} ${item[2].resource.resourceRarity}`;
+            if (!countMap[key]) {
+                countMap[key] = item[2].resource;
+                countMap[key].count = 0;
+                countMap[key].type = `${translations[item[2].resource.resourceType]}`;
+            }
+            countMap[key].count += incBy;
+        } else if (item[2] && item[2].resourceWithLevels) {
+            const key = `${item[2].resourceWithLevels.resourceType} ${item[2].resourceWithLevels.level}`;
+            if (!countMap[key]) {
+                countMap[key] = item[2].resourceWithLevels;
+                countMap[key].count = 0;
+                countMap[key].resourceRarity = 'COMMON';
+                countMap[key].type = `${translations[item[2].resourceWithLevels.resourceType]} ${item[2].resourceWithLevels.level}`;
+            }
+            countMap[key].count += incBy;
+        } else if (item[2] && item[2].modResource) {
+            const key = `${item[2].modResource.resourceType} ${item[2].modResource.rarity}`;
+            if (!countMap[key]) {
+                countMap[key] = item[2].modResource;
+                countMap[key].count = 0;
+                countMap[key].type = `${translations[item[2].modResource.resourceType]}`;
+                countMap[key].resourceRarity = countMap[key].rarity;
+            }
+            countMap[key].count += incBy;
+        } else {
+            console.log(item);
+        }
+    }
+
+    function svgToIcon(str, s) {
+        const url = ("data:image/svg+xml," + encodeURIComponent(str)).replace(/#/g, '%23');
+        return new L.Icon({
+            iconUrl: url,
+            iconSize: [s, s],
+            iconAnchor: [s / 2, s / 2],
+            className: 'no-pointer-events', //allows users to click on portal under the unique marker
+        })
+    }
+
+    function createIcons() {
+        thisPlugin.keyIcon = svgToIcon(`<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-key" width="44" height="44" viewBox="0 0 24 24" stroke-width="2" stroke="#ffffff" fill="none" stroke-linecap="round" stroke-linejoin="round">
  <circle cx="8" cy="15" r="4" />
  <line x1="10.85" y1="12.15" x2="19" y2="4" />
  <line x1="18" y1="5" x2="20" y2="7" />
  <line x1="15" y1="8" x2="17" y2="10" />
  </svg>`, 15);
- 	}
- 
- 	function prepareItemCounts(data) {
- 		if (!data || !data.result) {
- 			return [];
- 		}
- 		const countMap = {};
- 		data.result.forEach((item) => {
- 			addItemToCount(item, countMap, 1);
- 			if (item[2].container) {
- 				item[2].container.stackableItems.forEach((item) => {
- 					addItemToCount(item.exampleGameEntity, countMap, item.itemGuids.length);
- 				});
- 			}
- 		});
- 		const countList = Object.values(countMap);
- 		countList.sort((a, b) => {
- 			if (a.type === b.type) {
- 				return 0;
- 			}
- 			return a.type > b.type ? 1 : -1;
- 		});
- 		return countList;
- 	}
- 
- 	function HexToSignedFloat(num) {
- 		let int = parseInt(num, 16);
- 		if ((int & 0x80000000) === -0x80000000) {
- 			int = -1 * (int ^ 0xffffffff) + 1;
- 		}
- 		return int / 10e5;
- 	}
- 
- 	function addKeyToCount(item, countMap, incBy, moniker) {
- 		if (item[2] && item[2].resource && item[2].resource.resourceType && item[2].resource.resourceType === 'PORTAL_LINK_KEY') {
- 			const key = `${item[2].portalCoupler.portalGuid}`;
- 			if (!countMap[key]) {
- 				countMap[key] = item[2];
- 				countMap[key].count = 0;
- 				countMap[key].capsules = [];
- 			}
- 
- 			if (moniker && countMap[key].capsules.indexOf(moniker) === -1) {
- 				countMap[key].capsules.push(moniker);
- 			}
- 
- 			countMap[key].count += incBy;
- 		}
- 	}
- 
- 	function prepareKeyCounts(data) {
- 		if (!data || !data.result) {
- 			return [];
- 		}
- 		const countMap = {};
- 		data.result.forEach((item) => {
- 			addKeyToCount(item, countMap, 1);
- 			if (item[2].container) {
- 				item[2].container.stackableItems.forEach((item2) => {
- 					addKeyToCount(item2.exampleGameEntity, countMap, item2.itemGuids.length, item[2].moniker.differentiator);
- 				});
- 			}
- 		});
- 		const countList = Object.values(countMap);
- 		countList.sort((a, b) => {
- 			if (a.portalCoupler.portalTitle === b.portalCoupler.portalTitle) {
- 				return 0;
- 			}
- 			return a.portalCoupler.portalTitle.toLowerCase() > b.portalCoupler.portalTitle.toLowerCase() ? 1 : -1;
- 		});
- 		return countList;
- 	}
- 
- 	function getKeyTableBody(orderBy, direction) {
- 		const sortFunctions = {
- 			name: (a, b) => {
- 				if (a.portalCoupler.portalTitle === b.portalCoupler.portalTitle) {
- 					return 0;
- 				}
- 				return (a.portalCoupler.portalTitle.toLowerCase() > b.portalCoupler.portalTitle.toLowerCase() ? 1 : -1) * (direction ? 1 : -1);
- 			},
- 			count: (a, b) => (a.count - b.count) * (direction ? 1 : -1),
- 			distance: (a, b) => (a._distance - b._distance) * (direction ? 1 : -1),
- 			capsule: (a, b) => {
- 				const sA = a.capsules.join(', ').toLowerCase();
- 				const sB = b.capsules.join(', ').toLowerCase();
- 				if (sA === sb) {
- 					return 0;
- 				}
- 				return (sA > sB ? 1 : -1) * (direction ? 1 : -1);
- 			}
- 		}
- 
- 		thisPlugin.keyCount.sort(sortFunctions[orderBy]);
- 		return thisPlugin.keyCount.map((el) => {
- 			return `<tr>
+    }
+
+    function prepareItemCounts(data) {
+        if (!data || !data.result) {
+            return [];
+        }
+        const countMap = {};
+        data.result.forEach((item) => {
+            addItemToCount(item, countMap, 1);
+            if (item[2].container) {
+                item[2].container.stackableItems.forEach((item) => {
+                    addItemToCount(item.exampleGameEntity, countMap, item.itemGuids.length);
+                });
+            }
+        });
+        const countList = Object.values(countMap);
+        countList.sort((a, b) => {
+            if (a.type === b.type) {
+                return 0;
+            }
+            return a.type > b.type ? 1 : -1;
+        });
+        return countList;
+    }
+
+    function HexToSignedFloat(num) {
+        let int = parseInt(num, 16);
+        if ((int & 0x80000000) === -0x80000000) {
+            int = -1 * (int ^ 0xffffffff) + 1;
+        }
+        return int / 10e5;
+    }
+
+    function addKeyToCount(item, countMap, incBy, moniker) {
+        if (item[2] && item[2].resource && item[2].resource.resourceType && item[2].resource.resourceType === 'PORTAL_LINK_KEY') {
+            const key = `${item[2].portalCoupler.portalGuid}`;
+            if (!countMap[key]) {
+                countMap[key] = item[2];
+                countMap[key].count = 0;
+                countMap[key].capsules = [];
+            }
+
+            if (moniker && countMap[key].capsules.indexOf(moniker) === -1) {
+                countMap[key].capsules.push(moniker);
+            }
+
+            countMap[key].count += incBy;
+        }
+    }
+
+    function prepareKeyCounts(data) {
+        if (!data || !data.result) {
+            return [];
+        }
+        const countMap = {};
+        data.result.forEach((item) => {
+            addKeyToCount(item, countMap, 1);
+            if (item[2].container) {
+                item[2].container.stackableItems.forEach((item2) => {
+                    addKeyToCount(item2.exampleGameEntity, countMap, item2.itemGuids.length, item[2].moniker.differentiator);
+                });
+            }
+        });
+        const countList = Object.values(countMap);
+        countList.sort((a, b) => {
+            if (a.portalCoupler.portalTitle === b.portalCoupler.portalTitle) {
+                return 0;
+            }
+            return a.portalCoupler.portalTitle.toLowerCase() > b.portalCoupler.portalTitle.toLowerCase() ? 1 : -1;
+        });
+        return countList;
+    }
+
+    function getKeyTableBody(orderBy, direction) {
+        const sortFunctions = {
+            name: (a, b) => {
+                if (a.portalCoupler.portalTitle === b.portalCoupler.portalTitle) {
+                    return 0;
+                }
+                return (a.portalCoupler.portalTitle.toLowerCase() > b.portalCoupler.portalTitle.toLowerCase() ? 1 : -1) * (direction ? 1 : -1);
+            },
+            count: (a, b) => (a.count - b.count) * (direction ? 1 : -1),
+            distance: (a, b) => (a._distance - b._distance) * (direction ? 1 : -1),
+            capsule: (a, b) => {
+                const sA = a.capsules.join(', ').toLowerCase();
+                const sB = b.capsules.join(', ').toLowerCase();
+                if (sA === sb) {
+                    return 0;
+                }
+                return (sA > sB ? 1 : -1) * (direction ? 1 : -1);
+            }
+        }
+
+        thisPlugin.keyCount.sort(sortFunctions[orderBy]);
+        return thisPlugin.keyCount.map((el) => {
+            return `<tr>
  <td><a href="//intel.ingress.com/?pll=${el._latlng.lat},${el._latlng.lng}" onclick="zoomToAndShowPortal('${el.portalCoupler.portalGuid}',[${el._latlng.lat},${el._latlng.lng}]); return false;">${el.portalCoupler.portalTitle}</a></td>
  <td>${el.count}</td>
  <td>${el._formattedDistance}</td>
  <td>${el.capsules.join(', ')}</td>
  </tr>`;
- 		}).join('');
- 	}
+        }).join('');
+    }
 
 
-	function getHistoryTableBody(orderBy, direction) {
-		const sortFunctions = {
-			date: (a, b) => {
-				if (a.date === b.date) {
-					return 0;
-				}
-				return (a.date.toLowerCase() > b.date.toLowerCase() ? 1 : -1) * (direction ? 1 : -1);
-			}
-		};
+    function getHistoryTableBody(orderBy, direction) {
+        const sortFunctions = {
+            date: (a, b) => {
+                if (a.date === b.date) {
+                    return 0;
+                }
+                return (a.date.toLowerCase() > b.date.toLowerCase() ? 1 : -1) * (direction ? 1 : -1);
+            }
+        };
 
-		let history;
-		if (localStorage[KEY_SETTINGS]) {
-			const data = JSON.parse(localStorage[KEY_SETTINGS]);
-			history = data.history;
-		}
-		if (!history) {
-			history = [];
-		} else {
-			history.sort(sortFunctions[orderBy]);
-		}
-		return history.map((el, index) => {
-			return `<tr>
+        let history;
+        if (localStorage[KEY_SETTINGS]) {
+            const data = JSON.parse(localStorage[KEY_SETTINGS]);
+            history = data.history;
+        }
+        if (!history) {
+            history = [];
+        } else {
+            history.sort(sortFunctions[orderBy]);
+        }
+        return history.map((el, index) => {
+            return `<tr>
  <td>${el.date}</td>
  <td>
  	<a onclick="window.plugin.LiveInventory.deleteHistoryItem('${el.date}')">Delete</a>` +
-				((index !== 0) ? ` / <a onclick="window.plugin.LiveInventory.showHistoryDiff('${el.date}')">Diff</a>` : '') +
- `</td>
+                ((index !== 0) ? ` / <a onclick="window.plugin.LiveInventory.showHistoryDiff('${el.date}')">Diff</a>` : '') +
+                `</td>
  </tr>`;
-		}).join('');
-	}
+        }).join('');
+    }
 
- 	function updateTableBody(key, orderBy, direction) {
-		 switch (key) {
-			 case 'key':
-				 $('#live-inventory-key-table tbody').empty().append($(getKeyTableBody(orderBy, direction)));
-			 break;
-			 case 'item':
-				 $('#live-inventory-item-table tbody').empty().append($(getItemTableBody(orderBy, direction)));
-				 break;
-			 case 'history':
-				 $('#live-inventory-history-table tbody').empty().append($(getHistoryTableBody(orderBy, direction)));
-				 break;
-		 }
+    function updateTableBody(key, orderBy, direction) {
+        switch (key) {
+            case 'key':
+                $('#live-inventory-key-table tbody').empty().append($(getKeyTableBody(orderBy, direction)));
+                break;
+            case 'item':
+                $('#live-inventory-item-table tbody').empty().append($(getItemTableBody(orderBy, direction)));
+                break;
+            case 'history':
+                $('#live-inventory-history-table tbody').empty().append($(getHistoryTableBody(orderBy, direction)));
+                break;
+        }
 
- 	}
+    }
 
-	window.plugin.LiveInventory.deleteHistoryItem = function(date) {
-		const history = JSON.parse(localStorage[KEY_SETTINGS]).history;
-		patchLocalStorage({
-			history: history.filter(e => e.date !== date),
-		});
-		updateHistoryTable();
-	}
+    window.plugin.LiveInventory.deleteHistoryItem = function (date) {
+        const history = JSON.parse(localStorage[KEY_SETTINGS]).history;
+        patchLocalStorage({
+            history: history.filter(e => e.date !== date),
+        });
+        updateHistoryTable();
+    }
 
-	window.plugin.LiveInventory.showHistoryDiff = function(date) {
-		const data = JSON.parse(localStorage[KEY_SETTINGS]);
-		if (!data || !data.history) {
-			window.alert('No date given for diff.');
-			return;
-		}
-		const history = data.history;
-		const index = history.findIndex((a) => a.date === date)
-		if (index === -1) {
-			window.alert('No history found for this date');
-			return;
-		}
-		const prev = history[index - 1];
-		if (!prev) {
-			window.alert('No previous history found for this date');
-			return;
-		}
-		const current = history[index];
+    window.plugin.LiveInventory.showHistoryDiff = function (date) {
+        const data = JSON.parse(localStorage[KEY_SETTINGS]);
+        if (!data || !data.history) {
+            window.alert('No date given for diff.');
+            return;
+        }
+        const history = data.history;
+        const index = history.findIndex((a) => a.date === date)
+        if (index === -1) {
+            window.alert('No history found for this date');
+            return;
+        }
+        const prev = history[index - 1];
+        if (!prev) {
+            window.alert('No previous history found for this date');
+            return;
+        }
+        const current = history[index];
 
-		const prevMap = prev.entries.reduce((acc, item) => {
-			acc[item.type] = item;
-			return acc;
-		}, {});
+        const prevMap = prev.entries.reduce((acc, item) => {
+            acc[item.type] = item;
+            return acc;
+        }, {});
 
-		const currentMap = current.entries.reduce((acc, item) => {
-			acc[item.type] = item;
-			return acc;
-		}, {});
+        const currentMap = current.entries.reduce((acc, item) => {
+            acc[item.type] = item;
+            return acc;
+        }, {});
 
-		const types = [...new Set([...Object.keys(prevMap), ...Object.keys(currentMap)])];
+        const types = [...new Set([...Object.keys(prevMap), ...Object.keys(currentMap)])];
 
-		const diff = types.map((type) => {
-			const prevValue = prevMap[type]?.count || 0;
-			const currentValue = currentMap[type]?.count || 0;
-			return {
-				type: type,
-				rarity: currentMap[type]?.rarity || prevMap[type]?.rarity,
-				diffCount: currentValue - prevValue,
-				prevCount: prevValue,
-				currentCount: currentValue
-			}
-		}).filter(item => item.diffCount !== 0);
+        const diff = types.map((type) => {
+            const prevValue = prevMap[type]?.count || 0;
+            const currentValue = currentMap[type]?.count || 0;
+            return {
+                type: type,
+                rarity: currentMap[type]?.rarity || prevMap[type]?.rarity,
+                diffCount: currentValue - prevValue,
+                prevCount: prevValue,
+                currentCount: currentValue
+            }
+        }).filter(item => item.diffCount !== 0);
 
-		const diffCsv = "Type;Rarity;Diff;Previous Count;Current Count\n" + diff.map((item) => {
-			return `${item.type};${item.rarity};${item.diffCount};${item.prevCount};${item.currentCount}`
-			}
-		).join("\n")
+        const diffCsv = "Type;Rarity;Diff;Previous Count;Current Count\n" + diff.map((item) => {
+                return `${item.type};${item.rarity};${item.diffCount};${item.prevCount};${item.currentCount}`
+            }
+        ).join("\n")
 
-		dialog({
-			html: `<div id="live-inventory-diff">
+        dialog({
+            html: `<div id="live-inventory-diff">
 		<div class="tab">
 			<button class="tablinks active">Diff</button>
 		</div>
@@ -397,132 +439,132 @@ function wrapper(plugin_info) {
         ${getDiffTableBody('type', 1, diff)}
         </tbody>
         </table></div></div>`,
-			title: 'Live Inventory Diff between ' + date + ' and ' + prev.date,
-			id: 'live-inventory-diff',
-			width: 'auto'
-		}).dialog('option', 'buttons', {
-			'Copy to clipboard': function () {
-				writeTextToClipboard(diffCsv);
-			},
-			'OK': function () {
-				$(this).dialog('close');
-			},
-		});
-	}
+            title: 'Live Inventory Diff between ' + date + ' and ' + prev.date,
+            id: 'live-inventory-diff',
+            width: 'auto'
+        }).dialog('option', 'buttons', {
+            'Copy to clipboard': function () {
+                writeTextToClipboard(diffCsv);
+            },
+            'OK': function () {
+                $(this).dialog('close');
+            },
+        });
+    }
 
-	function getDiffTableBody(orderBy, direction, diff) {
-		if (!diff) {
-			return "";
-		}
-		const sortFunctions = {
-			type: (a, b) => {
-				if (a.type === b.type) {
-					return 0;
-				}
-				return (a.type.toLowerCase() > b.type.toLowerCase() ? 1 : -1) * (direction ? 1 : -1);
-			},
-			rarity: (a, b) => {
-				if (a.rarity === b.rarity) {
-					return 0;
-				}
-				return (a.rarity.toLowerCase() > b.rarity.toLowerCase() ? 1 : -1) * (direction ? 1 : -1);
-			},
-			diffCount: (a, b) => (a.diffCount - b.diffCount) * (direction ? 1 : -1),
-			prevCount: (a, b) => (a.prevCount - b.prevCount) * (direction ? 1 : -1),
-			currentCount: (a, b) => (a.currentCount - b.currentCount) * (direction ? 1 : -1),
-		};
+    function getDiffTableBody(orderBy, direction, diff) {
+        if (!diff) {
+            return "";
+        }
+        const sortFunctions = {
+            type: (a, b) => {
+                if (a.type === b.type) {
+                    return 0;
+                }
+                return (a.type.toLowerCase() > b.type.toLowerCase() ? 1 : -1) * (direction ? 1 : -1);
+            },
+            rarity: (a, b) => {
+                if (a.rarity === b.rarity) {
+                    return 0;
+                }
+                return (a.rarity.toLowerCase() > b.rarity.toLowerCase() ? 1 : -1) * (direction ? 1 : -1);
+            },
+            diffCount: (a, b) => (a.diffCount - b.diffCount) * (direction ? 1 : -1),
+            prevCount: (a, b) => (a.prevCount - b.prevCount) * (direction ? 1 : -1),
+            currentCount: (a, b) => (a.currentCount - b.currentCount) * (direction ? 1 : -1),
+        };
 
 
-		diff.sort(sortFunctions[orderBy]);
-		return diff.map((el) => {
-			return `<tr>
+        diff.sort(sortFunctions[orderBy]);
+        return diff.map((el) => {
+            return `<tr>
  <td>${el.type}</td>
  <td>${el.rarity || ''}</td>
  <td>${el.diffCount}</td>
  <td>${el.prevCount}</td>
  <td>${el.currentCount}</td>
  </tr>`;
-		}).join('');
-	}
- 
- 	function getItemTableBody(orderBy, direction) {
- 		const sortFunctions = {
- 			type: (a, b) => {
- 				if (a.type === b.type) {
- 					return 0;
- 				}
- 				return (a.type.toLowerCase() > b.type.toLowerCase() ? 1 : -1) * (direction ? 1 : -1);
- 			},
- 			rarity: (a, b) => {
- 				if (a.resourceRarity === b.resourceRarity) {
- 					return 0;
- 				}
- 				return (a.resourceRarity.toLowerCase() > b.resourceRarity.toLowerCase() ? 1 : -1) * (direction ? 1 : -1);
- 			},
- 			count: (a, b) => (a.count - b.count) * (direction ? 1 : -1),
- 		};
- 
- 
- 		thisPlugin.itemCount.sort(sortFunctions[orderBy]);
- 		return thisPlugin.itemCount.map((el) => {
- 			return `<tr>
+        }).join('');
+    }
+
+    function getItemTableBody(orderBy, direction) {
+        const sortFunctions = {
+            type: (a, b) => {
+                if (a.type === b.type) {
+                    return 0;
+                }
+                return (a.type.toLowerCase() > b.type.toLowerCase() ? 1 : -1) * (direction ? 1 : -1);
+            },
+            rarity: (a, b) => {
+                if (a.resourceRarity === b.resourceRarity) {
+                    return 0;
+                }
+                return (a.resourceRarity.toLowerCase() > b.resourceRarity.toLowerCase() ? 1 : -1) * (direction ? 1 : -1);
+            },
+            count: (a, b) => (a.count - b.count) * (direction ? 1 : -1),
+        };
+
+
+        thisPlugin.itemCount.sort(sortFunctions[orderBy]);
+        return thisPlugin.itemCount.map((el) => {
+            return `<tr>
  <td>${el.type}</td>
  <td>${el.resourceRarity || ''}</td>
  <td>${el.count}</td>
  </tr>`;
- 		}).join('');
- 	}
- 
- 	function updateItemTableBody(orderBy, direction) {
- 		$('#live-inventory-item-table tbody').empty().append($(getItemTableBody(orderBy, direction)))
- 	}
+        }).join('');
+    }
 
-	 function onCopyItems() {
-		 exportItems();
-		 writeLocalStorageItemHistory();
-		 updateHistoryTable()
-	 }
+    function updateItemTableBody(orderBy, direction) {
+        $('#live-inventory-item-table tbody').empty().append($(getItemTableBody(orderBy, direction)))
+    }
 
-	 function updateHistoryTable() {
-		 updateTableBody('history', 'date', 1);
-	 }
+    function onCopyItems() {
+        exportItems();
+        writeLocalStorageItemHistory();
+        updateHistoryTable()
+    }
 
-	function writeLocalStorageItemHistory() {
-		const entries = thisPlugin.itemCount.map((i) => {
-			return {
-				type: i.type,
-				rarity: i.resourceRarity,
-				count: i.count
-			};
-		});
-		if (entries.length === 0) {
-			console.log('No items to write to history');
-			return;
-		}
-		const entry = {
-			date: new Date().toISOString(),
-			entries: entries
-		}
-		const localstorage = JSON.parse(localStorage[KEY_SETTINGS]);
-		const history = localstorage.history || [];
-		history.push(entry);
-		patchLocalStorage({history: history})
-	}
+    function updateHistoryTable() {
+        updateTableBody('history', 'date', 1);
+    }
 
- 	function exportItems() {
- 		const str = ['Type\tRarity\tCount', ...thisPlugin.itemCount.map((i) => [i.type, i.resourceRarity, i.count].join('\t'))].join('\n');
-		writeTextToClipboard(str);
- 	}
- 
- 	function exportKeys() {
- 		const str = ['Name\tLink\tGUID\tKeys', ...thisPlugin.keyCount.map((el) => [el.portalCoupler.portalTitle, `https://intel.ingress.com/?pll=${el._latlng.lat},${el._latlng.lng}`, el.portalCoupler.portalGuid, el.count].join('\t'))].join('\n');
-		writeTextToClipboard(str);
- 	}
- 
+    function writeLocalStorageItemHistory() {
+        const entries = thisPlugin.itemCount.map((i) => {
+            return {
+                type: i.type,
+                rarity: i.resourceRarity,
+                count: i.count
+            };
+        });
+        if (entries.length === 0) {
+            console.log('No items to write to history');
+            return;
+        }
+        const entry = {
+            date: new Date().toISOString(),
+            entries: entries
+        }
+        const localstorage = JSON.parse(localStorage[KEY_SETTINGS]);
+        const history = localstorage.history || [];
+        history.push(entry);
+        patchLocalStorage({history: history})
+    }
+
+    function exportItems() {
+        const str = ['Type\tRarity\tCount', ...thisPlugin.itemCount.map((i) => [i.type, i.resourceRarity, i.count].join('\t'))].join('\n');
+        writeTextToClipboard(str);
+    }
+
+    function exportKeys() {
+        const str = ['Name\tLink\tGUID\tKeys', ...thisPlugin.keyCount.map((el) => [el.portalCoupler.portalTitle, `https://intel.ingress.com/?pll=${el._latlng.lat},${el._latlng.lng}`, el.portalCoupler.portalGuid, el.count].join('\t'))].join('\n');
+        writeTextToClipboard(str);
+    }
+
     function getItemImage(resourceRarity, type) {
         const prefix = "data:image/png;base64,"
-        var key = ((resourceRarity !== undefined) ? resourceRarity + '_' : '') + ((type !== undefined) ? type.replace(' ','_').toUpperCase() : '');
-        
+        var key = ((resourceRarity !== undefined) ? resourceRarity + '_' : '') + ((type !== undefined) ? type.replace(' ', '_').toUpperCase() : '');
+
         var modImages = {
             "VERY_RARE_AEGIS_SHIELD": "UklGRsQOAABXRUJQVlA4WAoAAAAQAAAAPwAAPwAAQUxQSFYGAAABoLZt2ym3HtYziJPatm3btu2gtttw2zuond042bWT2m7DiRqnwTizcH+YNbPWJBExASS5bK5/wVdvBwVV2SnZRuDMrHVVpsdXhodxfugFWRVxi9PqgNej8uOdqohHmYoHfD0QoawanZJTS4HSCTexmiqr29DVozu4yYTsTxUlAbg5tiyrbWWpfq6EN+Q9/GNhZzc50dySZ1qAd/fBBUVlmamDIJsTH7R8zJukLABZg59hCVVSx2VHrpaYwVSam17M5DAATs+sSG5WWRx+TwzZfyKFBQC2nNEwAHAiDCfllYUaRHNlN3z976thZdEzBglbh9WTVw6quTC6lP0U5H0pm7egV/ElpyOevPWuXjmIHPr6feG+Xz2jKeUEALCpcZv3l4a3skbm2nbCpg1DnCQhosaL48o4VsVYAqAO3Jv9ZphMqO7Gk0/zK5iSx30aKKQhcvjJVAhBXgj8w4BHCa2FRhlK7p3+6Zfjcc8+jZGqfWJ8mIAmTi0Edm/15o5OXeoqibqXxnpdel3EAHjTQRr7k8WH8wT4YhOX/PRzWk7+Plci6pT46WRTqnP1cQ6EjaukmaUODIO58VQ6YCzKTHq6VklE5BiFrJZENQalCqkPdbCXovGbd9s1Au97fkLYH0GRCW/dybz3ic/XGxCRwoc1U3steNhMAkWAbnsCBB/tN5YPk5Fc6VZDYFS5JiO0KRFVvwxA7Tkl90s9CcaWhh3khHgGFS9j/t2xclSXxq7OMuqcBYQ7ExG1vIIyj96fuaMycbXuZM//CrG8oSj18dWhQ+J5INTFjEZV3Br5gvvTlcTvMR34ExLn5wOAabvMrN0jUxn7rxuJ7/XtwcwiqSwWrpjTg4ga+BVE1yEr6zQQcA1Xz42ErY2mA/UdiBRd6pO1h7wEVpn+WGm0GfSvUy/WJpEOV93Nar5I7xcPW1cYtW+Q0UxMrfiJZl1Lbo5R2yrDa8G1ha+fVxPT+v0oszkIdIeNswYR1bVvP1kppk9OmBsReWNHoK00U0ja6YaibkTKSH5Fgq3wqIlZk3lyEdt5/XCiWm/KF2fZDCeciWjS++YigmDWpTjFw2A7oxfJ2i8t3CHihsAsPAhAJcyd6p4VHfqyjnUpAofw+6YC3nYoMiB/f+Ei6wxmsj+ON1D2fGU7vpgHjl+LUFoFM2pSjYhmqW1meMIBiX89cBLX89wqIrL7x2YlLwGUX7xjXTH0YzyzEKogojafbZV+H4D2t6vWJUM/OgiIdyYiWqK3Sb72xQMAbOg1FxGage1SkNiiBhGN+24L3cGMe8EAuLDXjYjIzqlB6yGdHOgJ8jvS5ryo//5V0qCUL5k2OFPn0cdDZldS16zzDoxMSMozFl1ZGIbMZtT6bDpULQZ8erU6Ubqi2YNvqO9yAHQcB4DTZb2M/Xf/5BCzNSWA6cT7+4teQnpjro6FoF7z6GyA+4LJY6et2Pvv8R1mznPeAeBufwQ4Xiqwmnw+PRfAs/crFu/5O/ZVtpYFsqcbMpsRkTcs6vXS5P++YfawmSXXEwDoTQYWlq92y09uSERelgBeksjFu/+J/cCyLMRe7do5N86OiNytSSyQooKFpNr/h5ND+EGiHhtCLTHleXdMEojlGZ0BjOrCFBci6tmGnNcXw/K3yfPHXK3Q6wr06gJeIo4pVetUFxa3VJLFISqNFZnNiJqPGD6s09KQt1KwDMAyuRHr2ijJWuVRVoRg/0KINmZpyr4DLLtbTmKrhWqymAfpZoUDLQzXi9B9vXPjudbwlQUPdxLffNrYiOYdDn00Ah8mKcTxJa8iw+5n5t5+VLylDJCESO4mI2p0EcCHzgJ9S8x4Rv/t3rHgG+n58fv62C+v2J4EY+4mSYTXMCVpEQPszDoE/BQQEOC/d5N/jKrw0ZG+LkQ0QPvDbTDlv0pl50gd1s1QofD8IHJYmVicmZGZmZmZU/I6YLArCTZSXT4BIFASxST/qFvH9i0eHsiA86f6FxPiE26fDg4O8R1ZU0YWHe++9JFuUxHPAZy+hEXBGfcpI1o7OjrISPTfuVsNwC+SkHzIkjuwskL9ZVd1knCDfus3wFMaIuro+9FkAYDuUCd7hZ2Ytl+OPseDTpKRrOHc6+WsBTBpgUcGiaGV3j9dHkQ2rTvCI/hpKZf57LK/15R+bZ1FOTVycyDrAVZQOCBICAAAkCIAnQEqQABAAADAEiWoAv2taRk/D+ZFWX8F/MN4eJTCT2y3mA84D0AeaT/mesj9AD9o/Tc9j39tv3S9tTNAP6B2c/zH8WvNnwIeHPYrjccpeJL7JfdPzI9QO8/gBfhn8y/t35cfmBxhWbf4f0AvVn55/lfzR8y79d9B+9V/O/9B6lf47wU/GfYA/ln9t/7Xsrfx//a+6r2j/Of/M/xXwCfyn+mf7n+7+1d7I/Rs/ag7NelW3uaGPDyt0rvhfqbAAM/nm745jTrqze842QgYZopvqzHrXE/25qok3PvxQTlGAe4mc2IEVcp/dfpjO+vXBG1t2W0eN/f1ohg1r95aHWwIPmBmpLb9GMHmVdkI9Ppp3D7ukLH5e7GHQDAAAP7vQadDFmXDsSqMNmJl0Rd9eUHFfv6VxKg8/wRmEC1R19rMJfYlYHWy6AvBNmZJdIOZ4o6p5uqu1Eg895hxTtZ5WOXRzN7SvbPOybZioET/H1+82bvCqE0kpuB7G1F3Ra9zYSnUDVzmVk4wSZSP7YytiRQmXHPFjq/5Rt5JvtIRCkGv/j6WM6QbtaefGgQmhUSzV2KHmm2F9VF+MPqLP/Bo+YclOYBrSf2DA7vS0nmUCEb1L2y8amON8ZmjnJfvhrnOVVE0Jq454SDkYtQNgmF46fYkIP/83zmQY/0cdzISYvOzASbBE1ijg2DoKzC+ldt8Qd4aa9PM1VgNXPyviiFtmij38pNaxXS+FNSzVCbqkPQKiymYKXuyTkV7VTr37cdSxCoR5ncH/iBp8Qr7grX0pD/LzkYNXNv5aDfJWrYY+J+Hn9CnX6NO/cwll/EnA6pWyGyRc5MMBLemz763D74hIFKH1cYAXcuFW/9DO5OF24vSjFn20rLwBnS7i7wsVFjUuI25gDdO6WPXUfHXyRrH5l4VmkK95JxPrr2ae1m8NPtab27gvNyBUmFzpeGdTOqfx3iAhiVXOGujJc0L9HIwt3aq4dut0q+e/8KgtVQ1wwn/JuFoG1N6Ju2dNdTD4i8mKbg/fHf03JQAupeq4GdV74QdPRZiKAbUwWLx9J0A5Y//yLxDfVLHITWDvJtkUfCxeXpmzL6nCyStSgYRMzPb/n0RDbOYt3e9SHquhyx+/BaBVBkVwsQ0dRUXq1ywh/8+gXvpCAUuTpFqqemSkeDkPdU9F+QTpTifb5pX1gVQzNNpfoJb3HhPhMWeOw7qGXoaHQjFC2v2KngU8m+QFCQOYSFz60CaL4rz/60ZD7/OYzQAIrwObd9T8Q37JtuoPw1m7uqPj//eCkN4LvQ6BFW90qw9yb+xUznIe3gW29+VL77RvtvUOvrTWz4oQEJLm+Tm7Qbr5UagiVz6DZz1Cip8lHoSgCslfi4F2e7QrPc1jwZfYywaBJesaAih7AH7gF+PbWRKFsh4csBW2jqekCkqHb+kPESerDPeaHCYomm09FH5kom7WBti2tlULI3QTYwjzuj6Ld/6+cXl9xc/i+2tJmbvm+AAg5jMYLtZXKtiwLJo3iqSh8yGKmDZG7bXT43VbnXhI+vV5rJ6s93atb91Yt0UqedTaJrnVzRsHLrjOakXCd19J+eCrn0ke0uD+sd6YbgZTT0hP7uubO5t99KWffZiu3kPj+73RcnBfTiY38Na3FSI+AIMHaGLBQw8LLlyFolyVYuGvyb8Vgk4rA4Geoe7cjFJOwAeG7j1GC6CU1/S9SfJHdzb+9qKm7bB9jccWmdPKATGM0bQ8f2rEVdKUhiscCZ6fQwOC0aqaE0v5/ETujnc13IZGoKEfdTFTxfUtlNHUKXRbH2utOy5wdUQ90SCtdfQn6dgFANWUQ98STBhRfW84dJzqe7INsnLq4GXlesl4mO0e6AV5MGhnv4TgShIIjI/jnu9GF6tZYvfO8TiDwz217jdxd+LLMEA5TJa+7v3b0w/oXqeFz8Gl5hEBm6R9nbg5u154ELy7LC2VLCDSmkrd+4ctTFYMsl5HnfHZzIoDNTIHMsRh5V5qJxoVGhKa0hKYyQbSPGswWnyx72e1fBT+z4RTDP6hHBqj/f6ojNL+YQ9AM0ftpo3R54prrWcYq51viLVZBBGCGXerBUp22h9VK8BtzSobgwL65OF88ty/dp3N6Q2Xs8ukmxe5+SXOzOjAQZPNNwGRhNRN/6k5DNLCK2qoLIzu+QLlhnuv+Drn53DtVMK29zqnYmrzdxVSGUNgGlzZXvH3C45vg64N1t94aUbLKxPrbHr5d9fX5QnYsN6k5l4QB3igBDOUV9JgnlSFW3QUp9CoiHvrT3ICH2Yt36wFCpZ3IQ7F8gAXfMSEc4kW1t4FdxfSA3GHMXqDbPhWS5AgbbF7YVWJjfEA/xS9hJUwOgcaDxFxS56iTbARKTB2e3xWP4fpRIK8XbQiFlV3BDdNaZcXfW1lFLm/zawKDi3laSXKnOufX5ODTQDiUo9EHE1XWrNoXWqqdGp7D3DAtGk882tYkTGEDS63eBNDI/LMq5CURaTjnC8kejOlPmO/jnQy7sVqb+NkmpNCAu6u3fr0jGk/2qVxpns2AkjCNMzkv5T8ZIPPDIrFzmuwF3jvIj6bjWc4xZPl7msj5uNrE2q/FZ4k+jsm+qA/uvuAL3j2vq/uZwPBQ1cLFA58MpGGoaZXYgYddJXeIZa4hVGfG2Sg4AoZGDLoQ/3hzzj7LvS9B0jBtjspQBxcPMyTDnczow9AVyeMDoqxDXMdelZag+qpyiqXzm9bVXvmBRxOkQ0fanmltHLE1CHlo1CXyb7QiAWffr5JqGBAMaRP8ACmCHTE3oMtndh9rrd38IGQfrtxDKUUU7xMcWYfisHwMAAAAA=",
             "VERY_RARE_AXA_SHIELD": "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",
@@ -594,7 +636,7 @@ function wrapper(plugin_info) {
             "COMMON_XMP_7": "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",
             "COMMON_XMP_8": "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"
         };
-        
+
         return prefix + modImages[key];
     }
 
@@ -603,21 +645,21 @@ function wrapper(plugin_info) {
         var mods = ["ULTRA_STRIKE", "FLIP_CARD", "EMP_BURSTER"];
         return mods.includes(resourceType);
     }
-    
+
     function isPC(resourceType, resourceRarity) {
-        var mods = ["POWER_CUBE","BOOSTED_POWER_CUBE"];
+        var mods = ["POWER_CUBE", "BOOSTED_POWER_CUBE"];
         return mods.includes(resourceType);
     }
- 
+
     function isMod(resourceType, resourceRarity) {
         var mods = ["EXTRA_SHIELD", "PLAYER_POWERUP", "FORCE_AMP", "HEATSINK", "HEATSINK", "TRANSMUTER_DEFENSE", "TRANSMUTER_ATTACK", "LINK_AMPLIFIER", "MULTIHACK", "RES_SHIELD", "TURRET", "ULTRA_LINK_AMP"];
         return mods.includes(resourceType);
-    } 
- 
+    }
+
     function getInventoryPowercubeItems() {
         var result = "";
         var i;
-        for (i=0; i<thisPlugin.itemCount.length; i++) {
+        for (i = 0; i < thisPlugin.itemCount.length; i++) {
             var item = thisPlugin.itemCount[i];
             var resourceType = item.resourceType;
             var resourceRarity = item.resourceRarity;
@@ -634,11 +676,11 @@ function wrapper(plugin_info) {
         }
         return result;
     }
- 
+
     function getInventoryModItems() {
         var result = "";
         var i;
-        for (i=0; i<thisPlugin.itemCount.length; i++) {
+        for (i = 0; i < thisPlugin.itemCount.length; i++) {
             var item = thisPlugin.itemCount[i];
             var resourceType = item.resourceType;
             var resourceRarity = item.resourceRarity;
@@ -654,11 +696,11 @@ function wrapper(plugin_info) {
         }
         return result;
     }
-    
+
     function getInventoryWeaponItems() {
         var result = "";
         var i;
-        for (i=0; i<thisPlugin.itemCount.length; i++) {
+        for (i = 0; i < thisPlugin.itemCount.length; i++) {
             var item = thisPlugin.itemCount[i];
             var resourceType = item.resourceType;
             var resourceRarity = item.resourceRarity;
@@ -675,10 +717,10 @@ function wrapper(plugin_info) {
         }
         return result;
     }
- 
- 	function displayInventory() {
- 		dialog({
- 			html: `
+
+    function displayInventory() {
+        dialog({
+            html: `
 <div id="live-inventory">
     <!-- Tab links -->
     <div class="tab">
@@ -761,185 +803,185 @@ function wrapper(plugin_info) {
         </table>
     </div>
 </div>`,
- 			title: 'Live Inventory',
- 			id: 'live-inventory',
- 			width: 'auto'
- 		}).dialog('option', 'buttons', {
- 			'Copy Items': onCopyItems,
- 			'Copy Keys': exportKeys,
- 			'OK': function () {
- 				$(this).dialog('close');
- 			},
- 		});
-        
+            title: 'Live Inventory',
+            id: 'live-inventory',
+            width: 'auto'
+        }).dialog('option', 'buttons', {
+            'Copy Items': onCopyItems,
+            'Copy Keys': exportKeys,
+            'OK': function () {
+                $(this).dialog('close');
+            },
+        });
+
         initInventoryChart();
 
-		const tabs = ['key', 'item', 'history'];
-		for (var i = 0; i < tabs.length; i++) {
-			const tab = tabs[i];
-			const selector = '#live-inventory-' + tab + '-table th';
-			$(selector).click(function () {
-				const orderBy = this.getAttribute('data-orderby');
-				this.orderDirection = !this.orderDirection;
-				updateTableBody(tab, orderBy, this.orderDirection);
-			});
-		}
- 	};
- 
- 	function preparePortalKeyMap() {
- 		const keyMap = {};
- 		thisPlugin.keyCount.forEach((k) => {
- 			keyMap[k.portalCoupler.portalGuid] = k;
- 		});
- 		return keyMap;
- 	}
- 
- 	function formatDistance(dist) {
- 		if (dist >= 10000) {
- 			dist = Math.round(dist / 1000) + 'km';
- 		} else if (dist >= 1000) {
- 			dist = Math.round(dist / 100) / 10 + 'km';
- 		} else {
- 			dist = Math.round(dist) + 'm';
- 		}
- 
- 		return dist;
- 	}
- 
- 	function updateDistances() {
- 		const center = window.map.getCenter();
- 		thisPlugin.keyCount.forEach((k) => {
- 			if (!k._latlng) {
- 				k._latlng = L.latLng.apply(L, k.portalCoupler.portalLocation.split(',').map(e => {
- 					return HexToSignedFloat(e);
- 				}));
- 			}
- 			k._distance = k._latlng.distanceTo(center);
- 			k._formattedDistance = formatDistance(k._distance);
- 		});
- 	}
- 
- 	function prepareData(data) {
- 		thisPlugin.itemCount = prepareItemCounts(data);
- 		thisPlugin.keyCount = prepareKeyCounts(data);
- 		thisPlugin.keyMap = preparePortalKeyMap();
- 		updateDistances();
- 	}
+        const tabs = ['key', 'item', 'history'];
+        for (var i = 0; i < tabs.length; i++) {
+            const tab = tabs[i];
+            const selector = '#live-inventory-' + tab + '-table th';
+            $(selector).click(function () {
+                const orderBy = this.getAttribute('data-orderby');
+                this.orderDirection = !this.orderDirection;
+                updateTableBody(tab, orderBy, this.orderDirection);
+            });
+        }
+    };
 
-	function initLocalStorage() {
-		if (!localStorage[KEY_SETTINGS]) {
-			localStorage[KEY_SETTINGS] = JSON.stringify({
-				expires: undefined,
-				data: {},
-				history: [],
-			});
-		}
-	}
+    function preparePortalKeyMap() {
+        const keyMap = {};
+        thisPlugin.keyCount.forEach((k) => {
+            keyMap[k.portalCoupler.portalGuid] = k;
+        });
+        return keyMap;
+    }
 
-	function patchLocalStorage(data) {
-		 const localData = JSON.parse(localStorage[KEY_SETTINGS]);
-		 const patched = {
-			 ...localData,
-			 ...data,
-		 };
-		 localStorage[KEY_SETTINGS] = JSON.stringify(patched);
-	}
+    function formatDistance(dist) {
+        if (dist >= 10000) {
+            dist = Math.round(dist / 1000) + 'km';
+        } else if (dist >= 1000) {
+            dist = Math.round(dist / 100) / 10 + 'km';
+        } else {
+            dist = Math.round(dist) + 'm';
+        }
 
- 	function loadInventory() {
- 		try {
-			if (localStorage[KEY_SETTINGS]) {
-				const localData = JSON.parse(localStorage[KEY_SETTINGS]);
-				if (localData && localData.expires > Date.now()) {
-					prepareData(localData.data);
-					return;
-				}
-			}
-			prepareData(null);
- 		} catch (e) {
-			console.error("Error loading inventory: ", e);
-		}
- 
- 		checkSubscription((err, data) => {
- 			if (data && data.result === true) {
- 				window.postAjax('getInventory', {
- 					"lastQueryTimestamp": 0
- 				}, (data, textStatus, jqXHR) => {
- 					patchLocalStorage({
- 						data: data,
- 						expires: Date.now() + 5 * 60 * 1000 // request data only once per five minutes, or we might hit a rate limit
- 					});
- 					prepareData(data);
- 				}, (data, textStatus, jqXHR) => {
- 					console.error(data);
- 				});
- 			}
- 		});
- 	};
- 
- 	function portalDetailsUpdated(p) {
- 		if (!thisPlugin.keyMap) {
- 			return;
- 		}
- 		const countData = thisPlugin.keyMap[p.guid];
- 		if (countData) {
- 			$(`<tr><td>${countData.count}</td><th>Keys</th><th></th><td></td></tr>`)
- 				.appendTo($('#randdetails tbody'));
- 		}
- 	}
- 
- 	function addKeyToLayer(data) {
- 		const tileParams = window.getCurrentZoomTileParameters ? window.getCurrentZoomTileParameters() : window.getMapZoomTileParameters();
- 		if (tileParams.level !== 0) {
- 			return;
- 		}
- 
- 		if (thisPlugin.keyMap && thisPlugin.keyMap[data.portal.options.guid] && !data.portal._keyMarker) {
- 			data.portal._keyMarker = L.marker(data.portal._latlng, {
- 				icon: thisPlugin.keyIcon,
- 				/*icon: new L.DivIcon({
- 				    html:thisPlugin.keyMap[data.portal.options.guid].count,
- 				    className: 'plugin-live-inventory-count'
- 				}),*/
- 				interactive: false,
- 				keyboard: false,
- 			}).addTo(thisPlugin.layerGroup);
- 		}
- 	}
- 
- 	function removeKeyFromLayer(data) {
- 		if (data.portal._keyMarker) {
- 			thisPlugin.layerGroup.removeLayer(data.portal._keyMarker);
- 			delete data.portal._keyMarker;
- 		}
- 	}
- 
- 	function checkShowAllIcons(data) {
- 		const tileParams = window.getCurrentZoomTileParameters ? window.getCurrentZoomTileParameters() : window.getMapZoomTileParameters();
- 		if (tileParams.level !== 0) {
- 			thisPlugin.layerGroup.clearLayers();
- 			for (let id in window.portals) {
- 				delete window.portals[id]._keyMarker;
- 			}
- 		} else {
- 			for (let id in window.portals) {
- 				addKeyToLayer({
- 					portal: window.portals[id]
- 				});
- 			}
- 		}
- 	}
- 
- 	function setup() {
-		initLocalStorage();
- 		loadInventory();
- 		$('<a href="#">')
- 			.text('Inventory')
- 			.click(displayInventory)
- 			.appendTo($('#toolbox'));
- 
- 		$("<style>")
- 			.prop("type", "text/css")
- 			.html(`.plugin-live-inventory-count {
+        return dist;
+    }
+
+    function updateDistances() {
+        const center = window.map.getCenter();
+        thisPlugin.keyCount.forEach((k) => {
+            if (!k._latlng) {
+                k._latlng = L.latLng.apply(L, k.portalCoupler.portalLocation.split(',').map(e => {
+                    return HexToSignedFloat(e);
+                }));
+            }
+            k._distance = k._latlng.distanceTo(center);
+            k._formattedDistance = formatDistance(k._distance);
+        });
+    }
+
+    function prepareData(data) {
+        thisPlugin.itemCount = prepareItemCounts(data);
+        thisPlugin.keyCount = prepareKeyCounts(data);
+        thisPlugin.keyMap = preparePortalKeyMap();
+        updateDistances();
+    }
+
+    function initLocalStorage() {
+        if (!localStorage[KEY_SETTINGS]) {
+            localStorage[KEY_SETTINGS] = JSON.stringify({
+                expires: undefined,
+                data: {},
+                history: [],
+            });
+        }
+    }
+
+    function patchLocalStorage(data) {
+        const localData = JSON.parse(localStorage[KEY_SETTINGS]);
+        const patched = {
+            ...localData,
+            ...data,
+        };
+        localStorage[KEY_SETTINGS] = JSON.stringify(patched);
+    }
+
+    function loadInventory() {
+        try {
+            if (localStorage[KEY_SETTINGS]) {
+                const localData = JSON.parse(localStorage[KEY_SETTINGS]);
+                if (localData && localData.expires > Date.now()) {
+                    prepareData(localData.data);
+                    return;
+                }
+            }
+            prepareData(null);
+        } catch (e) {
+            console.error("Error loading inventory: ", e);
+        }
+
+        checkSubscription((err, data) => {
+            if (data && data.result === true) {
+                window.postAjax('getInventory', {
+                    "lastQueryTimestamp": 0
+                }, (data, textStatus, jqXHR) => {
+                    patchLocalStorage({
+                        data: data,
+                        expires: Date.now() + 5 * 60 * 1000 // request data only once per five minutes, or we might hit a rate limit
+                    });
+                    prepareData(data);
+                }, (data, textStatus, jqXHR) => {
+                    console.error(data);
+                });
+            }
+        });
+    };
+
+    function portalDetailsUpdated(p) {
+        if (!thisPlugin.keyMap) {
+            return;
+        }
+        const countData = thisPlugin.keyMap[p.guid];
+        if (countData) {
+            $(`<tr><td>${countData.count}</td><th>Keys</th><th></th><td></td></tr>`)
+                .appendTo($('#randdetails tbody'));
+        }
+    }
+
+    function addKeyToLayer(data) {
+        const tileParams = window.getCurrentZoomTileParameters ? window.getCurrentZoomTileParameters() : window.getMapZoomTileParameters();
+        if (tileParams.level !== 0) {
+            return;
+        }
+
+        if (thisPlugin.keyMap && thisPlugin.keyMap[data.portal.options.guid] && !data.portal._keyMarker) {
+            data.portal._keyMarker = L.marker(data.portal._latlng, {
+                icon: thisPlugin.keyIcon,
+                /*icon: new L.DivIcon({
+                    html:thisPlugin.keyMap[data.portal.options.guid].count,
+                    className: 'plugin-live-inventory-count'
+                }),*/
+                interactive: false,
+                keyboard: false,
+            }).addTo(thisPlugin.layerGroup);
+        }
+    }
+
+    function removeKeyFromLayer(data) {
+        if (data.portal._keyMarker) {
+            thisPlugin.layerGroup.removeLayer(data.portal._keyMarker);
+            delete data.portal._keyMarker;
+        }
+    }
+
+    function checkShowAllIcons(data) {
+        const tileParams = window.getCurrentZoomTileParameters ? window.getCurrentZoomTileParameters() : window.getMapZoomTileParameters();
+        if (tileParams.level !== 0) {
+            thisPlugin.layerGroup.clearLayers();
+            for (let id in window.portals) {
+                delete window.portals[id]._keyMarker;
+            }
+        } else {
+            for (let id in window.portals) {
+                addKeyToLayer({
+                    portal: window.portals[id]
+                });
+            }
+        }
+    }
+
+    function setup() {
+        initLocalStorage();
+        loadInventory();
+        $('<a href="#">')
+            .text('Inventory')
+            .click(displayInventory)
+            .appendTo($('#toolbox'));
+
+        $("<style>")
+            .prop("type", "text/css")
+            .html(`.plugin-live-inventory-count {
  font-size: 10px;
  color: #FFFFBB;
  font-family: monospace;
@@ -953,12 +995,12 @@ function wrapper(plugin_info) {
  cursor: pointer;
  }
  `)
- 			.appendTo("head");
- 
+            .appendTo("head");
 
- 		$("<style>")
- 			.prop("type", "text/css")
- 			.html(`
+
+        $("<style>")
+            .prop("type", "text/css")
+            .html(`
 /* workaround */
 div#dialog-live-inventory {
     overflow-x: hidden !important;
@@ -1039,9 +1081,9 @@ div#dialog-live-inventory {
 }
 `).appendTo("head");
 
-$("<script>")
- 			.prop("type", "text/javascript")
- 			.html(`
+        $("<script>")
+            .prop("type", "text/javascript")
+            .html(`
 function openTab(evt, tabName) {
   // Declare all variables
   var i, tabcontent, tablinks;
@@ -1070,9 +1112,9 @@ function openTab(evt, tabName) {
 }
 `).appendTo("head");
 
-$("<script>")
- 			.prop("type", "text/javascript")
- 			.html(`
+        $("<script>")
+            .prop("type", "text/javascript")
+            .html(`
 function initInventoryChart() {
     var inventoryChartContainer = document.getElementById('inventoryChartContainer');
     var canvas = '<canvas id="inventoryChart" width="600" height="600"></canvas>';
@@ -1257,54 +1299,55 @@ function initInventoryChart() {
 }
 `).appendTo("head");
 
- 		window.addHook('portalDetailsUpdated', portalDetailsUpdated);
- 		window.addHook('portalAdded', addKeyToLayer);
- 		window.addHook('portalRemoved', removeKeyFromLayer);
- 		window.map.on('zoom', checkShowAllIcons);
- 		window.map.on('moveend', updateDistances);
-        
+        window.addHook('portalDetailsUpdated', portalDetailsUpdated);
+        window.addHook('portalAdded', addKeyToLayer);
+        window.addHook('portalRemoved', removeKeyFromLayer);
+        window.map.on('zoom', checkShowAllIcons);
+        window.map.on('moveend', updateDistances);
+
         let chartJsUrlLabelPlugin = "https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@0.4.0/dist/chartjs-plugin-datalabels.min.js";
         loadScript(chartJsUrlLabelPlugin);
- 	}
- 
- 	function delaySetup() {
- 		thisPlugin.layerGroup = new L.LayerGroup();
- 		window.addLayerGroup('Portal keys', thisPlugin.layerGroup, false);
- 		createIcons();
- 
- 		setTimeout(setup, 1000); // delay setup and thus requesting data, or we might encounter a server error
- 	}
- 	delaySetup.info = plugin_info; //add the script info data to the function as a property
- 
- 	if (window.iitcLoaded) {
- 		delaySetup();
- 	} else {
- 		if (!window.bootPlugins) {
- 			window.bootPlugins = [];
- 		}
- 		window.bootPlugins.push(delaySetup);
- 	}
- }
- 
- 
- (function () {
- 	const plugin_info = {};
- 	if (typeof GM_info !== 'undefined' && GM_info && GM_info.script) {
- 		plugin_info.script = {
- 			version: GM_info.script.version,
- 			name: GM_info.script.name,
- 			description: GM_info.script.description
- 		};
- 	}
- 	// Greasemonkey. It will be quite hard to debug
- 	if (typeof unsafeWindow != 'undefined' || typeof GM_info == 'undefined' || GM_info.scriptHandler != 'Tampermonkey') {
- 		// inject code into site context
- 		const script = document.createElement('script');
- 		script.appendChild(document.createTextNode('(' + wrapper + ')(' + JSON.stringify(plugin_info) + ');'));
- 		(document.body || document.head || document.documentElement).appendChild(script);
- 	} else {
- 		// Tampermonkey, run code directly
- 		wrapper(plugin_info);
- 	}
- })();
+    }
+
+    function delaySetup() {
+        thisPlugin.layerGroup = new L.LayerGroup();
+        window.addLayerGroup('Portal keys', thisPlugin.layerGroup, false);
+        createIcons();
+
+        setTimeout(setup, 1000); // delay setup and thus requesting data, or we might encounter a server error
+    }
+
+    delaySetup.info = plugin_info; //add the script info data to the function as a property
+
+    if (window.iitcLoaded) {
+        delaySetup();
+    } else {
+        if (!window.bootPlugins) {
+            window.bootPlugins = [];
+        }
+        window.bootPlugins.push(delaySetup);
+    }
+}
+
+
+(function () {
+    const plugin_info = {};
+    if (typeof GM_info !== 'undefined' && GM_info && GM_info.script) {
+        plugin_info.script = {
+            version: GM_info.script.version,
+            name: GM_info.script.name,
+            description: GM_info.script.description
+        };
+    }
+    // Greasemonkey. It will be quite hard to debug
+    if (typeof unsafeWindow != 'undefined' || typeof GM_info == 'undefined' || GM_info.scriptHandler != 'Tampermonkey') {
+        // inject code into site context
+        const script = document.createElement('script');
+        script.appendChild(document.createTextNode('(' + wrapper + ')(' + JSON.stringify(plugin_info) + ');'));
+        (document.body || document.head || document.documentElement).appendChild(script);
+    } else {
+        // Tampermonkey, run code directly
+        wrapper(plugin_info);
+    }
+})();
  

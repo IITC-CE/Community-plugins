@@ -1195,7 +1195,7 @@ Upload and contribute your Media to Mediagress. Requires a C.O.R.E. subscription
 
 *[Homepage](https://ingress.plus/media)* |
 *[Issue tracker](https://github.com/dedo1911/ingress-plus/issues)* |
-*Version:* 1.0.4
+*Version:* 1.0.5
 
 
   
@@ -1540,7 +1540,7 @@ Override the portal and links display levels for every zoom level. Using this me
 
 View inventory and shows portals you have keys from
 
-*Version:* 0.0.11
+*Version:* 0.0.12
 
 
   

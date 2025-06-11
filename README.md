@@ -740,13 +740,13 @@ This plugin gives you free choice to style colors and opacity for portals, links
 
 
 
-![preview](https://github.com/MaxEtMoritz/iitc-glympse/blob/master/images/Screenshot%202022-08-12%20163456.png)
+![preview](https://raw.githubusercontent.com/MaxEtMoritz/iitc-glympse/master/images/Screenshot%202022-08-12%20163456.png)
 
 View a Glympse tag directly on the Intel map.
 
 *[Homepage](https://github.com/MaxEtMoritz/iitc-glympse)* |
 *[Issue tracker](https://github.com/MaxEtMoritz/iitc-glympse/issues)* |
-*Version:* 0.0.2
+*Version:* 0.0.3
 
 
   

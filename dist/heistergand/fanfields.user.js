@@ -3,7 +3,7 @@
 // @name            Fan Fields 2 
 // @id              fanfields@heistergand
 // @category        Layer
-// @version         2.6.2.20240630
+// @version         2.6.3.20250611
 // @description     Calculate how to link the portals to create the largest tidy set of nested fields. Enable from the layer chooser.
 // @downloadURL     https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/heistergand/fanfields.user.js
 // @updateURL       https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/heistergand/fanfields.meta.js
@@ -50,6 +50,12 @@ function wrapper(plugin_info) {
     /* exported setup, changelog --eslint */
     let arcname = window.PLAYER.team === 'ENLIGHTENED' ? 'Arc' : '***';
     var changelog = [
+        {
+            version: '2.6.3',
+            changes: [
+                'FIX: Fixed some minor issues like spelling mistakes.',
+            ],
+        },
         {
             version: '2.6.2',
             changes: [
@@ -162,7 +168,7 @@ function wrapper(plugin_info) {
         {
             version: '2.2.7',
             changes: [
-                'FIX: Menue Buttons in Mobile version are now actually buttons.',
+                'FIX: Menu Buttons in Mobile version are now actually buttons.',
             ],
         },
         {
@@ -497,12 +503,12 @@ function wrapper(plugin_info) {
         }
         dialog({
             html: '<p>Using Drawtools, draw one or more polygons around the portals you want to work with. '+
-            'The Polygons can overlap each other or be completely seperated. All portals within the polygons '+
+            'The Polygons can overlap each other or be completely separated. All portals within the polygons '+
             'count to your planned fanfield.</p>'+
 
             '<p>From the layer selector, enable the 3 Fanfields layer for links, fields and numbers. '+
             'The fanfield will be calculated and shown in red links on the intel. Link directions are indicated '+
-            'by dashed links at the portal to lnk from.</p>'+
+            'by dashed links at the portal to link from.</p>'+
 
             '<p>The script selects an anchor portal from the hull of all selected portals. Use the Cycle&nbsp;Start '+
             'Button to select another hull portal as anchor.</p>'+
@@ -525,7 +531,7 @@ function wrapper(plugin_info) {
             'if you change directions. Also try different anchors to get one more field out of some portal '+
             'constellations.</p> '+
 
-            '<p>Copy your fanfield portals to bookmarks or drawtools to extend your possibilites to work '+
+            '<p>Copy your fanfield portals to bookmarks or drawtools to extend your possibilities to work '+
             'with the information.</p>'+
 
             '<hr noshade>'+
@@ -1528,6 +1534,7 @@ function wrapper(plugin_info) {
             var polygon, dtLayer, result = [];
             var i, filtered;
             var fanLayer;
+            var ll, k, p;
             for( dtLayer in dtLayers) {
                 fanLayer = dtLayers[dtLayer];
                 if (!(fanLayer instanceof L.GeodesicPolygon)) {

@@ -14,21 +14,15 @@
 // @grant          none
 // ==/UserScript==
 
-
-
 function wrapper(plugin_info) {
 	// ensure plugin framework is there, even if iitc is not yet loaded
 	if(typeof window.plugin !== 'function') window.plugin = function() {};
-
 	// PLUGIN START ////////////////////////////////////////////////////////
-
 	// use own namespace for plugin
 	window.plugin.drawBestLinkStar = function() {};
-
    	window.plugin.drawBestLinkStar.setupCallback = function() {
         $('#toolbox').append(' <a onclick="window.plugin.drawBestLinkStar.showModal(window.plugin.drawBestLinkStar.build)" title="Draw link star based on central portal given">Draw Best Link Star</a>');
 	};
-
     function createModal() {
         const modal = document.createElement('div');
         modal.id = 'linkStarModal';
@@ -41,7 +35,6 @@ function wrapper(plugin_info) {
         modal.style.padding = '20px';
         modal.style.boxShadow = '0 0 10px rgba(0,0,0,0.5)';
         modal.style.borderRadius = '10px';
-
         const modalContent = `
             <div id="linkStarModalContent">
 				<table>
@@ -70,7 +63,6 @@ function wrapper(plugin_info) {
         modal.innerHTML = modalContent;
         document.body.appendChild(modal);
     }
-
     function createResultsModal() {
         const resultsmodal = document.createElement('div');
         resultsmodal.id = 'linkStarResultsModal';
@@ -83,12 +75,10 @@ function wrapper(plugin_info) {
         resultsmodal.style.padding = '20px';
         resultsmodal.style.boxShadow = '0 0 10px rgba(0,0,0,0.5)';
         resultsmodal.style.borderRadius = '10px';
-
         const modalContent = `<div id="linkStarResultsModalContent"></div><BR><button id="linkStarCloseButton">CLOSE</button>`;
         resultsmodal.innerHTML = modalContent;
         document.body.appendChild(resultsmodal);
     }
-
     window.plugin.drawBestLinkStar.showModal=function(callback) {
         const modal = document.getElementById('linkStarModal');
         const submitButton = document.getElementById('submitButton');
@@ -97,7 +87,6 @@ function wrapper(plugin_info) {
             const searchRadius = parseInt(document.getElementById('searchRadius').value, 10);
             const maxLinks = parseInt(document.getElementById('maxPortals').value, 10);
             const ignoreCrossedLinks = document.getElementById('ignoreCrossedLinks').checked;
-
             if (isNaN(searchRadius) || isNaN(maxLinks) || searchRadius <= 0 || maxLinks <= 0) {
                 alert("Invalid input. Please enter positive numbers.");
                 return;
@@ -108,7 +97,6 @@ function wrapper(plugin_info) {
                 maxLinks,
                 ignoreCrossedLinks
             });
-
         };
         let bestPortal = getSelectedPortal(); // Use selected portal if available
 		if (bestPortal) {
@@ -119,7 +107,6 @@ function wrapper(plugin_info) {
 		}
         modal.style.display = 'block';
     }
-
     function showResultsModal(content) {
         const resultsmodal = document.getElementById('linkStarResultsModal');
         const resultscontent = document.getElementById('linkStarResultsModalContent');
@@ -130,7 +117,6 @@ function wrapper(plugin_info) {
         };
         resultsmodal.style.display = 'block';
     }
-
 	//Find all portals that are visible
 	function getVisiblePortals() {
 		const bounds = map.getBounds();
@@ -143,7 +129,6 @@ function wrapper(plugin_info) {
 		}
 		return visiblePortals;
 	}
-
 	function getSelectedPortal() {
 		const selectedPortal = window.selectedPortal;
 		if (selectedPortal) {
@@ -151,7 +136,6 @@ function wrapper(plugin_info) {
 		}
 		return null;
 	}
-
 	//Find the best portal to use for the center
 	function findBestPortal(visiblePortals, radius) {
 		let bestPortal = null;
@@ -189,13 +173,11 @@ function wrapper(plugin_info) {
         }
         return distances;
     }
-
     function findOptimalPath(distanceMatrix) {
         const n = distanceMatrix.length;
         const visited = new Array(n).fill(false);
         const path = [0]; // Start from the first portal
         visited[0] = true;
-
         for (let i = 1; i < n; i++) {
             let last = path[path.length - 1];
             let nearest = -1;
@@ -209,21 +191,19 @@ function wrapper(plugin_info) {
             path.push(nearest);
             visited[nearest] = true;
         }
-
         return path;
     }
-
     function doLinesIntersect(line1, line2) {
         const [p1, p2] = line1;
         const [q1, q2] = line2;
-
         function ccw(A, B, C) {
             return (C.lat - A.lat) * (B.lng - A.lng) > (B.lat - A.lat) * (C.lng - A.lng);
         }
-
         return (ccw(p1, q1, q2) !== ccw(p2, q1, q2)) && (ccw(p1, p2, q1) !== ccw(p1, p2, q2));
     }
-
+    function pointsAreEqual(p1, p2) {
+        return p1.lat === p2.lat && p1.lng === p2.lng;
+    }
     function isLinkCrossingAnyExistingLinks(link) {
         const existingLinks = window.links;
         for (const guid in existingLinks) {
@@ -231,28 +211,45 @@ function wrapper(plugin_info) {
             const latLngs = existingLink.getLatLngs();
             const existingLine = [latLngs[0], latLngs[1]];
 
+            // Skip if any endpoints are shared
+            if (
+                pointsAreEqual(link[0], existingLine[0]) ||
+                pointsAreEqual(link[0], existingLine[1]) ||
+                pointsAreEqual(link[1], existingLine[0]) ||
+                pointsAreEqual(link[1], existingLine[1])
+            ) {
+                continue;
+            }
+
             if (doLinesIntersect(link, existingLine)) {
                 return true;
             }
         }
         return false;
     }
-
-    function isPossibleLinkCrossingAnyExistingLinks(portalALatLngs,portalBLatLngs) {
+    function isPossibleLinkCrossingAnyExistingLinks(portalALatLngs, portalBLatLngs) {
         const existingLinks = window.links;
         for (const guid in existingLinks) {
             const existingLink = existingLinks[guid];
             const latLngs = existingLink.getLatLngs();
-            const existingLine = [latLngs[0],latLngs[1]];
+            const existingLine = [latLngs[0], latLngs[1]];
 
-            if (doLinesIntersect([portalALatLngs,portalBLatLngs], existingLine)) {
+            // Skip if any endpoints are shared
+            if (
+                pointsAreEqual(portalALatLngs, existingLine[0]) ||
+                pointsAreEqual(portalALatLngs, existingLine[1]) ||
+                pointsAreEqual(portalBLatLngs, existingLine[0]) ||
+                pointsAreEqual(portalBLatLngs, existingLine[1])
+            ) {
+                continue;
+            }
+
+            if (doLinesIntersect([portalALatLngs, portalBLatLngs], existingLine)) {
                 return true;
             }
         }
         return false;
     }
-
-
 	function generateCSV(portals,path,bestPortal,distanceMatrix) {
 		let csvContent = "data:text/csv;charset=utf-8,\"Name\",\"Lat\",\"Lng\",\"URL\",\"Distance to Next (meters)\"\n";
 		path.forEach((index, i) => {
@@ -267,7 +264,6 @@ function wrapper(plugin_info) {
 			const distanceToNext = distanceMatrix[index][nextIndex].toFixed(2); // Distance to the next portal
 			csvContent += `"${portalName}","${portalLatLng.lat}","${portalLatLng.lng}","${portalUrl}","${distanceToNext}"\n`;
 		});
-
 		const encodedUri = encodeURI(csvContent);
 		const link = document.createElement("a");
 		link.setAttribute("href", encodedUri);
@@ -275,8 +271,6 @@ function wrapper(plugin_info) {
 		document.body.appendChild(link);
 		return link;
 	}
-
-
     function calculateTotalDistance(path, distanceMatrix) {
         let totalDistance = 0;
         for (let i = 0; i < path.length - 1; i++) {
@@ -285,7 +279,6 @@ function wrapper(plugin_info) {
         totalDistance += distanceMatrix[path[path.length - 1]][path[0]]; // Return to start
         return totalDistance;
     }
-
 	//Build the link star
 	window.plugin.drawBestLinkStar.build = function(config){
         if (!window.plugin.drawTools) {
@@ -312,7 +305,6 @@ function wrapper(plugin_info) {
 			return;
 		}
 		const bestPortalLatLng = bestPortal.getLatLng();
-
 		// Collect nearby portals for the best portal
 		const nearbyPortals = [];
 		for (const guid in window.portals) {
@@ -325,7 +317,6 @@ function wrapper(plugin_info) {
 				}
 			}
 		}
-
 		// Limit to the maximum number of links
 		nearbyPortals.sort((a, b) => bestPortalLatLng.distanceTo(a.getLatLng()) - bestPortalLatLng.distanceTo(b.getLatLng()));
 		const selectedPortals = nearbyPortals.slice(0, maxLinks);
@@ -344,28 +335,23 @@ function wrapper(plugin_info) {
                 { lat: bestPortalLatLng.lat, lng: bestPortalLatLng.lng },
                 { lat: portal.getLatLng().lat, lng: portal.getLatLng().lng }
             ];
-
             if (!isLinkCrossingAnyExistingLinks(linkLatLngs) || ignoreCrossedLinks) {
                 drawData.push(link);
             }
         });
-
 		// Add links to DrawTools
 		window.plugin.drawTools.drawnItems.clearLayers();
 		drawData.forEach(link => {
 			const layer = L.polyline(link.latLngs, { color: link.color || '#A020F0' });
 			window.plugin.drawTools.drawnItems.addLayer(layer);
 		});
-
         // Calculate the optimal path
         const distanceMatrix = calculateDistanceMatrix(selectedPortals);
         const optimalPath = findOptimalPath(distanceMatrix);
         const totalDistance = calculateTotalDistance(optimalPath, distanceMatrix)/1000;
 		const totalMiles = totalDistance * 0.621371;
-
         // Generate CSV
         const csvLink = generateCSV(selectedPortals, optimalPath,bestPortal,distanceMatrix);
-
         const portalName = bestPortal.options.data.title;
 		const portalUrl = `https://intel.ingress.com/?pll=${bestPortal.getLatLng().lat},${bestPortal.getLatLng().lng}`;
 		let message = '';
@@ -387,7 +373,6 @@ function wrapper(plugin_info) {
         `;
         showResultsModal(message);
 	}
-
 	//Run setup
 	var setup = function() {
 		window.plugin.drawBestLinkStar.setupCallback();
@@ -406,23 +391,19 @@ function wrapper(plugin_info) {
 		button.style.zIndex = '9999';
 		button.onclick = () => window.plugin.drawBestLinkStar.showModal(window.plugin.drawBestLinkStar.build);
 		document.body.appendChild(button);
-
 		// Initialize modal dialog for input
 		createModal();
         createResultsModal();
 	};
 	// PLUGIN END //////////////////////////////////////////////////////////
-
 	setup.info = plugin_info; //add the script info data to the function as a property
 	if(!window.bootPlugins){
 		window.bootPlugins = [];
 	}
 	window.bootPlugins.push(setup);
-
 	// if IITC has already booted, immediately run the 'setup' function
 	if(window.iitcLoaded && typeof setup === 'function') setup();
 } // wrapper end
-
 // inject code into site context
 var script = document.createElement('script');
 var info = {};

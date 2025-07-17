@@ -1,0 +1,6 @@
+downloadURL:  https://raw.github.com/Xelminoe/Microfield-Checker/main/Microfield-Checker.user.js
+updateURL:  https://raw.github.com/Xelminoe/Microfield-Checker/main/Microfield-Checker.user.js
+depends: draw-tools@breunigs
+recommends:  keepalldata@DanielOnDiordna
+preview:  https://raw.github.com/Xelminoe/Microfield-Checker/main/images/example00.jpg
+issueTracker: https://github.com/Xelminoe/Microfield-Checker/issues

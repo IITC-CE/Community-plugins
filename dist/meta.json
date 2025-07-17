@@ -1468,6 +1468,46 @@
       "updatedAt": "2022-08-16T21:52:27.000Z"
     },
     {
+      "author": "Xelminoe",
+      "id": "Microfield-checker@Xelminoe",
+      "name": "Microfield Checker",
+      "version": "1.0.5",
+      "category": "Layer",
+      "description": "Check optimal microfields inside a triangle. Ideal for nearly-completed or densely built microfields.",
+      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Xelminoe/Microfield-checker.user.js",
+      "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Xelminoe/Microfield-checker.meta.js",
+      "depends": [
+        "draw-tools@breunigs"
+      ],
+      "recommends": [
+        "keepalldata@DanielOnDiordna"
+      ],
+      "preview": "https://raw.github.com/Xelminoe/Microfield-Checker/main/images/example00.jpg",
+      "issueTracker": "https://github.com/Xelminoe/Microfield-Checker/issues",
+      "match": [
+        "https://intel.ingress.com/*"
+      ],
+      "grant": [
+        "none"
+      ],
+      "id_hash": "Microfield-checker-by-Xelminoe",
+      "updatedAt": "2025-07-17T09:36:52.041Z",
+      "_depends_links": [
+        {
+          "id": "draw-tools@breunigs",
+          "hash": "draw-tools-by-breunigs",
+          "source": "core"
+        }
+      ],
+      "_recommends_links": [
+        {
+          "id": "keepalldata@DanielOnDiordna",
+          "hash": "keepalldata-by-DanielOnDiordna",
+          "source": "community"
+        }
+      ]
+    },
+    {
       "author": "Zaso",
       "name": "Bring Portals To Front",
       "category": "Tweaks",
@@ -2070,7 +2110,7 @@
         "none"
       ],
       "id_hash": "fanfields-by-heistergand",
-      "updatedAt": "2025-06-12T01:18:48.895Z",
+      "updatedAt": "2025-06-12T01:18:52.000Z",
       "_depends_links": [
         {
           "id": "draw-tools@breunigs",

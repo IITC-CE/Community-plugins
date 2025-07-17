@@ -2,7 +2,7 @@
 
 A collection of amazing plugins made by community.
 
-There are now 118 plugins from 36 authors in the collection.
+There are now 119 plugins from 37 authors in the collection.
 
 > Note: You must install IITC-CE on your [desktop](https://iitc.app/download_desktop)
 or [mobile device](https://iitc.app/download_mobile) to use IITC plugins.
@@ -772,6 +772,21 @@ Highlights level 19 cells where portal limit is reached, in order to see where y
 
 *Depends*: s2celldrawer@wintervorst  |
 *Version:* 0.0.8.20241120.013370
+
+
+  
+### [Microfield Checker](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Xelminoe/Microfield-checker.user.js) by Xelminoe
+
+
+
+![preview](https://raw.github.com/Xelminoe/Microfield-Checker/main/images/example00.jpg)
+
+Check optimal microfields inside a triangle. Ideal for nearly-completed or densely built microfields.
+
+*Depends*: draw-tools@breunigs  |
+*Recommends*: keepalldata@DanielOnDiordna  |
+*[Issue tracker](https://github.com/Xelminoe/Microfield-Checker/issues)* |
+*Version:* 1.0.5
 
 
   

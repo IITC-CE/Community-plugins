@@ -2,7 +2,7 @@
 
 A collection of amazing plugins made by community.
 
-There are now 119 plugins from 37 authors in the collection.
+There are now 120 plugins from 37 authors in the collection.
 
 > Note: You must install IITC-CE on your [desktop](https://iitc.app/download_desktop)
 or [mobile device](https://iitc.app/download_mobile) to use IITC plugins.
@@ -598,6 +598,20 @@ Adds scanner link to IITC
 Adds scanner link (copy mode) to IITC
 
 *Version:* 0.2.1
+
+
+  
+### [VRBB L8 Maximizer](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Xelminoe/VRBB-l8-maximizer.user.js) by Xelminoe
+
+
+
+
+
+Assist planning L8 resonator max-out using VRBB — e.g. 3 agents from the same side build an L8 portal in 15 minutes.
+
+*[Homepage](https://xelminoe.github.io/VRBB-L8-Maximizer/)* |
+*[Issue tracker](https://github.com/Xelminoe/VRBB-L8-Maximizer/issues)* |
+*Version:* 1.0
 
 
   

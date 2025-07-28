@@ -121,7 +121,7 @@ Add-on to only display portals for visible/enabled layers, a fix for Unclaimed/P
 
 Bring ameba64/ingress-items icons into IITC
 
-*Version:* 0.1.2
+*Version:* 0.1.3
 
 
   

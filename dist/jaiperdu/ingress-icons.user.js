@@ -2,7 +2,7 @@
 // @author         jaiperdu
 // @name           Ingress Icons
 // @category       Appearance
-// @version        0.1.2
+// @version        0.1.3
 // @description    Bring ameba64/ingress-items icons into IITC
 // @id             ingress-icons@jaiperdu
 // @namespace      https://github.com/IITC-CE/ingress-intel-total-conversion
@@ -21,7 +21,7 @@ if(typeof window.plugin !== 'function') window.plugin = function() {};
 //PLUGIN AUTHORS: writing a plugin outside of the IITC build environment? if so, delete these lines!!
 //(leaving them in place might break the 'About IITC' page or break update checks)
 plugin_info.buildName = 'lejeu';
-plugin_info.dateTimeVersion = '2022-11-13-184151';
+plugin_info.dateTimeVersion = '2025-07-27-171202';
 plugin_info.pluginId = 'ingress-icons';
 //END PLUGIN AUTHORS NOTE
 
@@ -101,12 +101,14 @@ function updateMobile(data) {
   var el = $('#updatestatus .mods');
   if (el) el.remove();
 
-  var guid = data.selectedPortalGuid;
+  var guid = data.selectedPortalGuid || data.guid;
+  if (guid !== window.selectedPortal) return;
+
   if (!window.portals[guid]) return;
 
-  var details = window.portalDetail.get(guid);
+  var details = window.portals[guid].getDetails();
   var t = '';
-  if (details) {
+  if (details && details.mods) {
     getModList(details).forEach(function (item) {
       t += '<div' + (item.tooltip.length ? ' title="' + item.tooltip + '"' : '') + ' class="' + item.class + '"></div>';
     });
@@ -214,7 +216,10 @@ function setup() {
 }').appendTo('head');
 
   window.getModDetails = getModDetails;
-  if (window.isSmartphone()) window.addHook('portalSelected', updateMobile);
+  if (window.isSmartphone()) {
+    window.addHook('portalSelected', updateMobile);
+    window.addHook('portalDetailLoaded', updateMobile);
+  }
 }
 
 setup.info = plugin_info; //add the script info data to the function as a property

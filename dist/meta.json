@@ -61,7 +61,7 @@
       "author": "57Cell",
       "id": "fieldplanner@57Cell",
       "name": "57Cell's Field Planner",
-      "version": "2.1.8.20240202",
+      "version": "2.1.9.20250810",
       "description": "Plugin for planning fields in IITC",
       "category": "Layer",
       "namespace": "https://github.com/jonatkins/ingress-intel-total-conversion",
@@ -94,7 +94,7 @@
         "none"
       ],
       "id_hash": "fieldplanner-by-57Cell",
-      "updatedAt": "2024-02-06T00:29:14.000Z",
+      "updatedAt": "2025-08-11T01:27:58.761Z",
       "_recommends_links": [
         {
           "id": "draw-tools@breunigs",
@@ -2316,7 +2316,7 @@
         "none"
       ],
       "id_hash": "ingress-icons-by-jaiperdu",
-      "updatedAt": "2025-07-28T01:40:50.316Z"
+      "updatedAt": "2025-07-28T01:40:54.000Z"
     },
     {
       "author": "jaiperdu",

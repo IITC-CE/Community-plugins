@@ -2,7 +2,7 @@
 // @author          57Cell
 // @id              fieldplanner@57Cell
 // @name            57Cell's Field Planner
-// @version         2.1.8.20240202
+// @version         2.1.9.20250810
 // @description     Plugin for planning fields in IITC
 // @category        Layer
 // @namespace       https://github.com/jonatkins/ingress-intel-total-conversion
@@ -29,8 +29,14 @@
 
 
 pluginName = "57Cell's Field Planner";
-version = "2.1.8";
+version = "2.1.9";
 changeLog = [
+    {
+        version: '2.1.9.20250810',
+        changes: [
+            'FIX: Reflect changes in how portal details are accessed (57Cell)',
+        ],
+    },
     {
         version: '2.1.8.20240202',
         changes: [
@@ -1517,7 +1523,7 @@ function wrapper(plugin_info) {
 
 
         // Ignore if already selected
-        let portalDetails = window.portalDetail.get(data.selectedPortalGuid);
+        let portalDetails = window.portals[data.selectedPortalGuid]._details;
         if (portalDetails === undefined) return;
         if (self.selectedPortals.some(({guid}) => guid === data.selectedPortalGuid)) return;
 

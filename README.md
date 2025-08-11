@@ -656,7 +656,7 @@ Plugin for planning fields in IITC
 *Recommends*: draw-tools@breunigs draw-tools-plus@zaso  |
 *[Homepage](https://www.youtube.com/@57Cell)* |
 *[Issue tracker](https://github.com/mike40033/iitc-57Cell/issues)* |
-*Version:* 2.1.8.20240202
+*Version:* 2.1.9.20250810
 
 
   

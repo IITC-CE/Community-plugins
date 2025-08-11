@@ -2,7 +2,7 @@
 // @author          57Cell
 // @id              fieldplanner@57Cell
 // @name            57Cell's Field Planner
-// @version         2.1.8.20240202
+// @version         2.1.9.20250810
 // @description     Plugin for planning fields in IITC
 // @category        Layer
 // @namespace       https://github.com/jonatkins/ingress-intel-total-conversion

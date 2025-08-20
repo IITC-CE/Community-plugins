@@ -94,7 +94,7 @@
         "none"
       ],
       "id_hash": "fieldplanner-by-57Cell",
-      "updatedAt": "2025-08-11T01:27:58.761Z",
+      "updatedAt": "2025-08-11T01:28:25.000Z",
       "_recommends_links": [
         {
           "id": "draw-tools@breunigs",
@@ -2226,7 +2226,7 @@
       "author": "jaiperdu",
       "name": "COMM Filter Tab",
       "category": "COMM",
-      "version": "0.4.12",
+      "version": "0.4.13",
       "description": "Show virus in the regular Comm and add a new tab with portal/player name filter and event type filter.",
       "id": "comm-filter-tab@jaiperdu",
       "namespace": "https://github.com/IITC-CE/ingress-intel-total-conversion",
@@ -2239,7 +2239,7 @@
         "none"
       ],
       "id_hash": "comm-filter-tab-by-jaiperdu",
-      "updatedAt": "2024-02-25T00:32:24.000Z"
+      "updatedAt": "2025-08-20T01:15:43.513Z"
     },
     {
       "author": "jaiperdu",

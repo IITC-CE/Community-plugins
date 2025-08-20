@@ -2,7 +2,7 @@
 // @author         jaiperdu
 // @name           COMM Filter Tab
 // @category       COMM
-// @version        0.4.12
+// @version        0.4.13
 // @description    Show virus in the regular Comm and add a new tab with portal/player name filter and event type filter.
 // @id             comm-filter-tab@jaiperdu
 // @namespace      https://github.com/IITC-CE/ingress-intel-total-conversion
@@ -20,7 +20,7 @@ if(typeof window.plugin !== 'function') window.plugin = function() {};
 //PLUGIN AUTHORS: writing a plugin outside of the IITC build environment? if so, delete these lines!!
 //(leaving them in place might break the 'About IITC' page or break update checks)
 plugin_info.buildName = 'lejeu';
-plugin_info.dateTimeVersion = '2024-02-24-075816';
+plugin_info.dateTimeVersion = '2025-08-19-120857';
 plugin_info.pluginId = 'comm-filter-tab';
 //END PLUGIN AUTHORS NOTE
 
@@ -77,9 +77,11 @@ commFilter.rules = [
   { type: 'resonator', plain: 'PLAYER| deployed a Resonator on |PORTAL' },
   { type: 'destroy field', plain: 'PLAYER| destroyed a Control Field @|PORTAL| -|NUMBER| MUs' }, // dropped ↓ ?
   { type: 'destroy field', plain: 'Agent |PLAYER| destroyed the |FACTION| Control Field @|PORTAL| -|NUMBER| MUs' },
+  { type: 'destroy field', plain: 'The |FACTION| Control Field @|PORTAL| has decayed -|NUMBER| MUs' },
   { type: 'destroy resonator', plain: 'PLAYER| destroyed a Resonator on |PORTAL' },
   { type: 'destroy link', plain: 'PLAYER| destroyed the Link |PORTAL| to |PORTAL' }, // dropped ↓ ?
   { type: 'destroy link', plain: 'Agent |PLAYER| destroyed the |FACTION| Link |PORTAL| to |PORTAL' },
+  { type: 'destroy link', plain: 'The |FACTION| Link from |PORTAL| to |PORTAL| has decayed' },
   { type: 'link', plain: 'PLAYER| linked |PORTAL| to |PORTAL' }, // dropped ↓ ?
   { type: 'link', plain: 'FACTION| agent |PLAYER| linked from |PORTAL| to |PORTAL' },
   { type: 'recurse', plain: 'PLAYER| Recursed' },

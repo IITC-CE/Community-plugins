@@ -2,7 +2,7 @@
 
 A collection of amazing plugins made by community.
 
-There are now 120 plugins from 37 authors in the collection.
+There are now 121 plugins from 38 authors in the collection.
 
 > Note: You must install IITC-CE on your [desktop](https://iitc.app/download_desktop)
 or [mobile device](https://iitc.app/download_mobile) to use IITC plugins.
@@ -1311,6 +1311,21 @@ This is a spam filter plugin which filters out SPAM from Comm messages.
 Add a To Do List.
 
 *Version:* 0.0.3.20200216.174030
+
+
+  
+### [Traveling Agent](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/yavidor/traveling-agent.user.js) by yavidor
+
+
+
+
+
+Calculates the best route between the player&#39;s location and a series of portals
+
+*Depends*: bookmarks@ZasoGD draw-tools-plus@zaso  |
+*[Homepage](https://github.com/yavidor/traveling-agent-plugin)* |
+*[Issue tracker](https://github.com/yavidor/traveling-agent-plugin/issues)* |
+*Version:* 0.0.2
 
 
   

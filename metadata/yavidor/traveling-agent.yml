@@ -1,0 +1,8 @@
+updateURL: https://raw.githubusercontent.com/yavidor/traveling-agent-plugin/main/dist/traveling-agent.user.js
+downloadURL: https://raw.githubusercontent.com/yavidor/traveling-agent-plugin/main/dist/traveling-agent.user.js
+author: yavidor
+homepageURL: https://github.com/yavidor/traveling-agent-plugin
+issueTracker: https://github.com/yavidor/traveling-agent-plugin/issues
+depends: 
+  - bookmarks@ZasoGD
+  - draw-tools-plus@zaso

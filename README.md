@@ -2,7 +2,7 @@
 
 A collection of amazing plugins made by community.
 
-There are now 121 plugins from 38 authors in the collection.
+There are now 122 plugins from 39 authors in the collection.
 
 > Note: You must install IITC-CE on your [desktop](https://iitc.app/download_desktop)
 or [mobile device](https://iitc.app/download_mobile) to use IITC plugins.
@@ -550,6 +550,18 @@ Counts portals by level and faction inside polygons or search result.
 
 *Depends*: draw-tools@breunigs  |
 *Version:* 2.2.5.20221130.2310
+
+
+  
+### [Portal Detail Mods](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Whomiga/portaldetailsmod.user.js) by Whomiga
+
+
+
+
+
+Show Mod Pictures in Portal Details
+
+*Version:* 0.0.2
 
 
   

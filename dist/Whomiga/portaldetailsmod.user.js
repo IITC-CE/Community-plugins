@@ -3,7 +3,7 @@
 // @id             portaldetailsmod@Whomiga
 // @name           Portal Detail Mods
 // @category       Info
-// @version        0.0.1
+// @version        0.0.2
 // @description    Show Mod Pictures in Portal Details
 // @downloadURL    https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Whomiga/portaldetailsmod.user.js
 // @updateURL      https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Whomiga/portaldetailsmod.meta.js
@@ -22,14 +22,14 @@ function wrapper(plugin_info) {
     var self = window.plugin.PortalDetailMods;
     self.id = 'PortalDetailMods';
     self.title = 'PortalDetailMods';
-    self.version = '0.0.1.20250930.203000';
+    self.version = '0.0.2.20251003.201700';
     self.author = 'Whomiga';
 
     // Name of the IITC build for first-party plugins
     plugin_info.buildName = "PortalDetailMods";
 
     // Datetime-derived version of the plugin
-    plugin_info.dateTimeVersion = "20250930.200030";
+    plugin_info.dateTimeVersion = "20251003.201700";
 
     // ID/name of the plugin
     plugin_info.pluginId = "portalDetailMods";
@@ -172,6 +172,7 @@ function wrapper(plugin_info) {
         imagemodeselect.value = self.settings.imageMode;
         imagemodeselect.addEventListener('change', function() {
             self.settings.imageMode = this.value;
+            mods_PortalDetails();
         });
         
 //
@@ -233,14 +234,25 @@ function wrapper(plugin_info) {
 //  Place Mods Graphics in Portal Details box
 //        
     function update_PortalDetails(p) {
+        mods_PortalDetails();
+	}
+
+    // Update/Change Mods on Portal Details
+    function mods_PortalDetails() {
         mods = document.querySelectorAll('.mods span');
         if (mods) {
             Array.from(mods).map(el => {
                 el.title = el.title.replace(/rare/g, "Rare");
                 el.style = '';
                 el.style.display = "inline-block";
-                let key = (el.textContent.toUpperCase().replace(/ /g, '_'));
+                if (el.dataset.key == undefined) {
+                    key = el.textContent.toUpperCase().replace(/ /g, '_');
+                }
+                else {
+                    key = el.dataset.key;
+                }
                 if (key != '') {
+                    el.dataset.key = key;
                     let itemimage = document.createElement('img');
                     var image = mods_getImageByKey(key,self.settings.imageMode);
                     itemimage.src = image;
@@ -251,7 +263,7 @@ function wrapper(plugin_info) {
                 }
             });
         }
-	}
+    }
 
 //
 // LocalStorage Related Functions

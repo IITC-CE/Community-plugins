@@ -3,6 +3,7 @@ downloadURL: https://github.com/Heistergand/fanfields2/raw/master/iitc_plugin_fa
 issueTracker:  https://github.com/Heistergand/fanfields2/issues
 homepageURL:  https://github.com/Heistergand/fanfields2/
 depends: draw-tools@breunigs
+name: Fan Fields 2
 recommends: 
   - bookmarks@ZasoGD
   - draw-tools-plus@zaso

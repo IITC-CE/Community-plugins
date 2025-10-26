@@ -474,7 +474,7 @@ Quickly replace one portal with another in Draw Tools
 
 Quickly show a list of details for your favorite list of portals.
 
-*Version:* 0.1.6.20210724.002500
+*Version:* 1.0.0.20251025.232300
 
 
   
@@ -557,11 +557,11 @@ Counts portals by level and faction inside polygons or search result.
 
 
 
-
+![preview](https://raw.githubusercontent.com/Whomiga/iitc-plugin-portaldetailsmods/refs/heads/master/preview.png)
 
 Show Mod Pictures in Portal Details
 
-*Version:* 0.0.2
+*Version:* 0.0.4
 
 
   
@@ -734,7 +734,7 @@ Shows drone flight distance between portals
 
 
   
-### [Fan Fields 2 ](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/heistergand/fanfields.user.js) by Heistergand
+### [Fan Fields 2](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/heistergand/fanfields.user.js) by Heistergand
 
 
 
@@ -746,7 +746,7 @@ Calculate how to link the portals to create the largest tidy set of nested field
 *Recommends*: bookmarks@ZasoGD draw-tools-plus@zaso liveInventory@DanielOnDiordna keys@xelio  |
 *[Homepage](https://github.com/Heistergand/fanfields2/)* |
 *[Issue tracker](https://github.com/Heistergand/fanfields2/issues)* |
-*Version:* 2.6.3.20250611
+*Version:* 2.6.4.20250912
 
 
   

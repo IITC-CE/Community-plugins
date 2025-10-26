@@ -1,9 +1,8 @@
 // ==UserScript==
 // @author          Heistergand
-// @name            Fan Fields 2 
 // @id              fanfields@heistergand
 // @category        Layer
-// @version         2.6.3.20250611
+// @version         2.6.4.20250912
 // @description     Calculate how to link the portals to create the largest tidy set of nested fields. Enable from the layer chooser.
 // @downloadURL     https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/heistergand/fanfields.user.js
 // @updateURL       https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/heistergand/fanfields.meta.js
@@ -16,6 +15,7 @@
 // @depends         draw-tools@breunigs
 // @recommends      bookmarks@ZasoGD|draw-tools-plus@zaso|liveInventory@DanielOnDiordna|keys@xelio
 // @preview         https://raw.githubusercontent.com/Heistergand/fanfields2/master/FanFields2.png
+// @name            Fan Fields 2
 // @match           https://intel.ingress.com/*
 // @include         https://intel.ingress.com/*
 // @grant           none
@@ -50,6 +50,12 @@ function wrapper(plugin_info) {
     /* exported setup, changelog --eslint */
     let arcname = window.PLAYER.team === 'ENLIGHTENED' ? 'Arc' : '***';
     var changelog = [
+        {
+            version: '2.6.4',
+            changes: [
+                'FIX: Fixed compatibility with Inventory Overview plugin.',
+            ],
+        },
         {
             version: '2.6.3',
             changes: [
@@ -641,8 +647,10 @@ function wrapper(plugin_info) {
             let availableKeysText = '';
             let availableKeys = 0;
             if (window.plugin.keys || window.plugin.LiveInventory) {
-                if (window.plugin.LiveInventory) {
+                if (window.plugin.LiveInventory.keyGuidCount) {
                     availableKeys = window.plugin.LiveInventory.keyGuidCount[portal.guid] || 0;
+                } else if (window.plugin.LiveInventory.keyCount) {
+                    availableKeys = window.plugin.LiveInventory.keyCount.find(obj => obj.portalCoupler.portalGuid === portal.guid)?.count || 0;
                 } else {
                     availableKeys = window.plugin.keys.keys[portal.guid] || 0;
                 }

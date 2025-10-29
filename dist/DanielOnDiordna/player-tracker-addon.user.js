@@ -2,10 +2,10 @@
 // @author         DanielOnDiordna
 // @name           Player Tracker add-on
 // @category       Addon
-// @version        2.0.0.20250424.223800
+// @version        2.0.1.20251028.233800
 // @updateURL      https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/player-tracker-addon.meta.js
 // @downloadURL    https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/player-tracker-addon.user.js
-// @description    [danielondiordna-2.0.0.20250424.223800] Add-on to the player tracker plugin: Adjust history limit of 3 hours to another value. Toggle name labels, last action time, toggle/adjust player colors, focus on players, display 1 single player. Integrated Marker Label plugin and Spectrum Colorpicker 1.8.1 plugin. Supports Machina _̶̱̍_̴̳͉̆̈́M̷͔̤͒Ą̷̍C̴̼̕ͅH̶̹͕̼̾Ḭ̵̇̾̓N̵̺͕͒̀̍Ä̴̞̰́_̴̦̀͆̓_̷̣̈́  player.
+// @description    [danielondiordna-2.0.1.20251028.233800] Add-on to the player tracker plugin: Adjust history limit of 3 hours to another value. Toggle name labels, last action time, toggle/adjust player colors, focus on players, display 1 single player. Integrated Marker Label plugin and Spectrum Colorpicker 1.8.1 plugin. Supports Machina _̶̱̍_̴̳͉̆̈́M̷͔̤͒Ą̷̍C̴̼̕ͅH̶̹͕̼̾Ḭ̵̇̾̓N̵̺͕͒̀̍Ä̴̞̰́_̴̦̀͆̓_̷̣̈́  player.
 // @id             player-tracker-addon@DanielOnDiordna
 // @namespace      https://softspot.nl/ingress/
 // @depends        player-activity-tracker@breunigs
@@ -23,10 +23,13 @@ function wrapper(plugin_info) {
     var self = window.plugin.playerTrackerAddon;
     self.id = 'playerTrackerAddon';
     self.title = 'Player Tracker add-on';
-    self.version = '2.0.0.20250424.223800';
+    self.version = '2.0.1.20251028.233800';
     self.author = 'DanielOnDiordna';
     self.changelog = `
 Changelog:
+
+version 2.0.1.20251028.233800
+- fix drawData for Player tracker 0.14.0.20251027.080601 (part of IITC beta 0.41.0)
 
 version 2.0.0.20250424.223800
 - version 2 with a lot of changes to the inner workings of the plugin
@@ -394,14 +397,16 @@ version 0.0.1.20181030.212900
         // 0.39.1: var m = L.marker(gllfe(last), { icon: icon, opacity: absOpacity, desc: popup[0], title: tooltip });
         // 0.40.0: const markerPos = gllfe(last);
         //         var m = L.marker(markerPos, { icon: icon, opacity: absOpacity, desc: popup[0], title: tooltip });
+        // 0.14.0 beta:
+        //         var m = new L.Marker(markerPos, { icon: icon, opacity: absOpacity, desc: popup[0], title: tooltip });
         if (drawData_override.match(/const markerPos/)) drawData_override = replaceText(drawData_override,/ +const markerPos = gllfe\(last\);\n/,'');
-        drawData_override = replaceText(drawData_override,/( +)(var m = L.marker)/,`
+        drawData_override = replaceText(drawData_override,/( +)(var m = )(new |)(L\.[mM]arker)/,`
 $1let markerPos = gllfe(last);
 $1if (${self.namespace}settings.showcenter) {
 $1$1let screen = window.map.getBounds();
 $1$1if (screen.contains(markerPos)) markerPos = window.L.latLng(screen._southWest.lat + (screen._northEast.lat - screen._southWest.lat)/2,screen._southWest.lng + (screen._northEast.lng - screen._southWest.lng)/2);
 $1}
-$1$2`);
+$1$2$3$4`);
 
         replaceFunction('window.plugin.playerTracker.drawData',drawData_override);
     };

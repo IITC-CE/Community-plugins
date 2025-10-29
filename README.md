@@ -93,7 +93,7 @@ Change Pan Control to pan whole screens
 Add-on to the player tracker plugin: Adjust history limit of 3 hours to another value. Toggle name labels, last action time, toggle/adjust player colors, focus on players, display 1 single player. Integrated Marker Label plugin and Spectrum Colorpicker 1.8.1 plugin. Supports Machina _̶̱̍_̴̳͉̆̈́M̷͔̤͒Ą̷̍C̴̼̕ͅH̶̹͕̼̾Ḭ̵̇̾̓N̵̺͕͒̀̍Ä̴̞̰́_̴̦̀͆̓_̷̣̈́  player.
 
 *Depends*: player-activity-tracker@breunigs  |
-*Version:* 2.0.0.20250424.223800
+*Version:* 2.0.1.20251028.233800
 
 
   

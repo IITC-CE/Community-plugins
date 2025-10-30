@@ -2,7 +2,7 @@
 // @author          Heistergand
 // @id              fanfields@heistergand
 // @category        Layer
-// @version         2.6.4.20250912
+// @version         2.6.5.20251030
 // @description     Calculate how to link the portals to create the largest tidy set of nested fields. Enable from the layer chooser.
 // @downloadURL     https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/heistergand/fanfields.user.js
 // @updateURL       https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/heistergand/fanfields.meta.js
@@ -43,13 +43,19 @@ function wrapper(plugin_info) {
     // ensure plugin framework is there, even if iitc is not yet loaded
     if(typeof window.plugin !== 'function') window.plugin = function() {};
     plugin_info.buildName = 'main';
-    plugin_info.dateTimeVersion = '2024-04-10-233042';
+    plugin_info.dateTimeVersion = '2025-10-30-002042';
     plugin_info.pluginId = 'fanfields';
 
     /* global L -- eslint */
     /* exported setup, changelog --eslint */
     let arcname = window.PLAYER.team === 'ENLIGHTENED' ? 'Arc' : '***';
     var changelog = [
+        {
+            version: '2.6.5',
+            changes: [
+                'FIX: Fixed last fix.',
+            ],
+        },
         {
             version: '2.6.4',
             changes: [
@@ -647,13 +653,18 @@ function wrapper(plugin_info) {
             let availableKeysText = '';
             let availableKeys = 0;
             if (window.plugin.keys || window.plugin.LiveInventory) {
-                if (window.plugin.LiveInventory.keyGuidCount) {
-                    availableKeys = window.plugin.LiveInventory.keyGuidCount[portal.guid] || 0;
-                } else if (window.plugin.LiveInventory.keyCount) {
-                    availableKeys = window.plugin.LiveInventory.keyCount.find(obj => obj.portalCoupler.portalGuid === portal.guid)?.count || 0;
+                
+                if (window.plugin.LiveInventory) {
+                    if (window.plugin.LiveInventory.keyGuidCount) {
+                        availableKeys = window.plugin.LiveInventory.keyGuidCount[portal.guid] || 0;
+                    } else if (window.plugin.LiveInventory.keyCount) {
+                        availableKeys = window.plugin.LiveInventory.keyCount.find(obj => obj.portalCoupler.portalGuid === portal.guid)?.count || 0;
+                    }
                 } else {
                     availableKeys = window.plugin.keys.keys[portal.guid] || 0;
                 }
+                // Beware of bugs in the above code; I have only proved it correct, not tried it! (Donald Knuth)
+                
                 let keyColorAttribute = '';
                 if (availableKeys >= portal.incoming.length) {
                     keyColorAttribute = 'plugin_fanfields_enoughKeys';

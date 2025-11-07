@@ -524,7 +524,7 @@ Show current in-game inventory. Requires CORE subscription. Fork by DanielOnDior
 
 Show portal info about resonators and mods for the selected portal directly on the map.
 
-*Version:* 0.0.3.20210724.002500
+*Version:* 1.0.0.20251106.130200
 
 
   

@@ -4,7 +4,7 @@
 // @name            Copy PokeNav Command
 // @category        Misc
 // @downloadURL     https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/MaxEtMoritz/PNavCopy.user.js
-// @version         1.7.6
+// @version         1.8.0
 // @namespace       https://github.com/MaxEtMoritz/PNavCopy
 // @description     Copy portal info to clipboard or send it to Discord in the format the PokeNav Discord bot needs.
 // @updateURL       https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/MaxEtMoritz/PNavCopy.meta.js
@@ -215,7 +215,7 @@ function wrapper (plugin_info) {
       pokeNavSettingsTitle: 'Configure PokeNav',
       portalHighlighterName: 'PokeNav State',
       requestAddressDescription: 'Request Address',
-      useBotText: 'Use Companion Bot',
+      useBotText: 'Use Companion Bot (DEPRECATED)',
       useBotTitle: 'Tick this if you have invited the Companion Bot to your Server. This enables a faster bulk export. More Info on GitHub!'
     },
     de: {
@@ -353,7 +353,7 @@ function wrapper (plugin_info) {
       pokeNavSettingsTitle: 'Konfigurieren Sie PokeNav',
       portalHighlighterName: 'PokeNav-Status',
       requestAddressDescription: 'Adresse abfragen',
-      useBotText: 'Bot verwenden',
+      useBotText: 'Bot verwenden (VERALTET)',
       useBotTitle: 'Setzen Sie den Haken, wenn Sie den Assistenz-Bot auf Ihren Server hinzugefügt haben. Dadurch kann der Massen-Export beschleunigt werden. Mehr Infos dazu auf GitHub!'
     }
   };
@@ -735,7 +735,8 @@ function wrapper (plugin_info) {
         </div>
         <div class="form-group">
           <label for="useBot" title="${getString('useBotTitle')}">${getString('useBotText')}</label>
-          <input type="checkbox" id="useBot"${window.plugin.pnav.settings.useBot ? ' checked' : ''}>
+          <input type="checkbox" id="useBot" disabled>
+          <!--${window.plugin.pnav.settings.useBot ? ' checked' : ''}-->
         </div>
         <div class="form-group">
           <Label for="name" title="${getString('pnavCodenameTitle')}">${getString('pnavCodenameDescription')}</label>

@@ -1123,7 +1123,7 @@ Copy portal info to clipboard or send it to Discord in the format the PokeNav Di
 *Recommends*: s2check@Alfonso_M  |
 *[Homepage](https://github.com/MaxEtMoritz/PNavCopy)* |
 *[Issue tracker](https://github.com/MaxEtMoritz/PNavCopy/issues)* |
-*Version:* 1.7.6
+*Version:* 1.8.0
 
 
   

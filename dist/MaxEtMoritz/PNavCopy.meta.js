@@ -4,7 +4,7 @@
 // @name            Copy PokeNav Command
 // @category        Misc
 // @downloadURL     https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/MaxEtMoritz/PNavCopy.user.js
-// @version         1.7.6
+// @version         1.8.0
 // @namespace       https://github.com/MaxEtMoritz/PNavCopy
 // @description     Copy portal info to clipboard or send it to Discord in the format the PokeNav Discord bot needs.
 // @updateURL       https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/MaxEtMoritz/PNavCopy.meta.js

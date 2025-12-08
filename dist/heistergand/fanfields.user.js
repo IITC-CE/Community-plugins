@@ -1,8 +1,9 @@
 // ==UserScript==
 // @author          Heistergand
 // @id              fanfields@heistergand
+// @name            Fan Fields 2
 // @category        Layer
-// @version         2.6.5.20251030
+// @version         2.6.6.20251207
 // @description     Calculate how to link the portals to create the largest tidy set of nested fields. Enable from the layer chooser.
 // @downloadURL     https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/heistergand/fanfields.user.js
 // @updateURL       https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/heistergand/fanfields.meta.js
@@ -15,7 +16,6 @@
 // @depends         draw-tools@breunigs
 // @recommends      bookmarks@ZasoGD|draw-tools-plus@zaso|liveInventory@DanielOnDiordna|keys@xelio
 // @preview         https://raw.githubusercontent.com/Heistergand/fanfields2/master/FanFields2.png
-// @name            Fan Fields 2
 // @match           https://intel.ingress.com/*
 // @include         https://intel.ingress.com/*
 // @grant           none
@@ -43,13 +43,19 @@ function wrapper(plugin_info) {
     // ensure plugin framework is there, even if iitc is not yet loaded
     if(typeof window.plugin !== 'function') window.plugin = function() {};
     plugin_info.buildName = 'main';
-    plugin_info.dateTimeVersion = '2025-10-30-002042';
+    plugin_info.dateTimeVersion = '2025-12-07-070042';
     plugin_info.pluginId = 'fanfields';
 
     /* global L -- eslint */
     /* exported setup, changelog --eslint */
     let arcname = window.PLAYER.team === 'ENLIGHTENED' ? 'Arc' : '***';
     var changelog = [
+        {
+            version: '2.6.6',
+            changes: [
+                'NEW: New linking algorythm.',
+            ],
+        },
         {
             version: '2.6.5',
             changes: [
@@ -1835,24 +1841,45 @@ function wrapper(plugin_info) {
         var outbound = 0;
         var possibleline;
         
-        for(pa = 0; pa < this.sortedFanpoints.length; pa++){
+        for (pa = 0; pa < this.sortedFanpoints.length; pa++) {
             bearing = this.sortedFanpoints[pa].bearing;
             //console.log("FANPOINTS: " + pa + " to 0 bearing: "+ bearing + " " + this.bearingWord(bearing));
             sublinkCount = 0;
 
-            for(pb = 0 ; pb < pa; pb++) {
+            // NEU:
+            // Kandidaten pb < pa einsammeln und nach Distanz zum neuen Portal (pa) sortieren.
+            // Anchor (pb === 0) bekommt metric = Infinity und kommt damit immer zuerst.
+            var newPoint = this.sortedFanpoints[pa].point;
+            var candidates = [];
+            for (pb = 0; pb < pa; pb++) {
+                var candPoint = this.sortedFanpoints[pb].point;
+                var d = thisplugin.distanceTo(newPoint, candPoint);
+                candidates.push({
+                    pbIndex: pb,
+                    isAnchor: (pb === 0),
+                    metric: (pb === 0 ? Infinity : d)
+                });
+            }
+
+            candidates.sort(function (u, v) {
+                return v.metric - u.metric; // absteigend: größter Abstand zuerst, Anchor (∞) ganz vorne
+            });
+
+            // Jetzt wie bisher, aber in der neuen Reihenfolge der Kandidaten
+            for (var ci = 0; ci < candidates.length; ci++) {
+                pb = candidates[ci].pbIndex;
                 outbound = 0;
+
                 a = this.sortedFanpoints[pa].point;
                 b = this.sortedFanpoints[pb].point;
                 bearing = this.getBearing(a, b);
                 const distance = thisplugin.distanceTo(a, b);
 
-                if (pb===0) {
+                if (pb === 0) {
                     var maxLinks = 8 + thisplugin.availableSBUL * 8;
-                    if (thisplugin.stardirection == thisplugin.starDirENUM.RADIATING && centerOutgoings < maxLinks ) {
+                    if (thisplugin.stardirection == thisplugin.starDirENUM.RADIATING && centerOutgoings < maxLinks) {
                         outbound = 1;
-                    }
-                    else {
+                    } else {
                         thisplugin.centerKeys++;
                     }
 
@@ -1869,7 +1896,7 @@ function wrapper(plugin_info) {
                     b: b,
                     bearing: bearing,
                     isJetLink: false,
-                    isFanLink: (pb===0),
+                    isFanLink: (pb === 0),
                     counts: true,
                     distance: distance
                 };
@@ -1878,11 +1905,11 @@ function wrapper(plugin_info) {
 
                 // "Respect Intel" stuff
                 if (thisplugin.respectCurrentLinks) {
-                    $.each(thisplugin.intelLinks, function(guid,link){
+                    $.each(thisplugin.intelLinks, function (guid, link) {
                         maplinks.push(link);
                     });
                     for (i in maplinks) {
-                        if (this.intersects(possibleline,maplinks[i]) ) {
+                        if (this.intersects(possibleline, maplinks[i])) {
                             intersection++;
                             if (possibleline.isFanLink && outbound == 1) centerOutgoings--;
                             //console.log("FANPOINTS: " + pa + " - "+pb+" bearing: " + bearing + " " + this.bearingWord(bearing) + "(crosslink)");
@@ -1896,14 +1923,14 @@ function wrapper(plugin_info) {
                 }
 
                 for (i in donelinks) {
-                    if (this.intersects(possibleline,donelinks[i])) {
+                    if (this.intersects(possibleline, donelinks[i])) {
                         intersection++;
                         if (possibleline.isFanLink && outbound == 1) centerOutgoings--;
                         break;
                     }
                 }
                 for (i in fanlinks) {
-                    if (this.intersects(possibleline,fanlinks[i])) {
+                    if (this.intersects(possibleline, fanlinks[i])) {
                         intersection++;
                         if (possibleline.isFanLink && outbound == 1) centerOutgoings--;
                         break;
@@ -1914,27 +1941,26 @@ function wrapper(plugin_info) {
                     // count sbul
                     centerSbul = Math.ceil((centerOutgoings - 8) / 8);
                 }
-
+                
                 if (intersection === 0) {
                     //console.log("FANPOINTS: " + pa + " - "+pb+" bearing: " + bearing + "° " + this.bearingWord(bearing));
                     // Check if Link is a jetlink and add second field
                     var thirds = [];
                     if (thisplugin.respectCurrentLinks) {
                         if (possibleline.counts) {
-                            thirds = this.getThirds(donelinks.concat(maplinks),possibleline.a, possibleline.b);
+                            thirds = this.getThirds(donelinks.concat(maplinks), possibleline.a, possibleline.b);
                         }
                     } else {
-                        thirds = this.getThirds(donelinks,possibleline.a, possibleline.b);
+                        thirds = this.getThirds(donelinks, possibleline.a, possibleline.b);
                     }
 
                     if (thirds.length == 2) {
                         possibleline.isJetLink = true;
                     }
 
-
                     if (possibleline.counts) {
-                        donelinks.splice(donelinks.length-(this.sortedFanpoints.length-pa),0,possibleline);
-                        if (pb===0 && thisplugin.stardirection == thisplugin.starDirENUM.RADIATING && outbound == 1 ) {
+                        donelinks.splice(donelinks.length - (this.sortedFanpoints.length - pa), 0, possibleline);
+                        if (pb === 0 && thisplugin.stardirection == thisplugin.starDirENUM.RADIATING && outbound == 1) {
                             this.sortedFanpoints[pb].outgoing.push(this.sortedFanpoints[pa]);
                             this.sortedFanpoints[pa].incoming.push(this.sortedFanpoints[pb]);
                         } else {
@@ -1943,7 +1969,7 @@ function wrapper(plugin_info) {
                         }
                     }
                     for (var t in thirds) {
-                        triangles.push({a:thirds[t], b:possibleline.a, c:possibleline.b});
+                        triangles.push({ a: thirds[t], b: possibleline.a, c: possibleline.b });
                     }
                 }
             }

@@ -1,8 +1,9 @@
 // ==UserScript==
 // @author          Heistergand
 // @id              fanfields@heistergand
+// @name            Fan Fields 2
 // @category        Layer
-// @version         2.6.5.20251030
+// @version         2.6.6.20251207
 // @description     Calculate how to link the portals to create the largest tidy set of nested fields. Enable from the layer chooser.
 // @downloadURL     https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/heistergand/fanfields.user.js
 // @updateURL       https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/heistergand/fanfields.meta.js
@@ -15,7 +16,6 @@
 // @depends         draw-tools@breunigs
 // @recommends      bookmarks@ZasoGD|draw-tools-plus@zaso|liveInventory@DanielOnDiordna|keys@xelio
 // @preview         https://raw.githubusercontent.com/Heistergand/fanfields2/master/FanFields2.png
-// @name            Fan Fields 2
 // @match           https://intel.ingress.com/*
 // @include         https://intel.ingress.com/*
 // @grant           none

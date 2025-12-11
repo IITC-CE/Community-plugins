@@ -3,7 +3,7 @@
 // @id              fanfields@heistergand
 // @name            Fan Fields 2
 // @category        Layer
-// @version         2.7.0.20251208
+// @version         2.7.1.20251210
 // @description     Calculate how to link the portals to create the largest tidy set of nested fields. Enable from the layer chooser.
 // @downloadURL     https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/heistergand/fanfields.user.js
 // @updateURL       https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/heistergand/fanfields.meta.js
@@ -43,13 +43,19 @@ function wrapper(plugin_info) {
     // ensure plugin framework is there, even if iitc is not yet loaded
     if(typeof window.plugin !== 'function') window.plugin = function() {};
     plugin_info.buildName = 'main';
-    plugin_info.dateTimeVersion = '2025-12-08-020042';
+    plugin_info.dateTimeVersion = '2025-12-10-030842';
     plugin_info.pluginId = 'fanfields';
 
     /* global L -- eslint */
     /* exported setup, changelog --eslint */
     let arcname = window.PLAYER.team === 'ENLIGHTENED' ? 'Arc' : '***';
     var changelog = [
+        {
+            version: '2.7.1',
+            changes: [
+                'FIX: The linking algorithm from version 2.6.6 was not perfect.',
+            ],
+        },
         {
             version: '2.7.0',
             changes: [
@@ -2342,26 +2348,36 @@ function wrapper(plugin_info) {
             //console.log("FANPOINTS: " + pa + " to 0 bearing: "+ bearing + " " + this.bearingWord(bearing));
             sublinkCount = 0;
 
-            // NEU:
-            // Kandidaten pb < pa einsammeln und nach Distanz zum neuen Portal (pa) sortieren.
+            // Kandidaten pb < pa einsammeln und nach Distanz zum neuen Portal (pa) + Distanz zum Anker sortieren.
             // Anchor (pb === 0) bekommt metric = Infinity und kommt damit immer zuerst.
             var newPoint = this.sortedFanpoints[pa].point;
+            var anchorPoint = this.sortedFanpoints[0].point;
+
             var candidates = [];
             for (pb = 0; pb < pa; pb++) {
                 var candPoint = this.sortedFanpoints[pb].point;
+
                 var d = thisplugin.distanceTo(newPoint, candPoint);
+                d += thisplugin.distanceTo(anchorPoint, candPoint);
+                var metric;
+                if (pb === 0) {
+                    metric = Infinity;
+                } else {
+                    metric = thisplugin.distanceTo(newPoint, candPoint);
+                    metric += thisplugin.distanceTo(anchorPoint, candPoint);
+                }
                 candidates.push({
                     pbIndex: pb,
                     isAnchor: (pb === 0),
-                    metric: (pb === 0 ? Infinity : d)
+                    metric: metric
                 });
             }
 
             candidates.sort(function (u, v) {
-                return v.metric - u.metric; // absteigend: größter Abstand zuerst, Anchor (∞) ganz vorne
+                return v.metric - u.metric;
             });
 
-            // Jetzt wie bisher, aber in der neuen Reihenfolge der Kandidaten
+
             for (var ci = 0; ci < candidates.length; ci++) {
                 pb = candidates[ci].pbIndex;
                 outbound = 0;

@@ -1,9 +1,3 @@
-<<<<<<< HEAD
 updateURL: https://www.missingpiece.com/ingress/IITC/iitc-plugin-portaldetailmods.meta.js
 downloadURL: https://www.missingpiece.com/ingress/IITC/iitc-plugin-portaldetailmods.user.js
 preview: https://www.missingpiece.com/ingress/IITC/iitc-plugin-portaldetailsmods.preview.png
-=======
-updateURL: https://raw.githubusercontent.com/Whomiga/iitc-plugin-portaldetailsmods/refs/heads/master/iitc-plugin-portaldetailmods.user.js
-downloadURL: https://raw.githubusercontent.com/Whomiga/iitc-plugin-portaldetailsmods/refs/heads/master/iitc-plugin-portaldetailmods.user.js
-preview: https://raw.githubusercontent.com/Whomiga/iitc-plugin-portaldetailsmods/refs/heads/master/preview.png
->>>>>>> 3dc7f272284186bed8f3e781a531634e05d1a9ae

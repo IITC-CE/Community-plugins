@@ -623,7 +623,7 @@ Assist planning L8 resonator max-out using VRBB — e.g. 3 agents from the same 
 
 *[Homepage](https://xelminoe.github.io/VRBB-L8-Maximizer/)* |
 *[Issue tracker](https://github.com/Xelminoe/VRBB-L8-Maximizer/issues)* |
-*Version:* 1.0
+*Version:* 1.0.1
 
 
   

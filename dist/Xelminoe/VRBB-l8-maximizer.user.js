@@ -3,7 +3,7 @@
 // @id              VRBB-l8-maximizer@Xelminoe
 // @name            VRBB L8 Maximizer
 // @category        Info
-// @version         1.0
+// @version         1.0.1
 // @description     Assist planning L8 resonator max-out using VRBB — e.g. 3 agents from the same side build an L8 portal in 15 minutes.
 // @downloadURL     https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Xelminoe/VRBB-l8-maximizer.user.js
 // @updateURL       https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Xelminoe/VRBB-l8-maximizer.meta.js
@@ -464,6 +464,8 @@ function wrapper(plugin_info) {
         }
     ];
 
+    plugin.defaultFaction = Math.random() < 0.5 ? 'R' : 'E';
+
     plugin.initializeStrategyPointer = function(strategy) {
         return {
             strategyName: strategy.name,
@@ -509,7 +511,7 @@ function wrapper(plugin_info) {
 
     plugin.isPortalTeamNullOrVRBBTeam = function (portalStatus0, agentList) {
         const team = portalStatus0?.team;
-        if (!team) return true; 
+        if (!team) return true;
 
         const vrbbAgent = agentList.find(a => a.useVrbb);
         if (!vrbbAgent || !vrbbAgent.team) return false;
@@ -954,8 +956,8 @@ function wrapper(plugin_info) {
           <option value="R" ${agent.team === 'R' ? 'selected' : ''}>RES</option>
           <option value="E" ${agent.team === 'E' ? 'selected' : ''}>ENL</option>
         </select>
-        <label><input type="checkbox" ${agent.active ? 'checked' : ''}/> Active</label>
-        <label><input type="checkbox" ${agent.useVrbb ? 'checked' : ''}/> VRBB</label>
+        <label class="vrbb-text"><input type="checkbox" ${agent.active ? 'checked' : ''}/> Active </label>
+        <label class="vrbb-text"><input type="checkbox" ${agent.useVrbb ? 'checked' : ''}/> VRBB </label>
       </div>
     `);
 
@@ -1057,50 +1059,77 @@ function wrapper(plugin_info) {
     plugin.createUIPanel = function () {
         if ($('#vrbb-helper-panel').length > 0) return;
 
+        if (!document.getElementById('vrbb-global-style')) {
+            $('head').append(`
+                <style id="vrbb-global-style">
+                    .vrbb-text {
+                        color: #111;
+                        font-family: sans-serif;
+                        font-size: 13px;
+                    }
+                </style>
+            `);
+        }
+
         plugin._resonatorDraft = Array(8).fill(null);
         plugin.draftAgentList = plugin.buildInitialAgentListFromResonators();
 
         const panel = $(`
-    <div id="vrbb-helper-panel" style="
-      position: absolute;
-      top: 80px;
-      right: 20px;
-      width: 400px;
-      background: #ffffffee;
-      border: 1px solid #888;
-      padding: 10px;
-      font-size: 13px;
-      z-index: 9999;
-      border-radius: 6px;
-      box-shadow: 0 0 5px rgba(0,0,0,0.2);
-    ">
-      <div style="text-align: right;">
-        <button id="vrbb-helper-close" style="border: none; background: none; font-size: 16px; cursor: pointer;">✖</button>
-      </div>
-      <div id="vrbb-helper-content">
-        <b>VRBB Resonator Planner</b>
+            <div id="vrbb-helper-panel" style="
+              position: absolute;
+              top: 80px;
+              right: 20px;
+              width: 400px;
+              background: #ffffffee;
+              border: 1px solid #888;
+              padding: 10px;
+              font-size: 13px;
+              z-index: 9999;
+              border-radius: 6px;
+              box-shadow: 0 0 5px rgba(0,0,0,0.2);
+              max-width: 95vw;
+              box-sizing: border-box;
+            ">
+              <div style="text-align: right;">
+                <button id="vrbb-helper-close" style="border: none; background: none; font-size: 16px; cursor: pointer;">✖</button>
+              </div>
+              <div id="vrbb-helper-content">
+                <div class="vrbb-text">
+                  <b>VRBB Resonator Planner</b>
+                </div>
 
-        <div id="vrbb-resonator-panel" style="margin-top:10px;">
-          <b>Resonator Ownership</b>
-          <div id="vrbb-reso-table"></div>
-        </div>
+                <div id="vrbb-resonator-panel" style="margin-top:10px;">
+                  <div class="vrbb-text"><b>Resonator Ownership</b></div>
+                  <div id="vrbb-reso-table"></div>
+                </div>
 
-        <div style="margin-top:10px;">
-          <label><input type="checkbox" id="vrbb-double-reso" /> Double Resonator Bonus Active</label>
-        </div>
+                <div style="margin-top:10px;">
+                  <label class="vrbb-text"><input type="checkbox" id="vrbb-double-reso" />Double Resonator Bonus Active
+                  </label>
+                </div>
 
-        <div id="vrbb-agent-list" style="margin-top:10px;">
-          <b>Agent List</b>
-          <div id="vrbb-agent-table"></div>
-          <button id="vrbb-add-agent" style="margin-top:5px;">Add Agent</button>
-        </div>
+                <div style="margin-top:10px;">
+                  <label class="vrbb-text">
+                    Default Faction for new agents:
+                    <select id="vrbb-default-faction">
+                      <option value="R" ${plugin.defaultFaction === 'R' ? 'selected' : ''}>RES</option>
+                      <option value="E" ${plugin.defaultFaction === 'E' ? 'selected' : ''}>ENL</option>
+                    </select>
+                  </label>
+                </div>
 
-        <div style="margin-top:10px; text-align:right;">
-          <button id="vrbb-confirm-init">Confirm Initialization</button>
-        </div>
-      </div>
-    </div>
-  `);
+                <div id="vrbb-agent-list" style="margin-top:10px;">
+                  <div class="vrbb-text"><b>Agent List</b></div>
+                  <div id="vrbb-agent-table"></div>
+                  <button id="vrbb-add-agent" style="margin-top:5px;">Add Agent</button>
+                </div>
+
+                <div style="margin-top:10px; text-align:right;">
+                  <button id="vrbb-confirm-init">Confirm Initialization</button>
+                </div>
+              </div>
+            </div>
+          `);
 
         $('body').append(panel);
         $('#vrbb-helper-panel').draggable();
@@ -1110,12 +1139,21 @@ function wrapper(plugin_info) {
         });
 
         $('#vrbb-add-agent').off('click').on('click', () => {
-            plugin.draftAgentList.push({ name: '', team: 'R', active: true, useVrbb: false });
+            plugin.draftAgentList.push({
+                name: '',
+                team: plugin.defaultFaction,  // 使用默认阵营
+                active: true,
+                useVrbb: false
+            });
             plugin.renderAgentListEditor(plugin.draftAgentList);
             plugin.renderResonatorDropdowns(plugin.draftAgentList);
         });
 
         $('#vrbb-double-reso').prop('checked', plugin.doubleResoEvent);
+
+        $('#vrbb-default-faction').on('change', function() {
+            plugin.defaultFaction = $(this).val();
+        });
 
         $('#vrbb-confirm-init').off('click').on('click', () => {
             const agentList = plugin.draftAgentList;
@@ -1184,6 +1222,9 @@ function wrapper(plugin_info) {
         // initial render
         plugin.renderAgentListEditor(plugin.draftAgentList);
         plugin.renderResonatorDropdowns(plugin.draftAgentList);
+
+        // 设置默认阵营选择器的初始值
+        $('#vrbb-default-faction').val(plugin.defaultFaction);
     };
 
     plugin.renderStrategyPanel = function(filtered, agentList) {
@@ -1205,16 +1246,17 @@ function wrapper(plugin_info) {
           z-index: 9999;
           border-radius: 6px;
           box-shadow: 0 0 5px rgba(0,0,0,0.2);
+          max-width: 95vw;
+          box-sizing: border-box;
           ">
           <div style="text-align: right;">
             <button id="vrbb-strategy-close" style="border: none; background: none; font-size: 16px; cursor: pointer;">✖</button>
           </div>
-          <div id="vrbb-strategy-summary-list">
-            <b>Valid Strategy List</b>
-          </div>
+          <div class="vrbb-text"><b>VRBB Resonator Planner</b></div>
+          <div id="vrbb-strategy-summary-list"></div>
           <hr/>
+          <div class="vrbb-text"><b>Strategy Details</b></div>
           <div id="vrbb-strategy-details">
-            <b>Strategy Details</b>
           </div>
         </div>`);
         $('#vrbb-strategy-panel').draggable();
@@ -1279,7 +1321,7 @@ function wrapper(plugin_info) {
 
         const statusHistory = result.statusHistory;
         if (!statusHistory || statusHistory.length === 0) {
-            container.append('<div>No status history available.</div>');
+            container.append('<div class="vrbb-text"><div>No status history available.</div></div>');
             return;
         }
 
@@ -1291,7 +1333,7 @@ function wrapper(plugin_info) {
 
             // Header with phase + action
             container.append(`
-            <div style="margin-bottom: 8px;">
+            <div class="vrbb-text" style="margin-bottom: 8px;">
                 <b>Strategy:</b> ${idxStrategy+1} &nbsp;
                 <b>Stage:</b> ${state.stage}
             </div>
@@ -1335,14 +1377,14 @@ function wrapper(plugin_info) {
             container.append(grid);
 
             // Action hint
-            container.append(`<div style="margin-top:6px;"> ⚠️ Confirm L8 resonator numbers as above before next action. </div>`);
-            container.append(`<div style="margin-top:6px;"> <b>Next action </b>: ${plugin.describeAction(state.action, vrbbName, vrbbTeam)}</div>`);
+            container.append(`<div class="vrbb-text" style="margin-top:6px;"> ⚠️ Confirm L8 resonator numbers as above before next action. </div>`);
+            container.append(`<div class="vrbb-text" style="margin-top:6px;"> <b>Next action </b>: ${plugin.describeAction(state.action, vrbbName, vrbbTeam)}</div>`);
 
             // Navigation buttons
             const nav = $(`
             <div style="margin-top: 10px;">
                 <button id="vrbb-prev-status" ${idx === 0 ? 'disabled' : ''}>&lt;=</button>
-                <span style="margin: 0 10px;">${idx + 1} / ${statusHistory.length}</span>
+                <span class="vrbb-text" style="margin: 0 10px;">  ${idx + 1} / ${statusHistory.length} </span>
                 <button id="vrbb-next-status" ${idx === statusHistory.length - 1 ? 'disabled' : ''}>=&gt;</button>
             </div>
         `);
@@ -1385,29 +1427,31 @@ function wrapper(plugin_info) {
     plugin.injectButton = function () {
         if ($('#vrbb-helper-btn').length > 0) return;
 
-        $('#toolbox').append(
-            `<a id="vrbb-helper-btn" onclick="window.plugin.vrbbL8Maximizer.onButtonClick()" title="VRBB L8 Planner">VRBB-Plan</a>`
-    );
+        const button = $('<a>')
+        .attr('id', 'vrbb-helper-btn')
+        .attr('title', 'VRBB L8 Planner')
+        .text('VRBB-Plan')
+        .on('click', () => plugin.onButtonClick());
+
+        $('#toolbox').append(button);
     };
 
+
     plugin.onButtonClick = function () {
-        const updatestatus = document.getElementById('updatestatus');
-        if (updatestatus && getComputedStyle(updatestatus).display === 'none') {
-            const observer = new MutationObserver(() => {
-                if (getComputedStyle(updatestatus).display === 'block') {
-                    observer.disconnect();
-                    plugin.createUIPanel();
-                }
-            });
-            observer.observe(updatestatus, { attributes: true, attributeFilter: ['style'] });
-        } else {
-            plugin.createUIPanel();
-        }
+        plugin.createUIPanel();
     };
 
     // ========== Setup ==========
     plugin.setup = function () {
-        plugin.injectButton();
+        const tryInject = () => {
+            if ($('#toolbox').length > 0) {
+                plugin.injectButton();
+            } else {
+                // Retry after short delay
+                setTimeout(tryInject, 300);
+            }
+        };
+        tryInject();
     };
 
     // ========== Register ==========
@@ -1418,14 +1462,13 @@ function wrapper(plugin_info) {
     if (window.iitcLoaded) setup();
 }
 
-const script = document.createElement('script');
-const info = {};
-if (typeof GM_info !== 'undefined' && GM_info && GM_info.script) {
-    info.script = {
-        version: GM_info.script.version,
-        name: GM_info.script.name,
-        description: GM_info.script.description
+(function() {
+    const info = {
+        script: {
+            version: '0.1',
+            name: 'VRBB L8 Maximizer Helper',
+            description: 'Assist planning L8 resonator max-out using VRBB'
+        }
     };
-}
-script.appendChild(document.createTextNode('(' + wrapper + ')(' + JSON.stringify(info) + ');'));
-(document.body || document.head || document.documentElement).appendChild(script);
+    wrapper(info);
+})();

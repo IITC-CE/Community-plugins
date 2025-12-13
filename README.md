@@ -557,7 +557,7 @@ Counts portals by level and faction inside polygons or search result.
 
 
 
-![preview](https://raw.githubusercontent.com/Whomiga/iitc-plugin-portaldetailsmods/refs/heads/master/preview.png)
+![preview](https://www.missingpiece.com/ingress/IITC/iitc-plugin-portaldetailmods.preview.png)
 
 Show Mod Pictures in Portal Details
 

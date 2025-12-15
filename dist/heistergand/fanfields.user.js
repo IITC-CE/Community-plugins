@@ -3,7 +3,7 @@
 // @id              fanfields@heistergand
 // @name            Fan Fields 2
 // @category        Layer
-// @version         2.7.2.20251213
+// @version         2.7.3.20251214.2
 // @description     Calculate how to link the portals to create the largest tidy set of nested fields. Enable from the layer chooser.
 // @downloadURL     https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/heistergand/fanfields.user.js
 // @updateURL       https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/heistergand/fanfields.meta.js
@@ -43,7 +43,7 @@ function wrapper(plugin_info) {
     // ensure plugin framework is there, even if iitc is not yet loaded
     if(typeof window.plugin !== 'function') window.plugin = function() {};
     plugin_info.buildName = 'main';
-    plugin_info.dateTimeVersion = '2025-12-13-201142';
+    plugin_info.dateTimeVersion = '2025-12-14-121142';
     plugin_info.pluginId = 'fanfields';
 
     /* global L, $, dialog, map, portals, links, plugin, formatDistance  -- eslint*/
@@ -51,6 +51,13 @@ function wrapper(plugin_info) {
 
     let arcname = window.PLAYER.team === 'ENLIGHTENED' ? 'Arc' : '***';
     var changelog = [
+        {
+            version: '2.7.3',
+            changes: [
+                'FIX: Tooltip must be a glyph sequence.',
+                'FIX: Double-Click on leaflet buttons isn\'t zooming the map anymore.',
+            ],
+        },
         {
             version: '2.7.2',
             changes: [
@@ -2598,6 +2605,15 @@ function wrapper(plugin_info) {
             },
             onAdd: function (map) {
                 var container = L.DomUtil.create("div", "leaflet-fanfields leaflet-bar");
+
+                // Prevent clicks/double-clicks on this control from reaching the map (no dblclick zoom)
+                L.DomEvent.disableClickPropagation(container);
+                L.DomEvent.disableScrollPropagation(container);
+
+                // hard-stop double click
+                L.DomEvent.on(container, 'dblclick', L.DomEvent.stop);
+
+
                 $(container)
                     .append(
                     '<a id="fanfieldShiftLeftButton" href="javascript: void(0);" class="fanfields-control" title="FanFields shift left">'+symbol_counterclockwise+'</a>'
@@ -2647,7 +2663,7 @@ function wrapper(plugin_info) {
         var buttonPortalList = '<a class="plugin_fanfields2_btn" onclick="window.plugin.fanfields.exportText();" title="OpenAll Link Create Star">Show&nbsp;as&nbsp;list</a> ';
 
         // Manage order
-        var buttonManageOrder = '<a class="plugin_fanfields2_btn" id="plugin_fanfields2_manageorderbtn" onclick="window.plugin.fanfields.showManageOrderDialog();" title="Manage visiting order of fanfield portals">Manage&nbsp;order</a> ';
+        var buttonManageOrder = '<a class="plugin_fanfields2_btn" id="plugin_fanfields2_manageorderbtn" onclick="window.plugin.fanfields.showManageOrderDialog();" title="Use Restraint Follow Easy Path">Manage&nbsp;order</a> ';
 
 
 

@@ -3,7 +3,7 @@
 // @id              fanfields@heistergand
 // @name            Fan Fields 2
 // @category        Layer
-// @version         2.7.3.20251214.2
+// @version         2.7.4.20251218
 // @description     Calculate how to link the portals to create the largest tidy set of nested fields. Enable from the layer chooser.
 // @downloadURL     https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/heistergand/fanfields.user.js
 // @updateURL       https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/heistergand/fanfields.meta.js
@@ -43,7 +43,7 @@ function wrapper(plugin_info) {
     // ensure plugin framework is there, even if iitc is not yet loaded
     if(typeof window.plugin !== 'function') window.plugin = function() {};
     plugin_info.buildName = 'main';
-    plugin_info.dateTimeVersion = '2025-12-14-121142';
+    plugin_info.dateTimeVersion = '2025-12-18-211442';
     plugin_info.pluginId = 'fanfields';
 
     /* global L, $, dialog, map, portals, links, plugin, formatDistance  -- eslint*/
@@ -51,6 +51,13 @@ function wrapper(plugin_info) {
 
     let arcname = window.PLAYER.team === 'ENLIGHTENED' ? 'Arc' : '***';
     var changelog = [
+        {
+            version: '2.7.4',
+            changes: [
+                'FIX: Respect Intel not working anymore.',
+                'FIX: Dialog width on mobile too small.',
+            ],
+        },
         {
             version: '2.7.3',
             changes: [
@@ -541,6 +548,7 @@ function wrapper(plugin_info) {
 
     thisplugin.help = function() {
         var width = thisplugin.helpDialogWidth;
+        thisplugin.MaxDialogWidth = thisplugin.getMaxDialogWidth();
         if (thisplugin.MaxDialogWidth < thisplugin.helpDialogWidth) {
             width = thisplugin.MaxDialogWidth;
         }
@@ -602,6 +610,7 @@ function wrapper(plugin_info) {
                 "</table>";
 
             var width = 400;
+            thisplugin.MaxDialogWidth = thisplugin.getMaxDialogWidth();
             if (thisplugin.MaxDialogWidth < width) {
                 width = thisplugin.MaxDialogWidth;
             }
@@ -798,6 +807,7 @@ function wrapper(plugin_info) {
         thisplugin.exportDialogWidth = 500;
 
         var width = thisplugin.exportDialogWidth;
+        thisplugin.MaxDialogWidth = thisplugin.getMaxDialogWidth();
         if (thisplugin.MaxDialogWidth < thisplugin.exportDialogWidth) {
             width = thisplugin.MaxDialogWidth;
         }
@@ -841,6 +851,7 @@ function wrapper(plugin_info) {
 
         if (!that.sortedFanpoints || that.sortedFanpoints.length === 0) {
             var widthEmpty = 350;
+            thisplugin.MaxDialogWidth = thisplugin.getMaxDialogWidth();
             if (that.MaxDialogWidth < widthEmpty) widthEmpty = that.MaxDialogWidth;
             dialog({
                 html: '<p>No Fanfield plan calculated yet.<br>Draw a polygon and let Fanfields calculate first.</p>',
@@ -852,7 +863,7 @@ function wrapper(plugin_info) {
             return;
         }
         var orderDirty = false;
-        function buildTableHTML() {
+        /*  function buildTableHTML() {
             var html = '';
             html += '<table id="plugin_fanfields2_order_table" class="plugin_fanfields2_order_table">';
             html += '<thead><tr>';
@@ -894,8 +905,57 @@ function wrapper(plugin_info) {
             html += '</div>';
             return html;
         }
+      */
+        function buildTableHTML() {
+            var html = '';
+            html += '<table id="plugin_fanfields2_order_table" class="plugin_fanfields2_order_table">';
+            html += '<thead><tr>';
+            html += '<th class="plugin_fanfields2_order_gripcol" style="width:22px;"></th>';
+            html += '<th style="width:30px;">#</th>';
+            html += '<th>Portal</th>';
+            html += '<th style="width:60px;">Keys</th>';
+            html += '<th style="width:60px;">Links out</th>';
+            html += '</tr></thead><tbody>';
+
+            that.sortedFanpoints.forEach(function(fp, idx) {
+                var p = fp.portal;
+                var title = (p && p.options && p.options.data && p.options.data.title) ? p.options.data.title : 'unknown title';
+
+                var keys = fp.incoming ? fp.incoming.length : 0;
+                var out = fp.outgoing ? fp.outgoing.length : 0;
+
+                var isAnchor = (fp.guid === that.startingpointGUID);
+                var trClass = isAnchor ? 'plugin_fanfields2_order_anchor' : 'plugin_fanfields2_order_row';
+
+                // Grip column: handle for normal rows, anchor icon for the pinned row.
+                var gripCell = isAnchor
+                ? '<td class="plugin_fanfields2_order_gripcol"><span class="plugin_fanfields2_order_anchor_icon" title="Anchor row">&#9875;</span></td>'
+                : '<td class="plugin_fanfields2_order_gripcol"><span class="plugin_fanfields2_order_handle" title="Drag to reorder">&#9776;</span></td>';
+
+                html += '<tr class="' + trClass + '" data-guid="' + fp.guid + '">';
+                html += gripCell;
+                html += '<td class="plugin_fanfields2_order_idx">' + idx + '</td>';
+                html += '<td>' + title + (isAnchor ? ' <span class="plugin_fanfields2_italic">(anchor)</span>' : '') + '</td>';
+                html += '<td style="text-align:right;">' + keys + '</td>';
+                html += '<td style="text-align:right;">' + out + '</td>';
+                html += '</tr>';
+            });
+
+            html += '</tbody></table>';
+            html += '<div class="plugin_fanfields2_order_hint">';
+            html += 'Drag &amp; drop rows to change visit order. First row (anchor) is fixed.<br>';
+            html += 'Click <b>Apply</b> to use this order for the fanfield calculation.';
+            html += '</div>';
+            html += '<div style="margin-top:5px;text-align:right;">';
+            html += '  <button id="plugin_fanfields2_order_path">Path</button> ';
+            html += '  <button id="plugin_fanfields2_order_reset" >Reset</button> ';
+            html += '  <button id="plugin_fanfields2_order_apply" >Apply</button>';
+            html += '</div>';
+            return html;
+        }
 
         var width = 450;
+        thisplugin.MaxDialogWidth = thisplugin.getMaxDialogWidth();
         if (that.MaxDialogWidth < width) width = that.MaxDialogWidth;
 
         dialog({
@@ -906,6 +966,7 @@ function wrapper(plugin_info) {
             closeOnEscape: true
         });
 
+        /*
         function initDragAndButtons() {
             var $tbody = $('#plugin_fanfields2_order_table tbody');
             var dragSrcRow = null;
@@ -990,6 +1051,123 @@ function wrapper(plugin_info) {
                 that.showOrderPath ? 'Hide path' : 'Path'
             );
 
+        }
+*/
+
+        function initDragAndButtons() {
+            var $tbody = $('#plugin_fanfields2_order_table tbody');
+
+            function renumberRows() {
+                // Update the "#" column to match the current DOM order.
+                $tbody.find('tr').each(function(i) {
+                    $(this).find('td.plugin_fanfields2_order_idx').text(i);
+                });
+            }
+
+            function pinAnchorRow() {
+                // Keep anchor row at top (and prevent it from being displaced).
+                var $anchor = $tbody.find('tr.plugin_fanfields2_order_anchor');
+                if ($anchor.length && $tbody.children().first()[0] !== $anchor[0]) {
+                    $tbody.prepend($anchor);
+                }
+            }
+
+            // Destroy old sortable if the dialog is rebuilt.
+            if ($tbody.data('ui-sortable')) $tbody.sortable('destroy');
+
+            pinAnchorRow();
+            renumberRows();
+
+            $tbody.sortable({
+                // Only non-anchor rows are draggable.
+                items: '> tr.plugin_fanfields2_order_row',
+                handle: '.plugin_fanfields2_order_handle',
+                axis: 'y',
+                helper: 'clone',
+                forcePlaceholderSize: true,
+                placeholder: 'plugin_fanfields2_order_sort_placeholder',
+
+                start: function(e, ui) {
+                    orderDirty = true;
+
+                    if (that.showOrderPath) {
+                        that.setOrderPathActive(false);
+                        $('#plugin_fanfields2_order_path').text('Path');
+                    }
+
+                    // Keep column widths stable while dragging.
+                    ui.helper.children().each(function(i) {
+                        $(this).width(ui.item.children().eq(i).width());
+                    });
+
+                    // Make placeholder span the full row width.
+                    var colCount = ui.item.children('td,th').length;
+                    ui.placeholder
+                        .addClass('plugin_fanfields2_order_sort_placeholder')
+                        .html('<td colspan="' + colCount + '">&nbsp;</td>');
+
+                    // Prevent placeholder from going above the anchor row.
+                    var $anchor = $tbody.find('> tr.plugin_fanfields2_order_anchor');
+                    if ($anchor.length && ui.placeholder.index() === 0) {
+                        ui.placeholder.insertAfter($anchor);
+                    }
+                },
+
+                change: function(e, ui) {
+                    // Prevent dropping above the anchor row.
+                    var $anchor = $tbody.find('> tr.plugin_fanfields2_order_anchor');
+                    if ($anchor.length && ui.placeholder.index() === 0) {
+                        ui.placeholder.insertAfter($anchor);
+                    }
+                },
+
+                update: function() {
+                    pinAnchorRow();
+                    renumberRows();
+                }
+            });
+
+            // Rebind Reset and Apply buttons
+            $('#plugin_fanfields2_order_reset').off('click').on('click', function() {
+                that.manualOrderGuids = null;
+                that.updateLayer();
+
+                orderDirty = false;
+
+                $('#plugin_fanfields2_order_dialog_inner').html(buildTableHTML());
+                initDragAndButtons();
+
+                if (that.showOrderPath) {
+                    that.updateOrderPath();
+                }
+            });
+
+            $('#plugin_fanfields2_order_apply').off('click').on('click', function() {
+                var guids = [];
+                $('#plugin_fanfields2_order_table tbody tr').each(function() {
+                    guids.push($(this).data('guid'));
+                });
+
+                // The first entry must remain the anchor.
+                if (guids[0] !== that.startingpointGUID) {
+                    that.manualOrderGuids = null;
+                } else {
+                    that.manualOrderGuids = guids;
+                }
+
+                orderDirty = false;
+
+                that.delayedUpdateLayer(0.2);
+                $('#plugin_fanfields2_order_dialog').dialog('close');
+            });
+
+            $('#plugin_fanfields2_order_path').off('click').on('click', function() {
+                var newState = !that.showOrderPath;
+                that.setOrderPathActive(newState);
+                $(this).text(newState ? 'Hide path' : 'Path');
+            });
+
+            $('#plugin_fanfields2_order_path').text(that.showOrderPath ? 'Hide path' : 'Path');
         }
 
         initDragAndButtons();
@@ -1350,9 +1528,6 @@ function wrapper(plugin_info) {
                '  border: 1px solid #555;\n' +
                '  padding: 2px 4px;\n' +
                '}\n' +
-               '.plugin_fanfields2_order_table tbody tr.plugin_fanfields2_order_row {\n' +
-               '  cursor: move;\n' +
-               '}\n' +
                '.plugin_fanfields2_order_table tbody tr.plugin_fanfields2_order_row:hover {\n' +
                '  background-color: rgba(255, 206, 0, 0.08);\n' +
                '}\n' +
@@ -1381,6 +1556,50 @@ function wrapper(plugin_info) {
                '  cursor: pointer;\n' +
                '}\n'
               );
+
+        addCSS('\n' +
+               '.plugin_fanfields2_order_table tbody tr.plugin_fanfields2_order_drop_before {\n' +
+               '  box-shadow: inset 0 2px 0 0 rgba(255,255,255,0.8);\n' +
+               '}\n' +
+               '.plugin_fanfields2_order_table tbody tr.plugin_fanfields2_order_drop_after {\n' +
+               '  box-shadow: inset 0 -2px 0 0 rgba(255,255,255,0.8);\n' +
+               '}\n'
+              );
+
+        addCSS(` /* Fanfields2 order table: sortable grip column */
+            #plugin_fanfields2_order_table .plugin_fanfields2_order_gripcol {
+              width: 22px;
+              text-align: center;
+              white-space: nowrap;
+              user-select: none;
+            }
+
+            #plugin_fanfields2_order_table .plugin_fanfields2_order_handle {
+              cursor: grab;
+              display: inline-block;
+              padding: 0 4px;
+            }
+
+            #plugin_fanfields2_order_table .plugin_fanfields2_order_anchor_icon {
+              cursor: default;
+              display: inline-block;
+              padding: 0 4px;
+            }
+
+            #plugin_fanfields2_order_table tr.plugin_fanfields2_order_sort_placeholder td {
+              height: 22px;
+            }
+
+        `);
+
+        addCSS('\n' +
+               '.plugin_fanfields2_order_dragging {\n' +
+               '  cursor: grabbing;\n' +
+               '  opacity: 0.35;\n' +
+               '}\n'
+              );
+
+
 
         // Inject/update a single style tag
         var style = document.getElementById('plugin_fanfields2_css');
@@ -1418,7 +1637,7 @@ function wrapper(plugin_info) {
             }
         }
         return result;
-    }; 
+    };
     */
 
     // Faster variant: find common third points without list concatenation and without O(n^2) matching
@@ -2431,7 +2650,7 @@ function wrapper(plugin_info) {
                     distance: distance
                 };
                 intersection = 0;
-                maplinks = [];
+                maplinks = maplinksAll;
 
                 // "Respect Intel" stuff
                 if (thisplugin.respectCurrentLinks) {
@@ -2477,8 +2696,8 @@ function wrapper(plugin_info) {
                     var thirds = [];
                     if (thisplugin.respectCurrentLinks) {
                         if (possibleline.counts) {
-                             // thirds = this.getThirds(donelinks.concat(maplinks), possibleline.a, possibleline.b);
-                             thirds = thisplugin.getThirds2(donelinks, maplinks, possibleline.a, possibleline.b);
+                            // thirds = this.getThirds(donelinks.concat(maplinks), possibleline.a, possibleline.b);
+                            thirds = thisplugin.getThirds2(donelinks, maplinks, possibleline.a, possibleline.b);
                         }
                     } else {
                         // thirds = this.getThirds(donelinks, possibleline.a, possibleline.b);
@@ -2636,12 +2855,18 @@ function wrapper(plugin_info) {
         map.addControl(new thisplugin.ffButtons());
     };
 
+    thisplugin.getMaxDialogWidth = function() {
+        const vw = (window.visualViewport && window.visualViewport.width) ? window.visualViewport.width : window.innerWidth;
+        return Math.max(260, Math.floor(vw) - 12); // leave some space
+    };
+
     thisplugin.setup = function() {
         thisplugin.setupCSS();
         thisplugin.linksLayerGroup = new L.LayerGroup();
         thisplugin.fieldsLayerGroup = new L.LayerGroup();
         thisplugin.numbersLayerGroup = new L.LayerGroup();
-        thisplugin.MaxDialogWidth = $(window).width() - 2;
+        //thisplugin.MaxDialogWidth = $(window).width() - 2;
+        thisplugin.MaxDialogWidth = thisplugin.getMaxDialogWidth();
 
         // ghi#23
         thisplugin.orderPathLayerGroup = new L.LayerGroup();
@@ -2752,6 +2977,7 @@ function wrapper(plugin_info) {
 
         if (!window.plugin.drawTools) {
             var width = 400;
+            thisplugin.MaxDialogWidth = thisplugin.getMaxDialogWidth();
             if (thisplugin.MaxDialogWidth < width) {
                 width = thisplugin.MaxDialogWidth;
             }

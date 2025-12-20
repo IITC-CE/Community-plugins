@@ -3,7 +3,7 @@
 // @id              fanfields@heistergand
 // @name            Fan Fields 2
 // @category        Layer
-// @version         2.7.4.20251218
+// @version         2.7.5.20251219
 // @description     Calculate how to link the portals to create the largest tidy set of nested fields. Enable from the layer chooser.
 // @downloadURL     https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/heistergand/fanfields.user.js
 // @updateURL       https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/heistergand/fanfields.meta.js
@@ -33,7 +33,6 @@ Add a kind of system to have a cluster of Fanfields
 Calculate distance to walk for the plan (crow / streets)
 Calculate the most efficient possible plan based on ways to walk and keys to farm
 Export to Tasks
-Bookmarks saving works, but let it also save into a Bookmarks Folder
 Calculate amount of possible rebuilds after flippinig the center portal
 Click on a link to flip it's direction
 
@@ -43,7 +42,7 @@ function wrapper(plugin_info) {
     // ensure plugin framework is there, even if iitc is not yet loaded
     if(typeof window.plugin !== 'function') window.plugin = function() {};
     plugin_info.buildName = 'main';
-    plugin_info.dateTimeVersion = '2025-12-18-211442';
+    plugin_info.dateTimeVersion = '2025-12-19-021342';
     plugin_info.pluginId = 'fanfields';
 
     /* global L, $, dialog, map, portals, links, plugin, formatDistance  -- eslint*/
@@ -51,6 +50,15 @@ function wrapper(plugin_info) {
 
     let arcname = window.PLAYER.team === 'ENLIGHTENED' ? 'Arc' : '***';
     var changelog = [
+        {
+            version: '2.7.5',
+            changes: [
+                'NEW: Print your task list.',
+                'NEW: Show fields in task list.',
+                'FIX: Click on portal in task list now flies to the portal.',
+                'FIX: Uniform dialog titles',
+            ],
+        },
         {
             version: '2.7.4',
             changes: [
@@ -590,7 +598,7 @@ function wrapper(plugin_info) {
             '<p>Found a bug? Post your issues at GitHub:<br><a href="https://github.com/Heistergand/fanfields2/issues">https://github.com/Heistergand/fanfields2/issues</a></p>'+
             '',
             id: 'plugin_fanfields2_alert_help',
-            title: 'Fan Fields - Help',
+            title: 'Fan Fields 2 - Help',
             width: width,
             closeOnEscape: true
         });
@@ -618,7 +626,7 @@ function wrapper(plugin_info) {
             dialog({
                 html: text,
                 id: 'plugin_fanfields2_alert_statistics',
-                title: '== Fan Field Statistics == ',
+                title: 'Fan Fields 2 - Statistics',
                 width: width,
                 closeOnEscape: true
             });
@@ -662,6 +670,13 @@ function wrapper(plugin_info) {
         //todo...
     }
 
+    thisplugin.flyToPortal = function(latlng, guid) {
+
+        window.map.flyTo(latlng, map.getZoom());
+        if (window.portals[guid]) window.renderPortalDetails(guid);
+        else window.urlPortal = guid;
+    }
+
     // Show as list
     thisplugin.exportText = function() {
         var text = "<table><thead><tr>";
@@ -671,13 +686,14 @@ function wrapper(plugin_info) {
         text+="<th style='text-align:left'>Portal Name</th>";
         text+="<th>Keys</th>";
         text+="<th>Links</th>";
+        text+="<th>Fields</th>";
+
 
         text+="</tr></thead><tbody>";
         let linkDetailText = '';
         var gmnav='http://maps.google.com/maps/dir/';
 
         thisplugin.sortedFanpoints.forEach(function(portal, index) {
-
             var p, lat, lng;
             var latlng = map.unproject(portal.point, thisplugin.PROJECT_ZOOM);
             lat = Math.round(latlng.lat * 10000000) / 10000000
@@ -739,13 +755,25 @@ function wrapper(plugin_info) {
             // Portal Name
 
             text+='<td>';
-            text+=`  <a href="https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&query_destination_id=(${uriTitle})" target="_blank">${title}</a>`;
+            const gmapsHref = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&query_destination_id=(${uriTitle})`;
+
+            // Two links are rendered:
+            // - UI link: uses onclick to interact with IITC (flyToPortal)
+            // - Print link: real href for PDF / printing
+            // Visibility is controlled via CSS (@media print or print window styles)
+            text+=`  <a class="plugin_fanfields2_exportText_print" href="https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&query_destination_id=(${uriTitle})" target="_blank">${title}</a>`;
+            text+=`  <a class="plugin_fanfields2_exportText_ui" onclick="window.plugin.fanfields.flyToPortal({lat: ${lat}, lng: ${lng}}, '${portal.guid}'); return false;">${title}</a>`;
+
+
             text+='</td>';
 
             // Keys
             text+='<td ' + availableKeysText + portal.incoming.length+ '</td>';
             // Links
             text+='<td>' + portal.outgoing.length + '</td>';
+
+            // Fields (here: empty cell)
+            text+='<td class="plugin_fanfields2_fieldsCell"></td>';
 
             // other
             //text+='<td>';
@@ -778,12 +806,20 @@ function wrapper(plugin_info) {
                     if (outPortal.portal !== undefined) {
                         outPortalTitle = outPortal.portal.options.data.title;
                     }
-                    // Portal Name
+                    // Portal Name (Target)
                     linkDetailText+='<td>'+ outPortalTitle + '</td>';
-                    // Distance
-                    linkDetailText+='<td colspan=2>' + formatDistance(distance) + '</td>';
-                    // Links
-                    // linkDetailText+='<td>' + portal.outgoing.length + '</td>';
+
+                    // Keys (here: empty cell)
+                    linkDetailText+='<td></td>';
+
+                    // Link (Distance)
+                    linkDetailText+='<td>' + formatDistance(distance) + '</td>';
+                    // Fields
+                    let meta = portal.outgoingMeta?.[outPortal.guid];
+                    let fieldsCreated = meta?.creatingFieldsWith?.length ?? 0;
+                    let triangles = fieldsCreated === 2 ? '&#9650;&#9650;' : fieldsCreated === 1 ? '&#9650;' : '';
+
+                    linkDetailText+='<td class="plugin_fanfields2_fieldsCell" title="Fields created: ' + fieldsCreated + '">' + triangles + '</td>';
                     // other
                     //linkDetailText+='<td>';
                     //linkDetailText+='';
@@ -801,7 +837,14 @@ function wrapper(plugin_info) {
         };
         text+='<hr noshade>';
         gmnav+='&nav=1';
+
+        text += '<div style="margin-top:10px; text-align:right;">' +
+            '  <button id="plugin_fanfields2_export_pdf_btn">Print</button>' +
+            '</div>';
+
+
         text+='<a target="_blank" href="'+ gmnav +'">Navigate with Google Maps</a>';
+
 
 
         thisplugin.exportDialogWidth = 500;
@@ -835,12 +878,92 @@ function wrapper(plugin_info) {
         dialog({
             html: text,
             id: 'plugin_fanfields2_alert_textExport',
-            title: 'Fan Fields',
+            title: 'Fan Fields 2 - Task List',
             width: width,
             closeOnEscape: true
         });
         toggleFunction();
 
+        $('#plugin_fanfields2_export_pdf_btn').off('click').on('click', function() {
+            thisplugin.exportTaskListToPDF();
+        });
+
+
+    };
+
+
+    thisplugin.exportTaskListToPDF = function() {
+        const id = 'plugin_fanfields2_alert_textExport';
+
+        // Resolve the actual dialog content element.
+        // IITC/jQuery-UI may wrap the original element inside a dialog container.
+
+        let $dlg = $('#dialog-' + id + ' .ui-dialog-content');
+        if (!$dlg.length) $dlg = $('#dialog-' + id);
+        if (!$dlg.length) $dlg = $('#' + id);
+        if (!$dlg.length) return;
+
+
+        // Ensure all link detail rows are expanded before exporting
+
+        $dlg.find('[plugin_fanfields2_exportText_toggle="toggle"]').each(function() {
+            const $toggle = $(this);
+            const $label = $toggle.prev('.plugin_fanfields2_exportText_Label');
+            const $details = $toggle.parents().next('.plugin_fanfields2_exportText_LinkDetails');
+            if ($details.length) {
+                $toggle.prop('checked', true);
+                $details.show();
+                $label.attr('aria-expanded', true);
+            }
+        });
+
+        const htmlInner = $dlg.html();
+
+        // open new window for printing
+        const w = window.open('', '_blank');
+        if (!w) return;
+
+        const css = `
+          @page { margin: 12mm; }
+          body { font-family: Arial, sans-serif; font-size: 10pt; color: #000; }
+          h1 { font-size: 14pt; margin: 0 0 10px 0; }
+
+          table { width: 100%; border-collapse: collapse; }
+          th, td { border: 1px solid #666; padding: 4px 6px; vertical-align: top; }
+          thead th { background: #eee; }
+
+          .plugin_fanfields2_exportText_ui { display: none !important; }
+          .plugin_fanfields2_exportText_print { display: inline !important; color: #000; text-decoration: none; }
+
+          tbody.plugin_fanfields2_exportText_Portal td { font-weight: bold !important; }
+          tbody.plugin_fanfields2_exportText_LinkDetails td { font-weight: normal !important; }
+
+          button, input[type="checkbox"] { display: none !important; }
+          .plugin_fanfields2_exportText_Label::before { display: none !important; }
+
+          .plugin_fanfields2_exportText_LinkDetails { display: table-row-group !important; }
+        `;
+
+
+        w.document.open();
+        w.document.write(`
+            <!doctype html>
+            <html>
+              <head>
+                <meta charset="utf-8">
+                <title>Fan Fields 2 – Tasks</title>
+                <style>${css}</style>
+              </head>
+              <body>
+                <h1>Fan Fields 2 – Tasks</h1>
+                ${htmlInner}
+              </body>
+            </html>
+          `);
+        w.document.close();
+
+        w.focus();
+        setTimeout(() => w.print(), 250);
     };
 
 
@@ -848,6 +971,7 @@ function wrapper(plugin_info) {
     // Manage-Order-Dialog
     thisplugin.showManageOrderDialog = function() {
         var that = thisplugin;
+        let manageOrderDialogTitle = 'Fan Fields 2 - Manage Portal Order';
 
         if (!that.sortedFanpoints || that.sortedFanpoints.length === 0) {
             var widthEmpty = 350;
@@ -856,56 +980,14 @@ function wrapper(plugin_info) {
             dialog({
                 html: '<p>No Fanfield plan calculated yet.<br>Draw a polygon and let Fanfields calculate first.</p>',
                 id: 'plugin_fanfields2_order_dialog_empty',
-                title: 'Manage Fanfields order',
+                title: manageOrderDialogTitle,
                 width: widthEmpty,
                 closeOnEscape: true
             });
             return;
         }
         var orderDirty = false;
-        /*  function buildTableHTML() {
-            var html = '';
-            html += '<table id="plugin_fanfields2_order_table" class="plugin_fanfields2_order_table">';
-            html += '<thead><tr>';
-            html += '<th style="width:30px;">#</th>';
-            html += '<th>Portal</th>';
-            html += '<th style="width:60px;">Keys</th>';
-            html += '<th style="width:60px;">Links out</th>';
-            html += '</tr></thead><tbody>';
 
-            that.sortedFanpoints.forEach(function(fp, idx) {
-                var p = fp.portal;
-                var title = (p && p.options && p.options.data && p.options.data.title) ? p.options.data.title : 'unknown title';
-
-                var keys = fp.incoming ? fp.incoming.length : 0;
-                var out = fp.outgoing ? fp.outgoing.length : 0;
-
-                var isAnchor = (fp.guid === that.startingpointGUID);
-                var trClass = isAnchor ? 'plugin_fanfields2_order_anchor' : 'plugin_fanfields2_order_row';
-                var draggableAttr = isAnchor ? '' : ' draggable="true"';
-                var handle = isAnchor ? '' : '<span class="plugin_fanfields2_order_handle">&#9776;</span>&nbsp;';
-
-                html += '<tr class="' + trClass + '" data-guid="' + fp.guid + '"' + draggableAttr + '>';
-                html += '<td>' + idx + '</td>';
-                html += '<td>' + handle + title + (isAnchor ? ' <span class="plugin_fanfields2_italic">(anchor)</span>' : '') + '</td>';
-                html += '<td style="text-align:right;">' + keys + '</td>';
-                html += '<td style="text-align:right;">' + out + '</td>';
-                html += '</tr>';
-            });
-
-            html += '</tbody></table>';
-            html += '<div class="plugin_fanfields2_order_hint">';
-            html += 'Drag &amp; drop rows to change visit order. First row (anchor) is fixed.<br>';
-            html += 'Click <b>Apply</b> to use this order for the fanfield calculation.';
-            html += '</div>';
-            html += '<div style="margin-top:5px;text-align:right;">';
-            html += '  <button id="plugin_fanfields2_order_path">Path</button> ';
-            html += '  <button id="plugin_fanfields2_order_reset" >Reset</button> ';
-            html += '  <button id="plugin_fanfields2_order_apply" >Apply</button>';
-            html += '</div>';
-            return html;
-        }
-      */
         function buildTableHTML() {
             var html = '';
             html += '<table id="plugin_fanfields2_order_table" class="plugin_fanfields2_order_table">';
@@ -961,98 +1043,10 @@ function wrapper(plugin_info) {
         dialog({
             html: '<div id="plugin_fanfields2_order_dialog_inner">' + buildTableHTML() + '</div>',
             id: 'plugin_fanfields2_order_dialog',
-            title: 'Manage Fanfields order',
+            title: manageOrderDialogTitle,
             width: width,
             closeOnEscape: true
         });
-
-        /*
-        function initDragAndButtons() {
-            var $tbody = $('#plugin_fanfields2_order_table tbody');
-            var dragSrcRow = null;
-
-            // Cleanly remove existing handlers in case the dialog was opened multiple times
-            $tbody.off('dragstart dragend dragover drop');
-
-            $tbody.on('dragstart', 'tr.plugin_fanfields2_order_row', function(e) {
-                dragSrcRow = this;
-                e.originalEvent.dataTransfer.effectAllowed = 'move';
-                e.originalEvent.dataTransfer.setData('text/plain', $(this).data('guid'));
-                $(this).addClass('plugin_fanfields2_order_dragging');
-
-                orderDirty = true;
-
-                if (that.showOrderPath) {
-                    that.setOrderPathActive(false);
-                    $('#plugin_fanfields2_order_path').text('Path');
-                }
-
-            });
-
-            $tbody.on('dragend', 'tr.plugin_fanfields2_order_row', function() {
-                $(this).removeClass('plugin_fanfields2_order_dragging');
-                dragSrcRow = null;
-            });
-
-            $tbody.on('dragover', 'tr.plugin_fanfields2_order_row', function(e) {
-                e.preventDefault();
-                e.originalEvent.dataTransfer.dropEffect = 'move';
-            });
-
-            $tbody.on('drop', 'tr.plugin_fanfields2_order_row', function(e) {
-                e.preventDefault();
-                if (!dragSrcRow || dragSrcRow === this) return;
-                if ($(this).hasClass('plugin_fanfields2_order_anchor')) return;
-                $(this).before(dragSrcRow);
-            });
-
-            // Rebind Reset and Apply buttons
-            $('#plugin_fanfields2_order_reset').off('click').on('click', function() {
-                // Clear manual order and recalculate the plan
-                that.manualOrderGuids = null;
-                that.updateLayer();
-
-                orderDirty = false;
-
-                // Refresh the dialog table (replace content only)
-                $('#plugin_fanfields2_order_dialog_inner').html(buildTableHTML());
-                initDragAndButtons();
-
-                if (that.showOrderPath) {
-                    that.updateOrderPath();
-                }
-            });
-
-            $('#plugin_fanfields2_order_apply').off('click').on('click', function() {
-                var guids = [];
-                $('#plugin_fanfields2_order_table tbody tr').each(function() {
-                    guids.push($(this).data('guid'));
-                });
-
-                // the first entry must remain the anchor
-                if (guids[0] !== that.startingpointGUID) {
-                    that.manualOrderGuids = null;
-                } else {
-                    that.manualOrderGuids = guids;
-                }
-
-                orderDirty = false;
-
-                that.delayedUpdateLayer(0.2);
-                $('#plugin_fanfields2_order_dialog').dialog('close');
-            });
-
-            $('#plugin_fanfields2_order_path').off('click').on('click', function() {
-                var newState = !that.showOrderPath;
-                that.setOrderPathActive(newState);
-                $(this).text(newState ? 'Hide path' : 'Path');
-            });
-            $('#plugin_fanfields2_order_path').text(
-                that.showOrderPath ? 'Hide path' : 'Path'
-            );
-
-        }
-*/
 
         function initDragAndButtons() {
             var $tbody = $('#plugin_fanfields2_order_table tbody');
@@ -1502,6 +1496,7 @@ function wrapper(plugin_info) {
                '}\n'
               );
 
+
         if (window.plugin.keys || window.plugin.LiveInventory) {
             addCSS('\n' +
                    'td[plugin_fanfields2_enoughKeys], div[plugin_fanfields2_enoughKeys] {\n' +
@@ -1592,6 +1587,15 @@ function wrapper(plugin_info) {
 
         `);
 
+        addCSS(`
+              .plugin_fanfields2_fieldsCell {
+                text-align: center;
+                font-size: 12px;
+                letter-spacing: 1px;
+                user-select: none;
+              }
+            `);
+
         addCSS('\n' +
                '.plugin_fanfields2_order_dragging {\n' +
                '  cursor: grabbing;\n' +
@@ -1599,6 +1603,27 @@ function wrapper(plugin_info) {
                '}\n'
               );
 
+        addCSS(`
+          /* Standard: UI zeigt onclick-Link, Print-Link versteckt */
+          .plugin_fanfields2_exportText_ui { display: inline; }
+          .plugin_fanfields2_exportText_print { display: none; }
+
+          @media print {
+            /* Beim Drucken: Print-Link zeigen, UI-Link verstecken */
+            .plugin_fanfields2_exportText_ui { display: none !important; }
+            .plugin_fanfields2_exportText_print { display: inline !important; }
+
+            /* Portal-Zeilen (die “zugeklappten” Hauptzeilen) fett */
+            tbody.plugin_fanfields2_exportText_Portal td {
+              font-weight: bold !important;
+            }
+
+            /* Detailzeilen (Links) ausdrücklich nicht fett */
+            tbody.plugin_fanfields2_exportText_LinkDetails td {
+              font-weight: normal !important;
+            }
+          }
+        `);
 
 
         // Inject/update a single style tag
@@ -1614,33 +1639,7 @@ function wrapper(plugin_info) {
 
     };
 
-    /*
-    thisplugin.getThirds = function(list, a,b) {
-        var i,k;
-        var linksOnA = [], linksOnB = [], result = [];
-        for (i in list) {
-            if ((list[i].a.equals(a) && list[i].b.equals(b)) || (list[i].a.equals(b) && list[i].b.equals(a))) {
-                // link in list equals tested link
-                continue;
-            }
-            if (list[i].a.equals(a) || list[i].b.equals(a)) linksOnA.push(list[i]);
-            if (list[i].a.equals(b) || list[i].b.equals(b)) linksOnB.push(list[i]);
-        }
-        for (i in linksOnA) {
-            for (k in linksOnB) {
-                if (linksOnA[i].a.equals(linksOnB[k].a) || linksOnA[i].a.equals(linksOnB[k].b)) {
-                    result.push(linksOnA[i].a);
-                }
-                if (linksOnA[i].b.equals(linksOnB[k].a) || linksOnA[i].b.equals(linksOnB[k].b)) {
-                    result.push(linksOnA[i].b);
-                }
-            }
-        }
-        return result;
-    };
-    */
-
-    // Faster variant: find common third points without list concatenation and without O(n^2) matching
+    // find common third points 
     thisplugin.getThirds2 = function(listA, listB, a, b) {
         var neighA = {};
         var neighB = {};
@@ -2468,6 +2467,7 @@ function wrapper(plugin_info) {
                                        guid: guid,
                                        incoming: [] ,
                                        outgoing: [],
+                                       outgoingMeta: {},
                                        is_startpoint: this.fanpoints[guid].equals(thisplugin.startingpoint)
                                       });
 
@@ -2646,6 +2646,7 @@ function wrapper(plugin_info) {
                     bearing: bearing,
                     isJetLink: false,
                     isFanLink: (pb === 0),
+                    creatingFieldsWith: [],
                     counts: true,
                     distance: distance
                 };
@@ -2708,19 +2709,39 @@ function wrapper(plugin_info) {
                         possibleline.isJetLink = true;
                     }
 
+                    possibleline.creatingFieldsWith = thirds;
+
+                    let field = {}
+                    for (var t in thirds) {
+                        field = { a: thirds[t], b: possibleline.a, c: possibleline.b }
+                        triangles.push(field);
+                    }
+
                     if (possibleline.counts) {
                         donelinks.splice(donelinks.length - (this.sortedFanpoints.length - pa), 0, possibleline);
                         if (pb === 0 && thisplugin.stardirection == thisplugin.starDirENUM.RADIATING && outbound == 1) {
                             this.sortedFanpoints[pb].outgoing.push(this.sortedFanpoints[pa]);
                             this.sortedFanpoints[pa].incoming.push(this.sortedFanpoints[pb]);
+                            
+                            // Store per-link metadata (field creation) on the source portal.
+                            // This avoids recomputing geometry during task list export.
+                            this.sortedFanpoints[pb].outgoingMeta[this.sortedFanpoints[pa].guid] = {
+                                creatingFieldsWith: possibleline.creatingFieldsWith
+                            };
+
                         } else {
                             this.sortedFanpoints[pa].outgoing.push(this.sortedFanpoints[pb]);
                             this.sortedFanpoints[pb].incoming.push(this.sortedFanpoints[pa]);
+
+                            this.sortedFanpoints[pa].outgoingMeta[this.sortedFanpoints[pb].guid] = {
+                                creatingFieldsWith: possibleline.creatingFieldsWith
+                            };
                         }
+
+
+
                     }
-                    for (var t in thirds) {
-                        triangles.push({ a: thirds[t], b: possibleline.a, c: possibleline.b });
-                    }
+
                 }
             }
         }
@@ -2885,7 +2906,7 @@ function wrapper(plugin_info) {
             buttonBookmarksOnly = '<a class="plugin_fanfields2_btn" id="plugin_fanfields2_bookarks_only_btn" onclick="window.plugin.fanfields.useBookmarksOnly();" title="Help Enlightened Strong Victory">&#128278;&nbsp;All Portals</a> ';
         }
         // Show as list
-        var buttonPortalList = '<a class="plugin_fanfields2_btn" onclick="window.plugin.fanfields.exportText();" title="OpenAll Link Create Star">Show&nbsp;as&nbsp;list</a> ';
+        var buttonPortalList = '<a class="plugin_fanfields2_btn" onclick="window.plugin.fanfields.exportText();" title="OpenAll Link Create Star">Show&nbsp;task&nbsp;list</a> ';
 
         // Manage order
         var buttonManageOrder = '<a class="plugin_fanfields2_btn" id="plugin_fanfields2_manageorderbtn" onclick="window.plugin.fanfields.showManageOrderDialog();" title="Use Restraint Follow Easy Path">Manage&nbsp;order</a> ';
@@ -2951,7 +2972,7 @@ function wrapper(plugin_info) {
 
         var buttonHelp = '<a class="plugin_fanfields2_btn" id="plugin_fanfields2_helpbtn" onclick="window.plugin.fanfields.help();" title="Help" >Help</a> ';
 
-        var fanfields_buttons = '<span class="plugin_fanfields2_multibtn plugin_fanfields2_titlebar">Fanfields 2</span>';
+        var fanfields_buttons = '<span class="plugin_fanfields2_multibtn plugin_fanfields2_titlebar">Fan Fields 2</span>';
 
         fanfields_buttons +=
             buttonShiftAnchor +
@@ -2985,7 +3006,7 @@ function wrapper(plugin_info) {
             dialog({
                 html: '<b>Fan Fields 2</b><p>Fan Fields 2 requires the IITC Drawtools plugin</p><a href="https://iitc.app/download_desktop#draw-tools-by-breunigs">Download here</a>',
                 id: 'plugin_fanfields2_alert_dependencies',
-                title: 'Fan Fields - Missing dependency',
+                title: 'Fan Fields 2 - Missing dependency',
                 width: width
             });
 

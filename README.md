@@ -2,7 +2,7 @@
 
 A collection of amazing plugins made by community.
 
-There are now 122 plugins from 39 authors in the collection.
+There are now 123 plugins from 40 authors in the collection.
 
 > Note: You must install IITC-CE on your [desktop](https://iitc.app/download_desktop)
 or [mobile device](https://iitc.app/download_mobile) to use IITC plugins.
@@ -215,6 +215,19 @@ Reduces use of sidebar.
 Hide all UI for screenshot.
 
 *Version:* 0.1.4.20200528.070838
+
+
+  
+### [Kuku-Set-Zoom-Portals](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/elkuku/set-zoom-portals.user.js) by elkuku
+
+
+
+
+
+Set the zoom level to portals
+
+*[Issue tracker](https://github.com/elkuku/iitc-kuku-set-zoom-portals/issues)* |
+*Version:* 0.7
 
 
   

@@ -2,7 +2,7 @@
 
 A collection of amazing plugins made by community.
 
-There are now 124 plugins from 40 authors in the collection.
+There are now 125 plugins from 40 authors in the collection.
 
 > Note: You must install IITC-CE on your [desktop](https://iitc.app/download_desktop)
 or [mobile device](https://iitc.app/download_mobile) to use IITC plugins.
@@ -1226,6 +1226,20 @@ Defines the area inside which a portal can link under a field.
 Instead of clicking a link you can copy/paste any URL into IITC with this Goto Intel Link plugin. Support for portal links, map/perma links, mission links, and also support for portal and mission links created in the Ingress Prime scanner.
 
 *Version:* 1.0.0.20220614.235300
+
+
+  
+### [KuKuInventory](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/elkuku/inventory.user.js) by elkuku
+
+
+
+![preview](https://elkuku.github.io/iitc-kuku-inventory/assets/img/screenshot-001.png)
+
+Display inventory information
+
+*Depends*: helper-handlebars@elkuku  |
+*[Issue tracker](https://github.com/elkuku/iitc-kuku-inventory/issues)* |
+*Version:* 0.11
 
 
   

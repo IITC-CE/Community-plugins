@@ -1,0 +1,5 @@
+updateURL: https://elkuku.github.io/iitc-kuku-inventory/files/iitc_plugin_KuKuInventory.meta.js
+downloadURL: https://elkuku.github.io/iitc-kuku-inventory/files/iitc_plugin_KuKuInventory.user.js
+issueTracker: https://github.com/elkuku/iitc-kuku-inventory/issues
+preview: https://elkuku.github.io/iitc-kuku-inventory/assets/img/screenshot-001.png
+depends: helper-handlebars@elkuku

@@ -3,7 +3,7 @@
 // @id             portaldetailsmod@Whomiga
 // @name           Portal Detail Mods
 // @category       Info
-// @version        0.0.7
+// @version        0.0.8
 // @description    Show Mod Pictures in Portal Details
 // @downloadURL    https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Whomiga/portaldetailsmod.user.js
 // @updateURL      https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Whomiga/portaldetailsmod.meta.js
@@ -23,14 +23,14 @@ function wrapper(plugin_info) {
     var self = window.plugin.PortalDetailMods;
     self.id = 'PortalDetailMods';
     self.title = 'PortalDetailMods';
-    self.version = '0.0.7.20251228.194000';
+    self.version = '0.0.8.20260101.222000';
     self.author = 'Whomiga';
 
     // Name of the IITC build for first-party plugins
     plugin_info.buildName = "PortalDetailMods";
 
     // Datetime-derived version of the plugin
-    plugin_info.dateTimeVersion = "20251228.194000";
+    plugin_info.dateTimeVersion = "20260101.222000";
 
     // ID/name of the plugin
     plugin_info.pluginId = "portalDetailMods";
@@ -51,12 +51,45 @@ function wrapper(plugin_info) {
         BackGrnd: 'rgba(8, 60, 78, 0.9)',
     });
 
+/*
+// Interface Information
+*/
+    self.interfaceData = Object.freeze({
+        // Settings Dialog
+        settings: {
+            title: 'PortalDetailMods',
+            id:    'portaldetailmods',
+            // Colors Used In Dialog
+            colors: {
+                Main:     default_Colors.Main,
+                Label:    default_Colors.Label,
+                Border:   default_Colors.Border,
+                Gadget:   default_Colors.Gadget,
+                BackGrnd: default_Colors.BackGrnd,
+            },
+            // Elements Used In Dialog
+            elements: {
+                imagemode: {
+                    type: 'select',
+                    label: 'Image Mode:',
+                    options: {
+                        original: { text: 'Ingress {REDACTED}', option: 'original' },
+                        prime:    { text: 'Ingress Prime',      option: 'prime' },
+                        icon:     { text: 'Icon Images',        option: 'icon' }
+                    },
+                    settings: 'imageMode',
+                    eventhandler: mods_PortalDetails
+                }
+            }
+        }
+    })    
+
 //
 // Settings
 //
     const KEY_SETTINGS = "plugin-portaldetailmods";
     self.settings = {
-        imageMode: 'original',
+        imageMode: 'icon',
     };
 
 //
@@ -169,8 +202,8 @@ function wrapper(plugin_info) {
 // 
 // Settings Dialog
 //
-    function dialog_ShowSettings() {
-        let dialog_id = 'portaldetailmods';
+    function settings_ShowDialog() {
+        let dialog_id = self.interfaceData.settings.id;
         let dialog = dialog_GetDialog(dialog_id);
         if (dialog && dialog.dialog('isOpen')) {
             dialog.dialog('close');
@@ -181,38 +214,40 @@ function wrapper(plugin_info) {
             }
 
         let container = document.createElement('div');
-        container.id = 'portaldetailsmods';
-        let settings = container.appendChild(document.createElement('div'));
-        settings.className = "settings";
+        container.id = self.interfaceData.settings.id;
+
 //
 //  Settings
 //
-        let table = settings.appendChild(document.createElement('table'));
-        let tablebody = table.appendChild(document.createElement('tbody'));
-        let imagemoderow = tablebody.appendChild(document.createElement('tr'));
-        let imagerowarea = imagemoderow.appendChild(document.createElement('td'));
-        imagemodelabel = imagerowarea.appendChild(document.createElement('label'));
-        imagemodelabel.textContent = 'Image mode:';
-        imagemodelabel.style.display = 'inline-block';
-        imagemodelabel.for = "portaldetailmods-settings--imagemode";
-        let imagemodeselect = imagerowarea.appendChild(document.createElement('select'));
-        imagemodeselect.id = 'portaldetailmods-settings--imagemode'
-        imagemodeselect.style.display = 'inline-block';
-        imageoptionoriginal = imagemodeselect.appendChild(document.createElement('option'));
-        imageoptionoriginal.textContent = 'Ingress {REDACTED}';
-        imageoptionoriginal.value = 'original';
-        let imageoptionprime = imagemodeselect.appendChild(document.createElement('option'));
-        imageoptionprime.textContent = 'Ingress Prime';
-        imageoptionprime.value = 'prime';
-        let imageoptionicon = imagemodeselect.appendChild(document.createElement('option'));
-        imageoptionicon.textContent = 'Icon Images';
-        imageoptionicon.value = 'icon';
-        imagemodeselect.value = self.settings.imageMode;
-        imagemodeselect.addEventListener('change', function() {
-            self.settings.imageMode = this.value;
-            mods_PortalDetails();
+        Object.entries(self.interfaceData.settings.elements).forEach(([id, element]) => {
+            switch(element.type) {
+                case 'select': 
+                    var table = container.appendChild(document.createElement('table'));
+                    table.className = "settings";
+                    var row = table.appendChild(document.createElement('tr'));
+                    var data = row.appendChild(document.createElement('td'));
+                    var label = data.appendChild(document.createElement('label'));
+                    label.htmlFor = "portaldetailmods-settings--" + id;
+                    label.innerHTML = element.label;
+                    data = row.appendChild(document.createElement('td'));
+                    var select = data.appendChild(document.createElement('select'));
+                    select.id = 'portaldetailmods--' + id;
+                    Object.values(element.options).forEach((option) => {
+                        var value = select.appendChild(document.createElement('option'));
+                        value.textContent = option.text;
+                        value.value = option.option;
+                    })
+                    select.value = self.settings[element.settings];
+                    select.addEventListener('change', function() {
+                        self.settings[element.settings] = this.value;
+                        if (element.eventhandler) {
+                            element.eventhandler();
+                        }
+                    });
+                    break;
+            }
         });
-        
+
 //
 // Author
 //
@@ -223,9 +258,9 @@ function wrapper(plugin_info) {
 // Create and open the dialog
         dialog = window.dialog({
 			html: container,
-            title: 'PortalDetailMods',
+            title: self.interfaceData.settings.title,
             id: dialog_id,
-            dialogClass: 'ui-dialog-portaldetailmods',
+            dialogClass: 'ui-dialog-' + self.interfaceData.settings.id,
             position: {
                 my: 'auto',
                 at: 'auto',
@@ -356,7 +391,7 @@ function wrapper(plugin_info) {
 
        	$('<a href="#" title="Shows Mod Pictures on Portal Detail">')
        		.text('PortalDetailMods')
-       		.click(dialog_ShowSettings)
+       		.click(settings_ShowDialog)
        		.appendTo($('#toolbox'));
         $("<style>")
             .prop("type", "text/css")
@@ -365,24 +400,24 @@ function wrapper(plugin_info) {
 //
 // Styles
 // 
-div#dialog-portaldetailmods {
+div#dialog-${self.interfaceData.settings.id} {
     overflow-x: hidden !important;
 }
 
-.ui-dialog.ui-dialog-portaldetailmods {
+.ui-dialog.ui-dialog-${self.interfaceData.settings.id} {
     max-width: calc(100vw - 2px);
 }
 
 select {
-    background-color: ${default_Colors.Gadget};
+    background-color: ${self.interfaceData.settings.colors.Gadget};
 }
 
 /* Style the settings */
 .settings {
     padding: 8px 8px;
-    border: 1px solid ${default_Colors.Border};
-    background-color: ${default_Colors.BackGrnd};
-    color: ${default_Colors.Main};
+    border: 1px solid ${self.interfaceData.settings.colors.Border};
+    background-color: ${self.interfaceData.settings.colors.BackGrnd};
+    color: ${self.interfaceData.settings.colors.Main};
     display: flex;
     flex-direction: column;
     flex: 1;
@@ -392,8 +427,8 @@ select {
     border: none;
     margin-left: 0px;
     margin-right: 8px;
-    background-color: ${default_Colors.BackGrnd};
-    color: ${default_Colors.Label};
+    background-color: ${self.interfaceData.settings.colors.BackGrnd};
+    color: ${self.interfaceData.settings.colors.Label};
 }
   `).appendTo("head");
 

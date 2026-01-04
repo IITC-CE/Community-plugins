@@ -2,7 +2,7 @@
 
 A collection of amazing plugins made by community.
 
-There are now 125 plugins from 40 authors in the collection.
+There are now 126 plugins from 40 authors in the collection.
 
 > Note: You must install IITC-CE on your [desktop](https://iitc.app/download_desktop)
 or [mobile device](https://iitc.app/download_mobile) to use IITC plugins.
@@ -309,6 +309,23 @@ Import KML/GPX/Geojson/TCX into DrawTools
 
 *Depends*: draw-tools@breunigs  |
 *Version:* 1.0.1
+
+
+  
+
+## Export
+  
+### [KuKuExport](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/elkuku/export.user.js) by elkuku
+
+**Anti-features:** **[export](/CONTRIBUTING.md#anti-features)** 
+
+
+
+Export portal and inventory data
+
+*Depends*: helper-handlebars@elkuku  |
+*[Issue tracker](https://github.com/elkuku/iitc-kuku-export/issues)* |
+*Version:* 0.6
 
 
   

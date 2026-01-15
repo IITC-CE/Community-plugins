@@ -792,7 +792,7 @@ Calculate how to link the portals to create the largest tidy set of nested field
 *Recommends*: bookmarks@ZasoGD draw-tools-plus@zaso liveInventory@DanielOnDiordna keys@xelio  |
 *[Homepage](https://github.com/Heistergand/fanfields2/)* |
 *[Issue tracker](https://github.com/Heistergand/fanfields2/issues)* |
-*Version:* 2.7.5.20251219
+*Version:* 2.7.6.20260114
 
 
   

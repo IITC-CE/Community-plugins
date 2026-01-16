@@ -3,7 +3,7 @@
 // @id             portaldetailsmod@Whomiga
 // @name           Portal Detail Mods
 // @category       Info
-// @version        0.0.8
+// @version        0.0.9
 // @description    Show Mod Pictures in Portal Details
 // @downloadURL    https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Whomiga/portaldetailsmod.user.js
 // @updateURL      https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Whomiga/portaldetailsmod.meta.js
@@ -23,14 +23,14 @@ function wrapper(plugin_info) {
     var self = window.plugin.PortalDetailMods;
     self.id = 'PortalDetailMods';
     self.title = 'PortalDetailMods';
-    self.version = '0.0.8.20260101.222000';
+    self.version = '0.0.9.20260115.153500';
     self.author = 'Whomiga';
 
     // Name of the IITC build for first-party plugins
     plugin_info.buildName = "PortalDetailMods";
 
     // Datetime-derived version of the plugin
-    plugin_info.dateTimeVersion = "20260101.222000";
+    plugin_info.dateTimeVersion = "20260115.153500";
 
     // ID/name of the plugin
     plugin_info.pluginId = "portalDetailMods";
@@ -67,6 +67,13 @@ function wrapper(plugin_info) {
                 Gadget:   default_Colors.Gadget,
                 BackGrnd: default_Colors.BackGrnd,
             },
+            // Buttons Used In Dialog
+            buttons: {
+                ok: {
+                    text: 'OK',
+                    click: dialog_handleOKButton
+                }
+            },
             // Elements Used In Dialog
             elements: {
                 imagemode: {
@@ -81,8 +88,21 @@ function wrapper(plugin_info) {
                     eventhandler: mods_PortalDetails
                 }
             }
+        },
+        // Portal Details
+        portaldetails: {
+            mods: {
+                id: 'mods'
+            }
         }
-    })    
+   })    
+
+/*
+** Default Handler for OK Button
+*/
+    function dialog_handleOKButton() {
+        $(this).dialog('close');
+    }
 
 //
 // Settings
@@ -203,23 +223,20 @@ function wrapper(plugin_info) {
 // Settings Dialog
 //
     function settings_ShowDialog() {
-        let dialog_id = self.interfaceData.settings.id;
+        let interfaceData = self.interfaceData.settings;
+        let dialog_id = interfaceData.id;
         let dialog = dialog_GetDialog(dialog_id);
         if (dialog && dialog.dialog('isOpen')) {
             dialog.dialog('close');
             return;
         }
-        var dialogButtons = {
-            'OK': function () { $(this).dialog('close'); }
-            }
-
         let container = document.createElement('div');
-        container.id = self.interfaceData.settings.id;
+        container.id = interfaceData.id;
 
 //
 //  Settings
 //
-        Object.entries(self.interfaceData.settings.elements).forEach(([id, element]) => {
+        Object.entries(interfaceData.elements).forEach(([id, element]) => {
             switch(element.type) {
                 case 'select': 
                     var table = container.appendChild(document.createElement('table'));
@@ -258,9 +275,9 @@ function wrapper(plugin_info) {
 // Create and open the dialog
         dialog = window.dialog({
 			html: container,
-            title: self.interfaceData.settings.title,
+            title: interfaceData.title,
             id: dialog_id,
-            dialogClass: 'ui-dialog-' + self.interfaceData.settings.id,
+            dialogClass: 'ui-dialog-' + interfaceData.id,
             position: {
                 my: 'auto',
                 at: 'auto',
@@ -272,7 +289,7 @@ function wrapper(plugin_info) {
 		    	localStorage_Save();
                 dialog_RemoveDialog(dialog_id);
 	        }
-        }).dialog('option', 'buttons', dialogButtons);
+        }).dialog('option', 'buttons', { ...interfaceData.buttons});
         dialog_AddDialog(dialog_id, dialog);
     }
 
@@ -314,8 +331,7 @@ function wrapper(plugin_info) {
         if (mods) {
             Array.from(mods).map(el => {
                 el.title = el.title.replace(/rare/g, "Rare");
-                el.style = '';
-                el.style.display = "inline-block";
+                el.className = 'randdetails-' + self.interfaceData.portaldetails.mods.id;
                 if (el.dataset.key == undefined) {
                     key = el.textContent.toUpperCase().replace(/ /g, '_');
                 }
@@ -327,8 +343,6 @@ function wrapper(plugin_info) {
                     let itemimage = document.createElement('img');
                     var image = mods_getImageByKey(key,self.settings.imageMode);
                     itemimage.src = image;
-                    itemimage.style.width = "auto";
-                    itemimage.style.height = "64px";
                     el.innerHTML = '';
                     el.appendChild(itemimage);
                 }
@@ -429,6 +443,16 @@ select {
     margin-right: 8px;
     background-color: ${self.interfaceData.settings.colors.BackGrnd};
     color: ${self.interfaceData.settings.colors.Label};
+}
+
+.randdetails-${self.interfaceData.portaldetails.mods.id} {
+    display: inline-block !important;
+    cursor: default !important;
+}
+
+.randdetails-${self.interfaceData.portaldetails.mods.id} img {
+    width: auto;
+    height: 64px;
 }
   `).appendTo("head");
 

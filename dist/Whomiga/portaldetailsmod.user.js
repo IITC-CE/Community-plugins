@@ -3,7 +3,7 @@
 // @id             portaldetailsmod@Whomiga
 // @name           Portal Detail Mods
 // @category       Info
-// @version        0.0.9
+// @version        0.1.0
 // @description    Show Mod Pictures in Portal Details
 // @downloadURL    https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Whomiga/portaldetailsmod.user.js
 // @updateURL      https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Whomiga/portaldetailsmod.meta.js
@@ -23,14 +23,14 @@ function wrapper(plugin_info) {
     var self = window.plugin.PortalDetailMods;
     self.id = 'PortalDetailMods';
     self.title = 'PortalDetailMods';
-    self.version = '0.0.9.20260115.153500';
+    self.version = '0.1.0.20260116.175000';
     self.author = 'Whomiga';
 
     // Name of the IITC build for first-party plugins
     plugin_info.buildName = "PortalDetailMods";
 
     // Datetime-derived version of the plugin
-    plugin_info.dateTimeVersion = "20260115.153500";
+    plugin_info.dateTimeVersion = "20260116.175000";
 
     // ID/name of the plugin
     plugin_info.pluginId = "portalDetailMods";
@@ -236,7 +236,40 @@ function wrapper(plugin_info) {
 //
 //  Settings
 //
-        Object.entries(interfaceData.elements).forEach(([id, element]) => {
+        settings_CreateElements(container, interfaceData.elements);
+
+//
+// Author
+//
+        let author = container.appendChild(document.createElement('div'));
+        author.className = self.id + 'author';
+        author.innerHTML = self.title + ' version ' + self.version + ' by ' + self.author;
+
+// Create and open the dialog
+        dialog = window.dialog({
+			html: container,
+            title: interfaceData.title,
+            id: dialog_id,
+            dialogClass: 'ui-dialog-' + interfaceData.id,
+            position: {
+                my: 'auto',
+                at: 'auto',
+                of: window
+            },
+            width: '400px',
+            height: 'auto',
+      	    closeCallback: function () {
+                dialog_RemoveDialog(dialog_id);
+	        }
+        }).dialog('option', 'buttons', { ...interfaceData.buttons});
+        dialog_AddDialog(dialog_id, dialog);
+    }
+
+/*
+** Create Elements for Settings
+*/    
+    function settings_CreateElements(container, elements) {
+        Object.entries(elements).forEach(([id, element]) => {
             switch(element.type) {
                 case 'select': 
                     var table = container.appendChild(document.createElement('table'));
@@ -260,37 +293,11 @@ function wrapper(plugin_info) {
                         if (element.eventhandler) {
                             element.eventhandler();
                         }
+        		    	localStorage_Save();
                     });
                     break;
             }
         });
-
-//
-// Author
-//
-        let author = container.appendChild(document.createElement('div'));
-        author.className = self.id + 'author';
-        author.innerHTML = self.title + ' version ' + self.version + ' by ' + self.author;
-
-// Create and open the dialog
-        dialog = window.dialog({
-			html: container,
-            title: interfaceData.title,
-            id: dialog_id,
-            dialogClass: 'ui-dialog-' + interfaceData.id,
-            position: {
-                my: 'auto',
-                at: 'auto',
-                of: window
-            },
-            width: '400px',
-            height: 'auto',
-      	    closeCallback: function () {
-		    	localStorage_Save();
-                dialog_RemoveDialog(dialog_id);
-	        }
-        }).dialog('option', 'buttons', { ...interfaceData.buttons});
-        dialog_AddDialog(dialog_id, dialog);
     }
 
 //

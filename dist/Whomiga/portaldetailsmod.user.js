@@ -3,7 +3,7 @@
 // @id             portaldetailsmod@Whomiga
 // @name           Portal Detail Mods
 // @category       Info
-// @version        0.2.0
+// @version        0.3.0
 // @description    Show Mod Pictures in Portal Details
 // @downloadURL    https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Whomiga/portaldetailsmod.user.js
 // @updateURL      https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Whomiga/portaldetailsmod.meta.js
@@ -23,14 +23,14 @@ function wrapper(plugin_info) {
     var self = window.plugin.PortalDetailMods;
     self.id = 'PortalDetailMods';
     self.title = 'PortalDetailMods';
-    self.version = '0.2.0.20260118.120000';
+    self.version = '0.3.0.20260120.151500';
     self.author = 'Whomiga';
 
     // Name of the IITC build for first-party plugins
     plugin_info.buildName = "PortalDetailMods";
 
     // Datetime-derived version of the plugin
-    plugin_info.dateTimeVersion = "20260118.120000";
+    plugin_info.dateTimeVersion = "20260120.151500";
 
     // ID/name of the plugin
     plugin_info.pluginId = "portalDetailMods";
@@ -85,7 +85,8 @@ function wrapper(plugin_info) {
                         icon:     { text: 'Icon Images',        option: 'icon' }
                     },
                     settings: 'imageMode',
-                    eventhandler: mods_PortalDetails
+                    events: ['change'],
+                    eventhandler: settings_handleImageMode
                 }
             }
         },
@@ -287,16 +288,27 @@ function wrapper(plugin_info) {
                         value.value = option.option;
                     })
                     select.value = self.settings[element.settings];
-                    select.addEventListener('change', function() {
-                        self.settings[element.settings] = this.value;
-                        if (element.eventhandler) {
-                            element.eventhandler();
-                        }
-        		    	localStorage_Save();
-                    });
+                    if (element.events) {
+                        element.events.forEach(eventType => {
+                            select.addEventListener('change', function(event) {
+                                self.settings[element.settings] = this.value;
+                                if (element.eventhandler) {
+                                    element.eventhandler(event);
+                                }
+        		    	        localStorage_Save();
+                            });
+                        });
+                    }
                     break;
             }
         });
+    }
+
+/*
+** Settings - Event Handlers
+*/
+    function settings_handleImageMode(event) {
+        mods_PortalDetails();
     }
 
 //

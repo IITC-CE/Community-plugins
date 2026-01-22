@@ -226,8 +226,9 @@ Hide all UI for screenshot.
 
 Set the zoom level to portals
 
+*[Homepage](https://github.com/elkuku/iitc-kuku-set-zoom-portals)* |
 *[Issue tracker](https://github.com/elkuku/iitc-kuku-set-zoom-portals/issues)* |
-*Version:* 0.7
+*Version:* 0.8
 
 
   

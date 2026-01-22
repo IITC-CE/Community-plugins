@@ -341,8 +341,9 @@ Export portal and inventory data
 
 A helper plugin that provides templating functionality using Handlebars
 
+*[Homepage](https://github.com/elkuku/iitc-kuku-helper-handlebars)* |
 *[Issue tracker](https://github.com/elkuku/iitc-kuku-helper-handlebars/issues)* |
-*Version:* 0.5
+*Version:* 0.6
 
 
   

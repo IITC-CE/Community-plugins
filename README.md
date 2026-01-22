@@ -325,8 +325,9 @@ Import KML/GPX/Geojson/TCX into DrawTools
 Export portal and inventory data
 
 *Depends*: helper-handlebars@elkuku  |
+*[Homepage](https://github.com/elkuku/iitc-kuku-export)* |
 *[Issue tracker](https://github.com/elkuku/iitc-kuku-export/issues)* |
-*Version:* 0.6
+*Version:* 0.7
 
 
   
@@ -1257,8 +1258,9 @@ Instead of clicking a link you can copy/paste any URL into IITC with this Goto I
 Display inventory information
 
 *Depends*: helper-handlebars@elkuku  |
+*[Homepage](https://github.com/elkuku/iitc-kuku-inventory)* |
 *[Issue tracker](https://github.com/elkuku/iitc-kuku-inventory/issues)* |
-*Version:* 0.11
+*Version:* 0.12
 
 
   

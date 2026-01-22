@@ -1,5 +1,6 @@
-updateURL: https://elkuku.github.io/iitc-kuku-export/files/iitc_plugin_KuKu_Export.meta.js
-downloadURL: https://elkuku.github.io/iitc-kuku-export/files/iitc_plugin_KuKu_Export.user.js
+updateURL: https://elkuku.github.io/iitc-kuku-export/files/release/iitc_plugin_KuKu_Export.meta.js
+downloadURL: https://elkuku.github.io/iitc-kuku-export/files/release/iitc_plugin_KuKu_Export.user.js
+homepageURL: https://github.com/elkuku/iitc-kuku-export
 issueTracker: https://github.com/elkuku/iitc-kuku-export/issues
 depends: helper-handlebars@elkuku
 antiFeatures: export

@@ -3,7 +3,7 @@
 // @id             portaldetailsmod@Whomiga
 // @name           Portal Detail Mods
 // @category       Info
-// @version        0.3.0
+// @version        0.4.0
 // @description    Show Mod Pictures in Portal Details
 // @downloadURL    https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Whomiga/portaldetailsmod.user.js
 // @updateURL      https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Whomiga/portaldetailsmod.meta.js
@@ -23,14 +23,14 @@ function wrapper(plugin_info) {
     var self = window.plugin.PortalDetailMods;
     self.id = 'PortalDetailMods';
     self.title = 'PortalDetailMods';
-    self.version = '0.3.0.20260120.151500';
+    self.version = '0.4.0.20260124.150000';
     self.author = 'Whomiga';
 
     // Name of the IITC build for first-party plugins
     plugin_info.buildName = "PortalDetailMods";
 
     // Datetime-derived version of the plugin
-    plugin_info.dateTimeVersion = "20260120.151500";
+    plugin_info.dateTimeVersion = "20260124.150000";
 
     // ID/name of the plugin
     plugin_info.pluginId = "portalDetailMods";
@@ -84,9 +84,11 @@ function wrapper(plugin_info) {
                         prime:    { text: 'Ingress Prime',      option: 'prime' },
                         icon:     { text: 'Icon Images',        option: 'icon' }
                     },
-                    settings: 'imageMode',
-                    events: ['change'],
-                    eventhandler: settings_handleImageMode
+                    settings: 'imageMode', default: 'icon',
+                    events: {
+                        types: ['change'],
+                        handler: settings_handleImageMode
+                    }
                 }
             }
         },
@@ -109,8 +111,9 @@ function wrapper(plugin_info) {
 // Settings
 //
     const KEY_SETTINGS = "plugin-portaldetailmods";
+    const SETTINGS_PREFIX = "portaldetailmods-settings--";
     self.settings = {
-        imageMode: 'icon',
+        imageMode: self.interfaceData.settings.elements.imagemode.default,
     };
 
 //
@@ -273,27 +276,27 @@ function wrapper(plugin_info) {
             switch(element.type) {
                 case 'select': 
                     var table = container.appendChild(document.createElement('table'));
-                    table.className = "settings";
+                    table.className = self.interfaceData.settings.id + '-settings';
                     var row = table.appendChild(document.createElement('tr'));
                     var data = row.appendChild(document.createElement('td'));
                     var label = data.appendChild(document.createElement('label'));
-                    label.htmlFor = "portaldetailmods-settings--" + id;
+                    label.htmlFor = SETTINGS_PREFIX + id;
                     label.innerHTML = element.label;
                     data = row.appendChild(document.createElement('td'));
                     var select = data.appendChild(document.createElement('select'));
-                    select.id = 'portaldetailmods--' + id;
-                    Object.values(element.options).forEach((option) => {
-                        var value = select.appendChild(document.createElement('option'));
-                        value.textContent = option.text;
-                        value.value = option.option;
+                    select.id = SETTINGS_PREFIX + id;
+                    Object.values(element.options).forEach((value) => {
+                        var option = select.appendChild(document.createElement('option'));
+                        option.textContent = value.text;
+                        option.value = value.option;
                     })
                     select.value = self.settings[element.settings];
                     if (element.events) {
-                        element.events.forEach(eventType => {
-                            select.addEventListener('change', function(event) {
+                        element.events.types.forEach(eventType => {
+                            select.addEventListener(eventType, function(event) {
                                 self.settings[element.settings] = this.value;
-                                if (element.eventhandler) {
-                                    element.eventhandler(event);
+                                if (element.events.handler) {
+                                    element.events.handler(event);
                                 }
         		    	        localStorage_Save();
                             });
@@ -440,12 +443,12 @@ div#dialog-${self.interfaceData.settings.id} {
     max-width: calc(100vw - 2px);
 }
 
-select {
-    background-color: ${self.interfaceData.settings.colors.Gadget};
+.ui-dialog.ui-dialog-${self.interfaceData.settings.id} select {
+    background-color: ${default_Colors.Gadget};
 }
 
 /* Style the settings */
-.settings {
+.${self.interfaceData.settings.id}-settings {
     padding: 8px 8px;
     border: 1px solid ${self.interfaceData.settings.colors.Border};
     background-color: ${self.interfaceData.settings.colors.BackGrnd};
@@ -455,7 +458,7 @@ select {
     flex: 1;
 }
   
-.settings label {
+.${self.interfaceData.settings.id}-settings label {
     border: none;
     margin-left: 0px;
     margin-right: 8px;

@@ -3,7 +3,7 @@
 // @id             portaldetailsmod@Whomiga
 // @name           Portal Detail Mods
 // @category       Info
-// @version        0.5.0
+// @version        0.6.0
 // @description    Show Mod Pictures in Portal Details
 // @downloadURL    https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Whomiga/portaldetailsmod.user.js
 // @updateURL      https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Whomiga/portaldetailsmod.meta.js
@@ -23,14 +23,14 @@ function wrapper(plugin_info) {
     var self = window.plugin.PortalDetailMods;
     self.id = 'PortalDetailMods';
     self.title = 'PortalDetailMods';
-    self.version = '0.5.0.20260125.172500';
+    self.version = '0.6.0.20260127.151100';
     self.author = 'Whomiga';
 
     // Name of the IITC build for first-party plugins
     plugin_info.buildName = "PortalDetailMods";
 
     // Datetime-derived version of the plugin
-    plugin_info.dateTimeVersion = "20260125.172500";
+    plugin_info.dateTimeVersion = "20260127.151100";
 
     // ID/name of the plugin
     plugin_info.pluginId = "portalDetailMods";
@@ -44,9 +44,10 @@ function wrapper(plugin_info) {
     const default_Color = '#ffce00';
     self.interfaceColors = Object.freeze({
         Main:     default_Color,
-        Label:    default_Color,
+        Label:    '#ffffff',
         Border:   '#ffffff',
         Gadget:   '#ffffff',
+        Header:   default_Color,
         BackGrnd: 'rgba(8, 60, 78, 0.9)',
     });
 
@@ -54,16 +55,19 @@ function wrapper(plugin_info) {
 // Interface Information
 */
     self.interfaceData = Object.freeze({
+        // Prefix
+        prefix: 'portaldetailmods-',
         // Settings Dialog
         settings: {
             title: 'PortalDetailMods',
-            id:    'portaldetailmods',
+            id:    'settings',
             // Colors Used In Dialog
             colors: {
                 Main:     self.interfaceColors.Main,
                 Label:    self.interfaceColors.Label,
                 Border:   self.interfaceColors.Border,
                 Gadget:   self.interfaceColors.Gadget,
+                Header:   self.interfaceColors.Header,
                 BackGrnd: self.interfaceColors.BackGrnd,
             },
             // Buttons Used In Dialog
@@ -73,20 +77,25 @@ function wrapper(plugin_info) {
                     click: dialog_handleOKButton
                 }
             },
+            sections: {
+                settings: {
+                    label: 'Image modes:',
             // Elements Used In Dialog
-            elements: {
-                imagemode: {
-                    type: 'select',
-                    label: 'Image Mode:',
-                    options: {
-                        original: { text: 'Ingress {REDACTED}', option: 'original' },
-                        prime:    { text: 'Ingress Prime',      option: 'prime' },
-                        icon:     { text: 'Icon Images',        option: 'icon' }
-                    },
-                    settings: 'imageMode', default: 'icon',
-                    events: {
-                        types: ['change'],
-                        handler: settings_handleImageMode
+                    elements: {
+                        imagemode: {
+                            type: 'select',
+                            label: 'Images used for Portal Details:',
+                            options: {
+                                original: { text: 'Ingress {REDACTED}', option: 'original' },
+                                prime:    { text: 'Ingress Prime',      option: 'prime' },
+                                icon:     { text: 'Icon Images',        option: 'icon' }
+                            },
+                            settings: 'imageMode', default: 'icon',
+                            events: {
+                                types: ['change'],
+                                handler: settings_handleImageMode
+                            }
+                        }
                     }
                 }
             }
@@ -110,9 +119,9 @@ function wrapper(plugin_info) {
 // Settings
 //
     const KEY_SETTINGS = "plugin-portaldetailmods";
-    const SETTINGS_PREFIX = "portaldetailmods-settings--";
+    const SETTINGS_PREFIX = self.interfaceData.prefix + "settings--";
     self.settings = {
-        imageMode: self.interfaceData.settings.elements.imagemode.default,
+        imageMode: self.interfaceData.settings.sections.settings.elements.imagemode.default,
     };
 
 //
@@ -226,19 +235,22 @@ function wrapper(plugin_info) {
 //
     function settings_ShowDialog() {
         let interfaceData = self.interfaceData.settings;
-        let dialog_id = interfaceData.id;
+        let dialog_id = self.interfaceData.prefix + interfaceData.id;
         let dialog = dialog_GetDialog(dialog_id);
         if (dialog && dialog.dialog('isOpen')) {
             dialog.dialog('close');
             return;
         }
         let container = document.createElement('div');
-        container.id = interfaceData.id;
+        container.id = self.interfaceData.prefix + interfaceData.id;
+        let settings = container.appendChild(document.createElement('div'));
+        settings.className = self.interfaceData.prefix + interfaceData.id;
+        let table = settings.appendChild(document.createElement('table'));
 
 //
 //  Settings
 //
-        settings_CreateElements(container, interfaceData.elements);
+        settings_CreateSections(table, interfaceData.sections);
 
 //
 // Author
@@ -252,7 +264,7 @@ function wrapper(plugin_info) {
 			html: container,
             title: interfaceData.title,
             id: dialog_id,
-            dialogClass: 'ui-dialog-' + interfaceData.id,
+            dialogClass: 'ui-dialog-' + self.interfaceData.prefix + interfaceData.id,
             position: {
                 my: 'auto',
                 at: 'auto',
@@ -268,19 +280,35 @@ function wrapper(plugin_info) {
     }
 
 /*
+** Create Sections for Settings
+*/    
+    function settings_CreateSections(table, sections) {
+        Object.values(sections).forEach((section) => {
+            let div = table.appendChild(document.createElement('div'))
+
+            var row = div.appendChild(document.createElement('tr'));
+            var data = row.appendChild(document.createElement('td'));
+            var header = data.appendChild(document.createElement('h3'));
+            header.innerHTML = section.label;
+            settings_CreateElements(div, section.elements);
+        });
+    }
+
+/*
 ** Create Elements for Settings
 */    
-    function settings_CreateElements(container, elements) {
+    function settings_CreateElements(tablebody, elements) {
         Object.entries(elements).forEach(([id, element]) => {
             switch(element.type) {
                 case 'select': 
-                    var table = container.appendChild(document.createElement('table'));
-                    table.className = self.interfaceData.settings.id + '-settings';
+                    var table = tablebody.appendChild(document.createElement('table'));
                     var row = table.appendChild(document.createElement('tr'));
                     var data = row.appendChild(document.createElement('td'));
-                    var label = data.appendChild(document.createElement('label'));
-                    label.htmlFor = SETTINGS_PREFIX + id;
-                    label.innerHTML = element.label;
+                    if (element.label) {
+                        var label = data.appendChild(document.createElement('label'));
+                        label.htmlFor = SETTINGS_PREFIX + id;
+                        label.innerHTML = element.label;
+                    }
                     data = row.appendChild(document.createElement('td'));
                     var select = data.appendChild(document.createElement('select'));
                     select.id = SETTINGS_PREFIX + id;
@@ -434,20 +462,20 @@ function wrapper(plugin_info) {
 //
 // Styles
 // 
-div#dialog-${self.interfaceData.settings.id} {
+div#dialog-${self.interfaceData.prefix + self.interfaceData.settings.id} {
     overflow-x: hidden !important;
 }
 
-.ui-dialog.ui-dialog-${self.interfaceData.settings.id} {
+.ui-dialog.ui-dialog-${self.interfaceData.prefix + self.interfaceData.settings.id} {
     max-width: calc(100vw - 2px);
 }
 
-.ui-dialog.ui-dialog-${self.interfaceData.settings.id} select {
+.ui-dialog.ui-dialog-${self.interfaceData.prefix + self.interfaceData.settings.id} select {
     background-color: ${self.interfaceColors.Gadget};
 }
 
 /* Style the settings */
-.${self.interfaceData.settings.id}-settings {
+.${self.interfaceData.prefix + self.interfaceData.settings.id} {
     padding: 8px 8px;
     border: 1px solid ${self.interfaceData.settings.colors.Border};
     background-color: ${self.interfaceData.settings.colors.BackGrnd};
@@ -457,12 +485,18 @@ div#dialog-${self.interfaceData.settings.id} {
     flex: 1;
 }
   
-.${self.interfaceData.settings.id}-settings label {
+.${self.interfaceData.prefix + self.interfaceData.settings.id} label {
     border: none;
     margin-left: 0px;
     margin-right: 8px;
     background-color: ${self.interfaceData.settings.colors.BackGrnd};
     color: ${self.interfaceData.settings.colors.Label};
+}
+
+.${self.interfaceData.prefix + self.interfaceData.settings.id} h3 {
+    padding: 0 4px 4px 0;
+    margin: 0;
+    color: ${self.interfaceData.settings.colors.Header} !important;
 }
 
 .randdetails-${self.interfaceData.portaldetails.mods.id} {

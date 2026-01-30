@@ -3,7 +3,7 @@
 // @id             portaldetailsmod@Whomiga
 // @name           Portal Detail Mods
 // @category       Info
-// @version        0.6.0
+// @version        0.7.0
 // @description    Show Mod Pictures in Portal Details
 // @downloadURL    https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Whomiga/portaldetailsmod.user.js
 // @updateURL      https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Whomiga/portaldetailsmod.meta.js
@@ -23,14 +23,14 @@ function wrapper(plugin_info) {
     var self = window.plugin.PortalDetailMods;
     self.id = 'PortalDetailMods';
     self.title = 'PortalDetailMods';
-    self.version = '0.6.0.20260127.151100';
+    self.version = '0.7.0.20260128.213600';
     self.author = 'Whomiga';
 
     // Name of the IITC build for first-party plugins
     plugin_info.buildName = "PortalDetailMods";
 
     // Datetime-derived version of the plugin
-    plugin_info.dateTimeVersion = "20260127.151100";
+    plugin_info.dateTimeVersion = "20260128.213600";
 
     // ID/name of the plugin
     plugin_info.pluginId = "portalDetailMods";
@@ -38,9 +38,9 @@ function wrapper(plugin_info) {
     self.namespace = 'window.plugin.' + self.id + '.';
     self.pluginname = 'plugin-' + self.id;
 
-/*
-** Interface Colors
-*/
+//
+// Interface Colors
+//
     const default_Color = '#ffce00';
     self.interfaceColors = Object.freeze({
         Main:     default_Color,
@@ -51,16 +51,16 @@ function wrapper(plugin_info) {
         BackGrnd: 'rgba(8, 60, 78, 0.9)',
     });
 
-/*
+//
 // Interface Information
-*/
+//
     self.interfaceData = Object.freeze({
         // Prefix
         prefix: 'portaldetailmods-',
-        // Settings Dialog
-        settings: {
+        // Main Dialog
+        main: {
             title: 'PortalDetailMods',
-            id:    'settings',
+            id:    'main',
             // Colors Used In Dialog
             colors: {
                 Main:     self.interfaceColors.Main,
@@ -77,10 +77,11 @@ function wrapper(plugin_info) {
                     click: dialog_handleOKButton
                 }
             },
+            // Sections Used In Dialog
             sections: {
                 settings: {
                     label: 'Image modes:',
-            // Elements Used In Dialog
+                    // Elements Used In Section
                     elements: {
                         imagemode: {
                             type: 'select',
@@ -108,9 +109,9 @@ function wrapper(plugin_info) {
         }
    })    
 
-/*
-** Default Handler for OK Button
-*/
+//
+// Default Handler for OK Button
+//
     function dialog_handleOKButton() {
         $(this).dialog('close');
     }
@@ -121,7 +122,7 @@ function wrapper(plugin_info) {
     const KEY_SETTINGS = "plugin-portaldetailmods";
     const SETTINGS_PREFIX = self.interfaceData.prefix + "settings--";
     self.settings = {
-        imageMode: self.interfaceData.settings.sections.settings.elements.imagemode.default,
+        imageMode: self.interfaceData.main.sections.settings.elements.imagemode.default,
     };
 
 //
@@ -139,8 +140,176 @@ function wrapper(plugin_info) {
         return (/Firefox/i.test(navigator.userAgent));
     }
 
+// 
+// Main Dialog
 //
-// Mods Related Functions & Definitions
+    function main_ShowDialog() {
+        let interfaceData = self.interfaceData.main;
+        let dialog_id = self.interfaceData.prefix + interfaceData.id;
+        let dialog = dialog_GetDialog(dialog_id);
+        if (dialog && dialog.dialog('isOpen')) {
+            dialog.dialog('close');
+            return;
+        }
+        let container = document.createElement('div');
+        container.id = self.interfaceData.prefix + interfaceData.id;
+        let settings = container.appendChild(document.createElement('div'));
+        settings.className = self.interfaceData.prefix + interfaceData.id;
+        let table = settings.appendChild(document.createElement('table'));
+
+//
+//  Settings
+//
+        settings_CreateSections(table, interfaceData.sections);
+
+//
+// Author
+//
+        let author = container.appendChild(document.createElement('div'));
+        author.className = self.id + 'author';
+        author.innerHTML = self.title + ' version ' + self.version + ' by ' + self.author;
+
+// Create and open the dialog
+        dialog = window.dialog({
+			html: container,
+            title: interfaceData.title,
+            id: dialog_id,
+            dialogClass: 'ui-dialog-' + self.interfaceData.prefix + interfaceData.id,
+            position: {
+                my: 'auto',
+                at: 'auto',
+                of: window
+            },
+            width: '400px',
+            height: 'auto',
+      	    closeCallback: function () {
+                dialog_RemoveDialog(dialog_id);
+	        }
+        }).dialog('option', 'buttons', { ...interfaceData.buttons});
+        dialog_AddDialog(dialog_id, dialog);
+    }
+
+//
+// Create Sections for Settings
+//    
+    function settings_CreateSections(table, sections) {
+        Object.values(sections).forEach((section) => {
+            let div = table.appendChild(document.createElement('div'))
+
+            var row = div.appendChild(document.createElement('tr'));
+            var data = row.appendChild(document.createElement('td'));
+            var header = data.appendChild(document.createElement('h3'));
+            header.innerHTML = section.label;
+            settings_CreateElements(div, section.elements);
+        });
+    }
+
+//
+// Create Elements for Settings
+//    
+    function settings_CreateElements(tablebody, elements) {
+        Object.entries(elements).forEach(([id, element]) => {
+            switch(element.type) {
+                case 'select': 
+                    var table = tablebody.appendChild(document.createElement('table'));
+                    var row = table.appendChild(document.createElement('tr'));
+                    var data = row.appendChild(document.createElement('td'));
+                    if (element.label) {
+                        var label = data.appendChild(document.createElement('label'));
+                        label.htmlFor = SETTINGS_PREFIX + id;
+                        label.innerHTML = element.label;
+                    }
+                    data = row.appendChild(document.createElement('td'));
+                    var select = data.appendChild(document.createElement('select'));
+                    select.id = SETTINGS_PREFIX + id;
+                    Object.values(element.options).forEach((value) => {
+                        var option = select.appendChild(document.createElement('option'));
+                        option.textContent = value.text;
+                        option.value = value.option;
+                    })
+                    select.value = self.settings[element.settings];
+                    if (element.events) {
+                        element.events.types.forEach(eventType => {
+                            select.addEventListener(eventType, function(event) {
+                                self.settings[element.settings] = this.value;
+                                if (element.events.handler) {
+                                    element.events.handler(event);
+                                }
+        		    	        localStorage_Save();
+                            });
+                        });
+                    }
+                    break;
+            }
+        });
+    }
+
+//
+// Settings - Event Handlers
+//
+    function settings_handleImageMode(event) {
+        mods_PortalDetails();
+    }
+
+//
+//  List of Open Dialog Windows
+//
+    let dialog_OpenDialogs = [];
+    function dialog_AddDialog(id, dialog) {
+        dialog_OpenDialogs.push( {
+            id: id,
+            dialog: dialog
+        });
+    }
+
+    function dialog_GetDialog(id) {
+        let dialog = null;
+        let index = dialog_OpenDialogs.findIndex(item => item.id === id);
+        if (index > -1)
+            dialog = dialog_OpenDialogs[index].dialog;
+        return dialog;
+    }
+
+    function dialog_RemoveDialog(id) {
+        let index = dialog_OpenDialogs.findIndex(item => item.id === id);
+        if (index > -1)
+            dialog_OpenDialogs.splice(index,1);
+    }
+
+//
+//  Place Mods Graphics in Portal Details box
+//        
+    function update_PortalDetails(p) {
+        mods_PortalDetails();
+	}
+
+    // Update/Change Mods on Portal Details
+    function mods_PortalDetails() {
+        mods = document.querySelectorAll('.mods span');
+        if (mods) {
+            Array.from(mods).map(el => {
+                el.title = el.title.replace(/rare/g, "Rare");
+                el.className = 'randdetails-' + self.interfaceData.portaldetails.mods.id;
+                if (el.dataset.key == undefined) {
+                    key = el.textContent.toUpperCase().replace(/ /g, '_');
+                }
+                else {
+                    key = el.dataset.key;
+                }
+                if (key != '') {
+                    el.dataset.key = key;
+                    let itemimage = document.createElement('img');
+                    var image = mods_getImageByKey(key, self.settings.imageMode);
+                    itemimage.src = image;
+                    el.innerHTML = '';
+                    el.appendChild(itemimage);
+                }
+            });
+        }
+    }
+
+//
+// Mods Image Definitions
 //
     function mods_getImageByKey(key, imageMode) {
         const prefix = "data:image/webp;base64,";
@@ -230,174 +399,6 @@ function wrapper(plugin_info) {
         return result;
     }
 
-// 
-// Settings Dialog
-//
-    function settings_ShowDialog() {
-        let interfaceData = self.interfaceData.settings;
-        let dialog_id = self.interfaceData.prefix + interfaceData.id;
-        let dialog = dialog_GetDialog(dialog_id);
-        if (dialog && dialog.dialog('isOpen')) {
-            dialog.dialog('close');
-            return;
-        }
-        let container = document.createElement('div');
-        container.id = self.interfaceData.prefix + interfaceData.id;
-        let settings = container.appendChild(document.createElement('div'));
-        settings.className = self.interfaceData.prefix + interfaceData.id;
-        let table = settings.appendChild(document.createElement('table'));
-
-//
-//  Settings
-//
-        settings_CreateSections(table, interfaceData.sections);
-
-//
-// Author
-//
-        let author = container.appendChild(document.createElement('div'));
-        author.className = self.id + 'author';
-        author.innerHTML = self.title + ' version ' + self.version + ' by ' + self.author;
-
-// Create and open the dialog
-        dialog = window.dialog({
-			html: container,
-            title: interfaceData.title,
-            id: dialog_id,
-            dialogClass: 'ui-dialog-' + self.interfaceData.prefix + interfaceData.id,
-            position: {
-                my: 'auto',
-                at: 'auto',
-                of: window
-            },
-            width: '400px',
-            height: 'auto',
-      	    closeCallback: function () {
-                dialog_RemoveDialog(dialog_id);
-	        }
-        }).dialog('option', 'buttons', { ...interfaceData.buttons});
-        dialog_AddDialog(dialog_id, dialog);
-    }
-
-/*
-** Create Sections for Settings
-*/    
-    function settings_CreateSections(table, sections) {
-        Object.values(sections).forEach((section) => {
-            let div = table.appendChild(document.createElement('div'))
-
-            var row = div.appendChild(document.createElement('tr'));
-            var data = row.appendChild(document.createElement('td'));
-            var header = data.appendChild(document.createElement('h3'));
-            header.innerHTML = section.label;
-            settings_CreateElements(div, section.elements);
-        });
-    }
-
-/*
-** Create Elements for Settings
-*/    
-    function settings_CreateElements(tablebody, elements) {
-        Object.entries(elements).forEach(([id, element]) => {
-            switch(element.type) {
-                case 'select': 
-                    var table = tablebody.appendChild(document.createElement('table'));
-                    var row = table.appendChild(document.createElement('tr'));
-                    var data = row.appendChild(document.createElement('td'));
-                    if (element.label) {
-                        var label = data.appendChild(document.createElement('label'));
-                        label.htmlFor = SETTINGS_PREFIX + id;
-                        label.innerHTML = element.label;
-                    }
-                    data = row.appendChild(document.createElement('td'));
-                    var select = data.appendChild(document.createElement('select'));
-                    select.id = SETTINGS_PREFIX + id;
-                    Object.values(element.options).forEach((value) => {
-                        var option = select.appendChild(document.createElement('option'));
-                        option.textContent = value.text;
-                        option.value = value.option;
-                    })
-                    select.value = self.settings[element.settings];
-                    if (element.events) {
-                        element.events.types.forEach(eventType => {
-                            select.addEventListener(eventType, function(event) {
-                                self.settings[element.settings] = this.value;
-                                if (element.events.handler) {
-                                    element.events.handler(event);
-                                }
-        		    	        localStorage_Save();
-                            });
-                        });
-                    }
-                    break;
-            }
-        });
-    }
-
-/*
-** Settings - Event Handlers
-*/
-    function settings_handleImageMode(event) {
-        mods_PortalDetails();
-    }
-
-//
-//  List of Open Dialog Windows
-//
-    let dialog_OpenDialogs = [];
-    function dialog_AddDialog(id, dialog) {
-        dialog_OpenDialogs.push( {
-            id: id,
-            dialog: dialog
-        });
-    }
-
-    function dialog_GetDialog(id) {
-        let dialog = null;
-        let index = dialog_OpenDialogs.findIndex(item => item.id === id);
-        if (index > -1)
-            dialog = dialog_OpenDialogs[index].dialog;
-        return dialog;
-    }
-
-    function dialog_RemoveDialog(id) {
-        let index = dialog_OpenDialogs.findIndex(item => item.id === id);
-        if (index > -1)
-            dialog_OpenDialogs.splice(index,1);
-    }
-
-//
-//  Place Mods Graphics in Portal Details box
-//        
-    function update_PortalDetails(p) {
-        mods_PortalDetails();
-	}
-
-    // Update/Change Mods on Portal Details
-    function mods_PortalDetails() {
-        mods = document.querySelectorAll('.mods span');
-        if (mods) {
-            Array.from(mods).map(el => {
-                el.title = el.title.replace(/rare/g, "Rare");
-                el.className = 'randdetails-' + self.interfaceData.portaldetails.mods.id;
-                if (el.dataset.key == undefined) {
-                    key = el.textContent.toUpperCase().replace(/ /g, '_');
-                }
-                else {
-                    key = el.dataset.key;
-                }
-                if (key != '') {
-                    el.dataset.key = key;
-                    let itemimage = document.createElement('img');
-                    var image = mods_getImageByKey(key,self.settings.imageMode);
-                    itemimage.src = image;
-                    el.innerHTML = '';
-                    el.appendChild(itemimage);
-                }
-            });
-        }
-    }
-
 //
 // LocalStorage Related Functions
 //    
@@ -453,50 +454,50 @@ function wrapper(plugin_info) {
 
        	$('<a href="#" title="Shows Mod Pictures on Portal Detail">')
        		.text('PortalDetailMods')
-       		.click(settings_ShowDialog)
+       		.click(main_ShowDialog)
        		.appendTo($('#toolbox'));
         $("<style>")
             .prop("type", "text/css")
             .html(`
 
-//
-// Styles
-// 
-div#dialog-${self.interfaceData.prefix + self.interfaceData.settings.id} {
+/*
+** Styles
+*/ 
+div#dialog-${self.interfaceData.prefix + self.interfaceData.main.id} {
     overflow-x: hidden !important;
 }
 
-.ui-dialog.ui-dialog-${self.interfaceData.prefix + self.interfaceData.settings.id} {
+.ui-dialog.ui-dialog-${self.interfaceData.prefix + self.interfaceData.main.id} {
     max-width: calc(100vw - 2px);
 }
 
-.ui-dialog.ui-dialog-${self.interfaceData.prefix + self.interfaceData.settings.id} select {
+.ui-dialog.ui-dialog-${self.interfaceData.prefix + self.interfaceData.main.id} select {
     background-color: ${self.interfaceColors.Gadget};
 }
 
-/* Style the settings */
-.${self.interfaceData.prefix + self.interfaceData.settings.id} {
+/* Style the Main Dialog */
+.${self.interfaceData.prefix + self.interfaceData.main.id} {
     padding: 8px 8px;
-    border: 1px solid ${self.interfaceData.settings.colors.Border};
-    background-color: ${self.interfaceData.settings.colors.BackGrnd};
-    color: ${self.interfaceData.settings.colors.Main};
+    border: 1px solid ${self.interfaceData.main.colors.Border};
+    background-color: ${self.interfaceData.main.colors.BackGrnd};
+    color: ${self.interfaceData.main.colors.Main};
     display: flex;
     flex-direction: column;
     flex: 1;
 }
   
-.${self.interfaceData.prefix + self.interfaceData.settings.id} label {
+.${self.interfaceData.prefix + self.interfaceData.main.id} label {
     border: none;
     margin-left: 0px;
     margin-right: 8px;
-    background-color: ${self.interfaceData.settings.colors.BackGrnd};
-    color: ${self.interfaceData.settings.colors.Label};
+    background-color: ${self.interfaceData.main.colors.BackGrnd};
+    color: ${self.interfaceData.main.colors.Label};
 }
 
-.${self.interfaceData.prefix + self.interfaceData.settings.id} h3 {
+.${self.interfaceData.prefix + self.interfaceData.main.id} h3 {
     padding: 0 4px 4px 0;
     margin: 0;
-    color: ${self.interfaceData.settings.colors.Header} !important;
+    color: ${self.interfaceData.main.colors.Header} !important;
 }
 
 .randdetails-${self.interfaceData.portaldetails.mods.id} {
@@ -508,7 +509,7 @@ div#dialog-${self.interfaceData.prefix + self.interfaceData.settings.id} {
     width: auto;
     height: 64px;
 }
-  `).appendTo("head");
+`).appendTo("head");
 
 //
 // Setup Function - Continued
@@ -522,7 +523,7 @@ div#dialog-${self.interfaceData.prefix + self.interfaceData.settings.id} {
     };
 
     var setup = function() {
-        (window.iitcLoaded?self.setup():window.addHook('iitcLoaded',self.setup));
+        (window.iitcLoaded?self.setup():window.addHook('iitcLoaded', self.setup));
     };
 
     setup.info = plugin_info; //add the script info data to the function as a property

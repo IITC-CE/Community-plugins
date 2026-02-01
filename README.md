@@ -610,7 +610,7 @@ Counts portals by level and faction inside polygons or search result.
 
 Show Mod Pictures in Portal Details
 
-*Version:* 0.8.0
+*Version:* 0.9.0
 
 
   
@@ -795,7 +795,7 @@ Calculate how to link the portals to create the largest tidy set of nested field
 *Recommends*: bookmarks@ZasoGD draw-tools-plus@zaso liveInventory@DanielOnDiordna keys@xelio  |
 *[Homepage](https://github.com/Heistergand/fanfields2/)* |
 *[Issue tracker](https://github.com/Heistergand/fanfields2/issues)* |
-*Version:* 2.7.6.20260114
+*Version:* 2.7.7.20260131
 
 
   

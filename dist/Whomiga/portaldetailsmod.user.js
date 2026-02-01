@@ -3,7 +3,7 @@
 // @id             portaldetailsmod@Whomiga
 // @name           Portal Detail Mods
 // @category       Info
-// @version        0.8.0
+// @version        0.9.0
 // @description    Show Mod Pictures in Portal Details
 // @downloadURL    https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Whomiga/portaldetailsmod.user.js
 // @updateURL      https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Whomiga/portaldetailsmod.meta.js
@@ -23,14 +23,14 @@ function wrapper(plugin_info) {
     var self = window.plugin.PortalDetailMods;
     self.id = 'PortalDetailMods';
     self.title = 'PortalDetailMods';
-    self.version = '0.8.0.20260129.233000';
+    self.version = '0.9.0.20260131.085500';
     self.author = 'Whomiga';
 
     // Name of the IITC build for first-party plugins
     plugin_info.buildName = "PortalDetailMods";
 
     // Datetime-derived version of the plugin
-    plugin_info.dateTimeVersion = "20260129.233000";
+    plugin_info.dateTimeVersion = "20260131.085500";
 
     // ID/name of the plugin
     plugin_info.pluginId = "portalDetailMods";
@@ -104,7 +104,7 @@ function wrapper(plugin_info) {
         // Portal Details
         portaldetails: {
             mods: {
-                id: 'mods'
+                id: 'modimage'
             }
         }
    })    
@@ -285,13 +285,13 @@ function wrapper(plugin_info) {
 
     // Update/Change Mods on Portal Details
     function mods_PortalDetails() {
+        let portaldetails = self.interfaceData.portaldetails;
         mods = document.querySelectorAll('.mods span');
         if (mods) {
             Array.from(mods).map(el => {
                 if (el.title) {
                     el.title = el.title.replace(/rare/g, "Rare");
                 }
-                el.className = 'randdetails-' + self.interfaceData.portaldetails.mods.id;
                 if (el.dataset.key == undefined) {
                     key = el.textContent.toUpperCase().replace(/ /g, '_');
                 }
@@ -299,6 +299,7 @@ function wrapper(plugin_info) {
                     key = el.dataset.key;
                 }
                 if (key != '') {
+                    el.className = self.interfaceData.prefix + portaldetails.mods.id;
                     el.dataset.key = key;
                     let itemimage = document.createElement('img');
                     var image = mods_getImageByKey(key, self.settings.imageMode);
@@ -502,11 +503,11 @@ div#dialog-${self.interfaceData.prefix + self.interfaceData.main.id} {
     color: ${self.interfaceData.main.colors.Header} !important;
 }
 
-.randdetails-${self.interfaceData.portaldetails.mods.id} {
+.${self.interfaceData.prefix + self.interfaceData.portaldetails.mods.id} {
     display: inline-block !important;
 }
 
-.randdetails-${self.interfaceData.portaldetails.mods.id} img {
+.${self.interfaceData.prefix + self.interfaceData.portaldetails.mods.id} img {
     width: auto;
     height: 64px;
 }

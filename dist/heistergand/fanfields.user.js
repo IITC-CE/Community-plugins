@@ -3,7 +3,7 @@
 // @id              fanfields@heistergand
 // @name            Fan Fields 2
 // @category        Layer
-// @version         2.7.6.20260114
+// @version         2.7.7.20260131
 // @description     Calculate how to link the portals to create the largest tidy set of nested fields. Enable from the layer chooser.
 // @downloadURL     https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/heistergand/fanfields.user.js
 // @updateURL       https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/heistergand/fanfields.meta.js
@@ -26,14 +26,20 @@ function wrapper(plugin_info) {
   // ensure plugin framework is there, even if iitc is not yet loaded
   if (typeof window.plugin !== 'function') window.plugin = function () {};
   plugin_info.buildName = 'main';
-  plugin_info.dateTimeVersion = '2026-01-14-031142';
+  plugin_info.dateTimeVersion = '2026-01-31-184442';
   plugin_info.pluginId = 'fanfields';
 
   /* global L, $, dialog, map, portals, links, plugin, formatDistance  -- eslint*/
   /* exported setup, changelog -- eslint */
 
-  let arcname = window.PLAYER.team === 'ENLIGHTENED' ? 'Arc' : '***';
+  var arcname = (window.PLAYER && window.PLAYER.team === 'ENLIGHTENED') ? 'Arc' : '***';
   var changelog = [{
+      version: '2.7.7',
+      changes: [
+        'IMPROVE portal sequence editor usage for mobile.',
+      ],
+    },
+    {
       version: '2.7.6',
       changes: [
         'FIX: Some minor code cleanup',
@@ -990,6 +996,7 @@ function wrapper(plugin_info) {
   thisplugin.showManageOrderDialog = function () {
     var that = thisplugin;
     let manageOrderDialogTitle = 'Fan Fields 2 - Manage Portal Order';
+    var isMobile = L && L.Browser && L.Browser.mobile;
 
     if (!that.sortedFanpoints || that.sortedFanpoints.length === 0) {
       var widthEmpty = 350;
@@ -1009,7 +1016,8 @@ function wrapper(plugin_info) {
       var html = '';
       html += '<table id="plugin_fanfields2_order_table" class="plugin_fanfields2_order_table">';
       html += '<thead><tr>';
-      html += '<th class="plugin_fanfields2_order_gripcol" style="width:22px;"></th>';
+      // html += '<th class="plugin_fanfields2_order_gripcol" style="width:22px;"></th>';
+      html += '<th class="plugin_fanfields2_order_move_col" style="width:36px;"></th>';
       html += '<th style="width:30px;">#</th>';
       html += '<th>Portal</th>';
       html += '<th style="width:60px;">Keys</th>';
@@ -1026,13 +1034,27 @@ function wrapper(plugin_info) {
         var isAnchor = (fp.guid === that.startingpointGUID);
         var trClass = isAnchor ? 'plugin_fanfields2_order_anchor' : 'plugin_fanfields2_order_row';
 
-        // Grip column: handle for normal rows, anchor icon for the pinned row.
-        var gripCell = isAnchor ?
-          '<td class="plugin_fanfields2_order_gripcol"><span class="plugin_fanfields2_order_anchor_icon" title="Anchor row">&#9875;</span></td>' :
-          '<td class="plugin_fanfields2_order_gripcol"><span class="plugin_fanfields2_order_handle" title="Drag to reorder">&#9776;</span></td>';
+        // Grip/Move column: handle for normal rows, arrows for mobile, anchor icon for the pinned row.
+        var moveCell = '';
+
+        if (isAnchor) {
+          moveCell =
+            '<td class="plugin_fanfields2_order_gripcol"><span class="plugin_fanfields2_order_anchor_icon" title="Anchor row">&#9875;</span></td>';
+        } else {
+          if (isMobile) {
+            moveCell = '<td class="plugin_fanfields2_order_move_col">' +
+              '<button class="plugin_fanfields2_order_move plugin_fanfields2_order_move_up" title="Move up">&#9650;</button>' +
+              '<button class="plugin_fanfields2_order_move plugin_fanfields2_order_move_down" title="Move down">&#9660;</button>' +
+              '</td>';
+          } else {
+            moveCell =
+              '<td class="plugin_fanfields2_order_gripcol"><span class="plugin_fanfields2_order_handle" title="Drag to reorder">&#9776;</span></td>';
+          }
+        }
+
 
         html += '<tr class="' + trClass + '" data-guid="' + fp.guid + '">';
-        html += gripCell;
+        html += moveCell;
         html += '<td class="plugin_fanfields2_order_idx">' + idx + '</td>';
         html += '<td>' + title + (isAnchor ? ' <span class="plugin_fanfields2_italic">(anchor)</span>' : '') + '</td>';
         html += '<td style="text-align:right;">' + keys + '</td>';
@@ -1042,7 +1064,11 @@ function wrapper(plugin_info) {
 
       html += '</tbody></table>';
       html += '<div class="plugin_fanfields2_order_hint">';
-      html += 'Drag &amp; drop rows to change visit order. First row (anchor) is fixed.<br>';
+      if (isMobile) {
+        html += 'Use ▲/▼ to change visit order. First row (anchor) is fixed.<br>';
+      } else {
+        html += 'Drag &amp; drop rows to change visit order. First row (anchor) is fixed.<br>';
+      }
       html += 'Click <b>Apply</b> to use this order for the fanfield calculation.';
       html += '</div>';
       html += '<div style="margin-top:5px;text-align:right;">';
@@ -1076,6 +1102,7 @@ function wrapper(plugin_info) {
               .find('td.plugin_fanfields2_order_idx')
               .text(i);
           });
+        updateMoveButtons();
       }
 
       function pinAnchorRow() {
@@ -1085,6 +1112,35 @@ function wrapper(plugin_info) {
           .first()[0] !== $anchor[0]) {
           $tbody.prepend($anchor);
         }
+      }
+
+      function updateMoveButtons() {
+        if (!isMobile) return;
+        var $rows = $tbody.find('tr.plugin_fanfields2_order_row');
+        $rows.find('.plugin_fanfields2_order_move')
+          .prop('disabled', false);
+        $rows.first()
+          .find('.plugin_fanfields2_order_move_up')
+          .prop('disabled', true);
+        $rows.last()
+          .find('.plugin_fanfields2_order_move_down')
+          .prop('disabled', true);
+      }
+
+      function moveRow($row, direction) {
+        if (!$row.length || !$row.hasClass('plugin_fanfields2_order_row')) return;
+        var $anchor = $tbody.find('> tr.plugin_fanfields2_order_anchor');
+        if (direction === 'up') {
+          var $prev = $row.prev('tr');
+          if ($prev.length === 0 || $prev.is($anchor)) return;
+          $row.insertBefore($prev);
+        } else {
+          var $next = $row.next('tr');
+          if ($next.length === 0) return;
+          $row.insertAfter($next);
+        }
+        pinAnchorRow();
+        renumberRows();
       }
 
       // Destroy old sortable if the dialog is rebuilt.
@@ -1146,6 +1202,21 @@ function wrapper(plugin_info) {
           renumberRows();
         }
       });
+
+      if (isMobile) {
+        $tbody
+          .off('click.plugin_fanfields2_order_move')
+          .on('click.plugin_fanfields2_order_move', '.plugin_fanfields2_order_move', function () {
+            var $row = $(this)
+              .closest('tr');
+            if ($(this)
+              .hasClass('plugin_fanfields2_order_move_up')) {
+              moveRow($row, 'up');
+            } else {
+              moveRow($row, 'down');
+            }
+          });
+      }
 
       // Rebind Reset and Apply buttons
       $('#plugin_fanfields2_order_reset')
@@ -1565,6 +1636,16 @@ function wrapper(plugin_info) {
       '  width: 100%;\n' +
       '  border-collapse: collapse;\n' +
       '  font-size: 11px;\n' +
+      '}\n' +
+      '.plugin_fanfields2_order_move_col {\n' +
+      '  width: 36px;\n' +
+      '  text-align: center;\n' +
+      '  white-space: nowrap;\n' +
+      '}\n' +
+      '.plugin_fanfields2_order_move {\n' +
+      '  min-width: 18px;\n' +
+      '  padding: 0 2px;\n' +
+      '  margin: 0 1px;\n' +
       '}\n' +
       '.plugin_fanfields2_order_table th,\n' +
       '.plugin_fanfields2_order_table td {\n' +
@@ -3070,10 +3151,12 @@ function wrapper(plugin_info) {
 var script = document.createElement('script');
 script.id = 'iitc_plugin_fanfields2';
 var info = {};
-if (typeof GM_info !== 'undefined' && GM_info && GM_info.script) info.script = {
-  version: GM_info.script.version,
-  name: GM_info.script.name,
-  description: GM_info.script.description
+if (typeof GM_info !== 'undefined' && GM_info && GM_info.script) {
+  info.script = {
+    version: GM_info.script.version,
+    name: GM_info.script.name,
+    description: GM_info.script.description
+  }
 };
 script.appendChild(document.createTextNode('(' + wrapper + ')(' + JSON.stringify(info) + ');'));
 (document.body || document.head || document.documentElement)

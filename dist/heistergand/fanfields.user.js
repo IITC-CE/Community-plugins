@@ -3,7 +3,7 @@
 // @id              fanfields@heistergand
 // @name            Fan Fields 2
 // @category        Layer
-// @version         2.7.7.20260131
+// @version         2.7.7.20260201
 // @description     Calculate how to link the portals to create the largest tidy set of nested fields. Enable from the layer chooser.
 // @downloadURL     https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/heistergand/fanfields.user.js
 // @updateURL       https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/heistergand/fanfields.meta.js
@@ -26,7 +26,7 @@ function wrapper(plugin_info) {
   // ensure plugin framework is there, even if iitc is not yet loaded
   if (typeof window.plugin !== 'function') window.plugin = function () {};
   plugin_info.buildName = 'main';
-  plugin_info.dateTimeVersion = '2026-01-31-184442';
+  plugin_info.dateTimeVersion = '2026-02-01-142842';
   plugin_info.pluginId = 'fanfields';
 
   /* global L, $, dialog, map, portals, links, plugin, formatDistance  -- eslint*/
@@ -36,7 +36,9 @@ function wrapper(plugin_info) {
   var changelog = [{
       version: '2.7.7',
       changes: [
-        'IMPROVE portal sequence editor usage for mobile.',
+        'IMPROVE portal sequence editor usage for mobile',
+        'UPDATE help dialog content',
+        'IMPROVE task list design'
       ],
     },
     {
@@ -569,56 +571,66 @@ function wrapper(plugin_info) {
   thisplugin.helpDialogWidth = 650;
 
   thisplugin.help = function () {
-    var width = thisplugin.helpDialogWidth;
+    let width = thisplugin.helpDialogWidth;
     thisplugin.MaxDialogWidth = thisplugin.getMaxDialogWidth();
     if (thisplugin.MaxDialogWidth < thisplugin.helpDialogWidth) {
       width = thisplugin.MaxDialogWidth;
     }
     dialog({
-      html: '<p>Using Drawtools, draw one or more polygons around the portals you want to work with. ' +
-        'The Polygons can overlap each other or be completely separated. All portals within the polygons ' +
-        'count to your planned fanfield.</p>' +
+      html: '<p><b>Select portals</b><br>' +
+        'Using Drawtools, draw one or more polygons around the portals you want to work with. ' +
+        'Polygons can overlap each other or be completely separated. All portals within the polygons ' +
+        'count toward your planned fanfield. ' +
+        'Optional: toggle <i>🔖&nbsp;Bookmarks only</i> to restrict the selection to your bookmarked portals.</p>' +
 
-        '<p>From the layer selector, enable the 3 Fanfields layer for links, fields and numbers. ' +
-        'The fanfield will be calculated and shown in red links on the intel. Link directions are indicated ' +
-        'by dashed links at the portal to link from.</p>' +
+        '<p><b>Show the plan</b><br>' +
+        'From the layer selector, enable the Fanfields layers (Links / Fields / Numbers). ' +
+        'The fanfield is calculated and shown as red links/fields on the intel. ' +
+        'Link directions can be indicated with dashed stubs at the origin portal — toggle <i>Show&nbsp;link&nbsp;dir</i> as needed.</p>' +
 
-        '<p>The script selects an anchor portal from the hull of all selected portals. Use the Cycle&nbsp;Start ' +
-        'Button to select another hull portal as anchor.</p>' +
+        '<p><b>Choose the anchor (start portal)</b><br>' +
+        'By default, the script selects an anchor portal from the convex hull of all selected portals. ' +
+        'Use the Cycle&nbsp;Start buttons to step through hull portals (previous/next). ' +
+        'To force an inside portal as anchor (totally legitimate), place a Drawtools marker snapped onto that portal, ' +
+        'then cycle until it becomes the anchor.</p>' +
 
-        '<p>If you want to use portal as anchor, which is inside the hull, (which is totally legitimate), ' +
-        'place a marker on a portal to enforce it to be a possible anchor. Again, use the Cycle&nbsp;Start ' +
-        'Button until the Start Portal is where you want it to be.</p>' +
+        '<p><b>Build mode: inbounding / outbounding</b><br>' +
+        'A fanfield can be done <i>inbounding</i> by farming many keys at the anchor and linking <i>to</i> it from all other portals. ' +
+        'It can also be done <i>outbounding</i> by star-linking <i>from</i> the anchor until the maximum number of outgoing links is reached. ' +
+        'In outbounding mode you can set how many SBUL you plan to use (0–4) to calculate the outgoing link capacity.</p>' +
 
-        '<p>A Fanfield can be done <i>inbounding</i> by farming many keys at a portal and then link to it by all ' +
-        'the other portals. It can also be done <i>outbounding</i> by star-linking from the start portal until the maximum ' +
-        'number of outgoing links is reached. You can toggle that for planning accordingly.</p>' +
+        '<p><b>Avoid blockers</b><br>' +
+        'If you need to plan around links/fields you cannot or do not want to destroy, use <i>Respect&nbsp;Intel</i>. ' +
+        'When enabled, the plan avoids crosslinks with currently visible intel links/fields.</p>' +
 
-        '<p>You might need to plan your field around links you cannot or do not want to destroy. This is where the ' +
-        '<i>Respect Intel</i> button comes into play. Toggle this to plan your fanfield avoiding crosslinks.</p>' +
+        '<p><b>Order & route planning</b><br>' +
+        'Switch between <i>Clockwise</i> and <i>Counterclockwise</i> order to find an easier route or squeeze out extra fields. ' +
+        'For fine control, open <i>Manage Portal Order</i> and drag &amp; drop portals to customise your visit order. ' +
+        'Use <i>Path</i> to preview a straight-line route along the current portal sequence.</p>' +
 
-        '<p>Use the <i>Lock</i> function to prevent the script from recalculating anything. This is useful ' +
-        'if you have a large area and want to zoom into details.</p>  ' +
+        '<p><b>Freeze recalculation</b><br>' +
+        'Use <i>🔒&nbsp;Locked</i> to prevent the script from recalculating while you zoom into details or work with large areas. ' +
+        'Switch back to <i>🔓&nbsp;Unlocked</i> to refresh after changes.</p>' +
 
-        '<p>Try to switch your plan to counterclockwise direction. Your route might be easier or harder ' +
-        'if you change directions. Also try different anchors to get one more field out of some portal ' +
-        'constellations.</p> ' +
-
-        '<p>Copy your fanfield portals to bookmarks or drawtools to extend your possibilities to work ' +
-        'with the information.</p>' +
+        '<p><b>Task list & exports</b><br>' +
+        'Open <i>Task List</i> to get a step-by-step plan including per-portal key requirements, outgoing link counts, and (optional) link details. ' +
+        'If you use a Keys/LiveInventory plugin, the task list can also show your available key counts. ' +
+        'The task list includes a navigation link for Google Maps and a print-friendly view. ' +
+        'You can also export the plan to Drawtools/Bookmarks to share or continue working with it.</p>' +
 
         '<hr noshade>' +
 
-        '<p>Found a bug? Post your issues at GitHub:<br><a href="https://github.com/Heistergand/fanfields2/issues">https://github.com/Heistergand/fanfields2/issues</a></p>' +
-        '',
+        '<p>Found a bug? Post your issues at GitHub:<br>' +
+        '<a href="https://github.com/Heistergand/fanfields2/issues">https://github.com/Heistergand/fanfields2/issues</a></p>',
       id: 'plugin_fanfields2_alert_help',
       title: 'Fan Fields 2 - Help',
       width: width,
       closeOnEscape: true
     });
-
-
   };
+
+
+
 
   thisplugin.showStatistics = function () {
     var text = "";
@@ -646,8 +658,6 @@ function wrapper(plugin_info) {
         closeOnEscape: true
       });
     }
-
-
   }
 
   thisplugin.exportDrawtools = function () {
@@ -695,6 +705,7 @@ function wrapper(plugin_info) {
   // Show as list
   thisplugin.exportText = function () {
     var text = "<table><thead><tr>";
+    let fieldSymbol = "&#9650;";
 
     text += "<th style='text-align:right'>Pos.</th>";
     text += "<th style='text-align:right'>Action</th>";
@@ -702,7 +713,6 @@ function wrapper(plugin_info) {
     text += "<th>Keys</th>";
     text += "<th>Links</th>";
     text += "<th>Fields</th>";
-
 
     text += "</tr></thead><tbody>";
 
@@ -788,13 +798,16 @@ function wrapper(plugin_info) {
       // Links
       text += '<td>' + portal.outgoing.length + '</td>';
 
+      let fieldsCreatedAtThisPortal = 0
+      if (portal.outgoing.length > 0) {
+        portal.outgoing.forEach(function (outPortal, outIndex) {
+          let meta = portal.outgoingMeta?.[outPortal.guid];
+          fieldsCreatedAtThisPortal += meta?.creatingFieldsWith?.length ?? 0;
+        });
+      }
       // Fields (here: empty cell)
-      text += '<td class="plugin_fanfields2_fieldsCell"></td>';
-
-      // other
-      //text+='<td>';
-      //text+='';
-      //text+='</td>';
+      text += '<td class="plugin_fanfields2_fieldsCell" title="Fields created at this portal: ' +
+        fieldsCreatedAtThisPortal + '">' + fieldSymbol.repeat(fieldsCreatedAtThisPortal); + '</td>';
 
       // Row End
       text += '</tr>';
@@ -830,10 +843,10 @@ function wrapper(plugin_info) {
           linkDetailText += '<td>' + formatDistance(distance) + '</td>';
           // Fields
           let meta = portal.outgoingMeta?.[outPortal.guid];
-          let fieldsCreated = meta?.creatingFieldsWith?.length ?? 0;
-          let triangles = fieldsCreated === 2 ? '&#9650;&#9650;' : fieldsCreated === 1 ? '&#9650;' : '';
+          let fieldsCreatedByThisLink = meta?.creatingFieldsWith?.length ?? 0;
 
-          linkDetailText += '<td class="plugin_fanfields2_fieldsCell" title="Fields created: ' + fieldsCreated + '">' + triangles + '</td>';
+          linkDetailText += '<td class="plugin_fanfields2_fieldsCell" title="Fields created by this link: ' +
+            fieldsCreatedByThisLink + '">' + fieldSymbol.repeat(fieldsCreatedByThisLink); + '</td>';
 
           // Row End
           linkDetailText += '</tr>\n';
@@ -853,10 +866,7 @@ function wrapper(plugin_info) {
       '  <button id="plugin_fanfields2_export_pdf_btn">Print</button>' +
       '</div>';
 
-
     text += '<a target="_blank" href="' + gmnav + '">Navigate with Google Maps</a>';
-
-
 
     thisplugin.exportDialogWidth = 500;
 
@@ -1710,7 +1720,7 @@ function wrapper(plugin_info) {
 
     addCSS(`
               .plugin_fanfields2_fieldsCell {
-                text-align: center;
+                text-align: left;
                 font-size: 12px;
                 letter-spacing: 1px;
                 user-select: none;

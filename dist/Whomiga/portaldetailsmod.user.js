@@ -3,7 +3,7 @@
 // @id             portaldetailsmod@Whomiga
 // @name           Portal Detail Mods
 // @category       Info
-// @version        0.10.0
+// @version        0.11.0
 // @description    Show Mod Pictures in Portal Details
 // @downloadURL    https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Whomiga/portaldetailsmod.user.js
 // @updateURL      https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Whomiga/portaldetailsmod.meta.js
@@ -23,14 +23,14 @@ function wrapper(plugin_info) {
     var self = window.plugin.PortalDetailMods;
     self.id = 'PortalDetailMods';
     self.title = 'PortalDetailMods';
-    self.version = '0.10.0.20260202.182200';
+    self.version = '0.11.0.20260206.163500';
     self.author = 'Whomiga';
 
     // Name of the IITC build for first-party plugins
     plugin_info.buildName = "PortalDetailMods";
 
     // Datetime-derived version of the plugin
-    plugin_info.dateTimeVersion = "20260202.182200";
+    plugin_info.dateTimeVersion = "20260206.163500";
 
     // ID/name of the plugin
     plugin_info.pluginId = "portalDetailMods";
@@ -107,7 +107,7 @@ function wrapper(plugin_info) {
                 id: 'modimage'
             }
         }
-   })    
+   });   
 
 //
 // Settings
@@ -144,25 +144,13 @@ function wrapper(plugin_info) {
             dialog.dialog('close');
             return;
         }
+
+        // Create the contents of the dialog
         let container = document.createElement('div');
         container.id = self.interfaceData.prefix + interfaceData.id;
-        let settings = container.appendChild(document.createElement('div'));
-        settings.className = self.interfaceData.prefix + interfaceData.id;
-        let table = settings.appendChild(document.createElement('table'));
+        main_CreateContents(container, interfaceData);
 
-//
-//  Settings
-//
-        settings_CreateSections(table, interfaceData.sections);
-
-//
-// Author
-//
-        let author = container.appendChild(document.createElement('div'));
-        author.className = self.id + 'author';
-        author.innerHTML = self.title + ' version ' + self.version + ' by ' + self.author;
-
-// Create and open the dialog
+        // Create and open the dialog
         dialog = window.dialog({
 			html: container,
             title: interfaceData.title,
@@ -180,6 +168,24 @@ function wrapper(plugin_info) {
 	        }
         }).dialog('option', 'buttons', { ...interfaceData.buttons});
         dialog_AddDialog(dialog_id, dialog);
+    }
+
+/*
+** Main Dialog - Contents
+*/
+    function main_CreateContents(div, data) {
+        let settings = div.appendChild(document.createElement('div'));
+        settings.className = self.interfaceData.prefix + data.id;
+        let table = settings.appendChild(document.createElement('table'));
+
+        //  Settings
+        settings_CreateSections(table, data.sections);
+
+        // Author
+        let author = div.appendChild(document.createElement('div'));
+        author.className = self.id + 'author';
+        author.innerHTML = self.title + ' version ' + self.version + ' by ' + self.author;
+
     }
 
 //

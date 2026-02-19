@@ -3,7 +3,7 @@
 // @id              fanfields@heistergand
 // @name            Fan Fields 2
 // @category        Layer
-// @version         2.7.7.20260201
+// @version         2.7.8.20260218
 // @description     Calculate how to link the portals to create the largest tidy set of nested fields. Enable from the layer chooser.
 // @downloadURL     https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/heistergand/fanfields.user.js
 // @updateURL       https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/heistergand/fanfields.meta.js
@@ -26,14 +26,21 @@ function wrapper(plugin_info) {
   // ensure plugin framework is there, even if iitc is not yet loaded
   if (typeof window.plugin !== 'function') window.plugin = function () {};
   plugin_info.buildName = 'main';
-  plugin_info.dateTimeVersion = '2026-02-01-142842';
+  plugin_info.dateTimeVersion = '2026-02-18-000942';
   plugin_info.pluginId = 'fanfields';
 
   /* global L, $, dialog, map, portals, links, plugin, formatDistance  -- eslint*/
   /* exported setup, changelog -- eslint */
 
   var arcname = (window.PLAYER && window.PLAYER.team === 'ENLIGHTENED') ? 'Arc' : '***';
-  var changelog = [{
+  var changelog = [
+    {
+      version: '2.7.8',
+      changes: [
+        'NEW: Respect Intel now supports filtering which factions\' links are treated as blockers (Issue #104).'
+      ],
+    },
+    {
       version: '2.7.7',
       changes: [
         'IMPROVE portal sequence editor usage for mobile',
@@ -600,8 +607,9 @@ function wrapper(plugin_info) {
         'In outbounding mode you can set how many SBUL you plan to use (0–4) to calculate the outgoing link capacity.</p>' +
 
         '<p><b>Avoid blockers</b><br>' +
-        'If you need to plan around links/fields you cannot or do not want to destroy, use <i>Respect&nbsp;Intel</i>. ' +
-        'When enabled, the plan avoids crosslinks with currently visible intel links/fields.</p>' +
+        'If you need to plan around links you cannot or do not want to destroy, use <i>Respect&nbsp;Intel</i>. ' +
+        'Choose which factions\' links are treated as blockers (NONE / ALL / ENL / RES / ENL &amp; MAC / RES &amp; MAC / MAC). ' +
+        'The plan avoids crossing those currently visible intel links.</p>' +
 
         '<p><b>Order & route planning</b><br>' +
         'Switch between <i>Clockwise</i> and <i>Counterclockwise</i> order to find an easier route or squeeze out extra fields. ' +
@@ -1286,20 +1294,94 @@ function wrapper(plugin_info) {
 
   // ghi#23 end (3)
 
-
-  thisplugin.respectCurrentLinks = false;
-  thisplugin.toggleRespectCurrentLinks = function () {
-    thisplugin.respectCurrentLinks = !thisplugin.respectCurrentLinks;
-    if (thisplugin.respectCurrentLinks) {
-      $('#plugin_fanfields2_respectbtn')
-        .html('Respect&nbsp;Intel:&nbsp;ON');
-    } else {
-      $('#plugin_fanfields2_respectbtn')
-        .html('Respect&nbsp;Intel:&nbsp;OFF');
-    }
-    thisplugin.delayedUpdateLayer(0.2);
+  thisplugin.respectIntelLinksModeENUM = {
+    NONE: 0,
+    ALL: 1,
+    ENL: 2,
+    RES: 3,
+    ENL_AND_MAC: 4,
+    RES_AND_MAC: 5,
+    MAC: 6
   };
 
+  // Issue #104: Filter which visible intel links should block the plan.
+  // NONE: ignore all intel links
+  // ALL: treat all visible links as blockers (RES+ENL+MAC)
+  // ENL/RES/MAC: only that faction blocks
+  // ENL_AND_MAC / RES_AND_MAC: block those teams
+  thisplugin.respectIntelLinksMode = thisplugin.respectIntelLinksModeENUM.NONE;
+
+  thisplugin.isRespectingIntel = function () {
+    return thisplugin.respectIntelLinksMode !== thisplugin.respectIntelLinksModeENUM.NONE;
+  };
+
+  thisplugin.getRespectIntelTeams = function () {
+    switch (thisplugin.respectIntelLinksMode) {
+      case thisplugin.respectIntelLinksModeENUM.ALL:
+        return [window.TEAM_RES, window.TEAM_ENL, window.TEAM_MAC];
+
+      case thisplugin.respectIntelLinksModeENUM.ENL:
+        return [window.TEAM_ENL];
+
+      case thisplugin.respectIntelLinksModeENUM.RES:
+        return [window.TEAM_RES];
+
+      case thisplugin.respectIntelLinksModeENUM.MAC:
+        return [window.TEAM_MAC];
+
+      case thisplugin.respectIntelLinksModeENUM.ENL_AND_MAC:
+        return [window.TEAM_ENL, window.TEAM_MAC];
+
+      case thisplugin.respectIntelLinksModeENUM.RES_AND_MAC:
+        return [window.TEAM_RES, window.TEAM_MAC];
+
+      case thisplugin.respectIntelLinksModeENUM.NONE:
+      default:
+        return [];
+    }
+  };
+
+  thisplugin.getRespectIntelLabel = function () {
+    switch (thisplugin.respectIntelLinksMode) {
+      case thisplugin.respectIntelLinksModeENUM.ALL:
+        return 'ALL';
+
+      case thisplugin.respectIntelLinksModeENUM.ENL:
+        return 'ENL';
+
+      case thisplugin.respectIntelLinksModeENUM.RES:
+        return 'RES';
+
+      case thisplugin.respectIntelLinksModeENUM.MAC:
+        return 'MAC';
+
+      case thisplugin.respectIntelLinksModeENUM.ENL_AND_MAC:
+        return 'E&amp;M';
+
+      case thisplugin.respectIntelLinksModeENUM.RES_AND_MAC:
+        return 'R&amp;M';
+
+      case thisplugin.respectIntelLinksModeENUM.NONE:
+      default:
+        return 'NONE';
+    }
+  };
+
+  thisplugin.updateRespectIntelButton = function () {
+    $('#plugin_fanfields2_respectbtn')
+      .html('Respect&nbsp;Intel:&nbsp;' + thisplugin.getRespectIntelLabel());
+  };
+
+  // Backwards-compatible name: now cycles through the available modes.
+  thisplugin.toggleRespectCurrentLinks = function () {
+    thisplugin.respectIntelLinksMode++;
+    if (thisplugin.respectIntelLinksMode > thisplugin.respectIntelLinksModeENUM.MAC) {
+      thisplugin.respectIntelLinksMode = thisplugin.respectIntelLinksModeENUM.NONE;
+    }
+
+    thisplugin.updateRespectIntelButton();
+    thisplugin.delayedUpdateLayer(0.2);
+  };
   thisplugin.indicateLinkDirection = true;
   thisplugin.toggleLinkDirIndicator = function () {
     thisplugin.indicateLinkDirection = !thisplugin.indicateLinkDirection;
@@ -2305,7 +2387,8 @@ function wrapper(plugin_info) {
       var lls = link.getLatLngs();
       var line = {
         a: {},
-        b: {}
+        b: {},
+        team: link.options.team
       };
       var a = lls[0],
         b = lls[1];
@@ -2318,8 +2401,12 @@ function wrapper(plugin_info) {
     // Cache intel links as a flat array once (used repeatedly in candidate loop)
     var maplinksAll = null;
     // var emptyMaplinks = [];
-    if (thisplugin.respectCurrentLinks) {
-      maplinksAll = Object.values(thisplugin.intelLinks);
+    if (thisplugin.isRespectingIntel()) {
+      var allowedTeams = thisplugin.getRespectIntelTeams();
+      maplinksAll = Object.values(thisplugin.intelLinks)
+        .filter(function (l) {
+          return allowedTeams.indexOf(l.team) !== -1;
+        });
     }
 
     // filter layers into array that only contains GeodesicPolygon
@@ -2714,7 +2801,7 @@ function wrapper(plugin_info) {
         maplinks = maplinksAll;
 
         // "Respect Intel" stuff
-        if (thisplugin.respectCurrentLinks) {
+        if (thisplugin.isRespectingIntel()) {
           for (i in maplinks) {
             if (this.intersects(possibleline, maplinks[i])) {
               intersection++;
@@ -2755,7 +2842,7 @@ function wrapper(plugin_info) {
           //console.log("FANPOINTS: " + pa + " - "+pb+" bearing: " + bearing + "° " + this.bearingWord(bearing));
           // Check if Link is a jetlink and add second field
           var thirds = [];
-          if (thisplugin.respectCurrentLinks) {
+          if (thisplugin.isRespectingIntel()) {
             if (possibleline.counts) {
               // thirds = this.getThirds(donelinks.concat(maplinks), possibleline.a, possibleline.b);
               thirds = thisplugin.getThirds2(donelinks, maplinks, possibleline.a, possibleline.b);
@@ -3021,7 +3108,7 @@ function wrapper(plugin_info) {
 
     // Respect Intel
     var buttonRespect =
-      '<a class="plugin_fanfields2_btn" id="plugin_fanfields2_respectbtn" onclick="window.plugin.fanfields.toggleRespectCurrentLinks();" title="Question Conflict Data">Respect&nbsp;Intel:&nbsp;OFF</a> ';
+      '<a class="plugin_fanfields2_btn" id="plugin_fanfields2_respectbtn" onclick="window.plugin.fanfields.toggleRespectCurrentLinks();" title="Question Conflict Data">Respect&nbsp;Intel:&nbsp;NONE</a> ';
 
     // Show link dir
     var buttonLinkDirectionIndicator =
@@ -3100,6 +3187,8 @@ function wrapper(plugin_info) {
 
     $('#fanfields2')
       .append(fanfields_buttons);
+
+    thisplugin.updateRespectIntelButton();
 
     //         window.pluginCreateHook('pluginBkmrksEdit');
 

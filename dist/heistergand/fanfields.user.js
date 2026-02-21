@@ -3,7 +3,7 @@
 // @id              fanfields@heistergand
 // @name            Fan Fields 2
 // @category        Layer
-// @version         2.7.8.20260218
+// @version         2.8.0.20260219
 // @description     Calculate how to link the portals to create the largest tidy set of nested fields. Enable from the layer chooser.
 // @downloadURL     https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/heistergand/fanfields.user.js
 // @updateURL       https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/heistergand/fanfields.meta.js
@@ -26,18 +26,25 @@ function wrapper(plugin_info) {
   // ensure plugin framework is there, even if iitc is not yet loaded
   if (typeof window.plugin !== 'function') window.plugin = function () {};
   plugin_info.buildName = 'main';
-  plugin_info.dateTimeVersion = '2026-02-18-000942';
+  plugin_info.dateTimeVersion = '2026-02-18-004642';
   plugin_info.pluginId = 'fanfields';
 
   /* global L, $, dialog, map, portals, links, plugin, formatDistance  -- eslint*/
   /* exported setup, changelog -- eslint */
 
   var arcname = (window.PLAYER && window.PLAYER.team === 'ENLIGHTENED') ? 'Arc' : '***';
-  var changelog = [
-    {
+  var changelog = [{
+      version: '2.8.0',
+      changes: [
+        'NEW: Add user warning when trying to link impossible lengths from underneath a field.',
+        'IMPROVE print design',
+        'FIX: adjust label position to avoid overlapping with portal names',
+        'FIX: minor code cleanup.',
+      ],
+    },{
       version: '2.7.8',
       changes: [
-        'NEW: Respect Intel now supports filtering which factions\' links are treated as blockers (Issue #104).'
+        'NEW: Respect Intel now supports filtering which factions\' links are treated as blockers (Issue #104).',
       ],
     },
     {
@@ -45,7 +52,7 @@ function wrapper(plugin_info) {
       changes: [
         'IMPROVE portal sequence editor usage for mobile',
         'UPDATE help dialog content',
-        'IMPROVE task list design'
+        'IMPROVE task list design',
       ],
     },
     {
@@ -429,6 +436,7 @@ function wrapper(plugin_info) {
 
   thisplugin.LABEL_WIDTH = 100;
   thisplugin.LABEL_HEIGHT = 49;
+  thisplugin.LABEL_PADDING_TOP = 27;
 
   // constants no longer present in leaflet 1.6.0
   thisplugin.DEG_TO_RAD = Math.PI / 180;
@@ -498,17 +506,17 @@ function wrapper(plugin_info) {
     // Add new folder in the localStorage
     let folder_ID = window.plugin.bookmarks.generateID();
     window.plugin.bookmarks.bkmrksObj.portals[folder_ID] = {
-      "label": label,
-      "state": 1,
-      "bkmrk": {}
+      'label': label,
+      'state': 1,
+      'bkmrk': {}
     };
 
     window.plugin.bookmarks.saveStorage();
     window.plugin.bookmarks.refreshBkmrks();
     window.runHooks('pluginBkmrksEdit', {
-      "target": type,
-      "action": "add",
-      "id": folder_ID
+      'target': type,
+      'action': 'add',
+      'id': folder_ID
     });
     console.log('Fanfields2: added BOOKMARKS ' + type + ' ' + folder_ID);
 
@@ -517,18 +525,18 @@ function wrapper(plugin_info) {
 
       // Add bookmark in the localStorage
       window.plugin.bookmarks.bkmrksObj.portals[folder_ID].bkmrk[bookmark_ID] = {
-        "guid": guid,
-        "latlng": latlng,
-        "label": label
+        'guid': guid,
+        'latlng': latlng,
+        'label': label
       };
 
       window.plugin.bookmarks.saveStorage();
       window.plugin.bookmarks.refreshBkmrks();
       window.runHooks('pluginBkmrksEdit', {
-        "target": "portal",
-        "action": "add",
-        "id": bookmark_ID,
-        "guid": guid
+        'target': 'portal',
+        'action': 'add',
+        'id': bookmark_ID,
+        'guid': guid
       });
       console.log('Fanfields2: added BOOKMARKS portal ' + bookmark_ID);
     }
@@ -641,16 +649,30 @@ function wrapper(plugin_info) {
 
 
   thisplugin.showStatistics = function () {
-    var text = "";
+    var text = '';
     if (this.sortedFanpoints.length > 3) {
-      text = "<table><tr><td>FanPortals:</td><td>" + (thisplugin.n - 1) + "</td><tr>" +
-        "<tr><td>CenterKeys:</td><td>" + thisplugin.centerKeys + "</td><tr>" +
-        "<tr><td>Total links / keys:</td><td>" + thisplugin.donelinks.length.toString() + "</td><tr>" +
-        "<tr><td>Fields:</td><td>" + thisplugin.triangles.length.toString() + "</td><tr>" +
-        "<tr><td>Build AP (links and fields):</td><td>" + (thisplugin.donelinks.length * 313 + thisplugin.triangles.length * 1250)
-        .toString() + "</td><tr>" +
-        //"<tr><td>Destroy AP (links and fields):</td><td>" + (thisplugin.sortedFanpoints.length*187 + thisplugin.triangles.length*750).toString() + "</td><tr>" +
-        "</table>";
+      text = '';
+      var totalLinks = thisplugin.donelinks.length;
+      var validLinks = (thisplugin.validLinkCount !== undefined) ? thisplugin.validLinkCount : totalLinks;
+      var totalFields = thisplugin.triangles.length;
+      var validFields = (thisplugin.validTriangleCount !== undefined) ? thisplugin.validTriangleCount : totalFields;
+
+      var linksText = (validLinks !== totalLinks) ? (validLinks + ' / ' + totalLinks) : validLinks.toString();
+      var fieldsText = (validFields !== totalFields) ? (validFields + ' / ' + totalFields) : validFields.toString();
+
+      var warn = '';
+      if (validLinks !== totalLinks || validFields !== totalFields) {
+        warn = '<tr><td colspan="2"><span class="plugin_fanfields2_warn">⚠ Under-field invalid links excluded from counts</span></td></tr>';
+      }
+
+      text = '<table><tr><td>FanPortals:</td><td>' + (thisplugin.n - 1) + '</td><tr>' +
+        '<tr><td>CenterKeys:</td><td>' + thisplugin.centerKeys + '</td><tr>' +
+        '<tr><td>Total links / keys:</td><td>' + linksText + '</td><tr>' +
+        '<tr><td>Fields:</td><td>' + fieldsText + '</td><tr>' +
+        '<tr><td>Build AP (links and fields):</td><td>' + (validLinks * 313 + validFields * 1250).toString() + '</td><tr>' +
+        warn +
+        '</table>';
+
 
       var width = 400;
       thisplugin.MaxDialogWidth = thisplugin.getMaxDialogWidth();
@@ -673,6 +695,9 @@ function wrapper(plugin_info) {
     $.each(thisplugin.sortedFanpoints, function (index, portal) {
       $.each(portal.outgoing, function (targetIndex, targetPortal) {
 
+        var meta = (portal.outgoingMeta && portal.outgoingMeta[targetPortal.guid]) ? portal.outgoingMeta[targetPortal.guid] : null;
+        if (meta && meta.invalidUnderField) return;
+
         alatlng = map.unproject(portal.point, thisplugin.PROJECT_ZOOM);
         blatlng = map.unproject(targetPortal.point, thisplugin.PROJECT_ZOOM);
         layer = L.geodesicPolyline([alatlng, blatlng], window.plugin.drawTools.lineOptions);
@@ -690,6 +715,9 @@ function wrapper(plugin_info) {
     var alatlng, blatlng, layer;
     $.each(thisplugin.sortedFanpoints, function (index, portal) {
       $.each(portal.outgoing, function (targetIndex, targetPortal) {
+
+        var meta = (portal.outgoingMeta && portal.outgoingMeta[targetPortal.guid]) ? portal.outgoingMeta[targetPortal.guid] : null;
+        if (meta && meta.invalidUnderField) return;
         window.selectedPortal = portal.guid;
         window.plugin.arcs.draw();
         window.selectedPortal = targetPortal.guid;
@@ -712,17 +740,24 @@ function wrapper(plugin_info) {
 
   // Show as list
   thisplugin.exportText = function () {
-    var text = "<table><thead><tr>";
-    let fieldSymbol = "&#9650;";
+    var text = '<table><thead><tr>';
+    let fieldSymbol = '&#9650;';
 
-    text += "<th style='text-align:right'>Pos.</th>";
-    text += "<th style='text-align:right'>Action</th>";
-    text += "<th style='text-align:left'>Portal Name</th>";
-    text += "<th>Keys</th>";
-    text += "<th>Links</th>";
-    text += "<th>Fields</th>";
+    text += '<th style="text-align:right">Pos.</th>';
+    text += '<th style="text-align:right">Action</th>';
+    text += '<th style="text-align:left">Portal Name</th>';
+    if (window.plugin.keys || window.plugin.LiveInventory) {
+      text += '<th title="own/need">'
+        + '<span class="plugin_fanfields2_exportText_print">Keys (owned/needed)</span>'
+        + '<span class="plugin_fanfields2_exportText_ui">Keys</span>'
+        + '</th>';
+    } else {
+      text += '<th>Keys</th>';
+    }
+    text += '<th>Links</th>';
+    text += '<th>Fields</th>';
 
-    text += "</tr></thead><tbody>";
+    text += '</tr></thead><tbody>';
 
     var gmnav = 'http://maps.google.com/maps/dir/';
 
@@ -735,13 +770,15 @@ function wrapper(plugin_info) {
       p = portal.portal;
       // window.portals[portal.guid];
 
-      let rawTitle = "unknown title";
+      let rawTitle = 'unknown title';
       if (p !== undefined && p.options && p.options.data && p.options.data.title) {
         rawTitle = p.options.data.title;
       }
 
       let title = window.escapeHtmlSpecialChars(rawTitle);
       let uriTitle = encodeURIComponent(rawTitle);
+
+      var keysNeeded = (portal.incomingValidCount !== undefined) ? portal.incomingValidCount : portal.incoming.length;
 
       let availableKeysText = '';
       let availableKeys = 0;
@@ -760,7 +797,7 @@ function wrapper(plugin_info) {
         // Beware of bugs in the above code; I have only proved it correct, not tried it! (Donald Knuth)
 
         let keyColorAttribute = '';
-        if (availableKeys >= portal.incoming.length) {
+        if (availableKeys >= keysNeeded) {
           keyColorAttribute = 'plugin_fanfields2_enoughKeys';
         } else {
           keyColorAttribute = 'plugin_fanfields2_notEnoughKeys';
@@ -802,20 +839,20 @@ function wrapper(plugin_info) {
       text += '</td>';
 
       // Keys
-      text += '<td ' + availableKeysText + portal.incoming.length + '</td>';
+      text += '<td ' + availableKeysText + keysNeeded + '</td>';
       // Links
-      text += '<td>' + portal.outgoing.length + '</td>';
+      text += '<td>' + ((portal.outgoingValidCount !== undefined) ? portal.outgoingValidCount : portal.outgoing.length) + '</td>';
 
       let fieldsCreatedAtThisPortal = 0
       if (portal.outgoing.length > 0) {
         portal.outgoing.forEach(function (outPortal, outIndex) {
           let meta = portal.outgoingMeta?.[outPortal.guid];
-          fieldsCreatedAtThisPortal += meta?.creatingFieldsWith?.length ?? 0;
+          fieldsCreatedAtThisPortal += (meta && meta.fieldsCreatedValid !== undefined) ? meta.fieldsCreatedValid : (meta && meta.creatingFieldsWith ? meta.creatingFieldsWith.length : 0);
         });
       }
       // Fields (here: empty cell)
       text += '<td class="plugin_fanfields2_fieldsCell" title="Fields created at this portal: ' +
-        fieldsCreatedAtThisPortal + '">' + fieldSymbol.repeat(fieldsCreatedAtThisPortal); + '</td>';
+        fieldsCreatedAtThisPortal + '">' + fieldSymbol.repeat(fieldsCreatedAtThisPortal) + '</td>';
 
       // Row End
       text += '</tr>';
@@ -826,6 +863,8 @@ function wrapper(plugin_info) {
         portal.outgoing.forEach(function (outPortal, outIndex) {
           let distance = thisplugin.distanceTo(portal.point, outPortal.point);
 
+          let meta = portal.outgoingMeta?.[outPortal.guid];
+
           // Row start
           let linkDetailText = '<tr>';
 
@@ -835,6 +874,12 @@ function wrapper(plugin_info) {
           // Action
           linkDetailText += '<td>';
           linkDetailText += 'Link to ' + thisplugin.sortedFanpoints.indexOf(outPortal);
+          if (meta && meta.invalidUnderField) {
+            linkDetailText += ' <span class="plugin_fanfields2_warn" title="Cannot throw from under an existing field (limit ' + thisplugin.maxLinkUnderFieldDistance + 'm).">⚠</span>';
+            if (meta.canFlipUnderField) {
+              linkDetailText += ' <span class="plugin_fanfields2_warn" title="Workaround: may work if thrown from the opposite portal (requires keys).">↔</span>';
+            }
+          }
           linkDetailText += '</td>';
 
           let outPortalTitle = 'unknown title';
@@ -850,11 +895,10 @@ function wrapper(plugin_info) {
           // Link (Distance)
           linkDetailText += '<td>' + formatDistance(distance) + '</td>';
           // Fields
-          let meta = portal.outgoingMeta?.[outPortal.guid];
-          let fieldsCreatedByThisLink = meta?.creatingFieldsWith?.length ?? 0;
+          let fieldsCreatedByThisLink = (meta && meta.fieldsCreatedValid !== undefined) ? meta.fieldsCreatedValid : (meta && meta.creatingFieldsWith ? meta.creatingFieldsWith.length : 0);
 
           linkDetailText += '<td class="plugin_fanfields2_fieldsCell" title="Fields created by this link: ' +
-            fieldsCreatedByThisLink + '">' + fieldSymbol.repeat(fieldsCreatedByThisLink); + '</td>';
+            fieldsCreatedByThisLink + '">' + fieldSymbol.repeat(fieldsCreatedByThisLink) + '</td>';
 
           // Row End
           linkDetailText += '</tr>\n';
@@ -984,6 +1028,18 @@ function wrapper(plugin_info) {
           .plugin_fanfields2_exportText_Label::before { display: none !important; }
 
           .plugin_fanfields2_exportText_LinkDetails { display: table-row-group !important; }
+
+          /* Keys alignment */
+          td[plugin_fanfields2_enoughKeys],
+
+          td[plugin_fanfields2_notEnoughKeys] {
+            text-align: center !important;
+          }
+
+          td[plugin_fanfields2_enoughKeys],
+          div[plugin_fanfields2_enoughKeys] {
+            color: #828284;
+          }
         `;
 
 
@@ -1046,8 +1102,8 @@ function wrapper(plugin_info) {
         var p = fp.portal;
         var title = (p && p.options && p.options.data && p.options.data.title) ? p.options.data.title : 'unknown title';
 
-        var keys = fp.incoming ? fp.incoming.length : 0;
-        var out = fp.outgoing ? fp.outgoing.length : 0;
+        var keys = (fp.incomingValidCount !== undefined) ? fp.incomingValidCount : (fp.incoming ? fp.incoming.length : 0);
+        var out = (fp.outgoingValidCount !== undefined) ? fp.outgoingValidCount : (fp.outgoing ? fp.outgoing.length : 0);
 
         var isAnchor = (fp.guid === that.startingpointGUID);
         var trClass = isAnchor ? 'plugin_fanfields2_order_anchor' : 'plugin_fanfields2_order_row';
@@ -1268,6 +1324,7 @@ function wrapper(plugin_info) {
             that.manualOrderGuids = null;
           } else {
             that.manualOrderGuids = guids;
+            that.showUnderFieldWarningOnce = true;
           }
 
           that.delayedUpdateLayer(0.2);
@@ -1659,6 +1716,11 @@ function wrapper(plugin_info) {
       '  font-style: italic;\n' +
       '}\n');
 
+    addCSS('\n' +
+      '.plugin_fanfields2_warn {\n' +
+      '  color: #ffce00;\n' +
+      '}\n');
+
     //plugin_fanfields2_exportText_LinkDetails
     addCSS('\n' +
       '.plugin_fanfields2_exportText_LinkDetails tr td {\n' +
@@ -1690,14 +1752,14 @@ function wrapper(plugin_info) {
 
 
     addCSS('\n' +
-      '.plugin_fanfields {\n' +
+      '.plugin_fanfields2_label {\n' +
       '   color: #FFFFBB;\n' +
       '   font-size: 11px;\n' +
       '   line-height: 13px;\n' +
       '   text-align: left;\n' +
       '   vertical-align: bottom;\n' +
       '   padding: 2px;\n' +
-      '   padding-top: 15px;\n' +
+      '   padding-top: ' + thisplugin.LABEL_PADDING_TOP + 'px;\n' +
       '   overflow: hidden;\n' +
       '   text-shadow: 1px 1px #000, 1px -1px #000, -1px 1px #000, -1px -1px #000, 0 0 5px #000;\n' +
       '   pointer-events: none;\n' +
@@ -1709,15 +1771,17 @@ function wrapper(plugin_info) {
 
 
     if (window.plugin.keys || window.plugin.LiveInventory) {
-      addCSS('\n' +
-        'td[plugin_fanfields2_enoughKeys], div[plugin_fanfields2_enoughKeys] {\n' +
-        '   color: #828284;\n' +
-        '}\n' +
-        'td[plugin_fanfields2_notEnoughKeys] {\n' +
-        '    /* color: #FFBBBB; */ \n' +
-        '}\n' +
-        ''
-      );
+      addCSS(`
+        td[plugin_fanfields2_enoughKeys], div[plugin_fanfields2_enoughKeys] {
+           color: #828284;
+           text-align: center;
+        }
+        td[plugin_fanfields2_notEnoughKeys] {
+            /* color: #FFBBBB; */
+            text-align: center;
+        }
+
+      `);
     };
 
 
@@ -2014,7 +2078,7 @@ function wrapper(plugin_info) {
 
     var label = L.marker(latLng, {
       icon: L.divIcon({
-        className: 'plugin_fanfields',
+        className: 'plugin_fanfields2_label',
         iconAnchor: [0, 0],
         iconSize: [thisplugin.LABEL_WIDTH, thisplugin.LABEL_HEIGHT],
         html: labelText
@@ -2096,6 +2160,233 @@ function wrapper(plugin_info) {
     other_ll = map.unproject(b, thisplugin.PROJECT_ZOOM);
     return starting_ll.distanceTo(other_ll);
   }
+
+
+  // Issue #96: Max distance (in meters) for creating a link from a portal that is underneath an already-existing field.
+  // Historically this was 500m; Niantic increased this temporarily to 2000m (matryoshka links). Keep configurable.
+  thisplugin.maxLinkUnderFieldDistance = 2000;
+
+  thisplugin.invalidUnderFieldLinks = {};
+  thisplugin.validTriangles = null;
+  thisplugin.validLinkCount = 0;
+  thisplugin.validTriangleCount = 0;
+
+  thisplugin.pointKey = function (p) {
+    return p.x + ',' + p.y;
+  };
+
+  thisplugin.getDirectedLinkKey = function (guidA, guidB) {
+    return guidA + '>' + guidB;
+  };
+
+  thisplugin.getUndirectedLinkKey = function (guidA, guidB) {
+    return (guidA < guidB) ? (guidA + '|' + guidB) : (guidB + '|' + guidA);
+  };
+
+  // Strict point-in-triangle test in projection space:
+  // returns true only if the point is inside, NOT on the border (vertices/edges are NOT "under a field").
+  thisplugin.pointInTriangleStrict = function (p, a, b, c) {
+    var eps = 1e-9;
+
+    function sign(p1, p2, p3) {
+      return (p1.x - p3.x) * (p2.y - p3.y) - (p2.x - p3.x) * (p1.y - p3.y);
+    }
+
+    var d1 = sign(p, a, b);
+    var d2 = sign(p, b, c);
+    var d3 = sign(p, c, a);
+
+    // On an edge => not "under"
+    if (Math.abs(d1) < eps || Math.abs(d2) < eps || Math.abs(d3) < eps) return false;
+
+    var hasNeg = (d1 < 0) || (d2 < 0) || (d3 < 0);
+    var hasPos = (d1 > 0) || (d2 > 0) || (d3 > 0);
+
+    return !(hasNeg && hasPos);
+  };
+
+  thisplugin.isPointUnderAnyTriangle = function (p, triangles) {
+    if (!triangles || triangles.length === 0) return false;
+    for (var i = 0; i < triangles.length; i++) {
+      var t = triangles[i];
+      if (thisplugin.pointInTriangleStrict(p, t.a, t.b, t.c)) return true;
+    }
+    return false;
+  };
+
+  // Validate the current plan against the "link from underneath a field" distance rule (Issue #96).
+  // Marks impossible links, computes a "valid" triangle list (fields that can actually be created),
+  // and provides per-portal counts that ignore invalid links.
+  thisplugin.validateUnderFieldLinks = function () {
+    var sorted = thisplugin.sortedFanpoints || [];
+    if (sorted.length < 3) {
+      thisplugin.invalidUnderFieldLinks = {};
+      thisplugin.validTriangles = null;
+      thisplugin.validLinkCount = 0;
+      thisplugin.validTriangleCount = 0;
+      return;
+    }
+
+    // Reset per-run state
+    thisplugin.invalidUnderFieldLinks = {};
+    thisplugin.validTriangles = [];
+    thisplugin.validLinkCount = 0;
+    thisplugin.validTriangleCount = 0;
+
+    var pointToGuid = {};
+    for (var i = 0; i < sorted.length; i++) {
+      pointToGuid[thisplugin.pointKey(sorted[i].point)] = sorted[i].guid;
+    }
+
+    // Track successful links (undirected) so we can decide which triangles can actually be formed.
+    var builtLinks = {};
+
+    // Track whether a portal is under a field at the moment we arrive there.
+    var portalUnderFieldAtVisit = {};
+
+    // Per-link (directed) valid field creation count.
+    var validFieldsByDirectedLink = {};
+
+    // Init per-portal "valid" stats
+    for (var pi = 0; pi < sorted.length; pi++) {
+      sorted[pi].incomingValidCount = 0;
+      sorted[pi].outgoingValidCount = 0;
+      sorted[pi].fieldsCreatedValidAtPortal = 0;
+    }
+
+    function addInvalid(srcGuid, dstGuid, distance, flippedOk) {
+      var dkey = thisplugin.getDirectedLinkKey(srcGuid, dstGuid);
+      thisplugin.invalidUnderFieldLinks[dkey] = {
+        srcGuid: srcGuid,
+        dstGuid: dstGuid,
+        distance: distance,
+        flippedOk: flippedOk
+      };
+    }
+
+    // First pass: walk portals in visit order, validate each outgoing link against fields built so far.
+    // We only add triangles for links that are valid AND whose prerequisite links exist.
+    for (var vi = 0; vi < sorted.length; vi++) {
+      var srcFp = sorted[vi];
+      var srcGuid = srcFp.guid;
+
+      portalUnderFieldAtVisit[srcGuid] = thisplugin.isPointUnderAnyTriangle(srcFp.point, thisplugin.validTriangles);
+
+      if (!srcFp.outgoing || srcFp.outgoing.length === 0) continue;
+
+      for (var oi = 0; oi < srcFp.outgoing.length; oi++) {
+        var dstFp = srcFp.outgoing[oi];
+        var dstGuid = dstFp.guid;
+
+        var distance = thisplugin.distanceTo(srcFp.point, dstFp.point);
+        var srcUnder = portalUnderFieldAtVisit[srcGuid];
+        var invalid = srcUnder && distance > thisplugin.maxLinkUnderFieldDistance;
+
+        var meta = (srcFp.outgoingMeta && srcFp.outgoingMeta[dstGuid]) ? srcFp.outgoingMeta[dstGuid] : null;
+
+        // Precompute whether flipping the link direction could avoid the under-field restriction in THIS visit order.
+        // This ignores key logistics and assumes you can throw from the other end when you visit it.
+        var dstUnderAtVisit = portalUnderFieldAtVisit[dstGuid];
+        if (dstUnderAtVisit === undefined) {
+          // Destination might be later in the route. We'll fill it in when we reach it.
+          // For now, treat it as "unknown" => compute later in a second pass.
+          dstUnderAtVisit = null;
+        }
+        var flippedOk = (dstUnderAtVisit === null) ? null : (!(dstUnderAtVisit && distance > thisplugin.maxLinkUnderFieldDistance));
+
+        if (invalid) {
+          addInvalid(srcGuid, dstGuid, distance, flippedOk);
+          if (meta) {
+            meta.invalidUnderField = true;
+            meta.canFlipUnderField = flippedOk;
+            meta.fieldsCreatedValid = 0;
+          }
+          continue;
+        }
+
+        // Link is valid in this direction.
+        thisplugin.validLinkCount++;
+        srcFp.outgoingValidCount++;
+        dstFp.incomingValidCount++;
+
+        builtLinks[thisplugin.getUndirectedLinkKey(srcGuid, dstGuid)] = true;
+
+        // Determine how many fields this link can REALLY create (only if prerequisites exist).
+        var fieldsCreatedByThisLink = 0;
+
+        if (meta && meta.creatingFieldsWith && meta.creatingFieldsWith.length) {
+          for (var ti = 0; ti < meta.creatingFieldsWith.length; ti++) {
+            var thirdPoint = meta.creatingFieldsWith[ti];
+            var thirdGuid = pointToGuid[thisplugin.pointKey(thirdPoint)];
+            if (!thirdGuid) continue;
+
+            var e1 = thisplugin.getUndirectedLinkKey(srcGuid, thirdGuid);
+            var e2 = thisplugin.getUndirectedLinkKey(dstGuid, thirdGuid);
+
+            if (!builtLinks[e1] || !builtLinks[e2]) {
+              // If any prerequisite link is invalid/missing, the field won't exist.
+              continue;
+            }
+
+            // Field exists.
+            thisplugin.validTriangles.push({
+              a: thirdPoint,
+              b: srcFp.point,
+              c: dstFp.point
+            });
+            fieldsCreatedByThisLink++;
+          }
+        }
+
+        validFieldsByDirectedLink[thisplugin.getDirectedLinkKey(srcGuid, dstGuid)] = fieldsCreatedByThisLink;
+        if (meta) meta.fieldsCreatedValid = fieldsCreatedByThisLink;
+
+        srcFp.fieldsCreatedValidAtPortal += fieldsCreatedByThisLink;
+      }
+    }
+
+    // Second pass: fill "flip ok" for destinations that were visited later.
+    // Now that portalUnderFieldAtVisit is complete, update any null values.
+    for (var k in thisplugin.invalidUnderFieldLinks) {
+      if (!Object.prototype.hasOwnProperty.call(thisplugin.invalidUnderFieldLinks, k)) continue;
+      var rec = thisplugin.invalidUnderFieldLinks[k];
+      if (rec.flippedOk !== null) continue;
+
+      var dstUnder = !!portalUnderFieldAtVisit[rec.dstGuid];
+      rec.flippedOk = !(dstUnder && rec.distance > thisplugin.maxLinkUnderFieldDistance);
+
+      var src = sorted.find(function (fp) { return fp.guid === rec.srcGuid; });
+      if (src && src.outgoingMeta && src.outgoingMeta[rec.dstGuid]) {
+        src.outgoingMeta[rec.dstGuid].canFlipUnderField = rec.flippedOk;
+      }
+    }
+
+    thisplugin.validTriangleCount = thisplugin.validTriangles.length;
+
+    // If this validation was triggered by a manual order apply, show a one-time warning dialog.
+    if (thisplugin.showUnderFieldWarningOnce) {
+      thisplugin.showUnderFieldWarningOnce = false;
+
+      var invalidCount = Object.keys(thisplugin.invalidUnderFieldLinks).length;
+      if (invalidCount > 0) {
+        var width = 420;
+        thisplugin.MaxDialogWidth = thisplugin.getMaxDialogWidth();
+        if (thisplugin.MaxDialogWidth < width) width = thisplugin.MaxDialogWidth;
+
+        dialog({
+          html:
+            '<p><b>Warning:</b> ' + invalidCount + ' link(s) cannot be created from under existing fields in this visit order.</p>' +
+            '<p>Limit: ' + thisplugin.maxLinkUnderFieldDistance + 'm. Impossible links are shown dotted and are excluded from counts/fields.</p>' +
+            '<p>Some may work if thrown from the opposite portal (workaround shown in task list), but Fanfields2 does not flip directions automatically.</p>',
+          id: 'plugin_fanfields2_alert_underfield',
+          title: 'Fan Fields 2 - Under-field Links',
+          width: width,
+          closeOnEscape: true
+        });
+      }
+    }
+  };
+
 
 
 
@@ -2331,11 +2622,13 @@ function wrapper(plugin_info) {
       if (n < 2) return;
       var alatlng = map.unproject(a.point, thisplugin.PROJECT_ZOOM);
       var labelText = "";
+      var keysNeeded = (a.incomingValidCount !== undefined) ? a.incomingValidCount : a.incoming.length;
+      var totalFields = (thisplugin.validTriangleCount !== undefined) ? thisplugin.validTriangleCount : triangles.length;
       if (thisplugin.stardirection === thisplugin.starDirENUM.CENTRALIZING) {
-        labelText = "START PORTAL<BR>Keys: " + a.incoming.length + "<br>Total Fields: " + triangles.length.toString();
+        labelText = "START PORTAL<BR>Keys: " + keysNeeded + "<br>Total Fields: " + totalFields.toString();
       } else {
-        labelText = "START PORTAL<BR>Keys: " + a.incoming.length + ", SBUL: " + (centerSbul) + "<br>out: " + centerOutgoings + "<br>Total Fields: " +
-          triangles.length.toString();
+        labelText = "START PORTAL<BR>Keys: " + keysNeeded + ", SBUL: " + (centerSbul) + "<br>out: " + centerOutgoings + "<br>Total Fields: " +
+          totalFields.toString();
       }
       thisplugin.addLabel(thisplugin.startingpointGUID, alatlng, labelText);
     }
@@ -2344,7 +2637,7 @@ function wrapper(plugin_info) {
       if (n < 2) return;
       var alatlng = map.unproject(a.point, thisplugin.PROJECT_ZOOM);
       var labelText = "";
-      labelText = number + "<br>Keys: " + a.incoming.length + "<br>out: " + a.outgoing.length;
+      labelText = number + "<br>Keys: " + ((a.incomingValidCount !== undefined) ? a.incomingValidCount : a.incoming.length) + "<br>out: " + ((a.outgoingValidCount !== undefined) ? a.outgoingValidCount : a.outgoing.length);
       thisplugin.addLabel(a.guid, alatlng, labelText);
     }
 
@@ -2790,6 +3083,8 @@ function wrapper(plugin_info) {
         possibleline = {
           a: a,
           b: b,
+          guidA: (outbound === 1) ? this.sortedFanpoints[pb].guid : this.sortedFanpoints[pa].guid,
+          guidB: (outbound === 1) ? this.sortedFanpoints[pa].guid : this.sortedFanpoints[pb].guid,
           bearing: bearing,
           isJetLink: false,
           isFanLink: (pb === 0),
@@ -2909,13 +3204,16 @@ function wrapper(plugin_info) {
         "\nFanPortals: " + (n - 1) +
         "\nCenterKeys:" + thisplugin.centerKeys +
         "\nTotal links / keys:    " + donelinks.length.toString() +
-        "\nFields:                " + triangles.length.toString() +
-        "\nBuild AP:              " + (donelinks.length * 313 + triangles.length * 1250)
+        "\nFields:                " + ((thisplugin.validTriangleCount !== undefined) ? thisplugin.validTriangleCount : triangles.length).toString() +
+        "\nBuild AP:              " + (((thisplugin.validLinkCount !== undefined) ? thisplugin.validLinkCount : donelinks.length) * 313 + ((thisplugin.validTriangleCount !== undefined) ? thisplugin.validTriangleCount : triangles.length) * 1250)
         .toString() +
-        "\nDestroy AP:            " + (this.sortedFanpoints.length * 187 + triangles.length * 750)
+        "\nDestroy AP:            " + ((this.sortedFanpoints.length * 187) + ((thisplugin.validTriangleCount !== undefined) ? thisplugin.validTriangleCount : triangles.length) * 750)
         .toString());
     }
 
+
+    // Issue #96: validate plan against under-field link distance constraints
+    thisplugin.validateUnderFieldLinks();
 
     // remove any not wanted
     thisplugin.clearAllPortalLabels();
@@ -2933,24 +3231,53 @@ function wrapper(plugin_info) {
     });
 
     $.each(thisplugin.links, function (idx, edge) {
+      var dirDashArray = null;
       if (thisplugin.indicateLinkDirection) {
-        thisplugin.linkDashArray = [10, 5, 5, 5, 5, 5, 5, 5, "100000"];
-      } else {
-        thisplugin.linkDashArray = null;
+        dirDashArray = [10, 5, 5, 5, 5, 5, 5, 5, "100000"];
       }
-      drawLink(edge.a, edge.b, {
+
+      var linkKey = null;
+      if (edge.guidA && edge.guidB) {
+        linkKey = thisplugin.getDirectedLinkKey(edge.guidA, edge.guidB);
+      }
+      var isInvalid = (linkKey && thisplugin.invalidUnderFieldLinks && thisplugin.invalidUnderFieldLinks[linkKey]);
+
+      var baseStyle = {
         color: '#FF0000',
         opacity: 1,
         weight: 1.5,
         clickable: false,
         interactive: false,
-        smoothFactor: 10,
-        dashArray: thisplugin.linkDashArray,
-      });
+        smoothFactor: 10
+      };
+
+      if (isInvalid) {
+        // Base: fine dotted line (keep color)
+        drawLink(edge.a, edge.b, $.extend({}, baseStyle, {
+          dashArray: [10,5,5,5,5,5,50,30,5,3,5,3,5,10,15,5,15,5,15,10,5,3,5,3,5,30],
+          lineCap: 'round'
+        }));
+
+
+        /*
+        // Overlay: direction indicator (if enabled)
+        if (dirDashArray) {
+          drawLink(edge.a, edge.b, $.extend({}, baseStyle, {
+            dashArray: dirDashArray
+          }));
+        }
+        */
+      } else {
+        drawLink(edge.a, edge.b, $.extend({}, baseStyle, {
+          dashArray: dirDashArray
+        }));
+      }
     });
 
 
-    $.each(triangles, function (idx, triangle) {
+    var trianglesToDraw = (thisplugin.validTriangles) ? thisplugin.validTriangles : triangles;
+
+    $.each(trianglesToDraw, function (idx, triangle) {
       drawField(triangle.a, triangle.b, triangle.c, {
         stroke: false,
         fill: true,

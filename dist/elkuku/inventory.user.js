@@ -3,7 +3,7 @@
 // @name            KuKuInventory
 // @id              inventory@elkuku
 // @category        Misc
-// @version         0.12
+// @version         0.13
 // @namespace       https://github.com/IITC-CE/ingress-intel-total-conversion
 // @updateURL       https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/elkuku/inventory.meta.js
 // @downloadURL     https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/elkuku/inventory.user.js
@@ -90,7 +90,7 @@ function wrapper(SCRIPT_INFO) {
                 A: () => __WEBPACK_DEFAULT_EXPORT__
             });
             var _node_modules_css_loader_dist_runtime_noSourceMaps_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(1601), _node_modules_css_loader_dist_runtime_noSourceMaps_js__WEBPACK_IMPORTED_MODULE_0___default = __webpack_require__.n(_node_modules_css_loader_dist_runtime_noSourceMaps_js__WEBPACK_IMPORTED_MODULE_0__), _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(6314), _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1___default = __webpack_require__.n(_node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1__), _node_modules_css_loader_dist_runtime_getUrl_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(4417), _node_modules_css_loader_dist_runtime_getUrl_js__WEBPACK_IMPORTED_MODULE_2___default = __webpack_require__.n(_node_modules_css_loader_dist_runtime_getUrl_js__WEBPACK_IMPORTED_MODULE_2__), ___CSS_LOADER_URL_IMPORT_0___ = new URL(__webpack_require__(5552), __webpack_require__.b), ___CSS_LOADER_URL_IMPORT_1___ = new URL(__webpack_require__(3883), __webpack_require__.b), ___CSS_LOADER_URL_IMPORT_2___ = new URL(__webpack_require__(9058), __webpack_require__.b), ___CSS_LOADER_URL_IMPORT_3___ = new URL(__webpack_require__(3917), __webpack_require__.b), ___CSS_LOADER_URL_IMPORT_4___ = new URL(__webpack_require__(3668), __webpack_require__.b), ___CSS_LOADER_URL_IMPORT_5___ = new URL(__webpack_require__(6879), __webpack_require__.b), ___CSS_LOADER_URL_IMPORT_6___ = new URL(__webpack_require__(3590), __webpack_require__.b), ___CSS_LOADER_URL_IMPORT_7___ = new URL(__webpack_require__(897), __webpack_require__.b), ___CSS_LOADER_URL_IMPORT_8___ = new URL(__webpack_require__(1504), __webpack_require__.b), ___CSS_LOADER_URL_IMPORT_9___ = new URL(__webpack_require__(5003), __webpack_require__.b), ___CSS_LOADER_URL_IMPORT_10___ = new URL(__webpack_require__(3874), __webpack_require__.b), ___CSS_LOADER_URL_IMPORT_11___ = new URL(__webpack_require__(221), __webpack_require__.b), ___CSS_LOADER_URL_IMPORT_12___ = new URL(__webpack_require__(9092), __webpack_require__.b), ___CSS_LOADER_URL_IMPORT_13___ = new URL(__webpack_require__(7999), __webpack_require__.b), ___CSS_LOADER_URL_IMPORT_14___ = new URL(__webpack_require__(8982), __webpack_require__.b), ___CSS_LOADER_URL_IMPORT_15___ = new URL(__webpack_require__(5137), __webpack_require__.b), ___CSS_LOADER_URL_IMPORT_16___ = new URL(__webpack_require__(3262), __webpack_require__.b), ___CSS_LOADER_URL_IMPORT_17___ = new URL(__webpack_require__(9989), __webpack_require__.b), ___CSS_LOADER_URL_IMPORT_18___ = new URL(__webpack_require__(8364), __webpack_require__.b), ___CSS_LOADER_URL_IMPORT_19___ = new URL(__webpack_require__(7763), __webpack_require__.b), ___CSS_LOADER_URL_IMPORT_20___ = new URL(__webpack_require__(1578), __webpack_require__.b), ___CSS_LOADER_URL_IMPORT_21___ = new URL(__webpack_require__(206), __webpack_require__.b), ___CSS_LOADER_URL_IMPORT_22___ = new URL(__webpack_require__(9432), __webpack_require__.b), ___CSS_LOADER_URL_IMPORT_23___ = new URL(__webpack_require__(2847), __webpack_require__.b), ___CSS_LOADER_URL_IMPORT_24___ = new URL(__webpack_require__(5420), __webpack_require__.b), ___CSS_LOADER_URL_IMPORT_25___ = new URL(__webpack_require__(9340), __webpack_require__.b), ___CSS_LOADER_URL_IMPORT_26___ = new URL(__webpack_require__(1139), __webpack_require__.b), ___CSS_LOADER_URL_IMPORT_27___ = new URL(__webpack_require__(3616), __webpack_require__.b), ___CSS_LOADER_URL_IMPORT_28___ = new URL(__webpack_require__(9737), __webpack_require__.b), ___CSS_LOADER_URL_IMPORT_29___ = new URL(__webpack_require__(5466), __webpack_require__.b), ___CSS_LOADER_URL_IMPORT_30___ = new URL(__webpack_require__(2663), __webpack_require__.b), ___CSS_LOADER_URL_IMPORT_31___ = new URL(__webpack_require__(3996), __webpack_require__.b), ___CSS_LOADER_URL_IMPORT_32___ = new URL(__webpack_require__(661), __webpack_require__.b), ___CSS_LOADER_URL_IMPORT_33___ = new URL(__webpack_require__(9670), __webpack_require__.b), ___CSS_LOADER_URL_IMPORT_34___ = new URL(__webpack_require__(4193), __webpack_require__.b), ___CSS_LOADER_URL_IMPORT_35___ = new URL(__webpack_require__(7246), __webpack_require__.b), ___CSS_LOADER_URL_IMPORT_36___ = new URL(__webpack_require__(8603), __webpack_require__.b), ___CSS_LOADER_URL_IMPORT_37___ = new URL(__webpack_require__(4291), __webpack_require__.b), ___CSS_LOADER_URL_IMPORT_38___ = new URL(__webpack_require__(1741), __webpack_require__.b), ___CSS_LOADER_URL_IMPORT_39___ = new URL(__webpack_require__(3053), __webpack_require__.b), ___CSS_LOADER_URL_IMPORT_40___ = new URL(__webpack_require__(7185), __webpack_require__.b), ___CSS_LOADER_URL_IMPORT_41___ = new URL(__webpack_require__(6353), __webpack_require__.b), ___CSS_LOADER_EXPORT___ = _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1___default()(_node_modules_css_loader_dist_runtime_noSourceMaps_js__WEBPACK_IMPORTED_MODULE_0___default()), ___CSS_LOADER_URL_REPLACEMENT_0___ = _node_modules_css_loader_dist_runtime_getUrl_js__WEBPACK_IMPORTED_MODULE_2___default()(___CSS_LOADER_URL_IMPORT_0___), ___CSS_LOADER_URL_REPLACEMENT_1___ = _node_modules_css_loader_dist_runtime_getUrl_js__WEBPACK_IMPORTED_MODULE_2___default()(___CSS_LOADER_URL_IMPORT_1___), ___CSS_LOADER_URL_REPLACEMENT_2___ = _node_modules_css_loader_dist_runtime_getUrl_js__WEBPACK_IMPORTED_MODULE_2___default()(___CSS_LOADER_URL_IMPORT_2___), ___CSS_LOADER_URL_REPLACEMENT_3___ = _node_modules_css_loader_dist_runtime_getUrl_js__WEBPACK_IMPORTED_MODULE_2___default()(___CSS_LOADER_URL_IMPORT_3___), ___CSS_LOADER_URL_REPLACEMENT_4___ = _node_modules_css_loader_dist_runtime_getUrl_js__WEBPACK_IMPORTED_MODULE_2___default()(___CSS_LOADER_URL_IMPORT_4___), ___CSS_LOADER_URL_REPLACEMENT_5___ = _node_modules_css_loader_dist_runtime_getUrl_js__WEBPACK_IMPORTED_MODULE_2___default()(___CSS_LOADER_URL_IMPORT_5___), ___CSS_LOADER_URL_REPLACEMENT_6___ = _node_modules_css_loader_dist_runtime_getUrl_js__WEBPACK_IMPORTED_MODULE_2___default()(___CSS_LOADER_URL_IMPORT_6___), ___CSS_LOADER_URL_REPLACEMENT_7___ = _node_modules_css_loader_dist_runtime_getUrl_js__WEBPACK_IMPORTED_MODULE_2___default()(___CSS_LOADER_URL_IMPORT_7___), ___CSS_LOADER_URL_REPLACEMENT_8___ = _node_modules_css_loader_dist_runtime_getUrl_js__WEBPACK_IMPORTED_MODULE_2___default()(___CSS_LOADER_URL_IMPORT_8___), ___CSS_LOADER_URL_REPLACEMENT_9___ = _node_modules_css_loader_dist_runtime_getUrl_js__WEBPACK_IMPORTED_MODULE_2___default()(___CSS_LOADER_URL_IMPORT_9___), ___CSS_LOADER_URL_REPLACEMENT_10___ = _node_modules_css_loader_dist_runtime_getUrl_js__WEBPACK_IMPORTED_MODULE_2___default()(___CSS_LOADER_URL_IMPORT_10___), ___CSS_LOADER_URL_REPLACEMENT_11___ = _node_modules_css_loader_dist_runtime_getUrl_js__WEBPACK_IMPORTED_MODULE_2___default()(___CSS_LOADER_URL_IMPORT_11___), ___CSS_LOADER_URL_REPLACEMENT_12___ = _node_modules_css_loader_dist_runtime_getUrl_js__WEBPACK_IMPORTED_MODULE_2___default()(___CSS_LOADER_URL_IMPORT_12___), ___CSS_LOADER_URL_REPLACEMENT_13___ = _node_modules_css_loader_dist_runtime_getUrl_js__WEBPACK_IMPORTED_MODULE_2___default()(___CSS_LOADER_URL_IMPORT_13___), ___CSS_LOADER_URL_REPLACEMENT_14___ = _node_modules_css_loader_dist_runtime_getUrl_js__WEBPACK_IMPORTED_MODULE_2___default()(___CSS_LOADER_URL_IMPORT_14___), ___CSS_LOADER_URL_REPLACEMENT_15___ = _node_modules_css_loader_dist_runtime_getUrl_js__WEBPACK_IMPORTED_MODULE_2___default()(___CSS_LOADER_URL_IMPORT_15___), ___CSS_LOADER_URL_REPLACEMENT_16___ = _node_modules_css_loader_dist_runtime_getUrl_js__WEBPACK_IMPORTED_MODULE_2___default()(___CSS_LOADER_URL_IMPORT_16___), ___CSS_LOADER_URL_REPLACEMENT_17___ = _node_modules_css_loader_dist_runtime_getUrl_js__WEBPACK_IMPORTED_MODULE_2___default()(___CSS_LOADER_URL_IMPORT_17___), ___CSS_LOADER_URL_REPLACEMENT_18___ = _node_modules_css_loader_dist_runtime_getUrl_js__WEBPACK_IMPORTED_MODULE_2___default()(___CSS_LOADER_URL_IMPORT_18___), ___CSS_LOADER_URL_REPLACEMENT_19___ = _node_modules_css_loader_dist_runtime_getUrl_js__WEBPACK_IMPORTED_MODULE_2___default()(___CSS_LOADER_URL_IMPORT_19___), ___CSS_LOADER_URL_REPLACEMENT_20___ = _node_modules_css_loader_dist_runtime_getUrl_js__WEBPACK_IMPORTED_MODULE_2___default()(___CSS_LOADER_URL_IMPORT_20___), ___CSS_LOADER_URL_REPLACEMENT_21___ = _node_modules_css_loader_dist_runtime_getUrl_js__WEBPACK_IMPORTED_MODULE_2___default()(___CSS_LOADER_URL_IMPORT_21___), ___CSS_LOADER_URL_REPLACEMENT_22___ = _node_modules_css_loader_dist_runtime_getUrl_js__WEBPACK_IMPORTED_MODULE_2___default()(___CSS_LOADER_URL_IMPORT_22___), ___CSS_LOADER_URL_REPLACEMENT_23___ = _node_modules_css_loader_dist_runtime_getUrl_js__WEBPACK_IMPORTED_MODULE_2___default()(___CSS_LOADER_URL_IMPORT_23___), ___CSS_LOADER_URL_REPLACEMENT_24___ = _node_modules_css_loader_dist_runtime_getUrl_js__WEBPACK_IMPORTED_MODULE_2___default()(___CSS_LOADER_URL_IMPORT_24___), ___CSS_LOADER_URL_REPLACEMENT_25___ = _node_modules_css_loader_dist_runtime_getUrl_js__WEBPACK_IMPORTED_MODULE_2___default()(___CSS_LOADER_URL_IMPORT_25___), ___CSS_LOADER_URL_REPLACEMENT_26___ = _node_modules_css_loader_dist_runtime_getUrl_js__WEBPACK_IMPORTED_MODULE_2___default()(___CSS_LOADER_URL_IMPORT_26___), ___CSS_LOADER_URL_REPLACEMENT_27___ = _node_modules_css_loader_dist_runtime_getUrl_js__WEBPACK_IMPORTED_MODULE_2___default()(___CSS_LOADER_URL_IMPORT_27___), ___CSS_LOADER_URL_REPLACEMENT_28___ = _node_modules_css_loader_dist_runtime_getUrl_js__WEBPACK_IMPORTED_MODULE_2___default()(___CSS_LOADER_URL_IMPORT_28___), ___CSS_LOADER_URL_REPLACEMENT_29___ = _node_modules_css_loader_dist_runtime_getUrl_js__WEBPACK_IMPORTED_MODULE_2___default()(___CSS_LOADER_URL_IMPORT_29___), ___CSS_LOADER_URL_REPLACEMENT_30___ = _node_modules_css_loader_dist_runtime_getUrl_js__WEBPACK_IMPORTED_MODULE_2___default()(___CSS_LOADER_URL_IMPORT_30___), ___CSS_LOADER_URL_REPLACEMENT_31___ = _node_modules_css_loader_dist_runtime_getUrl_js__WEBPACK_IMPORTED_MODULE_2___default()(___CSS_LOADER_URL_IMPORT_31___), ___CSS_LOADER_URL_REPLACEMENT_32___ = _node_modules_css_loader_dist_runtime_getUrl_js__WEBPACK_IMPORTED_MODULE_2___default()(___CSS_LOADER_URL_IMPORT_32___), ___CSS_LOADER_URL_REPLACEMENT_33___ = _node_modules_css_loader_dist_runtime_getUrl_js__WEBPACK_IMPORTED_MODULE_2___default()(___CSS_LOADER_URL_IMPORT_33___), ___CSS_LOADER_URL_REPLACEMENT_34___ = _node_modules_css_loader_dist_runtime_getUrl_js__WEBPACK_IMPORTED_MODULE_2___default()(___CSS_LOADER_URL_IMPORT_34___), ___CSS_LOADER_URL_REPLACEMENT_35___ = _node_modules_css_loader_dist_runtime_getUrl_js__WEBPACK_IMPORTED_MODULE_2___default()(___CSS_LOADER_URL_IMPORT_35___), ___CSS_LOADER_URL_REPLACEMENT_36___ = _node_modules_css_loader_dist_runtime_getUrl_js__WEBPACK_IMPORTED_MODULE_2___default()(___CSS_LOADER_URL_IMPORT_36___), ___CSS_LOADER_URL_REPLACEMENT_37___ = _node_modules_css_loader_dist_runtime_getUrl_js__WEBPACK_IMPORTED_MODULE_2___default()(___CSS_LOADER_URL_IMPORT_37___), ___CSS_LOADER_URL_REPLACEMENT_38___ = _node_modules_css_loader_dist_runtime_getUrl_js__WEBPACK_IMPORTED_MODULE_2___default()(___CSS_LOADER_URL_IMPORT_38___), ___CSS_LOADER_URL_REPLACEMENT_39___ = _node_modules_css_loader_dist_runtime_getUrl_js__WEBPACK_IMPORTED_MODULE_2___default()(___CSS_LOADER_URL_IMPORT_39___), ___CSS_LOADER_URL_REPLACEMENT_40___ = _node_modules_css_loader_dist_runtime_getUrl_js__WEBPACK_IMPORTED_MODULE_2___default()(___CSS_LOADER_URL_IMPORT_40___), ___CSS_LOADER_URL_REPLACEMENT_41___ = _node_modules_css_loader_dist_runtime_getUrl_js__WEBPACK_IMPORTED_MODULE_2___default()(___CSS_LOADER_URL_IMPORT_41___);
-            ___CSS_LOADER_EXPORT___.push([ module.id, `table.inventoryTable th{text-align:center}table.inventoryTable td{text-align:center;vertical-align:middle}table.inventoryTable td.item-container{text-align:center;vertical-align:top}table.inventoryTable td.label-container{text-align:left;vertical-align:top}table.inventoryTable td.count-container{text-align:right;vertical-align:top}span.cnt,td.cnt{color:lime}div.sideButtons{float:right}.layer-key-info{color:#ff0;font-family:monospace;font-size:11px;pointer-events:none;text-align:center;text-shadow:0 0 1px #000,0 0 1em #000,0 0 .2em #000;-webkit-text-size-adjust:none;white-space:nowrap}.icon{background-position:50%;background-repeat:no-repeat;height:64px;min-width:64px}.img-RESONATOR-1{background-image:url(${___CSS_LOADER_URL_REPLACEMENT_0___})}.img-RESONATOR-2{background-image:url(${___CSS_LOADER_URL_REPLACEMENT_1___})}.img-RESONATOR-3{background-image:url(${___CSS_LOADER_URL_REPLACEMENT_2___})}.img-RESONATOR-4{background-image:url(${___CSS_LOADER_URL_REPLACEMENT_3___})}.img-RESONATOR-5{background-image:url(${___CSS_LOADER_URL_REPLACEMENT_4___})}.img-RESONATOR-6{background-image:url(${___CSS_LOADER_URL_REPLACEMENT_5___})}.img-RESONATOR-7{background-image:url(${___CSS_LOADER_URL_REPLACEMENT_6___})}.img-RESONATOR-8{background-image:url(${___CSS_LOADER_URL_REPLACEMENT_7___})}.img-EMP_BURSTER-1{background-image:url(${___CSS_LOADER_URL_REPLACEMENT_8___})}.img-EMP_BURSTER-2{background-image:url(${___CSS_LOADER_URL_REPLACEMENT_9___})}.img-EMP_BURSTER-3{background-image:url(${___CSS_LOADER_URL_REPLACEMENT_10___})}.img-EMP_BURSTER-4{background-image:url(${___CSS_LOADER_URL_REPLACEMENT_11___})}.img-EMP_BURSTER-5{background-image:url(${___CSS_LOADER_URL_REPLACEMENT_12___})}.img-EMP_BURSTER-6{background-image:url(${___CSS_LOADER_URL_REPLACEMENT_13___})}.img-EMP_BURSTER-7{background-image:url(${___CSS_LOADER_URL_REPLACEMENT_14___})}.img-EMP_BURSTER-8{background-image:url(${___CSS_LOADER_URL_REPLACEMENT_15___})}.img-ULTRA_STRIKE-1{background-image:url(${___CSS_LOADER_URL_REPLACEMENT_16___})}.img-ULTRA_STRIKE-2{background-image:url(${___CSS_LOADER_URL_REPLACEMENT_17___})}.img-ULTRA_STRIKE-3{background-image:url(${___CSS_LOADER_URL_REPLACEMENT_18___})}.img-ULTRA_STRIKE-4{background-image:url(${___CSS_LOADER_URL_REPLACEMENT_19___})}.img-ULTRA_STRIKE-5{background-image:url(${___CSS_LOADER_URL_REPLACEMENT_20___})}.img-ULTRA_STRIKE-6{background-image:url(${___CSS_LOADER_URL_REPLACEMENT_21___})}.img-ULTRA_STRIKE-7{background-image:url(${___CSS_LOADER_URL_REPLACEMENT_22___})}.img-ULTRA_STRIKE-8{background-image:url(${___CSS_LOADER_URL_REPLACEMENT_23___})}.img-JARVIS-0{background-image:url(${___CSS_LOADER_URL_REPLACEMENT_24___})}.img-ADA-0{background-image:url(${___CSS_LOADER_URL_REPLACEMENT_25___})}.img-RES_SHIELD-COMMON{background-image:url(${___CSS_LOADER_URL_REPLACEMENT_26___})}.img-RES_SHIELD-RARE{background-image:url(${___CSS_LOADER_URL_REPLACEMENT_27___})}.img-RES_SHIELD-VERY_RARE{background-image:url(${___CSS_LOADER_URL_REPLACEMENT_28___})}.img-EXTRA_SHIELD-VERY_RARE{background-image:url(${___CSS_LOADER_URL_REPLACEMENT_29___})}.img-HEATSINK-COMMON{background-image:url(${___CSS_LOADER_URL_REPLACEMENT_30___})}.img-HEATSINK-RARE{background-image:url(${___CSS_LOADER_URL_REPLACEMENT_31___})}.img-HEATSINK-VERY_RARE{background-image:url(${___CSS_LOADER_URL_REPLACEMENT_32___})}.img-MULTIHACK-COMMON{background-image:url(${___CSS_LOADER_URL_REPLACEMENT_33___})}.img-MULTIHACK-RARE{background-image:url(${___CSS_LOADER_URL_REPLACEMENT_34___})}.img-MULTIHACK-VERY_RARE{background-image:url(${___CSS_LOADER_URL_REPLACEMENT_35___})}.img-FORCE_AMP-RARE{background-image:url(${___CSS_LOADER_URL_REPLACEMENT_36___})}.img-TURRET-RARE{background-image:url(${___CSS_LOADER_URL_REPLACEMENT_37___})}.img-LINK_AMPLIFIER-RARE{background-image:url(${___CSS_LOADER_URL_REPLACEMENT_38___})}.img-ULTRA_LINK_AMP-VERY_RARE{background-image:url(${___CSS_LOADER_URL_REPLACEMENT_39___})}.img-TRANSMUTER_ATTACK-VERY_RARE{background-image:url(${___CSS_LOADER_URL_REPLACEMENT_40___})}.img-TRANSMUTER_DEFENSE-VERY_RARE{background-image:url(${___CSS_LOADER_URL_REPLACEMENT_41___})}`, "" ]);
+            ___CSS_LOADER_EXPORT___.push([ module.id, `.keys-search-bar{padding:6px 0}.keys-search-bar input{box-sizing:border-box;width:100%}.keys-table-scroll{max-height:490px;overflow-y:auto}.keys-table-scroll thead th{background:#1b1b1b;position:sticky;top:0;z-index:1}table.inventoryTable th[data-type]{cursor:pointer}table.inventoryTable th[data-type]:hover{text-decoration:underline}table.inventoryTable th{text-align:center}table.inventoryTable td{text-align:center;vertical-align:middle}table.inventoryTable td.item-container{text-align:center;vertical-align:top}table.inventoryTable td.label-container{text-align:left;vertical-align:top}table.inventoryTable td.count-container{text-align:right;vertical-align:top}span.cnt,td.cnt{color:lime}.layer-key-info{overflow:visible!important;pointer-events:none;-webkit-text-size-adjust:none}.key-bubble{background:transparent;border:none;color:#fc0;font-family:monospace;font-size:11px;left:0;line-height:1.4;padding:3px 7px;position:absolute;text-align:left;text-shadow:0 0 2px #000,0 0 4px #000;top:0;transform:translate(-50%,-50%);white-space:nowrap}.key-bubble--icon{line-height:1;padding:4px}.key-bubble--details{background:#111;border:1px solid rgba(255,200,0,.65);border-radius:4px;text-shadow:none;transform:translate(0)}.export-form fieldset{border:1px solid #555;border-radius:4px;margin-bottom:12px;padding:8px 12px}.export-form legend{font-weight:700;padding:0 6px}.export-form label{cursor:pointer;display:block;margin:6px 0}.export-form legend label{display:inline}.export-form label input{margin-right:6px}.export-form [id$=-options]{padding-left:12px}.icon{background-position:50%;background-repeat:no-repeat;height:64px;min-width:64px}.img-RESONATOR-1{background-image:url(${___CSS_LOADER_URL_REPLACEMENT_0___})}.img-RESONATOR-2{background-image:url(${___CSS_LOADER_URL_REPLACEMENT_1___})}.img-RESONATOR-3{background-image:url(${___CSS_LOADER_URL_REPLACEMENT_2___})}.img-RESONATOR-4{background-image:url(${___CSS_LOADER_URL_REPLACEMENT_3___})}.img-RESONATOR-5{background-image:url(${___CSS_LOADER_URL_REPLACEMENT_4___})}.img-RESONATOR-6{background-image:url(${___CSS_LOADER_URL_REPLACEMENT_5___})}.img-RESONATOR-7{background-image:url(${___CSS_LOADER_URL_REPLACEMENT_6___})}.img-RESONATOR-8{background-image:url(${___CSS_LOADER_URL_REPLACEMENT_7___})}.img-EMP_BURSTER-1{background-image:url(${___CSS_LOADER_URL_REPLACEMENT_8___})}.img-EMP_BURSTER-2{background-image:url(${___CSS_LOADER_URL_REPLACEMENT_9___})}.img-EMP_BURSTER-3{background-image:url(${___CSS_LOADER_URL_REPLACEMENT_10___})}.img-EMP_BURSTER-4{background-image:url(${___CSS_LOADER_URL_REPLACEMENT_11___})}.img-EMP_BURSTER-5{background-image:url(${___CSS_LOADER_URL_REPLACEMENT_12___})}.img-EMP_BURSTER-6{background-image:url(${___CSS_LOADER_URL_REPLACEMENT_13___})}.img-EMP_BURSTER-7{background-image:url(${___CSS_LOADER_URL_REPLACEMENT_14___})}.img-EMP_BURSTER-8{background-image:url(${___CSS_LOADER_URL_REPLACEMENT_15___})}.img-ULTRA_STRIKE-1{background-image:url(${___CSS_LOADER_URL_REPLACEMENT_16___})}.img-ULTRA_STRIKE-2{background-image:url(${___CSS_LOADER_URL_REPLACEMENT_17___})}.img-ULTRA_STRIKE-3{background-image:url(${___CSS_LOADER_URL_REPLACEMENT_18___})}.img-ULTRA_STRIKE-4{background-image:url(${___CSS_LOADER_URL_REPLACEMENT_19___})}.img-ULTRA_STRIKE-5{background-image:url(${___CSS_LOADER_URL_REPLACEMENT_20___})}.img-ULTRA_STRIKE-6{background-image:url(${___CSS_LOADER_URL_REPLACEMENT_21___})}.img-ULTRA_STRIKE-7{background-image:url(${___CSS_LOADER_URL_REPLACEMENT_22___})}.img-ULTRA_STRIKE-8{background-image:url(${___CSS_LOADER_URL_REPLACEMENT_23___})}.img-JARVIS-0{background-image:url(${___CSS_LOADER_URL_REPLACEMENT_24___})}.img-ADA-0{background-image:url(${___CSS_LOADER_URL_REPLACEMENT_25___})}.img-RES_SHIELD-COMMON{background-image:url(${___CSS_LOADER_URL_REPLACEMENT_26___})}.img-RES_SHIELD-RARE{background-image:url(${___CSS_LOADER_URL_REPLACEMENT_27___})}.img-RES_SHIELD-VERY_RARE{background-image:url(${___CSS_LOADER_URL_REPLACEMENT_28___})}.img-EXTRA_SHIELD-VERY_RARE{background-image:url(${___CSS_LOADER_URL_REPLACEMENT_29___})}.img-HEATSINK-COMMON{background-image:url(${___CSS_LOADER_URL_REPLACEMENT_30___})}.img-HEATSINK-RARE{background-image:url(${___CSS_LOADER_URL_REPLACEMENT_31___})}.img-HEATSINK-VERY_RARE{background-image:url(${___CSS_LOADER_URL_REPLACEMENT_32___})}.img-MULTIHACK-COMMON{background-image:url(${___CSS_LOADER_URL_REPLACEMENT_33___})}.img-MULTIHACK-RARE{background-image:url(${___CSS_LOADER_URL_REPLACEMENT_34___})}.img-MULTIHACK-VERY_RARE{background-image:url(${___CSS_LOADER_URL_REPLACEMENT_35___})}.img-FORCE_AMP-RARE{background-image:url(${___CSS_LOADER_URL_REPLACEMENT_36___})}.img-TURRET-RARE{background-image:url(${___CSS_LOADER_URL_REPLACEMENT_37___})}.img-LINK_AMPLIFIER-RARE{background-image:url(${___CSS_LOADER_URL_REPLACEMENT_38___})}.img-ULTRA_LINK_AMP-VERY_RARE{background-image:url(${___CSS_LOADER_URL_REPLACEMENT_39___})}.img-TRANSMUTER_ATTACK-VERY_RARE{background-image:url(${___CSS_LOADER_URL_REPLACEMENT_40___})}.img-TRANSMUTER_DEFENSE-VERY_RARE{background-image:url(${___CSS_LOADER_URL_REPLACEMENT_41___})}`, "" ]);
             const __WEBPACK_DEFAULT_EXPORT__ = ___CSS_LOADER_EXPORT___;
         },
         3874: module => {
@@ -399,7 +399,7 @@ function wrapper(SCRIPT_INFO) {
         const [partA1, partA2] = keyA.split("-"), [partB1, partB2] = keyB.split("-"), order1Diff = orderPart1.indexOf(partA1) - orderPart1.indexOf(partB1);
         return 0 !== order1Diff ? order1Diff : orderPart2.indexOf(partA2) - orderPart2.indexOf(partB2);
     }));
-    class DialogHelper {
+    const src_DialogHelper = class DialogHelper {
         pluginName;
         title;
         inventoryHelper;
@@ -412,7 +412,7 @@ function wrapper(SCRIPT_INFO) {
             this.capsuleNames = capsuleNames;
         }
         getDialog() {
-            if (this.handlebars = window.plugin.HelperHandlebars, !this.handlebars) throw alert(`${this.pluginName} - Handlebars helper not found`), 
+            if (this.handlebars = window.plugin.HelperHandlebars, !this.handlebars) throw alert(`${this.pluginName} - Handlebars helper not found. <a href="https://iitc.app/community_plugins#helper-handlebars-by-elkuku" target="_blank">Download</a>`), 
             new Error(`${this.pluginName} - Handlebars helper not found`);
             this.handlebars.registerHelper({
                 capsuleNames: key => this.capsuleNames[key] ?? key,
@@ -430,12 +430,12 @@ function wrapper(SCRIPT_INFO) {
                 distanceToCenter: (lat, lng) => Utility_distanceToCenter(L.latLng(lat, lng)),
                 dump: context => {}
             });
-            const template = this.handlebars.compile('<div id="{{prefix}}Container">\n\n    <div class="sideButtons">\n        <button onclick="{{plugin}}.showPanel(\'Info\')">Settings</button>\n    </div>\n\n    <div>\n        Total: <span class="cnt" id="{{prefix}}-cntTotal"></span>\n        <button onclick="{{plugin}}.showPanel(\'Inventory\')">\n            Equipment <span class="cnt" id="{{prefix}}-cntEquipment"></span>\n        </button>\n        <button onclick="{{plugin}}.showPanel(\'Keys\')">\n            Keys <span class="cnt" id="{{prefix}}-cntKeys"></span>\n        </button>\n        <button onclick="{{plugin}}.showPanel(\'Other\')">\n            Other <span class="cnt" id="{{prefix}}-cntOther"></span>\n        </button>\n        <button onclick="{{plugin}}.showPanel(\'Capsules\')">\n            Capsules <span class="cnt" id="{{prefix}}-cntCapsules"></span>\n        </button>\n    </div>\n\n    <hr>\n\n    <div id="{{prefix}}-Inventory-Panel" style="display: block;">\n        <table class="inventoryTable">\n            <thead>\n            <tr>\n                <th>Resonators <span class="cnt" id="{{prefix}}-cntResonators"></span></th>\n                <th colspan="2">Weapons <span class="cnt" id="{{prefix}}-cntWeapons"></span></th>\n                <th colspan="3">Mods <span class="cnt" id="{{prefix}}-cntMods"></span></th>\n            </tr>\n            <tr>\n                <th></th>\n                <th>Bursters <span class="cnt" id="{{prefix}}-cntBursters"></span></th>\n                <th>\n                    Strikes <span class="cnt" id="{{prefix}}-cntStrikes"></span>\n                    &amp; Flips <span class="cnt" id="{{prefix}}-cntFlips"></span>\n                </th>\n                <th>Shields <span class="cnt" id="{{prefix}}-cntModShields"></span></th>\n                <th>Hack <span class="cnt" id="{{prefix}}-cntModHack"></span></th>\n                <th>Other <span class="cnt" id="{{prefix}}-cntModOther"></span></th>\n            </tr>\n            </thead>\n            <tbody>\n            <tr>\n                \x3c!-- Resos --\x3e\n                <td id="{{prefix}}-Resonators-Container" class="item-container">Fetching inventory...</td>\n                \x3c!-- Weapons --\x3e\n                <td id="{{prefix}}-Bursters-Container" class="item-container"></td>\n                <td id="{{prefix}}-Strikes-Container" class="item-container"></td>\n                \x3c!-- Mods --\x3e\n                <td id="{{prefix}}-Shields-Container" class="item-container"></td>\n                <td id="{{prefix}}-HackMods-Container" class="item-container"></td>\n                <td id="{{prefix}}-OtherMods-Container" class="item-container"></td>\n            </tr>\n            </tbody>\n        </table>\n    </div>\n\n    <div id="{{prefix}}-Keys-Panel" style="display: none;">\n        <table class="inventoryTable" id="keysTable">\n            <thead>\n            <tr>\n                <th data-type="string"><a href="#">Name</a></th>\n                <th data-type="distance"><a href="#">Distance</a></th>\n                <th data-type="number"><a href="#">Total</a> <span class="cnt" id="{{prefix}}-cntKeysTotal"></span></th>\n                <th>atHand <span class="cnt" id="{{prefix}}-cntKeysAtHand"></span></th>\n                <th>Capsules <span class="cnt" id="{{prefix}}-cntKeysCapsules"></span></th>\n            </tr>\n            </thead>\n            <tbody id="{{prefix}}-Keys-Container"></tbody>\n        </table>\n    </div>\n\n    <div id="{{prefix}}-Other-Panel" style="display: none;">\n        <table class="inventoryTable">\n            <thead>\n            <tr>\n                <th>Cubes <span class="cnt" id="{{prefix}}-cntCubes"></span></th>\n                <th colspan="2">Boosts <span class="cnt" id="{{prefix}}-cntBoosts"></span></th>\n            </tr>\n            <tr>\n                <th></th>\n                <th>Play <span class="cnt" id="{{prefix}}-cntBoostsPlay"></span></th>\n                <th>Beacons <span class="cnt" id="{{prefix}}-cntBoostsBeacons"></span></th>\n            </tr>\n            </thead>\n            <tbody>\n            <tr>\n                <td id="{{prefix}}-Cubes-Container" class="item-container"></td>\n                <td id="{{prefix}}-Boosts-Play-Container" class="item-container"></td>\n                <td id="{{prefix}}-Boosts-Beacons-Container" class="item-container"></td>\n            </tr>\n            </tbody>\n        </table>\n    </div>\n\n    <div id="{{prefix}}-Capsules-Panel" style="display: none;">\n        <h3>Edit Key Capsule Names</h3>\n        <table>\n            <thead>\n            <tr>\n                <th>ID</th>\n                <th>Name</th>\n            </tr>\n            </thead>\n            <tbody id="{{prefix}}-KeyCapsules-Container"></tbody>\n        </table>\n        <button onclick="{{plugin}}.storeCapsuleNames()">Save</button>\n    </div>\n\n    <div id="{{prefix}}-Info-Panel" style="display: none;">\n        <h3>{{product.name}} {{product.version}}</h3>\n        <hr>\n        \x3c!--\n        <button>Export</button>\n        --\x3e\n        <button onclick="{{plugin}}.refresh()">Refresh</button>\n        <hr>\n        <ul>\n            <li>\n                Code and Issues:\n                <a href="https://github.com/elkuku/iitc-kuku-inventory" target="_blank">elkuku/iitc-kuku-inventory</a>\n            </li>\n            <li>\n                Questions:\n                <a href="https://t.me/nikp3h" target="_blank">Telegram: nikp3h</a>\n            </li>\n            <li>\n                Author:\n                <a href="https://github.com/elkuku" target="_blank">elkuku</a>\n                aka\n                <span class="nickname enl">nikp3h</span>\n            </li>\n        </ul>\n    </div>\n\n</div> \x3c!-- container --\x3e\n\n\n'), data = {
+            const template = this.handlebars.compile('<div id="{{prefix}}Container">\n\n    <div id="{{prefix}}-Tabs">\n        <ul>\n            <li class="inventory-total">Total: <span class="cnt" id="{{prefix}}-cntTotal"></span></li>\n            <li>\n                <a href="#{{prefix}}-Inventory-Panel">\n                    Equipment <span class="cnt" id="{{prefix}}-cntEquipment"></span>\n                </a>\n            </li>\n            <li><a href="#{{prefix}}-Keys-Panel">Keys <span class="cnt" id="{{prefix}}-cntKeys"></span></a></li>\n            <li><a href="#{{prefix}}-Other-Panel">Other <span class="cnt" id="{{prefix}}-cntOther"></span></a></li>\n            <li style="float: right"><a href="#{{prefix}}-Export-Panel">Export</a></li>\n            <li style="float: right"><a href="#{{prefix}}-Info-Panel">Settings</a></li>\n        </ul>\n\n        <div id="{{prefix}}-Inventory-Panel">\n            <table class="inventoryTable">\n                <thead>\n                <tr>\n                    <th>Resonators <span class="cnt" id="{{prefix}}-cntResonators"></span></th>\n                    <th colspan="2">Weapons <span class="cnt" id="{{prefix}}-cntWeapons"></span></th>\n                    <th colspan="3">Mods <span class="cnt" id="{{prefix}}-cntMods"></span></th>\n                </tr>\n                <tr>\n                    <th></th>\n                    <th>Bursters <span class="cnt" id="{{prefix}}-cntBursters"></span></th>\n                    <th>\n                        Strikes <span class="cnt" id="{{prefix}}-cntStrikes"></span>\n                        &amp; Flips <span class="cnt" id="{{prefix}}-cntFlips"></span>\n                    </th>\n                    <th>Shields <span class="cnt" id="{{prefix}}-cntModShields"></span></th>\n                    <th>Hack <span class="cnt" id="{{prefix}}-cntModHack"></span></th>\n                    <th>Other <span class="cnt" id="{{prefix}}-cntModOther"></span></th>\n                </tr>\n                </thead>\n                <tbody>\n                <tr>\n                    \x3c!-- Resos --\x3e\n                    <td id="{{prefix}}-Resonators-Container" class="item-container">Fetching inventory...</td>\n                    \x3c!-- Weapons --\x3e\n                    <td id="{{prefix}}-Bursters-Container" class="item-container"></td>\n                    <td id="{{prefix}}-Strikes-Container" class="item-container"></td>\n                    \x3c!-- Mods --\x3e\n                    <td id="{{prefix}}-Shields-Container" class="item-container"></td>\n                    <td id="{{prefix}}-HackMods-Container" class="item-container"></td>\n                    <td id="{{prefix}}-OtherMods-Container" class="item-container"></td>\n                </tr>\n                </tbody>\n            </table>\n        </div>\n\n        <div id="{{prefix}}-Keys-Panel">\n            <div class="keys-search-bar">\n                <input type="text"\n                       id="{{prefix}}-keys-search"\n                       aria-label="Search portal"\n                       placeholder="Search portal…"\n                       autocomplete="off">\n            </div>\n            <div class="keys-table-scroll">\n                <table class="inventoryTable" id="keysTable">\n                    <thead>\n                    <tr>\n                        <th data-type="string"><a href="#">Name</a></th>\n                        <th data-type="distance"><a href="#">Distance</a></th>\n                        <th data-type="number"><a href="#">Total</a> <span class="cnt" id="{{prefix}}-cntKeysTotal"></span>\n                        </th>\n                        <th>atHand <span class="cnt" id="{{prefix}}-cntKeysAtHand"></span></th>\n                        <th>Capsules <span class="cnt" id="{{prefix}}-cntKeysCapsules"></span></th>\n                    </tr>\n                    </thead>\n                    <tbody id="{{prefix}}-Keys-Container"></tbody>\n                </table>\n            </div>\n        </div>\n\n        <div id="{{prefix}}-Other-Panel">\n            <table class="inventoryTable">\n                <thead>\n                <tr>\n                    <th>Cubes <span class="cnt" id="{{prefix}}-cntCubes"></span></th>\n                    <th colspan="2">Boosts <span class="cnt" id="{{prefix}}-cntBoosts"></span></th>\n                </tr>\n                <tr>\n                    <th></th>\n                    <th>Play <span class="cnt" id="{{prefix}}-cntBoostsPlay"></span></th>\n                    <th>Beacons <span class="cnt" id="{{prefix}}-cntBoostsBeacons"></span></th>\n                </tr>\n                </thead>\n                <tbody>\n                <tr>\n                    <td id="{{prefix}}-Cubes-Container" class="item-container"></td>\n                    <td id="{{prefix}}-Boosts-Play-Container" class="item-container"></td>\n                    <td id="{{prefix}}-Boosts-Beacons-Container" class="item-container"></td>\n                </tr>\n                </tbody>\n            </table>\n        </div>\n\n        <div id="{{prefix}}-Export-Panel">\n            <form class="export-form">\n                <fieldset>\n                    <legend>\n                        <label>\n                            <input type="checkbox" id="{{prefix}}-export-keys"\n                                onchange="document.getElementById(\'{{prefix}}-export-keys-options\').style.display=this.checked?\'\':\'none\'">\n                            Keys\n                        </label>\n                    </legend>\n                    <div id="{{prefix}}-export-keys-options" style="display: none">\n                        <label>\n                            <input type="radio" name="{{prefix}}-export-scope" value="all" checked>\n                            All keys\n                        </label>\n                        <label>\n                            <input type="radio" name="{{prefix}}-export-scope" value="polygon">\n                            Only keys inside polygon(s)\n                        </label>\n                        <br>\n                        <label>\n                            <input type="radio" name="{{prefix}}-export-detail" value="total" checked>\n                            Total only\n                        </label>\n                        <label>\n                            <input type="radio" name="{{prefix}}-export-detail" value="detailed">\n                            Detailed (atHand + capsules)\n                        </label>\n                    </div>\n                </fieldset>\n                <fieldset>\n                    <legend>\n                        <label>\n                            <input type="checkbox" id="{{prefix}}-export-inventory"\n                                onchange="document.getElementById(\'{{prefix}}-export-inventory-options\').style.display=this.checked?\'\':\'none\'">\n                            Inventory\n                        </label>\n                    </legend>\n                    <div id="{{prefix}}-export-inventory-options" style="display: none">\n                        <label>\n                            <input type="checkbox" id="{{prefix}}-export-inv-resonators" checked>\n                            Resonators\n                        </label>\n                        <label>\n                            <input type="checkbox" id="{{prefix}}-export-inv-weapons" checked>\n                            Weapons\n                        </label>\n                        <label>\n                            <input type="checkbox" id="{{prefix}}-export-inv-mods" checked>\n                            Mods\n                        </label>\n                        <label>\n                            <input type="checkbox" id="{{prefix}}-export-inv-cubes" checked>\n                            Cubes\n                        </label>\n                        <label>\n                            <input type="checkbox" id="{{prefix}}-export-inv-boosts" checked>\n                            Boosts\n                        </label>\n                    </div>\n                </fieldset>\n                <fieldset>\n                    <legend>Options</legend>\n                    <label>\n                        <input type="checkbox" id="{{prefix}}-export-agent">\n                        Include agent name\n                    </label>\n                </fieldset>\n                <button type="button" onclick="{{plugin}}.exportFromForm()">Export</button>\n            </form>\n        </div>\n\n        <div id="{{prefix}}-Info-Panel">\n            <h3>{{product.name}} {{product.version}}</h3>\n            <hr>\n            <button onclick="{{plugin}}.refresh()">Force Refresh</button>\n            <hr>\n            <h3>Map Display</h3>\n            <p>\n                <label for="{{prefix}}-map-display-mode">Mode:&nbsp;</label>\n                <select id="{{prefix}}-map-display-mode" onchange="{{plugin}}.setMapDisplay(this.value)">\n                    <option value="count">Count</option>\n                    <option value="icon">Icon</option>\n                </select>\n            </p>\n            <hr>\n            <h3>Edit Key Capsule Names</h3>\n            <table>\n                <thead>\n                <tr>\n                    <th>ID</th>\n                    <th>Name</th>\n                </tr>\n                </thead>\n                <tbody id="{{prefix}}-KeyCapsules-Container"></tbody>\n            </table>\n            <button onclick="{{plugin}}.storeCapsuleNames()">Save</button>\n            <hr>\n            <h3>Info</h3>\n            <ul>\n                <li>\n                    Code and Issues:\n                    <a href="https://github.com/elkuku/iitc-kuku-inventory"\n                       target="_blank">elkuku/iitc-kuku-inventory</a>\n                </li>\n                <li>\n                    Questions:\n                    <a href="https://t.me/nikp3h" target="_blank">Telegram: nikp3h</a>\n                </li>\n                <li>\n                    Author:\n                    <a href="https://github.com/elkuku" target="_blank">elkuku</a>\n                    aka\n                    <span class="nickname enl">nikp3h</span>\n                </li>\n            </ul>\n        </div>\n    </div> \x3c!-- Tabs --\x3e\n\n</div> \x3c!-- container --\x3e\n\n\n'), data = {
                 plugin: "window.plugin." + this.pluginName,
                 prefix: this.pluginName,
                 product: {
                     name: this.pluginName,
-                    version: "v0.12"
+                    version: "v0.13"
                 }
             };
             return window.dialog({
@@ -446,14 +446,6 @@ function wrapper(SCRIPT_INFO) {
                 height: 700,
                 buttons: []
             }).parent();
-        }
-        showPanel(name) {
-            for (const panel of [ "Inventory", "Keys", "Other", "Info", "Capsules" ]) {
-                const element = document.getElementById(`${this.pluginName}-${panel}-Panel`);
-                element && (element.style.display = "none");
-            }
-            const element = document.getElementById(`${this.pluginName}-${name}-Panel`);
-            element && (element.style.display = "block");
         }
         async refresh() {
             try {
@@ -470,7 +462,7 @@ function wrapper(SCRIPT_INFO) {
             cntOther += this.processCubes(cubes), cntOther += this.processBoosts(boosts), this.processKeyCapsules(keyCapsules), 
             this.updateCountField("cntEquipment", cntEquipment), this.updateCountField("cntKeys", cntKeys), 
             this.updateCountField("cntOther", cntOther), this.updateCountField("cntTotal", cntEquipment + cntKeys + cntOther), 
-            this.enableTableSorting("keysTable");
+            this.enableTableSorting("keysTable"), this.enableKeysSearch("keysTable", `${this.pluginName}-keys-search`);
         }
         sortTable(tableId, columnIndex, type, ascending) {
             const tbody = document.getElementById(tableId).tBodies[0], rows = [ ...tbody.rows ];
@@ -495,7 +487,10 @@ function wrapper(SCRIPT_INFO) {
             }), rows.forEach(row => tbody.appendChild(row));
         }
         enableTableSorting(tableId) {
-            const headers = document.getElementById(tableId).querySelectorAll("th");
+            const table = document.getElementById(tableId);
+            if (!table || table.dataset.sortEnabled) return;
+            table.dataset.sortEnabled = "true";
+            const headers = table.querySelectorAll("th");
             headers.forEach((header, i) => {
                 let ascending = !0;
                 const indicator = document.createElement("span");
@@ -508,6 +503,17 @@ function wrapper(SCRIPT_INFO) {
                     }), indicator.textContent = ascending ? "▲" : "▼";
                 });
             });
+        }
+        enableKeysSearch(tableId, inputId) {
+            const input = document.getElementById(inputId);
+            input && !input.dataset.searchEnabled && (input.dataset.searchEnabled = "true", 
+            input.addEventListener("input", () => {
+                const query = input.value.toLowerCase().trim(), table = document.getElementById(tableId);
+                if (table) for (const row of table.tBodies[0].rows) {
+                    const text = row.cells[0]?.textContent?.toLowerCase() ?? "";
+                    row.style.display = !query || text.includes(query) ? "" : "none";
+                }
+            }));
         }
         processResos(resonators) {
             this.getContainer("Resonators").innerHTML = this.handlebars.compile(_items_image_container_namespaceObject)({
@@ -601,6 +607,74 @@ function wrapper(SCRIPT_INFO) {
         updateCountField(name, count) {
             const element = document.getElementById(this.pluginName + "-" + name);
             element ? element.innerHTML = count.toString() : console.warn(`Unknown countField: ${name}`);
+        }
+    };
+    class ExportHelper {
+        inventoryHelper;
+        capsuleNames={};
+        constructor(inventoryHelper) {
+            this.inventoryHelper = inventoryHelper;
+        }
+        setCapsuleNames(capsuleNames) {
+            this.capsuleNames = capsuleNames;
+        }
+        async exportAll(options) {
+            const exportData = {};
+            if (options.includeAgent) {
+                const agentName = window.PLAYER?.nickname;
+                agentName && (exportData.agent = agentName);
+            }
+            if (options.includeKeys) {
+                if (options.polygonOnly && !this.hasDrawnPolygons()) return void alert("No drawn polygons found. Use the Draw Tools plugin to draw a polygon on the map first.");
+                const keys = await this.inventoryHelper.getKeysInfo(), keysData = [];
+                for (const info of keys.values()) {
+                    if (options.polygonOnly && !this.isInsideDrawnPolygon(info.portal.lat, info.portal.lng)) continue;
+                    const entry = {
+                        guid: info.portal.guid,
+                        title: info.portal.title,
+                        lat: info.portal.lat,
+                        lng: info.portal.lng,
+                        total: info.total
+                    };
+                    if (options.detailed) {
+                        entry.atHand = info.atHand ?? 0;
+                        const capsules = {};
+                        if (info.capsules) for (const [id, count] of info.capsules) capsules[this.capsuleNames[id] ?? id] = count;
+                        entry.capsules = capsules;
+                    }
+                    keysData.push(entry);
+                }
+                if (options.polygonOnly && 0 === keysData.length) return void alert("No keys found inside the drawn polygon(s).");
+                exportData.keys = keysData;
+            }
+            options.resonators && (exportData.resonators = Object.fromEntries(await this.inventoryHelper.getResonatorsInfo())), 
+            options.weapons && (exportData.weapons = Object.fromEntries(await this.inventoryHelper.getWeaponsInfo())), 
+            options.mods && (exportData.mods = Object.fromEntries(await this.inventoryHelper.getModsInfo())), 
+            options.cubes && (exportData.cubes = Object.fromEntries(await this.inventoryHelper.getCubesInfo())), 
+            options.boosts && (exportData.boosts = Object.fromEntries(await this.inventoryHelper.getBoostsInfo()));
+            const timestamp = (new Date).toISOString().slice(0, 19).replace("T", "_").replace(/:/g, ""), json = JSON.stringify(exportData, void 0, 2), blob = new Blob([ json ], {
+                type: "application/json"
+            }), url = URL.createObjectURL(blob), anchor = document.createElement("a");
+            anchor.href = url, anchor.download = `kinventory-export-${timestamp}.json`, anchor.click(), 
+            URL.revokeObjectURL(url);
+        }
+        hasDrawnPolygons() {
+            return !!window.plugin.drawTools?.drawnItems && window.plugin.drawTools.drawnItems.getLayers().some(layer => layer instanceof L.Polygon);
+        }
+        isInsideDrawnPolygon(lat, lng) {
+            if (!window.plugin.drawTools?.drawnItems) return !1;
+            const testPoint = window.map.latLngToLayerPoint(L.latLng(lat, lng));
+            return window.plugin.drawTools.drawnItems.getLayers().filter(layer => layer instanceof L.Polygon).some(polygon => {
+                const ring = this.getOuterRing(polygon).map(ll => window.map.latLngToLayerPoint(ll));
+                return IITC.utils.isPointInPolygon(ring, testPoint);
+            });
+        }
+        getOuterRing(polygon) {
+            const latlngs = polygon.getLatLngs();
+            if (0 === latlngs.length) return [];
+            if (latlngs[0] instanceof L.LatLng) return latlngs;
+            const outerRing = latlngs[0];
+            return outerRing.length > 0 && outerRing[0] instanceof L.LatLng ? outerRing : outerRing[0] ?? [];
         }
     }
     class InventoryParser {
@@ -870,11 +944,24 @@ function wrapper(SCRIPT_INFO) {
     }
     class LayerHelper {
         layerGroup;
-        keys;
+        keys=new Map;
         markers;
         capsuleNames={};
+        displayMode="count";
         constructor(name) {
             this.layerGroup = new L.LayerGroup, this.markers = new Map, window.addLayerGroup(name, this.layerGroup, !0);
+        }
+        setDisplayMode(mode) {
+            this.displayMode = mode, this.refreshMarkers();
+        }
+        refreshMarkers() {
+            for (const marker of this.markers.values()) this.layerGroup.removeLayer(marker);
+            this.markers.clear();
+            for (const guid of Object.keys(window.portals)) {
+                if (!this.keys.has(guid)) continue;
+                const marker = this.createMarker(guid);
+                this.layerGroup.addLayer(marker), this.markers.set(guid, marker);
+            }
         }
         setKeys(keys) {
             this.keys = keys;
@@ -901,23 +988,34 @@ function wrapper(SCRIPT_INFO) {
         toggleDetails(guid, showDetails) {
             if (!this.markers.has(guid)) return;
             this.layerGroup.removeLayer(this.markers.get(guid)), this.markers.delete(guid);
-            const newMarker = this.createMarker(guid, showDetails);
+            const newMarker = this.createMarker(guid, showDetails && !this.teamInventoryHandles(guid));
             this.layerGroup.addLayer(newMarker), this.markers.set(guid, newMarker);
+        }
+        teamInventoryHandles(guid) {
+            const teamLayer = window.plugin.KuKuTeamInventory?.layerHelper;
+            return !!teamLayer && ((window.map?.hasLayer(teamLayer.layerGroup) ?? !1) && (teamLayer.keys?.has(guid) ?? !1));
         }
         createMarker(guid, withDetails = !1) {
             const keyInfo = this.keys.get(guid);
             if (!keyInfo) throw new Error("keyInfo not found");
-            let html = `${keyInfo.total}`;
-            if (withDetails && (keyInfo.atHand && (html += `<br /><strong>Hand: ${keyInfo.atHand}</strong>`), 
+            const isIconMode = "icon" === this.displayMode && !withDetails;
+            let innerHtml;
+            if (innerHtml = isIconMode ? '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="14" height="14"><path fill="currentColor" d="M12.65 10C11.83 7.67 9.61 6 7 6c-3.31 0-6 2.69-6 6s2.69 6 6 6c2.61 0 4.83-1.67 5.65-4H17v4h4v-4h2v-4H12.65zM7 14c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"/></svg>' : `<strong>${keyInfo.total}</strong>`, 
+            withDetails && (keyInfo.atHand && (innerHtml += `<br /><em>Hand: ${keyInfo.atHand}</em>`), 
             keyInfo.capsules)) for (const [key, count] of keyInfo.capsules) {
-                html += `<br />${this.capsuleNames[key] ?? key}: ${count}`;
+                innerHtml += `<br />${this.capsuleNames[key] ?? key}: ${count}`;
             }
-            return L.marker(new L.LatLng(keyInfo.portal.lat, keyInfo.portal.lng), {
+            let bubbleClass = "key-bubble";
+            return isIconMode ? bubbleClass += " key-bubble--icon" : withDetails && (bubbleClass += " key-bubble--details"), 
+            L.marker(new L.LatLng(keyInfo.portal.lat, keyInfo.portal.lng), {
                 icon: new L.DivIcon({
-                    html,
-                    className: "layer-key-info"
+                    html: `<div class="${bubbleClass}">${innerHtml}</div>`,
+                    className: "layer-key-info",
+                    iconSize: [ 0, 0 ],
+                    iconAnchor: [ 0, 0 ]
                 }),
-                interactive: !1
+                interactive: !1,
+                zIndexOffset: withDetails ? 1e4 : 0
             });
         }
     }
@@ -983,7 +1081,8 @@ function wrapper(SCRIPT_INFO) {
         capsuleNamesStore=new LocalStorageHelper("capsuleNames", {});
         settingsStore=new LocalStorageHelper("settings", {
             autoSync: !0,
-            version: 1
+            version: 1,
+            mapDisplayMode: "count"
         });
         capsuleNames=this.capsuleNamesStore.load();
         settings=this.settingsStore.load();
@@ -1019,7 +1118,14 @@ function wrapper(SCRIPT_INFO) {
         updateSettings() {
             window.plugin.sync && window.plugin.sync.updateMap(this.pluginName, "settings", [ "settings" ]);
         }
+        loadMapDisplayMode() {
+            return this.settings.mapDisplayMode ?? "count";
+        }
+        saveMapDisplayMode(mode) {
+            this.settings.mapDisplayMode = mode, this.persistField("settings");
+        }
     }
+    const PLUGIN_NAME = "KuKuInventory";
     !function Register(plugin, name) {
         const setup = () => {
             window.plugin[name] = plugin, window.plugin[name].init();
@@ -1028,6 +1134,7 @@ function wrapper(SCRIPT_INFO) {
         window.iitcLoaded && setup();
     }(new class KuKuInventory {
         dialogHelper;
+        exportHelper;
         dialog;
         layerHelper;
         sidebarHelper;
@@ -1036,19 +1143,34 @@ function wrapper(SCRIPT_INFO) {
         init() {
             __webpack_require__(8398);
             const inventoryHelper = new InventoryHelper;
-            this.dialogHelper = new DialogHelper("KuKuInventory", "Inventory", inventoryHelper), 
-            this.storageHelper = new StorageHelper("KuKuInventory", this.updateCallback), this.layerHelper = new LayerHelper("Portal keys"), 
+            this.dialogHelper = new src_DialogHelper(PLUGIN_NAME, "Inventory", inventoryHelper), 
+            this.exportHelper = new ExportHelper(inventoryHelper), this.storageHelper = new StorageHelper(PLUGIN_NAME, this.updateCallback), 
+            this.layerHelper = new LayerHelper("Portal keys"), this.layerHelper.setDisplayMode(this.storageHelper.loadMapDisplayMode()), 
             this.sidebarHelper = new SidebarHelper, this.capsuleNames = this.storageHelper.capsuleNames, 
             this.setCapsuleNames(), setTimeout(async () => {
                 const keys = await inventoryHelper.getKeysInfo();
                 this.layerHelper.setKeys(keys), this.sidebarHelper.setKeys(keys);
             }, 1e3), this.createButtons(), this.addHooks(), this.storageHelper.register();
         }
-        showPanel(name) {
-            this.dialogHelper.showPanel(name);
-        }
         async refresh() {
             await this.dialogHelper.refresh();
+        }
+        setMapDisplay=mode => {
+            this.storageHelper.saveMapDisplayMode(mode), this.layerHelper.setDisplayMode(mode);
+        };
+        async exportFromForm() {
+            const scope = document.querySelector(`input[name="${PLUGIN_NAME}-export-scope"]:checked`)?.value ?? "all", detail = document.querySelector(`input[name="${PLUGIN_NAME}-export-detail"]:checked`)?.value ?? "total", inv = document.getElementById(`${PLUGIN_NAME}-export-inventory`)?.checked ?? !1;
+            await this.exportHelper.exportAll({
+                includeKeys: document.getElementById(`${PLUGIN_NAME}-export-keys`)?.checked ?? !1,
+                polygonOnly: "polygon" === scope,
+                detailed: "detailed" === detail,
+                resonators: inv && (document.getElementById(`${PLUGIN_NAME}-export-inv-resonators`)?.checked ?? !1),
+                weapons: inv && (document.getElementById(`${PLUGIN_NAME}-export-inv-weapons`)?.checked ?? !1),
+                mods: inv && (document.getElementById(`${PLUGIN_NAME}-export-inv-mods`)?.checked ?? !1),
+                cubes: inv && (document.getElementById(`${PLUGIN_NAME}-export-inv-cubes`)?.checked ?? !1),
+                boosts: inv && (document.getElementById(`${PLUGIN_NAME}-export-inv-boosts`)?.checked ?? !1),
+                includeAgent: document.getElementById(`${PLUGIN_NAME}-export-agent`)?.checked ?? !1
+            });
         }
         async storeCapsuleNames() {
             const capsuleNames = this.dialogHelper.getCapsuleNames();
@@ -1072,7 +1194,7 @@ function wrapper(SCRIPT_INFO) {
         };
         setCapsuleNames() {
             this.layerHelper.setCapsuleNames(this.capsuleNames), this.sidebarHelper.setCapsuleNames(this.capsuleNames), 
-            this.dialogHelper.setCapsuleNames(this.capsuleNames);
+            this.dialogHelper.setCapsuleNames(this.capsuleNames), this.exportHelper.setCapsuleNames(this.capsuleNames);
         }
         onPortalAdded=data => {
             this.layerHelper.onPortalAdded(data.portal);
@@ -1098,11 +1220,15 @@ function wrapper(SCRIPT_INFO) {
             });
         }
         showDialog=async () => {
-            this.dialog || (this.dialog = this.dialogHelper.getDialog(), this.dialog.on("dialogclose", () => {
-                this.dialog = void 0;
-            }), await this.dialogHelper.updateDialog());
+            if (!this.dialog) {
+                this.dialog = this.dialogHelper.getDialog(), this.dialog.on("dialogclose", () => {
+                    this.dialog = void 0;
+                }), await this.dialogHelper.updateDialog(), $(`#${PLUGIN_NAME}-Tabs`).tabs();
+                const modeSelect = document.getElementById(`${PLUGIN_NAME}-map-display-mode`);
+                modeSelect && (modeSelect.value = this.storageHelper.loadMapDisplayMode());
+            }
         };
-    }, "KuKuInventory");
+    }, PLUGIN_NAME);
 })();
 };
 (function () {

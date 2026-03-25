@@ -3,7 +3,7 @@
 // @name            KuKuInventory
 // @id              inventory@elkuku
 // @category        Misc
-// @version         0.13
+// @version         0.14
 // @namespace       https://github.com/IITC-CE/ingress-intel-total-conversion
 // @updateURL       https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/elkuku/inventory.meta.js
 // @downloadURL     https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/elkuku/inventory.user.js

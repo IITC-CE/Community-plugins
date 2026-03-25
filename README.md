@@ -1260,7 +1260,7 @@ Display inventory information
 *Depends*: helper-handlebars@elkuku  |
 *[Homepage](https://github.com/elkuku/iitc-kuku-inventory)* |
 *[Issue tracker](https://github.com/elkuku/iitc-kuku-inventory/issues)* |
-*Version:* 0.13
+*Version:* 0.14
 
 
   

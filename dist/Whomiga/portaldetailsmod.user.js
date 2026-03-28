@@ -3,7 +3,7 @@
 // @id             portaldetailsmod@Whomiga
 // @name           Portal Detail Mods
 // @category       Info
-// @version        0.11.0
+// @version        0.15.0
 // @description    Show Mod Pictures in Portal Details
 // @downloadURL    https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Whomiga/portaldetailsmod.user.js
 // @updateURL      https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Whomiga/portaldetailsmod.meta.js
@@ -23,20 +23,25 @@ function wrapper(plugin_info) {
     var self = window.plugin.PortalDetailMods;
     self.id = 'PortalDetailMods';
     self.title = 'PortalDetailMods';
-    self.version = '0.11.0.20260206.163500';
+    self.version = '0.15.0.20260327.203200';
     self.author = 'Whomiga';
 
     // Name of the IITC build for first-party plugins
     plugin_info.buildName = "PortalDetailMods";
 
     // Datetime-derived version of the plugin
-    plugin_info.dateTimeVersion = "20260206.163500";
+    plugin_info.dateTimeVersion = "20260327.203200";
 
     // ID/name of the plugin
     plugin_info.pluginId = "portalDetailMods";
 
     self.namespace = 'window.plugin.' + self.id + '.';
     self.pluginname = 'plugin-' + self.id;
+
+/*
+** Assorted Constants
+*/
+    const common_DefaultID = 'default';
 
 //
 // Interface Colors
@@ -57,9 +62,14 @@ function wrapper(plugin_info) {
     self.interfaceData = Object.freeze({
         // Prefix
         prefix: 'portaldetailmods-',
-        // Main Dialog
+        // Toolbox Info
+        toolbox: {
+            title: 'Shows Mod Pictures on Portal Detail',
+            text: self.title,
+        },
+        // Main Dialog Info
         main: {
-            title: 'PortalDetailMods',
+            title: self.title,
             id:    'main',
             // Colors Used In Dialog
             colors: {
@@ -74,6 +84,7 @@ function wrapper(plugin_info) {
             buttons: {
                 ok: {
                     text: 'OK',
+                    // Callback Function
                     click: dialog_handleOKButton
                 }
             },
@@ -91,21 +102,28 @@ function wrapper(plugin_info) {
                                 prime:    { text: 'Ingress Prime',      option: 'prime' },
                                 icon:     { text: 'Icon Images',        option: 'icon' }
                             },
-                            settings: 'imageMode', default: 'icon',
+                            settings: 'imageMode', [common_DefaultID]: 'icon',
                             events: {
                                 types: ['change'],
+                                // Callback Function
                                 handler: settings_handleImageMode
                             }
                         }
                     }
                 }
-            }
+            },
+            // Callback Function
+            showDialog: main_showDialog
         },
-        // Portal Details
+        // Portal Details Info
         portaldetails: {
             mods: {
-                id: 'modimage'
-            }
+                id: 'modimage',
+                // Callback Function
+                handler: mods_PortalDetails
+            },
+            // Callback Function
+            handler: update_PortalDetails
         }
    });   
 
@@ -115,7 +133,7 @@ function wrapper(plugin_info) {
     const KEY_SETTINGS = "plugin-portaldetailmods";
     const SETTINGS_PREFIX = self.interfaceData.prefix + "settings--";
     self.settings = {
-        imageMode: self.interfaceData.main.sections.settings.elements.imagemode.default,
+        imageMode: self.interfaceData.main.sections.settings.elements.imagemode[common_DefaultID],
     };
 
 //
@@ -136,10 +154,10 @@ function wrapper(plugin_info) {
 // 
 // Main Dialog
 //
-    function main_ShowDialog() {
+    function main_showDialog() {
         let interfaceData = self.interfaceData.main;
         let dialog_id = self.interfaceData.prefix + interfaceData.id;
-        let dialog = dialog_GetDialog(dialog_id);
+        let dialog = dialog_getDialog(dialog_id);
         if (dialog && dialog.dialog('isOpen')) {
             dialog.dialog('close');
             return;
@@ -148,7 +166,7 @@ function wrapper(plugin_info) {
         // Create the contents of the dialog
         let container = document.createElement('div');
         container.id = self.interfaceData.prefix + interfaceData.id;
-        main_CreateContents(container, interfaceData);
+        main_createContents(container, interfaceData);
 
         // Create and open the dialog
         dialog = window.dialog({
@@ -164,22 +182,22 @@ function wrapper(plugin_info) {
             width: '400px',
             height: 'auto',
       	    closeCallback: function () {
-                dialog_RemoveDialog(dialog_id);
+                dialog_removeDialog(dialog_id);
 	        }
         }).dialog('option', 'buttons', { ...interfaceData.buttons});
-        dialog_AddDialog(dialog_id, dialog);
+        dialog_addDialog(dialog_id, dialog);
     }
 
 /*
 ** Main Dialog - Contents
 */
-    function main_CreateContents(div, data) {
+    function main_createContents(div, data) {
         let settings = div.appendChild(document.createElement('div'));
         settings.className = self.interfaceData.prefix + data.id;
         let table = settings.appendChild(document.createElement('table'));
 
         //  Settings
-        settings_CreateSections(table, data.sections);
+        settings_createSections(table, data.sections);
 
         // Author
         let author = div.appendChild(document.createElement('div'));
@@ -191,7 +209,7 @@ function wrapper(plugin_info) {
 //
 // Create Sections for Settings
 //    
-    function settings_CreateSections(table, sections) {
+    function settings_createSections(table, sections) {
         Object.values(sections).forEach((section) => {
             let div = table.appendChild(document.createElement('div'))
 
@@ -199,14 +217,14 @@ function wrapper(plugin_info) {
             var data = row.appendChild(document.createElement('td'));
             var header = data.appendChild(document.createElement('h3'));
             header.innerHTML = section.label;
-            settings_CreateElements(div, section.elements);
+            settings_createElements(div, section.elements);
         });
     }
 
 //
 // Create Elements for Settings
 //    
-    function settings_CreateElements(tablebody, elements) {
+    function settings_createElements(tablebody, elements) {
         Object.entries(elements).forEach(([id, element]) => {
             switch(element.type) {
                 case 'select': 
@@ -247,21 +265,21 @@ function wrapper(plugin_info) {
 // Settings - Event Handlers
 //
     function settings_handleImageMode(event) {
-        mods_PortalDetails();
+        self.interfaceData.portaldetails.mods.handler();
     }
 
 //
 //  List of Open Dialog Windows
 //
     let dialog_OpenDialogs = [];
-    function dialog_AddDialog(id, dialog) {
+    function dialog_addDialog(id, dialog) {
         dialog_OpenDialogs.push( {
             id: id,
             dialog: dialog
         });
     }
 
-    function dialog_GetDialog(id) {
+    function dialog_getDialog(id) {
         let dialog = null;
         let index = dialog_OpenDialogs.findIndex(item => item.id === id);
         if (index > -1)
@@ -269,7 +287,7 @@ function wrapper(plugin_info) {
         return dialog;
     }
 
-    function dialog_RemoveDialog(id) {
+    function dialog_removeDialog(id) {
         let index = dialog_OpenDialogs.findIndex(item => item.id === id);
         if (index > -1)
             dialog_OpenDialogs.splice(index,1);
@@ -286,7 +304,7 @@ function wrapper(plugin_info) {
 //  Place Mods Graphics in Portal Details box
 //        
     function update_PortalDetails(p) {
-        mods_PortalDetails();
+        self.interfaceData.portaldetails.mods();
 	}
 
     // Update/Change Mods on Portal Details
@@ -419,7 +437,7 @@ function wrapper(plugin_info) {
         }
     }
 
-    function load_Settings() {
+    function localStorage_loadSettings() {
         let localData = localStorage[KEY_SETTINGS];
         if (!localData || localData == "") return;
         localData = JSON.parse(localData);
@@ -459,11 +477,11 @@ function wrapper(plugin_info) {
         }
 
         localStorage_Init();
-        load_Settings();
+        localStorage_loadSettings();
 
-       	$('<a href="#" title="Shows Mod Pictures on Portal Detail">')
-       		.text('PortalDetailMods')
-       		.click(main_ShowDialog)
+      	$(`<a href="#" title="${self.interfaceData.toolbox.title}">`)
+       		.text(self.interfaceData.toolbox.text)
+       		.click(self.interfaceData.main.showDialog)
        		.appendTo($('#toolbox'));
         $("<style>")
             .prop("type", "text/css")
@@ -525,7 +543,7 @@ div#dialog-${self.interfaceData.prefix + self.interfaceData.main.id} {
         var sheet = document.createElement('style')
         sheet.innerHTML = '.' + self.id + 'author { margin-top: 14px; font-style: italic; font-size: smaller; }';
         document.body.appendChild(sheet);
-        window.addHook('portalDetailsUpdated', update_PortalDetails);
+        window.addHook('portalDetailsUpdated', self.interfaceData.portaldetails.handler);
 
         console.log('IITC plugin loaded: ' + self.title + ' version ' + self.version + " ");
     };

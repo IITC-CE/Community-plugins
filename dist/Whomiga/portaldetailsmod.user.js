@@ -3,7 +3,7 @@
 // @id             portaldetailsmod@Whomiga
 // @name           Portal Detail Mods
 // @category       Info
-// @version        0.15.0
+// @version        0.16.0
 // @description    Show Mod Pictures in Portal Details
 // @downloadURL    https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Whomiga/portaldetailsmod.user.js
 // @updateURL      https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Whomiga/portaldetailsmod.meta.js
@@ -23,14 +23,14 @@ function wrapper(plugin_info) {
     var self = window.plugin.PortalDetailMods;
     self.id = 'PortalDetailMods';
     self.title = 'PortalDetailMods';
-    self.version = '0.15.0.20260327.203200';
+    self.version = '0.16.0.20260329.233700';
     self.author = 'Whomiga';
 
     // Name of the IITC build for first-party plugins
     plugin_info.buildName = "PortalDetailMods";
 
     // Datetime-derived version of the plugin
-    plugin_info.dateTimeVersion = "20260327.203200";
+    plugin_info.dateTimeVersion = "20260329.233700";
 
     // ID/name of the plugin
     plugin_info.pluginId = "portalDetailMods";
@@ -271,9 +271,9 @@ function wrapper(plugin_info) {
 //
 //  List of Open Dialog Windows
 //
-    let dialog_OpenDialogs = [];
+    let dialog_DialogList = [];
     function dialog_addDialog(id, dialog) {
-        dialog_OpenDialogs.push( {
+        dialog_DialogList.push( {
             id: id,
             dialog: dialog
         });
@@ -281,16 +281,16 @@ function wrapper(plugin_info) {
 
     function dialog_getDialog(id) {
         let dialog = null;
-        let index = dialog_OpenDialogs.findIndex(item => item.id === id);
+        let index = dialog_DialogList.findIndex(item => item.id === id);
         if (index > -1)
-            dialog = dialog_OpenDialogs[index].dialog;
+            dialog = dialog_DialogList[index].dialog;
         return dialog;
     }
 
     function dialog_removeDialog(id) {
-        let index = dialog_OpenDialogs.findIndex(item => item.id === id);
+        let index = dialog_DialogList.findIndex(item => item.id === id);
         if (index > -1)
-            dialog_OpenDialogs.splice(index,1);
+            dialog_DialogList.splice(index,1);
     }
 
 //

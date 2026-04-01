@@ -3,7 +3,7 @@
 // @name            KuKuExport
 // @id              export@elkuku
 // @category        Export
-// @version         0.7
+// @version         0.8
 // @namespace       https://github.com/IITC-CE/ingress-intel-total-conversion
 // @updateURL       https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/elkuku/export.meta.js
 // @downloadURL     https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/elkuku/export.user.js
@@ -302,7 +302,7 @@ function wrapper(SCRIPT_INFO) {
             const template = this.getHandlebars().compile('<hr>\n<h3>{{product.name}} {{product.version}}</h3>\n<hr>\n<ul>\n    <li>\n        Code and Issues:\n        <a href="https://github.com/elkuku/iitc-kuku-export" target="_blank">elkuku/iitc-kuku-export</a>\n    </li>\n    <li>\n        Questions:\n        <a href="https://t.me/nikp3h" target="_blank">Telegram: nikp3h</a>\n    </li>\n    <li>\n        Author:\n        <a href="https://github.com/elkuku" target="_blank">elkuku</a>\n        aka\n        <span class="nickname enl">nikp3h</span>\n    </li>\n</ul>\n\n<hr>\n<label>\n    Delete preset:\n    <select id="{{prefix}}-SelDeletePreset">\n        {{#each presets}}\n            <option>{{this}}</option>\n        {{/each}}\n    </select>\n</label>\n<button class="btnDelete" onclick="{{main}}.deletePreset()">Delete</button>'), data = {
                 product: {
                     name: this.pluginName,
-                    version: "v0.7"
+                    version: "v0.8"
                 },
                 presets: this.presets.keys(),
                 main: "window.plugin." + this.pluginName,
@@ -328,8 +328,11 @@ function wrapper(SCRIPT_INFO) {
         }
         getHandlebars() {
             const handlebars = window.plugin.HelperHandlebars;
-            if (!handlebars) throw alert(this.pluginName + " - Please install and activate the Handlebars helper plugin"), 
-            new Error("Handlebars helper not found");
+            if (!handlebars) {
+                const dlURL = "https://iitc.app/community_plugins#helper-handlebars-by-elkuku";
+                throw alert(`${this.pluginName} – Handlebars helper not found.<br>Please <a href="${dlURL}">download</a> and activate it.`), 
+                new Error("Handlebars helper not found");
+            }
             return handlebars;
         }
         applyPreset(name) {

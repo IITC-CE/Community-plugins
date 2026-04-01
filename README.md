@@ -327,7 +327,7 @@ Export portal and inventory data
 *Depends*: helper-handlebars@elkuku  |
 *[Homepage](https://github.com/elkuku/iitc-kuku-export)* |
 *[Issue tracker](https://github.com/elkuku/iitc-kuku-export/issues)* |
-*Version:* 0.7
+*Version:* 0.8
 
 
   

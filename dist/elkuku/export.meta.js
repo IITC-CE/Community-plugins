@@ -3,7 +3,7 @@
 // @name            KuKuExport
 // @id              export@elkuku
 // @category        Export
-// @version         0.7
+// @version         0.8
 // @namespace       https://github.com/IITC-CE/ingress-intel-total-conversion
 // @updateURL       https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/elkuku/export.meta.js
 // @downloadURL     https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/elkuku/export.user.js

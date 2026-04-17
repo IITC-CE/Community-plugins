@@ -3,7 +3,7 @@
 // @id             portaldetailsmod@Whomiga
 // @name           Portal Detail Mods
 // @category       Info
-// @version        0.17.0
+// @version        0.18.0
 // @description    Show Mod Pictures in Portal Details
 // @downloadURL    https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Whomiga/portaldetailsmod.user.js
 // @updateURL      https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Whomiga/portaldetailsmod.meta.js
@@ -23,14 +23,14 @@ function wrapper(plugin_info) {
     var self = window.plugin.PortalDetailMods;
     self.id = 'PortalDetailMods';
     self.title = 'PortalDetailMods';
-    self.version = '0.17.0.20260415.185000';
+    self.version = '0.18.0.20260416.155400';
     self.author = 'Whomiga';
 
     // Name of the IITC build for first-party plugins
     plugin_info.buildName = "PortalDetailMods";
 
     // Datetime-derived version of the plugin
-    plugin_info.dateTimeVersion = "20260415.185000";
+    plugin_info.dateTimeVersion = "20260416.155400";
 
     // ID/name of the plugin
     plugin_info.pluginId = "portalDetailMods";
@@ -100,7 +100,8 @@ function wrapper(plugin_info) {
                             options: {
                                 original: { text: 'Ingress {REDACTED}', option: 'original' },
                                 prime:    { text: 'Ingress Prime',      option: 'prime' },
-                                icon:     { text: 'Icon Images',        option: 'icon' }
+                                icon:     { text: 'Icon Images',        option: 'icon' },
+                                disabled: { text: 'Do Not Display?',    option: 'disabled'}
                             },
                             settings: 'imageMode', [common_DefaultID]: 'icon',
                             events: {
@@ -113,7 +114,8 @@ function wrapper(plugin_info) {
                 }
             },
             // Callback Function
-            showDialog: main_showDialog
+            createContents: main_createContents,
+            showDialog:     main_showDialog
         },
         // Portal Details Info
         portaldetails: {
@@ -175,8 +177,8 @@ function wrapper(plugin_info) {
 // Main Dialog
 //
     function main_showDialog() {
-        let interfaceData = self.interfaceData.main;
-        let dialog_id = self.interfaceData.prefix + interfaceData.id;
+        let main = self.interfaceData.main;
+        let dialog_id = self.interfaceData.prefix + main.id;
         let dialog = dialog_getDialog(dialog_id);
         if (dialog && dialog.dialog('isOpen')) {
             dialog.dialog('close');
@@ -184,16 +186,14 @@ function wrapper(plugin_info) {
         }
 
         // Create the contents of the dialog
-        let container = document.createElement('div');
-        container.id = self.interfaceData.prefix + interfaceData.id;
-        main_createContents(container, interfaceData);
+        let container = main.createContents();
 
         // Create and open the dialog
         dialog = window.dialog({
 			html: container,
-            title: interfaceData.title,
+            title: main.title,
             id: dialog_id,
-            dialogClass: 'ui-dialog-' + self.interfaceData.prefix + interfaceData.id,
+            dialogClass: 'ui-dialog-' + self.interfaceData.prefix + main.id,
             position: {
                 my: 'auto',
                 at: 'auto',
@@ -204,26 +204,30 @@ function wrapper(plugin_info) {
       	    closeCallback: function () {
                 dialog_removeDialog(dialog_id);
 	        }
-        }).dialog('option', 'buttons', { ...interfaceData.buttons});
+        }).dialog('option', 'buttons', { ...main.buttons});
         dialog_addDialog(dialog_id, dialog);
     }
 
 /*
 ** Main Dialog - Contents
 */
-    function main_createContents(div, data) {
+    function main_createContents() {
+        let main = self.interfaceData.main;
+        let div = document.createElement('div');
+        div.id = self.interfaceData.prefix + main.id;
+
         let settings = div.appendChild(document.createElement('div'));
-        settings.className = self.interfaceData.prefix + data.id;
+        settings.className = self.interfaceData.prefix + main.id;
         let table = settings.appendChild(document.createElement('table'));
 
         //  Settings
-        settings_createSections(table, data.sections);
+        settings_createSections(table, main.sections);
 
         // Author
         let author = div.appendChild(document.createElement('div'));
         author.className = self.id + 'author';
         author.innerHTML = self.title + ' version ' + self.version + ' by ' + self.author;
-
+        return div;
     }
 
 //
@@ -324,7 +328,8 @@ function wrapper(plugin_info) {
 //  Place Mods Graphics in Portal Details box
 //        
     function update_PortalDetails(p) {
-        self.interfaceData.portaldetails.mods();
+        let portaldetails = self.interfaceData.portaldetails;
+        portaldetails.mods.handler();
 	}
 
     // Update/Change Mods on Portal Details
@@ -333,23 +338,44 @@ function wrapper(plugin_info) {
         mods = document.querySelectorAll('.mods span');
         if (mods) {
             Array.from(mods).map(el => {
-                if (el.title) {
-                    el.title = el.title.replace(/rare/g, "Rare");
+                if (self.settings.imageMode === 'disabled') {
+                    if (el.customOriginal) {
+                        if (el.customOriginal.owner == self.id) {
+                            el.title = el.customOriginal.title;
+                            el.innerHTML = el.customOriginal.innerHTML;
+                            el.customOriginal = null;
+                        }
+                    }
                 }
-                if (el.dataset.key == undefined) {
-                    key = el.textContent.toUpperCase().replace(/ /g, '_');
-                }
-                else {
-                    key = el.dataset.key;
-                }
-                if (key != '') {
-                    el.className = self.interfaceData.prefix + portaldetails.mods.id;
-                    el.dataset.key = key;
-                    let itemimage = document.createElement('img');
-                    var image = mods_getImageByKey(key, self.settings.imageMode);
-                    itemimage.src = image;
-                    el.innerHTML = '';
-                    el.appendChild(itemimage);
+                else
+                {
+                    if (!el.customOriginal) {
+                        el.customOriginal = {
+                            owner: self.id,
+                            title: structuredClone(el.title),
+                            innerHTML: structuredClone(el.innerHTML),
+                        }
+                    }
+                    if (el.customOriginal.owner == self.id) {
+                        if (el.title) {
+                            el.title = el.title.replace(/rare/g, "Rare");
+                        }
+                        if (el.dataset.key == undefined) {
+                            key = el.textContent.toUpperCase().replace(/ /g, '_');
+                        }
+                        else {
+                            key = el.dataset.key;
+                        }
+                        if (key != '') {
+                            el.className = self.interfaceData.prefix + portaldetails.mods.id;
+                            el.dataset.key = key;
+                            let itemimage = document.createElement('img');
+                            var image = mods_getImageByKey(key, self.settings.imageMode);
+                            itemimage.src = image;
+                            el.innerHTML = '';
+                            el.appendChild(itemimage);
+                        }
+                    }
                 }
             });
         }

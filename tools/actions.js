@@ -3,14 +3,14 @@ import nunjucks from 'nunjucks';
 import fs from 'fs';
 import {get_dist_plugins, get_plugins_in_categories, get_stat_counters} from './helpers.js';
 
-export const run_update = async (metadata_files) => {
+export const run_update = async (metadata_files, force = false) => {
     let is_updated = false;
     for (const [filepath, author, filename] of metadata_files) {
         console.log(`Checking ${author}/${filename}`);
         const metadata = helpers.read_metadata_file(filepath);
 
         if (metadata === null) continue;
-        if (await helpers.is_plugin_update_available(metadata, author, filename)) {
+        if (force || await helpers.is_plugin_update_available(metadata, author, filename)) {
             console.log(`Updating ${author}/${filename}`);
             await helpers.update_plugin(metadata, author, filename);
             is_updated = true;

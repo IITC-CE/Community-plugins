@@ -2,7 +2,7 @@
 
 A collection of amazing plugins made by community.
 
-There are now 127 plugins from 41 authors in the collection.
+There are now 128 plugins from 42 authors in the collection.
 
 > Note: You must install IITC-CE on your [desktop](https://iitc.app/download_desktop)
 or [mobile device](https://iitc.app/download_mobile) to use IITC plugins.
@@ -937,6 +937,18 @@ Shows the &#39;too close&#39; radius of existing portals, in order to see where 
 Quickly draw and move links from portal to portal on the map. Show crosslinks, for links on the map, as well as for drawn links. Store/Restore your projects. Added great circle support. Added fields layer. Export list of used portals with link count. Integrated Spectrum Colorpicker 1.8.1
 
 *Version:* 0.0.9.20210724.002500
+
+
+  
+### [Range Rings](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/MikeDiehn/range-rings.user.js) by Mike Diehn
+
+
+
+
+
+Draw concentric range circles from draggable center points.
+
+*Version:* 1.3.0
 
 
   

@@ -104,8 +104,8 @@ const remove_first_line = (str) => {
 };
 
 const get_repo_urls = (downloadURL) => {
-    const match = downloadURL.match(/^https:\/\/github\.com\/([^/]+\/[^/]+)\//) ||
-                  downloadURL.match(/^https:\/\/raw\.githubusercontent\.com\/([^/]+\/[^/]+)\//);
+    let match = downloadURL.match(/^https:\/\/github\.com\/([^/]+\/[^/]+)\//) ||
+                downloadURL.match(/^https:\/\/raw\.githubusercontent\.com\/([^/]+\/[^/]+)\//);
     if (match) return {
         homepageURL: `https://github.com/${match[1]}`,
         issueTracker: `https://github.com/${match[1]}/issues`

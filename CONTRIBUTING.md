@@ -37,14 +37,14 @@ Conditional:
 Optional:
 
 * `preview` - A preview image for your plugin.
-* `issueTracker` - Link to issue tracker of plugin.
+* `issueTracker` - Link to issue tracker of plugin. (automatically generated if `downloadURL` points to GitHub or GitLab)
 * `depends` - List of plugins required for your plugin to work. As values, specify the `id` of the required plugins.
 * `recommends` - List of plugins recommended for your plugin to work. As values, specify the `id` of the recommended plugins.
 * `skipMatchCheck` - Set to "true" if the plugin is not intended to run on intel/missions sites.
 
 You can also override or add keys frequently used in the "==UserScript==" block:
 
-* `homepageURL`
+* `homepageURL` (automatically generated if `downloadURL` points to GitHub or GitLab)
 * `match`
 * `include`
 

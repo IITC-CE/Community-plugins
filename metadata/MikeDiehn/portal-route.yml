@@ -1,0 +1,6 @@
+updateURL: https://raw.githubusercontent.com/mdiehn/iitc-plugin-portal-route/refs/heads/main/dist/portal-route.meta.js
+downloadURL: https://raw.githubusercontent.com/mdiehn/iitc-plugin-portal-route/refs/heads/main/dist/portal-route.user.js
+issueTracker: https://github.com/mdiehn/iitc-plugins/portal-route/issues
+author: Mike Diehn
+match:
+  - https://intel.ingress.com/*

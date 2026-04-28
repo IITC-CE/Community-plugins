@@ -103,6 +103,23 @@ const remove_first_line = (str) => {
     return str.substring(str.indexOf('\n') + 1);
 };
 
+const get_repo_urls = (downloadURL) => {
+    const match = downloadURL.match(/^https:\/\/github\.com\/([^/]+\/[^/]+)\//) ||
+                  downloadURL.match(/^https:\/\/raw\.githubusercontent\.com\/([^/]+\/[^/]+)\//);
+    if (match) return {
+        homepageURL: `https://github.com/${match[1]}`,
+        issueTracker: `https://github.com/${match[1]}/issues`
+    };
+
+    match = downloadURL.match(/^https:\/\/gitlab\.com\/([^/]+\/[^/]+)\//);
+    if (match) return {
+        homepageURL: `https://gitlab.com/${match[1]}`,
+        issueTracker: `https://gitlab.com/${match[1]}/-/issues`
+    };
+
+    return null;
+};
+
 const replace_update_url = (author, filename) => {
     const base_url = (process.env.BASE_RAW !== undefined) ? process.env.BASE_RAW : 'https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/';
     return {
@@ -144,6 +161,14 @@ export const update_plugin = async (metadata, author, filename) => {
     for (const mergeKey of ['antiFeatures', 'depends', 'recommends']) {
         if (typeof meta[mergeKey] === 'object') {
             meta[mergeKey] = meta[mergeKey].join('|');
+        }
+    }
+
+    if (meta.homepageURL === undefined || meta.issueTracker === undefined) {
+        const repoUrls = get_repo_urls(metadata.downloadURL);
+        if (repoUrls !== null) {
+            if (meta.homepageURL === undefined) meta.homepageURL = repoUrls.homepageURL;
+            if (meta.issueTracker === undefined) meta.issueTracker = repoUrls.issueTracker;
         }
     }
 

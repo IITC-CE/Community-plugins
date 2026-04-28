@@ -12,6 +12,7 @@
 // @screenshot      https://cdn.jsdelivr.net/gh/Artoria2e5/misc@master/ingress/highlight-7miss1.png
 // @homepageURL     https://github.com/Artoria2e5/misc/issues
 // @antiFeatures    scraper
+// @issueTracker    https://github.com/Artoria2e5/misc/issues
 // @match           https://intel.ingress.com/*
 // @match           https://intel-x.ingress.com/*
 // @grant           none

@@ -202,6 +202,8 @@ Show date and time on the map, configurable time formatting, select a manual tim
 
 Reduces use of sidebar.
 
+*[Homepage](https://github.com/MysticJay/ZasoItems.CE)* |
+*[Issue tracker](https://github.com/MysticJay/ZasoItems.CE/issues)* |
 *Version:* 0.0.5.20240307.074938
 
 
@@ -214,6 +216,8 @@ Reduces use of sidebar.
 
 Hide all UI for screenshot.
 
+*[Homepage](https://github.com/MysticJay/ZasoItems.CE)* |
+*[Issue tracker](https://github.com/MysticJay/ZasoItems.CE/issues)* |
 *Version:* 0.1.4.20200528.070838
 
 
@@ -240,6 +244,8 @@ Set the zoom level to portals
 
 Saves the current enabled layers (base, overlays and hightlighter). Restore it just a click.
 
+*[Homepage](https://github.com/MysticJay/ZasoItems.CE)* |
+*[Issue tracker](https://github.com/MysticJay/ZasoItems.CE/issues)* |
 *Version:* 0.1.4
 
 
@@ -252,6 +258,8 @@ Saves the current enabled layers (base, overlays and hightlighter). Restore it j
 
 LocalStorageManager plugin by GMOogway.
 
+*[Homepage](https://github.com/GMOogway/iitc-plugins)* |
+*[Issue tracker](https://github.com/GMOogway/iitc-plugins/issues)* |
 *Version:* 0.1.0.20190214
 
 
@@ -281,6 +289,8 @@ Easily add or remove bookmarks for all portals within visible range per team. Th
 
 Manage LocalStorage: import, export and delete.
 
+*[Homepage](https://github.com/MysticJay/ZasoItems.CE)* |
+*[Issue tracker](https://github.com/MysticJay/ZasoItems.CE/issues)* |
 *Version:* 0.1.1.20200216.174029
 
 
@@ -296,6 +306,8 @@ Manage LocalStorage: import, export and delete.
 
 Add an image to your map.
 
+*[Homepage](https://github.com/McBen/IITCPluginKit_Imageoverlay)* |
+*[Issue tracker](https://github.com/McBen/IITCPluginKit_Imageoverlay/issues)* |
 *Version:* 1.0
 
 
@@ -309,6 +321,8 @@ Add an image to your map.
 Import KML/GPX/Geojson/TCX into DrawTools
 
 *Depends*: draw-tools@breunigs  |
+*[Homepage](https://github.com/McBen/IITCPlugin_KMLImport)* |
+*[Issue tracker](https://github.com/McBen/IITCPlugin_KMLImport/issues)* |
 *Version:* 1.0.1
 
 
@@ -384,6 +398,7 @@ Hides any portal that doesn&#39;t have a link or field from it.
 Find portals that are 1/2/3 resonators to level 8. Makes its own requests; use with caution.
 
 *[Homepage](https://github.com/Artoria2e5/misc/issues)* |
+*[Issue tracker](https://github.com/Artoria2e5/misc/issues)* |
 *Version:* 0.1.2
 
 
@@ -473,6 +488,8 @@ Adds agent profile link in search bar of IITC
 
 Add to the sidebar a countdown timer to next checkpoint.
 
+*[Homepage](https://github.com/MysticJay/ZasoItems.CE)* |
+*[Issue tracker](https://github.com/MysticJay/ZasoItems.CE/issues)* |
 *Version:* 0.1.2.20200216.174028
 
 
@@ -485,6 +502,8 @@ Add to the sidebar a countdown timer to next checkpoint.
 
 Estimate the portal decaying.
 
+*[Homepage](https://github.com/MysticJay/ZasoItems.CE)* |
+*[Issue tracker](https://github.com/MysticJay/ZasoItems.CE/issues)* |
 *Version:* 0.0.3.20200723.162738
 
 
@@ -498,6 +517,8 @@ Estimate the portal decaying.
 Build the best link star in an area.
 
 *Depends*: draw-tools@breunigs  |
+*[Homepage](https://github.com/Tarsi210/draw-best-link-star)* |
+*[Issue tracker](https://github.com/Tarsi210/draw-best-link-star/issues)* |
 *Version:* 0.0.8
 
 
@@ -511,6 +532,8 @@ Build the best link star in an area.
 Quickly replace one portal with another in Draw Tools
 
 *Depends*: draw-tools@breunigs  |
+*[Homepage](https://github.com/Loskir/iitc-plugins)* |
+*[Issue tracker](https://github.com/Loskir/iitc-plugins/issues)* |
 *Version:* 1.0.7
 
 
@@ -536,6 +559,7 @@ Quickly show a list of details for your favorite list of portals.
 Parse Inventory from Ingress
 
 *[Homepage](https://github.com/633KYN35D/iitc-inventory-parser/)* |
+*[Issue tracker](https://github.com/633KYN35D/iitc-inventory-parser/issues)* |
 *Version:* 0.0.5
 
 
@@ -548,6 +572,8 @@ Parse Inventory from Ingress
 
 Estimate the portal decaying.
 
+*[Homepage](https://github.com/MysticJay/ZasoItems.CE)* |
+*[Issue tracker](https://github.com/MysticJay/ZasoItems.CE/issues)* |
 *Version:* 0.0.3.20200216.174029
 
 
@@ -598,6 +624,8 @@ View inventory and highlight portals with keys at any zoom. Can be used with the
 Counts portals by level and faction inside polygons or search result.
 
 *Depends*: draw-tools@breunigs  |
+*[Homepage](https://github.com/Jormund/poly-counts)* |
+*[Issue tracker](https://github.com/Jormund/poly-counts/issues)* |
 *Version:* 2.2.5.20221130.2310
 
 
@@ -622,6 +650,8 @@ Show Mod Pictures in Portal Details
 
 Creates the gallery of portals that can be used to solve the First Saturday passcode.
 
+*[Homepage](https://github.com/Kofirs2634/IITC-Portals-Gallery)* |
+*[Issue tracker](https://github.com/Kofirs2634/IITC-Portals-Gallery/issues)* |
 *Version:* 1.2.1
 
 
@@ -646,6 +676,8 @@ Show portal pictures in a dialog
 
 Adds scanner link to IITC
 
+*[Homepage](https://github.com/Suburbanno/Scanner-link)* |
+*[Issue tracker](https://github.com/Suburbanno/Scanner-link/issues)* |
 *Version:* 0.1
 
 
@@ -658,6 +690,8 @@ Adds scanner link to IITC
 
 Adds scanner link (copy mode) to IITC
 
+*[Homepage](https://github.com/Suburbanno/Scanner-link)* |
+*[Issue tracker](https://github.com/Suburbanno/Scanner-link/issues)* |
 *Version:* 0.2.1
 
 
@@ -687,6 +721,8 @@ Assist planning L8 resonator max-out using VRBB — e.g. 3 agents from the same 
 
 Exports portals in the format for http://www.ingress-maxfield.com/ and allow direct transfer to site
 
+*[Homepage](https://github.com/itayo/IITC-Ingress-Maxfields-Exporter)* |
+*[Issue tracker](https://github.com/itayo/IITC-Ingress-Maxfields-Exporter/issues)* |
 *Version:* 0.2.0.0
 
 
@@ -699,6 +735,8 @@ Exports portals in the format for http://www.ingress-maxfield.com/ and allow dir
 
 Exports portals to a CSV list
 
+*[Homepage](https://github.com/Zetaphor/IITC-Ingress-Portal-CSV-Export)* |
+*[Issue tracker](https://github.com/Zetaphor/IITC-Ingress-Portal-CSV-Export/issues)* |
 *Version:* 0.0.5
 
 
@@ -741,6 +779,8 @@ Show the S2 cells areas on the map at portal zoom level. A tiny area instead of 
 
 Simulate the destruction of portal links: hide its links and fields.
 
+*[Homepage](https://github.com/MysticJay/ZasoItems.CE)* |
+*[Issue tracker](https://github.com/MysticJay/ZasoItems.CE/issues)* |
 *Version:* 0.0.8.20200216.174029
 
 
@@ -754,6 +794,8 @@ Simulate the destruction of portal links: hide its links and fields.
 Edit and improve Draw tools.
 
 *Depends*: draw-tools@breunigs  |
+*[Homepage](https://github.com/MysticJay/ZasoItems.CE)* |
+*[Issue tracker](https://github.com/MysticJay/ZasoItems.CE/issues)* |
 *Version:* 0.1.10.20210103.185428
 
 
@@ -779,6 +821,7 @@ Plan a route for your drone (manually), draw your route between portals in range
 Shows drone flight distance between portals
 
 *[Homepage](https://gitbub.com/VE6SRV/iitc-plugins)* |
+*[Issue tracker](https://github.com/VE6SRV/iitc-plugins/issues)* |
 *Version:* 0.1
 
 
@@ -846,6 +889,8 @@ Place an image on the map, to help draw field art
 Highlights level 19 cells where portal limit is reached, in order to see where you would best submit new candidates
 
 *Depends*: s2celldrawer@wintervorst  |
+*[Homepage](https://github.com/Wintervorst/iitc)* |
+*[Issue tracker](https://github.com/Wintervorst/iitc/issues)* |
 *Version:* 0.0.8.20241120.013370
 
 
@@ -873,6 +918,8 @@ Check optimal microfields inside a triangle. Ideal for nearly-completed or dense
 
 Add one or more player markers and his ranges (hack/deploy range and xmp ranges) on the map.
 
+*[Homepage](https://github.com/MysticJay/ZasoItems.CE)* |
+*[Issue tracker](https://github.com/MysticJay/ZasoItems.CE/issues)* |
 *Version:* 0.3.1.20210103.154230
 
 
@@ -886,6 +933,7 @@ Add one or more player markers and his ranges (hack/deploy range and xmp ranges)
 Pokemon Go tools over IITC. Support in #tools-chat on https://discord.gg/niawayfarer
 
 *[Homepage](https://gitlab.com/NvlblNm/pogo-s2/)* |
+*[Issue tracker](https://gitlab.com/NvlblNm/pogo-s2/-/issues)* |
 *Version:* 0.108
 
 
@@ -898,6 +946,8 @@ Pokemon Go tools over IITC. Support in #tools-chat on https://discord.gg/niawayf
 
 Add a circle around the portals to show the range where you can hack the portal.
 
+*[Homepage](https://github.com/MysticJay/ZasoItems.CE)* |
+*[Issue tracker](https://github.com/MysticJay/ZasoItems.CE/issues)* |
 *Version:* 0.0.7.20200216.174030
 
 
@@ -924,6 +974,8 @@ Shows Visited/Captured/Scouted status above portal markers
 
 Shows the &#39;too close&#39; radius of existing portals, in order to see where you can search for and submit new candidates
 
+*[Homepage](https://github.com/Wintervorst/iitc)* |
+*[Issue tracker](https://github.com/Wintervorst/iitc/issues)* |
 *Version:* 1.0.13.20241120.013370
 
 
@@ -948,6 +1000,8 @@ Quickly draw and move links from portal to portal on the map. Show crosslinks, f
 
 Draw concentric range circles from draggable center points.
 
+*[Homepage](https://github.com/mdiehn/iitc-plugin-range-rings)* |
+*[Issue tracker](https://github.com/mdiehn/iitc-plugin-range-rings/issues)* |
 *Version:* 1.3.0
 
 
@@ -960,6 +1014,8 @@ Draw concentric range circles from draggable center points.
 
 Allows drawing of s2cells and creates a layerselected hook
 
+*[Homepage](https://github.com/Wintervorst/iitc)* |
+*[Issue tracker](https://github.com/Wintervorst/iitc/issues)* |
 *Version:* 0.0.5.20241120.010307
 
 
@@ -996,6 +1052,8 @@ Show public toilet locations in The Netherlands (using data from hogenood.nl)
 
 Shows under field throw range at 500m
 
+*[Homepage](https://github.com/blsmit5728/iitc_plugins)* |
+*[Issue tracker](https://github.com/blsmit5728/iitc_plugins/issues)* |
 *Version:* 1.1.2
 
 
@@ -1036,6 +1094,7 @@ Display heatmap of all portals that the player did NOT visit/capture.
 Place markers on the map for your candidates in Wayfarer.
 
 *[Homepage](https://gitlab.com/NvlblNm/wayfarer/)* |
+*[Issue tracker](https://gitlab.com/NvlblNm/wayfarer/-/issues)* |
 *Version:* 1.181
 
 
@@ -1052,6 +1111,8 @@ Place markers on the map for your candidates in Wayfarer.
 Create link prolongations.
 
 *Recommends*: draw-tools@breunigs draw-tools-plus@zaso bookmarks@ZasoGD font-awesome@zaso  |
+*[Homepage](https://github.com/MysticJay/ZasoItems.CE)* |
+*[Issue tracker](https://github.com/MysticJay/ZasoItems.CE/issues)* |
 *Version:* 0.1.2
 
 
@@ -1103,6 +1164,8 @@ GL layer
 
 Add autonavi.com (China) map layers by GMOogway
 
+*[Homepage](https://github.com/GMOogway/iitc-plugins)* |
+*[Issue tracker](https://github.com/GMOogway/iitc-plugins/issues)* |
 *Version:* 0.3.0.20190108
 
 
@@ -1133,6 +1196,8 @@ Seznam map tiles.
 Advanced version of Player Tracker
 
 *Depends*: player-activity-tracker@breunigs  |
+*[Homepage](https://github.com/lchauvin/IITC-AdvancedPlayerTracker)* |
+*[Issue tracker](https://github.com/lchauvin/IITC-AdvancedPlayerTracker/issues)* |
 *Version:* 0.0.1
 
 
@@ -1145,6 +1210,8 @@ Advanced version of Player Tracker
 
 Allow manual entry of portals glyphed during Aurora Glyph Hack Challenge. Use the &#39;highlighter-aurora&#39; plugin to show the portals on the map, and &#39;sync&#39; to share between multiple browsers or desktop/mobile.
 
+*[Homepage](https://github.com/mrDinckleman/iitc-plugins)* |
+*[Issue tracker](https://github.com/mrDinckleman/iitc-plugins/issues)* |
 *Version:* 0.1.1.20190821.192931
 
 
@@ -1208,6 +1275,8 @@ List open dialogs in the sidebar
 
 Direct Link
 
+*[Homepage](https://github.com/blsmit5728/iitc_plugins)* |
+*[Issue tracker](https://github.com/blsmit5728/iitc_plugins/issues)* |
 *Version:* 1.0.0
 
 
@@ -1221,6 +1290,7 @@ Direct Link
 Display area drone can &quot;see&quot; from currently selected portal. Manually record if drone has visited portals
 
 *[Homepage](https://github.com/azrael-42/IITC-Drone-Helper/)* |
+*[Issue tracker](https://github.com/azrael-42/IITC-Drone-Helper/issues)* |
 *Version:* 0.5.3.2
 
 
@@ -1233,6 +1303,8 @@ Display area drone can &quot;see&quot; from currently selected portal. Manually 
 
 Set a location. The COMM messages you send will have the setted location.
 
+*[Homepage](https://github.com/MysticJay/ZasoItems.CE)* |
+*[Issue tracker](https://github.com/MysticJay/ZasoItems.CE/issues)* |
 *Version:* 0.1.1.20200216.174029
 
 
@@ -1298,6 +1370,8 @@ A mini-game based on ingress and IITC
 
 Storage favorite logs.
 
+*[Homepage](https://github.com/MysticJay/ZasoItems.CE)* |
+*[Issue tracker](https://github.com/MysticJay/ZasoItems.CE/issues)* |
 *Version:* 0.0.2.20200216.174029
 
 
@@ -1348,6 +1422,8 @@ Add some improvements for IITC mobile, such as a close button for the portal det
 
 Export portals from bookmarks, current view or polygon
 
+*[Homepage](https://github.com/modkin/Ingress-IITC-Multi-Export)* |
+*[Issue tracker](https://github.com/modkin/Ingress-IITC-Multi-Export/issues)* |
 *Version:* 0.11
 
 
@@ -1360,6 +1436,8 @@ Export portals from bookmarks, current view or polygon
 
 Shows small box with a basic portal information. This is similar to mobile info.
 
+*[Homepage](https://github.com/Eccenux/iitc-plugin-short-portal-info)* |
+*[Issue tracker](https://github.com/Eccenux/iitc-plugin-short-portal-info/issues)* |
 *Version:* 0.3.4
 
 
@@ -1386,6 +1464,8 @@ Show uniques visit/captures based on GDPR game_log
 
 This is a spam filter plugin which filters out SPAM from Comm messages.
 
+*[Homepage](https://github.com/Eccenux/iitc-plugin-spam-filter)* |
+*[Issue tracker](https://github.com/Eccenux/iitc-plugin-spam-filter/issues)* |
 *Version:* 0.0.7
 
 
@@ -1398,6 +1478,8 @@ This is a spam filter plugin which filters out SPAM from Comm messages.
 
 Add a To Do List.
 
+*[Homepage](https://github.com/MysticJay/ZasoItems.CE)* |
+*[Issue tracker](https://github.com/MysticJay/ZasoItems.CE/issues)* |
 *Version:* 0.0.3.20200216.174030
 
 
@@ -1425,6 +1507,8 @@ Calculates the best route between the player&#39;s location and a series of port
 
 Allow manual entry of portals deployed during Umbra Deploy Challenge. Use the &#39;highlighter-umbra&#39; plugin to show the portals on the map, and &#39;sync&#39; to share between multiple browsers or desktop/mobile.
 
+*[Homepage](https://github.com/mrDinckleman/iitc-plugins)* |
+*[Issue tracker](https://github.com/mrDinckleman/iitc-plugins/issues)* |
 *Version:* 0.1.1.20191224.211839
 
 
@@ -1485,6 +1569,8 @@ Route planning through selected portals with segment drive times, stop-time acco
 
 Enhance Portal Links
 
+*[Homepage](https://github.com/McBen/IITCPlugin_PLink)* |
+*[Issue tracker](https://github.com/McBen/IITCPlugin_PLink/issues)* |
 *Version:* 1.1
 
 
@@ -1497,6 +1583,8 @@ Enhance Portal Links
 
 Append a pocket box containing some restricted details of the selected portal.
 
+*[Homepage](https://github.com/MysticJay/ZasoItems.CE)* |
+*[Issue tracker](https://github.com/MysticJay/ZasoItems.CE/issues)* |
 *Version:* 0.0.6.20200723.154151
 
 
@@ -1509,6 +1597,8 @@ Append a pocket box containing some restricted details of the selected portal.
 
 Show resonator energy percentage on resonator energy bar in portal detail panel.
 
+*[Homepage](https://github.com/3ch01c/iitc-plugins)* |
+*[Issue tracker](https://github.com/3ch01c/iitc-plugins/issues)* |
 *Version:* 0.1.0.20170103
 
 
@@ -1599,6 +1689,8 @@ Display an Unfreeze button, to use in case of IITC app hang after using zoom on 
 
 Bring the portals layers to front. Prevents that fields and drawn items cover them, making them unclickable.
 
+*[Homepage](https://github.com/MysticJay/ZasoItems.CE)* |
+*[Issue tracker](https://github.com/MysticJay/ZasoItems.CE/issues)* |
 *Version:* 0.0.2.20200216.174028
 
 
@@ -1611,6 +1703,8 @@ Bring the portals layers to front. Prevents that fields and drawn items cover th
 
 Counts the chat message characters.
 
+*[Homepage](https://github.com/MysticJay/ZasoItems.CE)* |
+*[Issue tracker](https://github.com/MysticJay/ZasoItems.CE/issues)* |
 *Version:* 0.1.3.20200216.174028
 
 
@@ -1623,6 +1717,8 @@ Counts the chat message characters.
 
 Add Emoji support and append an Emoji Keyboard.
 
+*[Homepage](https://github.com/MysticJay/ZasoItems.CE)* |
+*[Issue tracker](https://github.com/MysticJay/ZasoItems.CE/issues)* |
 *Version:* 0.0.2.20200216.174029
 
 
@@ -1635,6 +1731,8 @@ Add Emoji support and append an Emoji Keyboard.
 
 Add Font Awesome Icons.
 
+*[Homepage](https://github.com/MysticJay/ZasoItems.CE)* |
+*[Issue tracker](https://github.com/MysticJay/ZasoItems.CE/issues)* |
 *Version:* 0.0.4.20200216.174029
 
 
@@ -1647,6 +1745,8 @@ Add Font Awesome Icons.
 
 Minify some Portal Details in sidebar: mod slots and resonators info
 
+*[Homepage](https://github.com/MysticJay/ZasoItems.CE)* |
+*[Issue tracker](https://github.com/MysticJay/ZasoItems.CE/issues)* |
 *Version:* 0.0.4.20200216.174030
 
 
@@ -1659,6 +1759,8 @@ Minify some Portal Details in sidebar: mod slots and resonators info
 
 A control to enable/disable the zoom map by scroll mouse.
 
+*[Homepage](https://github.com/MysticJay/ZasoItems.CE)* |
+*[Issue tracker](https://github.com/MysticJay/ZasoItems.CE/issues)* |
 *Version:* 0.0.3.20200216.174030
 
 
@@ -1686,6 +1788,8 @@ Override the portal and links display levels for every zoom level. Using this me
 
 View inventory and shows portals you have keys from
 
+*[Homepage](https://github.com/Guschtel/public-iitc-scripts)* |
+*[Issue tracker](https://github.com/Guschtel/public-iitc-scripts/issues)* |
 *Version:* 0.0.12
 
 

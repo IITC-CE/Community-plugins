@@ -9,6 +9,8 @@
 // @downloadURL     https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/zetaphor/ingress_export.user.js
 // @description     Exports portals to a CSV list
 // @antiFeatures    scraper|export
+// @homepageURL     https://github.com/Zetaphor/IITC-Ingress-Portal-CSV-Export
+// @issueTracker    https://github.com/Zetaphor/IITC-Ingress-Portal-CSV-Export/issues
 // @include         https://*ingress.com/intel*
 // @include         http://*ingress.com/intel*
 // @match           https://*ingress.com/intel*

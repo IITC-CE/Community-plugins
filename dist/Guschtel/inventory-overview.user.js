@@ -1,15 +1,17 @@
 // ==UserScript==
-// @author         Guschtel
-// @id             inventory-overview@Guschtel
-// @name           Ingress Inventory Overview (based on Ingress Live Inventory from Freamstern)
-// @category       Utilities
-// @version        0.0.12
-// @downloadURL    https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Guschtel/inventory-overview.user.js
-// @updateURL      https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Guschtel/inventory-overview.meta.js
-// @description    View inventory and shows portals you have keys from
-// @match          *://intel.ingress.com/*
-// @match          *://*.ingress.com/mission/*
-// @grant          none
+// @author          Guschtel
+// @id              inventory-overview@Guschtel
+// @name            Ingress Inventory Overview (based on Ingress Live Inventory from Freamstern)
+// @category        Utilities
+// @version         0.0.12
+// @downloadURL     https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Guschtel/inventory-overview.user.js
+// @updateURL       https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Guschtel/inventory-overview.meta.js
+// @description     View inventory and shows portals you have keys from
+// @homepageURL     https://github.com/Guschtel/public-iitc-scripts
+// @issueTracker    https://github.com/Guschtel/public-iitc-scripts/issues
+// @match           *://intel.ingress.com/*
+// @match           *://*.ingress.com/mission/*
+// @grant           none
 // ==/UserScript==
 
 
@@ -431,8 +433,8 @@ function wrapper(plugin_info) {
                     <th class="" data-orderby="type">Type</th>
                     <th class="" data-orderby="rarity">Rarity</th>
                     <th class="" data-orderby="diff">Diff</th>
-                    <th class="" data-orderby="currentCount">Current Count</th>
                     <th class="" data-orderby="prevCount">Previous Count</th>
+                    <th class="" data-orderby="currentCount">Current Count</th>
                 </tr>
             </thead>
         <tbody>

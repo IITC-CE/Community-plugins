@@ -2,7 +2,7 @@
 
 A collection of amazing plugins made by community.
 
-There are now 126 plugins from 40 authors in the collection.
+There are now 127 plugins from 41 authors in the collection.
 
 > Note: You must install IITC-CE on your [desktop](https://iitc.app/download_desktop)
 or [mobile device](https://iitc.app/download_mobile) to use IITC plugins.
@@ -1445,6 +1445,18 @@ Plan a route with multiple portals and open Google Maps (max 9 waypoints) or App
 
 *[Homepage](https://softspot.nl/ingress/plugins/documentation/iitc-plugin-maps-route-planner.user.js.html)* |
 *Version:* 3.0.0.20240307.220600
+
+
+  
+### [Portal Route](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/MikeDiehn/portal-route.user.js) by MikeDiehn
+
+
+
+
+
+Route planning through selected portals with segment drive times, stop-time accounting, and Google Maps export.
+
+*Version:* 0.2.0-dev
 
 
   

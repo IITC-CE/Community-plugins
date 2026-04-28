@@ -3,7 +3,7 @@
 // @id             portaldetailsmod@Whomiga
 // @name           Portal Detail Mods
 // @category       Info
-// @version        0.20.0
+// @version        0.23.0
 // @description    Show Mod Pictures in Portal Details
 // @downloadURL    https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Whomiga/portaldetailsmod.user.js
 // @updateURL      https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Whomiga/portaldetailsmod.meta.js
@@ -23,14 +23,15 @@ function wrapper(plugin_info) {
     var self = window.plugin.PortalDetailMods;
     self.id = 'PortalDetailMods';
     self.title = 'PortalDetailMods';
-    self.version = '0.20.0.20260417.180000';
+    self.version = '0.23.0.20260426.113300';
+    self.prefix = 'portaldetailmods-';
     self.author = 'Whomiga';
 
     // Name of the IITC build for first-party plugins
     plugin_info.buildName = "PortalDetailMods";
 
     // Datetime-derived version of the plugin
-    plugin_info.dateTimeVersion = "20260417.180000";
+    plugin_info.dateTimeVersion = "20260426.113300";
 
     // ID/name of the plugin
     plugin_info.pluginId = "portalDetailMods";
@@ -56,12 +57,53 @@ function wrapper(plugin_info) {
         BackGrnd: 'rgba(8, 60, 78, 0.9)',
     });
 
+/*
+** Interface CSS Values
+*/
+    self.interfaceCss = Object.freeze({
+        // Main Dialog CSS Information
+        'main': {
+            // Don't use 'parent_A' - 'parent_F' anywhere else
+            'id_div_dialog': 'div#dialog-' + self.prefix + 'main',
+            '*parent_A': `
+                overflow-x: hidden !important;`,
+            'id_ui_dialog': 'ui-dialog.ui-dialog-' + self.prefix + 'main',
+            'parent_B': `
+                max-width: calc(100vw - 2px);`,
+            ' select': `
+                background-color: ${self.interfaceColors.Gadget} !important;`,
+            'id_select': 'select',
+            '*parent_C': `
+                background-color: ${self.interfaceColors.Gadget} !important;`,
+            'id_pre_id': 'pre_id',
+            ' h3': `padding: 0 4px 4px 0;
+                margin: 0;
+                color: ${self.interfaceColors.Header} !important;`,
+            ' label': `color: ${self.interfaceColors.Label} !important;`,
+            '-innersettings': `padding: 8px 8px;
+                border: 1px solid ${self.interfaceColors.Border};
+                background-color: ${self.interfaceColors.BackGrnd};
+                color: ${self.interfaceColors.Text};`,
+            'id_pre_main': 'pre_main',
+            'parent_E': `
+                padding: 4px 4px;
+                border: 1px solid ${self.interfaceColors.Border};
+                background-color: ${self.interfaceColors.BackGrnd};
+                color: ${self.interfaceColors.Main};
+                display: flex;
+                flex-direction: column;
+                flex: 1;`,
+            'id_pre_author': 'pre_author',
+            'parent_F': `
+                margin-top: 14px; font-style: italic; font-size: smaller;`,
+        }
+    });
 //
 // Interface Information
 //
     self.interfaceData = Object.freeze({
         // Prefix
-        prefix: 'portaldetailmods-',
+        prefix: self.prefix,
         // Toolbox Info
         toolbox: {
             title: 'Shows Mod Pictures on Portal Detail',
@@ -72,6 +114,9 @@ function wrapper(plugin_info) {
             title: self.title,
             id:    'main',
             // Colors Used In Dialog
+            css: {
+                ...self.interfaceCss.main
+            },
             colors: {
                 Main:     self.interfaceColors.Main,
                 Label:    self.interfaceColors.Label,
@@ -91,7 +136,7 @@ function wrapper(plugin_info) {
             // Sections Used In Dialog
             sections: {
                 settings: {
-                    label: 'Image modes:',
+                    label: 'Image mode:',
                     // Elements Used In Section
                     elements: {
                         imagemode: {
@@ -121,6 +166,15 @@ function wrapper(plugin_info) {
         portaldetails: {
             mods: {
                 id: 'modimage',
+                // CSS Information
+                css: {
+                    id_pre_id: 'pre_id',
+                    parent_1: `
+                        display: inline-block !important`,
+                    ' img': `
+                        width: auto;
+                        height: 64px;`
+                },
                 // Callback Function
                 handler: mods_PortalDetails,
                 owner: mods_PortalDetailsOwner
@@ -137,14 +191,14 @@ function wrapper(plugin_info) {
     const SETTINGS_PREFIX = self.interfaceData.prefix + "settings--";
     self.settings = {
         elementData: {
-            ...get_Elements(self.interfaceData)
+            ...get_elementData(self.interfaceData)
         }
     };
 
 /*
 ** Settings Functions
 */
-    function get_Elements(obj) {
+    function get_elementData(obj) {
         let targetKey = 'elements';
         let results = {};
   
@@ -155,10 +209,106 @@ function wrapper(plugin_info) {
                 }
             } else if (typeof obj[key] === 'object' && obj[key] !== null) {
                 // Recurse deeper into the object
-                Object.assign(results, get_Elements(obj[key]));
+                Object.assign(results, get_elementData(obj[key]));
             }
         }
         return results;
+    };
+
+/*
+** CSS Functions    
+**
+** Changing of ID to be used  - keys must be unique in CSS
+**  key: id_example - ID = example
+**  key: id_pre_example - ID = prefix + example(or info in object)
+**  key: if_str_example - ID = example (literal string)
+**
+** Prefix to be included before ID
+**    - defaults to '.' before ID
+**  # - place "#" before ID
+**  * - place no character before ID
+**
+** A <style></style> will be created an added with the a value
+**    created as below
+**
+** Value to be inserted after ID
+**  parent?? - must be unique in CSS
+**   - parent_1: value = '.|#' + ID + '{ value }'
+**   - parent_2: value = '.|#' + ID + '{ value }'
+**  content
+**   - content: parent: value = '.|# + ID + 'content { value }'
+**  otherwise
+**  key: subkey = '.|#' + ID + 'key { subkey }'
+**
+** Note: If an ID is not set before setting value
+**    ID will be attempted to be set as...
+**  - obj.class, then obj.sub_id and then obj.tab_id
+**  - if it fails on those it will set ID = prefix + obj.id
+*/
+    function init_Css(obj = self.interfaceData) {
+        let targetKey = 'css';
+        let prefix = '.';
+        for (let key in obj) {
+            if (key === targetKey && typeof obj[key] == 'object' && obj[key] !== null) {
+                let style = document.createElement('style');
+                id = (obj.class || obj.sub_id || obj.tab_id ||  self.prefix + obj.id);
+                Object.entries(obj.css).forEach(([subKey, value]) => {
+                    let add_prefix = false;
+                    // Determine from subKey if prefixed with '.', '*' or '#'
+                    if (subKey[0] == '#') {
+                        prefix = "#";
+                        subKey = subKey.substring(1);
+                    } else {
+                        if (subKey[0] == "*") { 
+                            prefix = '';
+                            subKey = subKey.substring(1);
+                        }
+                        else {
+                            prefix = '.';
+                        }
+                    }
+                    // Change/Set id using id_? subKey and value
+                    if (subKey.substring(0,3) == "id_") {
+                        if (value.substring(0, 4) == 'pre_') {
+                            add_prefix = true;
+                            value = value.substring(4);
+                        }
+                        if (value.substring(0, 4) == 'str_') {
+                            id = value.substring(4);
+                            return;
+                        }
+                        id = ((add_prefix) ?  self.prefix : "") + (obj[value] || value);
+                        return;
+                    }
+                    if (subKey.substring(0, 6) == 'parent') {
+                        subKey = 'parent';
+                    }
+                    switch(subKey) {
+                        case 'parent':
+                            style.innerHTML += prefix + id + ' {' + value + '}'; 
+                            break;
+                        case "content":
+                            Object.entries(value).forEach(([type, content]) => {
+                                switch(type) {
+                                    case 'parent':
+                                        style.innerHTML += prefix + id + 'content {' + content + '}'; 
+                                        break;
+                                }
+                                style.innerHTML += "\n";
+                            });
+                            break;
+                        default:
+                            style.innerHTML += prefix + id + '' + subKey + ' {' + value + '}'; 
+                            break;
+                    }
+                    style.innerHTML += "\n";
+                });
+                document.body.appendChild(style);
+            } else if (typeof obj[key] === 'object' && obj[key] !== null) {
+                // Recurse deeper into the object
+                init_Css(obj[key]);
+            }
+        }
     };
 
 //
@@ -228,7 +378,7 @@ function wrapper(plugin_info) {
 
         // Author
         let author = div.appendChild(document.createElement('div'));
-        author.className = self.id + 'author';
+        author.className = self.prefix + 'author';
         author.innerHTML = self.title + ' version ' + self.version + ' by ' + self.author;
         return div;
     }
@@ -239,7 +389,9 @@ function wrapper(plugin_info) {
     function settings_createSections(table, sections) {
         Object.values(sections).forEach((section) => {
             let div = table.appendChild(document.createElement('div'))
-
+            if (Object.keys(sections).length > 1) {
+                div.className = self.interfaceData.prefix + self.interfaceData.main.id + "-innersettings";
+            }
             var row = div.appendChild(document.createElement('tr'));
             var data = row.appendChild(document.createElement('td'));
             var header = data.appendChild(document.createElement('h3'));
@@ -597,67 +749,13 @@ function wrapper(plugin_info) {
        		.text(self.interfaceData.toolbox.text)
        		.click(self.interfaceData.main.showDialog)
        		.appendTo($('#toolbox'));
-        $("<style>")
-            .prop("type", "text/css")
-            .html(`
 
-/*
-** Styles
-*/ 
-div#dialog-${self.interfaceData.prefix + self.interfaceData.main.id} {
-    overflow-x: hidden !important;
-}
-
-.ui-dialog.ui-dialog-${self.interfaceData.prefix + self.interfaceData.main.id} {
-    max-width: calc(100vw - 2px);
-}
-
-.ui-dialog.ui-dialog-${self.interfaceData.prefix + self.interfaceData.main.id} select {
-    background-color: ${self.interfaceColors.Gadget};
-}
-
-/* Style the Main Dialog */
-.${self.interfaceData.prefix + self.interfaceData.main.id} {
-    padding: 8px 8px;
-    border: 1px solid ${self.interfaceData.main.colors.Border};
-    background-color: ${self.interfaceData.main.colors.BackGrnd};
-    color: ${self.interfaceData.main.colors.Main};
-    display: flex;
-    flex-direction: column;
-    flex: 1;
-}
-  
-.${self.interfaceData.prefix + self.interfaceData.main.id} label {
-    border: none;
-    margin-left: 0px;
-    margin-right: 8px;
-    background-color: ${self.interfaceData.main.colors.BackGrnd};
-    color: ${self.interfaceData.main.colors.Label};
-}
-
-.${self.interfaceData.prefix + self.interfaceData.main.id} h3 {
-    padding: 0 4px 4px 0;
-    margin: 0;
-    color: ${self.interfaceData.main.colors.Header} !important;
-}
-
-.${self.interfaceData.prefix + self.interfaceData.portaldetails.mods.id} {
-    display: inline-block !important;
-}
-
-.${self.interfaceData.prefix + self.interfaceData.portaldetails.mods.id} img {
-    width: auto;
-    height: 64px;
-}
-`).appendTo("head");
-
-//
-// Setup Function - Continued
-//
-        var sheet = document.createElement('style')
-        sheet.innerHTML = '.' + self.id + 'author { margin-top: 14px; font-style: italic; font-size: smaller; }';
-        document.body.appendChild(sheet);
         window.addHook('portalDetailsUpdated', self.interfaceData.portaldetails.handler);
+
+        // 
+        // init_Css()
+        //
+        init_Css(self.interfaceData);
 
         console.log('IITC plugin loaded: ' + self.title + ' version ' + self.version + " ");
     };

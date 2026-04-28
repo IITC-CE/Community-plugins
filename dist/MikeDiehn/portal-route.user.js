@@ -1,18 +1,20 @@
 // ==UserScript==
-// @author         MikeDiehn
-// @id             portal-route@MikeDiehn
-// @name           Portal Route
-// @category       Navigate
-// @version        0.2.0-dev
-// @namespace      https://github.com/mdiehn/iitc-plugin-portal-route
-// @updateURL      https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/MikeDiehn/portal-route.meta.js
-// @downloadURL    https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/MikeDiehn/portal-route.user.js
-// @description    Route planning through selected portals with segment drive times, stop-time accounting, and Google Maps export.
-// @include        https://intel.ingress.com/*
-// @include        http://intel.ingress.com/*
-// @match          https://intel.ingress.com/*
-// @match          http://intel.ingress.com/*
-// @grant          none
+// @author          MikeDiehn
+// @id              portal-route@MikeDiehn
+// @name            Portal Route
+// @category        Navigate
+// @version         0.3.0-dev
+// @namespace       https://github.com/mdiehn/iitc-plugin-portal-route
+// @updateURL       https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/MikeDiehn/portal-route.meta.js
+// @downloadURL     https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/MikeDiehn/portal-route.user.js
+// @description     Route planning through selected portals with segment drive times, stop-time accounting, and Google Maps export.
+// @homepageURL     https://github.com/mdiehn/iitc-plugin-portal-route
+// @issueTracker    https://github.com/mdiehn/iitc-plugin-portal-route/issues
+// @include         https://intel.ingress.com/*
+// @include         http://intel.ingress.com/*
+// @match           https://intel.ingress.com/*
+// @match           http://intel.ingress.com/*
+// @grant           none
 // ==/UserScript==
 
 
@@ -108,6 +110,11 @@ function wrapper(plugin_info) {
   margin-top: 2px;
 }
 
+.portal-route-selected-stop {
+  background: rgba(255, 216, 0, 0.10);
+  border-radius: 4px;
+}
+
 .portal-route-waypoint-num,
 .portal-route-waypoint-name-cell,
 .portal-route-leg-cell,
@@ -165,6 +172,12 @@ function wrapper(plugin_info) {
   cursor: pointer;
   appearance: none;
   -webkit-appearance: none;
+}
+
+
+.portal-route-waypoint-name-input {
+  height: 18px;
+  line-height: 18px;
 }
 
 .portal-route-waypoint-name:hover,
@@ -262,6 +275,12 @@ button.portal-route-waypoint-badge {
   font-style: italic;
 }
 
+
+.portal-route-active-action {
+  font-weight: bold;
+  outline: 1px solid rgba(255, 216, 0, 0.65) !important;
+}
+
 .portal-route-actions {
   display: flex;
   flex-wrap: wrap;
@@ -333,7 +352,35 @@ button.portal-route-waypoint-badge {
 }
 
 .portal-route-stop-label span {
+  cursor: pointer;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.65);
+}
+
+.portal-route-stop-label-selected span {
+  outline: 2px solid #fff;
+  outline-offset: 1px;
+}
+
+.portal-route-map-point-marker {
+  border: 0;
+  background: transparent;
+}
+
+.portal-route-map-point-marker span {
+  display: block;
+  width: 18px;
+  height: 18px;
+  box-sizing: border-box;
+  border: 2px solid rgba(255, 255, 255, 0.9);
+  border-radius: 50%;
+  background: rgba(80, 170, 255, 0.85);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.7);
+  cursor: pointer;
+}
+
+.portal-route-map-point-marker-selected span {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
 }
 
 .portal-route-segment-time-label {
@@ -391,6 +438,27 @@ button.portal-route-waypoint-name,
   box-shadow: none !important;
   background: transparent !important;
   background-image: none !important;
+}
+
+input.portal-route-waypoint-name-input,
+.ui-dialog input.portal-route-waypoint-name-input {
+  height: 20px;
+  line-height: 18px;
+  padding: 1px 4px !important;
+  border: 1px solid rgba(255, 216, 0, 0.35) !important;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.08) !important;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.25) !important;
+  cursor: text;
+}
+
+input.portal-route-waypoint-name-input:hover,
+input.portal-route-waypoint-name-input:focus,
+.ui-dialog input.portal-route-waypoint-name-input:hover,
+.ui-dialog input.portal-route-waypoint-name-input:focus {
+  border-color: rgba(255, 216, 0, 0.70) !important;
+  background: rgba(255, 255, 255, 0.12) !important;
+  outline: none !important;
 }
 
 @media (max-width: 640px) {
@@ -452,7 +520,7 @@ button.portal-route-waypoint-name,
 
   pr.ID = 'portal-route';
   pr.NAME = 'Portal Route';
-  pr.VERSION = '0.2.0-dev';
+  pr.VERSION = '0.3.0-dev';
   pr.SHOW_VERSION_IN_PANEL = true;
 
   pr.DOM_IDS = {
@@ -490,6 +558,8 @@ button.portal-route-waypoint-name,
     },
     panelOpen: false,
     panelView: 'main',
+    addPointMode: false,
+    selectedMapPointIndex: null,
     miniControl: null
   };
 
@@ -510,7 +580,14 @@ button.portal-route-waypoint-name,
       var rawStops = localStorage.getItem(pr.STORAGE_KEYS.stops);
       if (rawStops) {
         var stops = JSON.parse(rawStops);
-        if (Array.isArray(stops)) pr.state.stops = stops;
+        if (Array.isArray(stops)) {
+          pr.state.stops = stops.map(function(stop) {
+            if (!stop) return stop;
+            return Object.assign({}, stop, {
+              type: stop.type || (stop.guid ? 'portal' : 'map')
+            });
+          });
+        }
       }
 
       var rawPanelOpen = localStorage.getItem(pr.STORAGE_KEYS.panelOpen);
@@ -589,6 +666,43 @@ button.portal-route-waypoint-name,
     };
   };
 
+  pr.clearIitcPortalSelection = function() {
+    var cleared = false;
+
+    if (typeof window.renderPortalDetails === 'function') {
+      try {
+        window.renderPortalDetails(null);
+        cleared = true;
+      } catch (e) {
+        console.warn('Portal Route: unable to clear IITC portal details via renderPortalDetails', e);
+      }
+    }
+
+    if (!cleared && typeof window.selectPortal === 'function') {
+      try {
+        window.selectPortal(null, 'portal-route-map-point');
+        cleared = true;
+      } catch (e2) {
+        console.warn('Portal Route: unable to clear IITC portal selection via selectPortal', e2);
+      }
+    }
+
+    if (!cleared) {
+      window.selectedPortal = null;
+    }
+
+    var details = document.getElementById('portaldetails');
+    if (details) details.innerHTML = '';
+
+    if (typeof window.setPortalIndicators === 'function') {
+      try {
+        window.setPortalIndicators(null);
+      } catch (e3) {
+        console.warn('Portal Route: unable to clear IITC portal indicators', e3);
+      }
+    }
+  };
+
   pr.addSelectedPortal = function() {
     var guid = window.selectedPortal;
     var stop = pr.portalToStop(guid);
@@ -641,43 +755,88 @@ button.portal-route-waypoint-name,
   pr.addStop = function(stop) {
     if (!stop || typeof stop.lat !== 'number' || typeof stop.lng !== 'number') return;
 
+    var stopType = stop.type || (stop.guid ? 'portal' : 'map');
+    var title = stop.title || (stopType === 'map' ? 'Map point' : 'Unnamed portal');
+
     if (stop.guid && pr.state.stops.some(function(existing) { return existing.guid === stop.guid; })) {
-      pr.showMessage('Already in route: ' + stop.title);
+      pr.showMessage('Already in route: ' + title);
       return;
     }
 
     pr.state.stops.push({
       guid: stop.guid || null,
-      title: stop.title || 'Unnamed portal',
+      type: stopType,
+      title: title,
       lat: stop.lat,
       lng: stop.lng,
-      stopMinutes: null
+      stopMinutes: typeof stop.stopMinutes === 'number' ? stop.stopMinutes : null
     });
+
+    if (stopType === 'map') {
+      pr.state.selectedMapPointIndex = pr.state.stops.length - 1;
+      if (pr.clearIitcPortalSelection) pr.clearIitcPortalSelection();
+    }
 
     pr.markRouteStale({ clearRoute: true });
     pr.saveStops();
     pr.redrawLabels();
     pr.renderPanel();
+    pr.renderMiniControl();
+  };
+
+  pr.nextMapPointTitle = function() {
+    var count = pr.state.stops.filter(function(stop) {
+      return stop && stop.type === 'map';
+    }).length + 1;
+    return 'Map point ' + count;
+  };
+
+  pr.addMapPointAtLatLng = function(latlng) {
+    if (!latlng || typeof latlng.lat !== 'number' || typeof latlng.lng !== 'number') return;
+
+    pr.addStop({
+      type: 'map',
+      title: pr.nextMapPointTitle(),
+      lat: latlng.lat,
+      lng: latlng.lng
+    });
+  };
+
+  pr.setAddPointMode = function(enabled) {
+    pr.state.addPointMode = !!enabled;
+    pr.renderPanel();
+    pr.renderMiniControl();
+    pr.showMessage(pr.state.addPointMode ? 'Tap the map to add a point.' : 'Add point canceled.');
   };
 
   pr.removeStop = function(index) {
     if (index < 0 || index >= pr.state.stops.length) return;
+
+    if (pr.state.selectedMapPointIndex === index) {
+      pr.state.selectedMapPointIndex = null;
+    } else if (pr.state.selectedMapPointIndex > index) {
+      pr.state.selectedMapPointIndex -= 1;
+    }
+
     pr.state.stops.splice(index, 1);
     pr.markRouteStale({ clearRoute: true });
     pr.saveStops();
     pr.redrawLabels();
     pr.renderPanel();
+    pr.renderMiniControl();
   };
 
   pr.clearStops = function() {
     pr.state.stops = [];
     pr.state.route = null;
     pr.state.routeDirty = false;
+    pr.state.selectedMapPointIndex = null;
     pr.saveStops();
     pr.saveRoute();
     pr.clearRouteLine();
     pr.redrawLabels();
     pr.renderPanel();
+    pr.renderMiniControl();
   };
 
   pr.moveStop = function(fromIndex, toIndex) {
@@ -685,15 +844,43 @@ button.portal-route-waypoint-name,
     if (toIndex < 0 || toIndex >= pr.state.stops.length) return;
     if (fromIndex === toIndex) return;
 
+    var selectedIndex = pr.state.selectedMapPointIndex;
     var item = pr.state.stops.splice(fromIndex, 1)[0];
     pr.state.stops.splice(toIndex, 0, item);
+
+    if (selectedIndex === fromIndex) {
+      pr.state.selectedMapPointIndex = toIndex;
+    } else if (selectedIndex !== null && selectedIndex !== undefined) {
+      if (fromIndex < selectedIndex && selectedIndex <= toIndex) {
+        pr.state.selectedMapPointIndex -= 1;
+      } else if (toIndex <= selectedIndex && selectedIndex < fromIndex) {
+        pr.state.selectedMapPointIndex += 1;
+      }
+    }
 
     pr.markRouteStale({ clearRoute: true });
     pr.saveStops();
     pr.redrawLabels();
     pr.renderPanel();
+    pr.renderMiniControl();
   };
 
+
+  pr.setStopTitle = function(index, title) {
+    if (index < 0 || index >= pr.state.stops.length) return;
+
+    var stop = pr.state.stops[index];
+    if (!stop || stop.type !== 'map') return;
+
+    var cleanTitle = String(title == null ? '' : title).trim();
+    if (!cleanTitle) cleanTitle = pr.nextMapPointTitle();
+
+    stop.title = cleanTitle;
+    pr.saveStops();
+    pr.redrawLabels();
+    pr.redrawSegmentTimeLabels();
+    pr.renderPanel();
+  };
 
 
   pr.setStopMinutes = function(index, minutes) {
@@ -732,7 +919,21 @@ button.portal-route-waypoint-name,
 
   pr.selectStopPortal = function(index, center) {
     var stop = pr.state.stops[index];
-    if (!stop || !stop.guid) return;
+    if (!stop) return;
+
+    if (!stop.guid) {
+      pr.state.selectedMapPointIndex = index;
+      if (pr.clearIitcPortalSelection) pr.clearIitcPortalSelection();
+      if (center && window.map) {
+        window.map.setView([stop.lat, stop.lng], window.map.getZoom());
+      }
+      pr.redrawLabels();
+      pr.renderPanel();
+      pr.renderMiniControl();
+      return;
+    }
+
+    pr.state.selectedMapPointIndex = null;
 
     var portal = window.portals && window.portals[stop.guid];
     if (center && portal && portal.getLatLng && window.map) {
@@ -745,6 +946,8 @@ button.portal-route-waypoint-name,
       window.selectedPortal = stop.guid;
     }
 
+    pr.redrawLabels();
+    pr.renderPanel();
     pr.renderMiniControl();
   };
 
@@ -914,8 +1117,39 @@ button.portal-route-waypoint-name,
     pr.clearLabels();
 
     pr.state.stops.forEach(function(stop, index) {
+      var isSelected = pr.selectedStopIndex && pr.selectedStopIndex() === index;
+      var selectedClass = isSelected ? ' portal-route-stop-label-selected' : '';
+      var isMapPoint = stop.type === 'map';
+      var title = (index + 1) + '. ' + stop.title;
+
+      var selectStop = function(e) {
+        if (e.originalEvent && e.originalEvent.stopPropagation) e.originalEvent.stopPropagation();
+        if (e.originalEvent && e.originalEvent.preventDefault) e.originalEvent.preventDefault();
+        pr.selectStopPortal(index, false);
+      };
+
+      if (isMapPoint) {
+        var pointIcon = L.divIcon({
+          className: 'portal-route-map-point-marker' + (isSelected ? ' portal-route-map-point-marker-selected' : ''),
+          html: '<span></span>',
+          iconSize: [18, 18],
+          iconAnchor: [9, 9]
+        });
+
+        var pointMarker = L.marker([stop.lat, stop.lng], {
+          icon: pointIcon,
+          interactive: true,
+          keyboard: false,
+          bubblingMouseEvents: false,
+          title: title
+        });
+
+        pointMarker.on('click', selectStop);
+        pointMarker.addTo(pr.state.layers.labels);
+      }
+
       var icon = L.divIcon({
-        className: 'portal-route-stop-label',
+        className: 'portal-route-stop-label' + (isMapPoint ? ' portal-route-map-point-label' : '') + selectedClass,
         html: '<span>' + (index + 1) + '</span>',
         iconSize: [18, 18],
         iconAnchor: [0, 24]
@@ -925,10 +1159,13 @@ button.portal-route-waypoint-name,
         icon: icon,
         interactive: true,
         keyboard: false,
-        bubblingMouseEvents: false
+        bubblingMouseEvents: false,
+        title: title
       });
 
-      marker.bindTooltip((index + 1) + '. ' + stop.title, {
+      marker.on('click', selectStop);
+
+      marker.bindTooltip(title, {
         direction: 'right',
         offset: [16, -10],
         opacity: 0.9,
@@ -1075,7 +1312,7 @@ button.portal-route-waypoint-name,
   };
 
   pr.renderEmptyHelp = function() {
-    return '<p class="portal-route-empty">There are no waypoints defined.<br>Select a portal and add it from the Portal Route control.</p>';
+    return '<p class="portal-route-empty">There are no waypoints defined.<br>Select a portal and use Add Portal, or use Add Point to add a map point.</p>';
   };
 
   pr.renderRouteSegment = function(leg) {
@@ -1103,10 +1340,15 @@ button.portal-route-waypoint-name,
 
     stops.forEach(function(stop, index) {
       var waitValue = pr.formatDurationInput(pr.getEffectiveStopMinutes(stop));
+      var selectedClass = pr.selectedStopIndex && pr.selectedStopIndex() === index ? ' portal-route-selected-stop' : '';
 
-      html += '<div class="portal-route-waypoint-row" data-index="' + index + '">';
-      html += '<div class="portal-route-waypoint-num"><button type="button" class="portal-route-stop-num portal-route-waypoint-badge" title="Select and center portal" data-action="select-stop-center" data-index="' + index + '">' + (index + 1) + '</button></div>';
-      html += '<div class="portal-route-waypoint-name-cell"><button type="button" class="portal-route-waypoint-name" title="Select portal" data-action="select-stop" data-index="' + index + '">' + pr.escapeHtml(stop.title) + '</button></div>';
+      html += '<div class="portal-route-waypoint-row' + selectedClass + '" data-index="' + index + '">';
+      html += '<div class="portal-route-waypoint-num"><button type="button" class="portal-route-stop-num portal-route-waypoint-badge" title="Select and center stop" data-action="select-stop-center" data-index="' + index + '">' + (index + 1) + '</button></div>';
+      if (stop.type === 'map') {
+        html += '<div class="portal-route-waypoint-name-cell"><input type="text" class="portal-route-waypoint-name portal-route-waypoint-name-input" title="Edit map point name" data-field="stop-title" data-index="' + index + '" value="' + pr.escapeHtml(stop.title) + '"></div>';
+      } else {
+        html += '<div class="portal-route-waypoint-name-cell"><button type="button" class="portal-route-waypoint-name" title="Select stop" data-action="select-stop" data-index="' + index + '">' + pr.escapeHtml(stop.title) + '</button></div>';
+      }
       html += '<div class="portal-route-leg-cell">' + (index < stops.length - 1 ? pr.renderRouteSegment(legsByToIndex[index + 1]) : '') + '</div>';
       html += '<div class="portal-route-wait-cell"><input class="portal-route-wait-input" type="text" inputmode="decimal" value="' + pr.escapeHtml(waitValue) + '" title="Examples: 15m, 1.5h, 2d" data-field="stop-minutes" data-index="' + index + '"></div>';
       html += '<div class="portal-route-row-action"><button type="button" class="portal-route-row-button" title="Move up" data-action="move-stop-up" data-index="' + index + '" ' + (index === 0 ? 'disabled' : '') + '>&uarr;</button></div>';
@@ -1146,7 +1388,8 @@ button.portal-route-waypoint-name,
     var plotLabel = pr.state.routeDirty ? 'Replot' : 'Plot';
 
     html += '<div class="portal-route-actions">';
-    html += '<button type="button" data-action="add-selected-stop">Add</button>';
+    html += '<button type="button" data-action="add-selected-stop">Add Portal</button>';
+    html += '<button type="button" data-action="add-map-point"' + (pr.state.addPointMode ? ' class="portal-route-active-action"' : '') + '>Add Point</button>';
     html += '<button type="button" data-action="calculate-route">' + plotLabel + '</button>';
     html += '<button type="button" data-action="open-google-maps">Open Maps</button>';
     html += '<button type="button" data-action="export-route-json">Export</button>';
@@ -1342,7 +1585,8 @@ button.portal-route-waypoint-name,
       stops: pr.state.stops.map(function(stop) {
         return {
           guid: stop.guid || null,
-          title: stop.title || 'Unnamed portal',
+          type: stop.type || (stop.guid ? 'portal' : 'map'),
+          title: stop.title || ((stop.type || (stop.guid ? 'portal' : 'map')) === 'map' ? 'Map point' : 'Unnamed portal'),
           lat: Number(stop.lat),
           lng: Number(stop.lng),
           stopMinutes: typeof stop.stopMinutes === 'number' ? stop.stopMinutes : null
@@ -1395,9 +1639,12 @@ button.portal-route-waypoint-name,
       if (stopMinutes !== null) stopMinutes = Math.round(stopMinutes);
     }
 
+    var type = stop.type || (stop.guid ? 'portal' : 'map');
+
     return {
       guid: stop.guid || null,
-      title: stop.title || 'Unnamed portal',
+      type: type,
+      title: stop.title || (type === 'map' ? 'Map point' : 'Unnamed portal'),
       lat: lat,
       lng: lng,
       stopMinutes: stopMinutes
@@ -1566,27 +1813,51 @@ button.portal-route-waypoint-name,
     }
   };
 
+  pr.selectedMapPointIndex = function() {
+    var index = pr.state.selectedMapPointIndex;
+    var stop = typeof index === 'number' ? pr.state.stops[index] : null;
+
+    if (stop && stop.type === 'map') return index;
+
+    pr.state.selectedMapPointIndex = null;
+    return -1;
+  };
+
+  pr.clearSelectedMapPoint = function() {
+    if (pr.state.selectedMapPointIndex === null || pr.state.selectedMapPointIndex === undefined) return;
+    pr.state.selectedMapPointIndex = null;
+    pr.redrawLabels();
+    pr.renderPanel();
+    pr.renderMiniControl();
+  };
+
   pr.selectedStopIndex = function() {
+    var mapPointIndex = pr.selectedMapPointIndex();
+    if (mapPointIndex >= 0) return mapPointIndex;
+
     var guid = window.selectedPortal;
     if (!guid) return -1;
+
     for (var i = 0; i < pr.state.stops.length; i++) {
       if (pr.state.stops[i].guid === guid) return i;
     }
     return -1;
   };
 
-  pr.removeSelectedPortal = function() {
+  pr.removeSelectedStop = function() {
     var index = pr.selectedStopIndex();
     if (index < 0) {
-      pr.showMessage('Selected portal is not in the route.');
+      pr.showMessage('Selected portal or map point is not in the route.');
       return;
     }
     pr.removeStop(index);
   };
 
+  pr.removeSelectedPortal = pr.removeSelectedStop;
+
   pr.toggleSelectedPortalStop = function() {
     if (pr.selectedStopIndex() >= 0) {
-      pr.removeSelectedPortal();
+      pr.removeSelectedStop();
     } else {
       pr.addSelectedPortal();
     }
@@ -1629,6 +1900,8 @@ button.portal-route-waypoint-name,
       pr.toggleSelectedPortalStop();
     } else if (action === 'add-selected-stop') {
       pr.addSelectedPortal();
+    } else if (action === 'add-map-point') {
+      pr.setAddPointMode(!pr.state.addPointMode);
     } else if (action === 'move-stop-up') {
       pr.moveStop(Number(target.getAttribute('data-index')), Number(target.getAttribute('data-index')) - 1);
     } else if (action === 'move-stop-down') {
@@ -1722,7 +1995,7 @@ button.portal-route-waypoint-name,
     var selectedInRoute = selectedIndex >= 0;
     var addRemoveClass = selectedInRoute ? ' portal-route-mini-remove' : '';
     var addRemoveText = selectedInRoute ? '-' : '+';
-    var addRemoveTitle = selectedInRoute ? 'Remove selected portal from route' : 'Add selected portal to route';
+    var addRemoveTitle = selectedInRoute ? 'Remove selected waypoint from route' : 'Add selected portal to route';
     var plotTitle = pr.state.routeDirty ? 'Replot route on map' : 'Plot route on map';
 
     container.innerHTML = '' +
@@ -1828,6 +2101,8 @@ button.portal-route-waypoint-name,
         }
 
         pr.setStopMinutes(stopIndex, stopValue);
+      } else if (target && target.getAttribute('data-field') === 'stop-title') {
+        pr.setStopTitle(Number(target.getAttribute('data-index')), target.value);
       }
     });
   };
@@ -1931,6 +2206,22 @@ button.portal-route-waypoint-name,
     pr.layerEventsRegistered = true;
   };
 
+  pr.setupMapPointEvents = function() {
+    if (pr.mapPointEventsRegistered) return;
+    if (!window.map) return;
+
+    window.map.on('click', function(e) {
+      if (!pr.state.addPointMode) return;
+      if (pr.isLayerEnabled && !pr.isLayerEnabled()) return;
+
+      pr.state.addPointMode = false;
+      pr.addMapPointAtLatLng(e.latlng);
+      pr.showMessage('Map point added.');
+    });
+
+    pr.mapPointEventsRegistered = true;
+  };
+
   pr.setup = function() {
     try {
       if (plugin_info && plugin_info.script && plugin_info.script.version) {
@@ -1943,6 +2234,7 @@ button.portal-route-waypoint-name,
       pr.setupLayerEvents();
       pr.createMiniControl();
       pr.setupDialogEventHandlers();
+      pr.setupMapPointEvents();
       pr.addToolboxLink();
       pr.syncLayerUi();
       pr.renderPanel();
@@ -1952,6 +2244,7 @@ button.portal-route-waypoint-name,
 
       if (typeof window.addHook === 'function' && !pr.portalHookRegistered) {
         window.addHook('portalDetailsUpdated', function() {
+          pr.clearSelectedMapPoint();
           pr.injectPortalDetailsAction();
           pr.renderMiniControl();
         });

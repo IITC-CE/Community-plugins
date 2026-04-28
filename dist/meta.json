@@ -26,7 +26,7 @@
         "none"
       ],
       "id_hash": "barcodes-by-3ch01c",
-      "updatedAt": "2026-04-28T11:57:26.749Z"
+      "updatedAt": "2026-04-28T17:33:48.038Z"
     },
     {
       "author": "3ch01c",
@@ -55,7 +55,7 @@
         "none"
       ],
       "id_hash": "spamfilter-by-3ch01c",
-      "updatedAt": "2026-04-28T11:57:26.749Z"
+      "updatedAt": "2026-04-28T17:33:48.038Z"
     },
     {
       "author": "57Cell",
@@ -94,7 +94,7 @@
         "none"
       ],
       "id_hash": "fieldplanner-by-57Cell",
-      "updatedAt": "2026-04-28T11:57:26.749Z",
+      "updatedAt": "2026-04-28T17:33:48.038Z",
       "_recommends_links": [
         {
           "id": "draw-tools@breunigs",
@@ -129,7 +129,7 @@
         "none"
       ],
       "id_hash": "inventoryParser-by-633KYN35D",
-      "updatedAt": "2026-04-28T11:57:26.750Z"
+      "updatedAt": "2026-04-28T17:33:48.038Z"
     },
     {
       "author": "Artoria2e5",
@@ -155,7 +155,7 @@
         "none"
       ],
       "id_hash": "highlight-7miss1-by-Artoria2e5",
-      "updatedAt": "2026-04-28T11:57:26.750Z"
+      "updatedAt": "2026-04-28T17:33:48.038Z"
     },
     {
       "author": "BlancLapin",
@@ -182,7 +182,7 @@
         "none"
       ],
       "id_hash": "advanced_player_tracker-by-BlancLapin",
-      "updatedAt": "2026-04-28T11:57:26.750Z",
+      "updatedAt": "2026-04-28T17:33:48.039Z",
       "_depends_links": [
         {
           "id": "player-activity-tracker@breunigs",
@@ -208,7 +208,7 @@
         "none"
       ],
       "id_hash": "backup-restore-alldata-by-DanielOnDiordna",
-      "updatedAt": "2026-04-28T11:57:26.750Z"
+      "updatedAt": "2026-04-28T17:33:48.039Z"
     },
     {
       "author": "DanielOnDiordna",
@@ -229,7 +229,7 @@
         "none"
       ],
       "id_hash": "bannergress-plugin-addon-by-DanielOnDiordna",
-      "updatedAt": "2026-04-28T11:57:26.751Z"
+      "updatedAt": "2026-04-28T17:33:48.039Z"
     },
     {
       "author": "DanielOnDiordna",
@@ -248,7 +248,7 @@
         "none"
       ],
       "id_hash": "basemap-opencyclemap-addon-by-DanielOnDiordna",
-      "updatedAt": "2026-04-28T11:57:26.751Z"
+      "updatedAt": "2026-04-28T17:33:48.039Z"
     },
     {
       "author": "DanielOnDiordna",
@@ -270,7 +270,7 @@
         "none"
       ],
       "id_hash": "bookmarks-addon-by-DanielOnDiordna",
-      "updatedAt": "2026-04-28T11:57:26.751Z",
+      "updatedAt": "2026-04-28T17:33:48.039Z",
       "_depends_links": [
         {
           "id": "bookmarks@ZasoGD",
@@ -296,7 +296,7 @@
         "none"
       ],
       "id_hash": "cells-by-DanielOnDiordna",
-      "updatedAt": "2026-04-28T11:57:26.752Z"
+      "updatedAt": "2026-04-28T17:33:48.040Z"
     },
     {
       "author": "DanielOnDiordna",
@@ -315,7 +315,7 @@
         "none"
       ],
       "id_hash": "consolelog-by-DanielOnDiordna",
-      "updatedAt": "2026-04-28T11:57:26.752Z"
+      "updatedAt": "2026-04-28T17:33:48.041Z"
     },
     {
       "author": "DanielOnDiordna",
@@ -334,7 +334,7 @@
         "none"
       ],
       "id_hash": "date-time-by-DanielOnDiordna",
-      "updatedAt": "2026-04-28T11:57:26.752Z"
+      "updatedAt": "2026-04-28T17:33:48.041Z"
     },
     {
       "author": "DanielOnDiordna",
@@ -353,7 +353,7 @@
         "none"
       ],
       "id_hash": "drone-route-planner-by-DanielOnDiordna",
-      "updatedAt": "2026-04-28T11:57:26.753Z"
+      "updatedAt": "2026-04-28T17:33:48.041Z"
     },
     {
       "author": "DanielOnDiordna",
@@ -372,7 +372,7 @@
         "none"
       ],
       "id_hash": "favorite-portal-details-by-DanielOnDiordna",
-      "updatedAt": "2026-04-28T11:57:26.754Z"
+      "updatedAt": "2026-04-28T17:33:48.042Z"
     },
     {
       "author": "DanielOnDiordna",
@@ -391,7 +391,7 @@
         "none"
       ],
       "id_hash": "filter-comms-by-DanielOnDiordna",
-      "updatedAt": "2026-04-28T11:57:26.754Z"
+      "updatedAt": "2026-04-28T17:33:48.042Z"
     },
     {
       "author": "DanielOnDiordna",
@@ -410,7 +410,7 @@
         "none"
       ],
       "id_hash": "fontawesomeintegration-by-DanielOnDiordna",
-      "updatedAt": "2026-04-28T11:57:26.754Z"
+      "updatedAt": "2026-04-28T17:33:48.042Z"
     },
     {
       "author": "DanielOnDiordna",
@@ -430,7 +430,7 @@
         "none"
       ],
       "id_hash": "freestyler-by-DanielOnDiordna",
-      "updatedAt": "2026-04-28T11:57:26.754Z"
+      "updatedAt": "2026-04-28T17:33:48.043Z"
     },
     {
       "author": "DanielOnDiordna",
@@ -449,7 +449,7 @@
         "none"
       ],
       "id_hash": "gotolink-by-DanielOnDiordna",
-      "updatedAt": "2026-04-28T11:57:26.755Z"
+      "updatedAt": "2026-04-28T17:33:48.043Z"
     },
     {
       "author": "DanielOnDiordna",
@@ -468,7 +468,7 @@
         "none"
       ],
       "id_hash": "highlight-resonator-owners-by-DanielOnDiordna",
-      "updatedAt": "2026-04-28T11:57:26.755Z"
+      "updatedAt": "2026-04-28T17:33:48.044Z"
     },
     {
       "author": "DanielOnDiordna",
@@ -487,7 +487,7 @@
         "none"
       ],
       "id_hash": "historyhighlighter-by-DanielOnDiordna",
-      "updatedAt": "2026-04-28T11:57:26.755Z"
+      "updatedAt": "2026-04-28T17:33:48.044Z"
     },
     {
       "author": "DanielOnDiordna",
@@ -506,7 +506,7 @@
         "none"
       ],
       "id_hash": "imageOverlay-by-DanielOnDiordna",
-      "updatedAt": "2026-04-28T11:57:26.755Z"
+      "updatedAt": "2026-04-28T17:33:48.044Z"
     },
     {
       "author": "@Chyld314 @DanielOndiordna",
@@ -528,7 +528,7 @@
         "none"
       ],
       "id_hash": "imattc-by-DanielOnDiordna",
-      "updatedAt": "2026-04-28T11:57:26.756Z"
+      "updatedAt": "2026-04-28T17:33:48.044Z"
     },
     {
       "author": "DanielOnDiordna",
@@ -547,7 +547,7 @@
         "none"
       ],
       "id_hash": "keepalldata-by-DanielOnDiordna",
-      "updatedAt": "2026-04-28T11:57:26.756Z"
+      "updatedAt": "2026-04-28T17:33:48.045Z"
     },
     {
       "author": "EisFrei - fork by DanielOnDiordna",
@@ -567,7 +567,7 @@
         "none"
       ],
       "id_hash": "liveInventory-by-DanielOnDiordna",
-      "updatedAt": "2026-04-28T11:57:26.756Z"
+      "updatedAt": "2026-04-28T17:33:48.045Z"
     },
     {
       "author": "DanielOnDiordna",
@@ -586,7 +586,7 @@
         "none"
       ],
       "id_hash": "loadmorecommshistory-by-DanielOnDiordna",
-      "updatedAt": "2026-04-28T11:57:26.757Z"
+      "updatedAt": "2026-04-28T17:33:48.045Z"
     },
     {
       "author": "DanielOnDiordna",
@@ -606,7 +606,7 @@
         "none"
       ],
       "id_hash": "maps-route-planner-by-DanielOnDiordna",
-      "updatedAt": "2026-04-28T11:57:26.757Z"
+      "updatedAt": "2026-04-28T17:33:48.045Z"
     },
     {
       "author": "DanielOnDiordna",
@@ -628,7 +628,7 @@
         "none"
       ],
       "id_hash": "missions-addon-by-DanielOnDiordna",
-      "updatedAt": "2026-04-28T11:57:26.757Z",
+      "updatedAt": "2026-04-28T17:33:48.045Z",
       "_depends_links": [
         {
           "id": "missions@jonatkins",
@@ -654,7 +654,7 @@
         "none"
       ],
       "id_hash": "mobileimprovements-by-DanielOnDiordna",
-      "updatedAt": "2026-04-28T11:57:26.757Z"
+      "updatedAt": "2026-04-28T17:33:48.046Z"
     },
     {
       "author": "DanielOnDiordna",
@@ -673,7 +673,7 @@
         "none"
       ],
       "id_hash": "onscreenportaldetails-by-DanielOnDiordna",
-      "updatedAt": "2026-04-28T11:57:26.758Z"
+      "updatedAt": "2026-04-28T17:33:48.046Z"
     },
     {
       "author": "DanielOnDiordna",
@@ -695,7 +695,7 @@
         "none"
       ],
       "id_hash": "pan-control-add-on-by-DanielOnDiordna",
-      "updatedAt": "2026-04-28T11:57:26.758Z",
+      "updatedAt": "2026-04-28T17:33:48.046Z",
       "_depends_links": [
         {
           "id": "pan-control@fragger",
@@ -724,7 +724,7 @@
         "none"
       ],
       "id_hash": "player-tracker-addon-by-DanielOnDiordna",
-      "updatedAt": "2026-04-28T11:57:26.758Z",
+      "updatedAt": "2026-04-28T17:33:48.047Z",
       "_depends_links": [
         {
           "id": "player-activity-tracker@breunigs",
@@ -750,7 +750,7 @@
         "none"
       ],
       "id_hash": "portalhistorysupport-by-DanielOnDiordna",
-      "updatedAt": "2026-04-28T11:57:26.758Z"
+      "updatedAt": "2026-04-28T17:33:48.047Z"
     },
     {
       "author": "DanielOnDiordna",
@@ -772,7 +772,7 @@
         "none"
       ],
       "id_hash": "portals-list-addon-by-DanielOnDiordna",
-      "updatedAt": "2026-04-28T11:57:26.759Z",
+      "updatedAt": "2026-04-28T17:33:48.047Z",
       "_depends_links": [
         {
           "id": "portals-list@teo96",
@@ -798,7 +798,7 @@
         "none"
       ],
       "id_hash": "quick-draw-links-by-DanielOnDiordna",
-      "updatedAt": "2026-04-28T11:57:26.759Z"
+      "updatedAt": "2026-04-28T17:33:48.047Z"
     },
     {
       "author": "DanielOnDiordna",
@@ -820,7 +820,7 @@
         "none"
       ],
       "id_hash": "see-more-by-DanielOnDiordna",
-      "updatedAt": "2026-04-28T11:57:26.760Z"
+      "updatedAt": "2026-04-28T17:33:48.048Z"
     },
     {
       "author": "DanielOnDiordna",
@@ -839,7 +839,7 @@
         "none"
       ],
       "id_hash": "smallerportals-by-DanielOnDiordna",
-      "updatedAt": "2026-04-28T11:57:26.760Z"
+      "updatedAt": "2026-04-28T17:33:48.048Z"
     },
     {
       "author": "DanielOnDiordna",
@@ -864,7 +864,7 @@
         "none"
       ],
       "id_hash": "team-bookmarks-by-DanielOnDiordna",
-      "updatedAt": "2026-04-28T11:57:26.760Z",
+      "updatedAt": "2026-04-28T17:33:48.049Z",
       "_depends_links": [
         {
           "id": "bookmarks@ZasoGD",
@@ -897,7 +897,7 @@
         "none"
       ],
       "id_hash": "toiletlocations-by-DanielOnDiordna",
-      "updatedAt": "2026-04-28T11:57:26.760Z"
+      "updatedAt": "2026-04-28T17:33:48.049Z"
     },
     {
       "author": "DanielOnDiordna",
@@ -916,7 +916,7 @@
         "none"
       ],
       "id_hash": "unfreezebutton-by-DanielOnDiordna",
-      "updatedAt": "2026-04-28T11:57:26.760Z"
+      "updatedAt": "2026-04-28T17:33:48.049Z"
     },
     {
       "author": "DanielOnDiordna",
@@ -941,7 +941,7 @@
         "none"
       ],
       "id_hash": "uniqueportalhistory-by-DanielOnDiordna",
-      "updatedAt": "2026-04-28T11:57:26.760Z",
+      "updatedAt": "2026-04-28T17:33:48.049Z",
       "_depends_links": [
         {
           "id": "portalhistorysupport@DanielOnDiordna",
@@ -970,7 +970,7 @@
         "none"
       ],
       "id_hash": "zoom-override-by-DanielOnDiordna",
-      "updatedAt": "2026-04-28T11:57:26.761Z"
+      "updatedAt": "2026-04-28T17:33:48.049Z"
     },
     {
       "author": "EisFrei",
@@ -994,7 +994,7 @@
         "none"
       ],
       "id_hash": "portalHistoryFlags-by-EisFrei",
-      "updatedAt": "2026-04-28T11:57:26.761Z"
+      "updatedAt": "2026-04-28T17:33:48.049Z"
     },
     {
       "author": "GMOogway",
@@ -1016,7 +1016,7 @@
         "none"
       ],
       "id_hash": "basemap-gaode-by-GMOogway",
-      "updatedAt": "2026-04-28T11:57:26.762Z"
+      "updatedAt": "2026-04-28T17:33:48.050Z"
     },
     {
       "author": "GMOogway",
@@ -1038,7 +1038,7 @@
         "none"
       ],
       "id_hash": "local-storage-manager-by-GMOogway",
-      "updatedAt": "2026-04-28T11:57:26.762Z"
+      "updatedAt": "2026-04-28T17:33:48.050Z"
     },
     {
       "author": "Guschtel",
@@ -1057,7 +1057,7 @@
         "none"
       ],
       "id_hash": "inventory-overview-by-Guschtel",
-      "updatedAt": "2026-04-28T11:57:26.762Z"
+      "updatedAt": "2026-04-28T17:33:48.050Z"
     },
     {
       "author": "IngressPlus",
@@ -1087,7 +1087,7 @@
         "none"
       ],
       "id_hash": "mediagress-by-IngressPlus",
-      "updatedAt": "2026-04-28T11:57:26.762Z"
+      "updatedAt": "2026-04-28T17:33:48.051Z"
     },
     {
       "author": "Jormund",
@@ -1111,7 +1111,7 @@
         "none"
       ],
       "id_hash": "poly-counts2-by-Jormund",
-      "updatedAt": "2026-04-28T11:57:26.763Z",
+      "updatedAt": "2026-04-28T17:33:48.052Z",
       "_depends_links": [
         {
           "id": "draw-tools@breunigs",
@@ -1139,7 +1139,7 @@
         "none"
       ],
       "id_hash": "dt-replace-portal-by-Loskir",
-      "updatedAt": "2026-04-28T11:57:26.763Z",
+      "updatedAt": "2026-04-28T17:33:48.052Z",
       "_depends_links": [
         {
           "id": "draw-tools@breunigs",
@@ -1174,7 +1174,7 @@
         "none"
       ],
       "id_hash": "PNavCopy-by-MaxEtMoritz",
-      "updatedAt": "2026-04-28T11:57:26.764Z",
+      "updatedAt": "2026-04-28T17:33:48.052Z",
       "_recommends_links": [
         {
           "id": "s2check@Alfonso_M",
@@ -1206,7 +1206,7 @@
         "none"
       ],
       "id_hash": "glympsemap-by-MaxEtMoritz",
-      "updatedAt": "2026-04-28T11:57:26.764Z"
+      "updatedAt": "2026-04-28T17:33:48.052Z"
     },
     {
       "author": "Hevne",
@@ -1223,7 +1223,7 @@
         "https://intel.ingress.com/*"
       ],
       "id_hash": "ImageOverlay2-by-McBen",
-      "updatedAt": "2026-04-28T11:57:26.764Z"
+      "updatedAt": "2026-04-28T17:33:48.052Z"
     },
     {
       "author": "McBen",
@@ -1243,7 +1243,7 @@
         "https://intel.ingress.com/*"
       ],
       "id_hash": "KMLImport-by-McBen",
-      "updatedAt": "2026-04-28T11:57:26.765Z",
+      "updatedAt": "2026-04-28T17:33:48.053Z",
       "_depends_links": [
         {
           "id": "draw-tools@breunigs",
@@ -1267,18 +1267,20 @@
         "https://intel.ingress.com/*"
       ],
       "id_hash": "PLink-by-McBen",
-      "updatedAt": "2026-04-28T11:57:26.765Z"
+      "updatedAt": "2026-04-28T17:33:48.053Z"
     },
     {
       "author": "MikeDiehn",
       "id": "portal-route@MikeDiehn",
       "name": "Portal Route",
       "category": "Navigate",
-      "version": "0.2.0-dev",
+      "version": "0.3.0-dev",
       "namespace": "https://github.com/mdiehn/iitc-plugin-portal-route",
       "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/MikeDiehn/portal-route.meta.js",
       "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/MikeDiehn/portal-route.user.js",
       "description": "Route planning through selected portals with segment drive times, stop-time accounting, and Google Maps export.",
+      "homepageURL": "https://github.com/mdiehn/iitc-plugin-portal-route",
+      "issueTracker": "https://github.com/mdiehn/iitc-plugin-portal-route/issues",
       "include": [
         "https://intel.ingress.com/*",
         "http://intel.ingress.com/*"
@@ -1291,7 +1293,7 @@
         "none"
       ],
       "id_hash": "portal-route-by-MikeDiehn",
-      "updatedAt": "2026-04-28T11:57:26.765Z"
+      "updatedAt": "2026-04-28T17:34:11.238Z"
     },
     {
       "author": "Mike Diehn",
@@ -1314,7 +1316,7 @@
         "none"
       ],
       "id_hash": "range-rings-by-MikeDiehn",
-      "updatedAt": "2026-04-28T11:57:50.899Z"
+      "updatedAt": "2026-04-28T17:33:48.054Z"
     },
     {
       "author": "NvlblNm",
@@ -1335,7 +1337,7 @@
         "none"
       ],
       "id_hash": "s2check-by-NvlblNm",
-      "updatedAt": "2026-04-28T11:57:26.765Z"
+      "updatedAt": "2026-04-28T17:33:48.054Z"
     },
     {
       "author": "NvlblNm",
@@ -1355,7 +1357,7 @@
         "none"
       ],
       "id_hash": "wayfarer-planner-by-NvlblNm",
-      "updatedAt": "2026-04-28T11:57:26.766Z"
+      "updatedAt": "2026-04-28T17:33:48.054Z"
     },
     {
       "author": "Perringaiden",
@@ -1373,7 +1375,7 @@
         "none"
       ],
       "id_hash": "wolf-deployed-highlighter-by-Perringaiden",
-      "updatedAt": "2026-04-28T11:57:26.766Z"
+      "updatedAt": "2026-04-28T17:33:48.055Z"
     },
     {
       "author": "Perringaiden",
@@ -1394,7 +1396,7 @@
         "none"
       ],
       "id_hash": "wolf-fielded-link-radius-by-Perringaiden",
-      "updatedAt": "2026-04-28T11:57:26.767Z"
+      "updatedAt": "2026-04-28T17:33:48.055Z"
     },
     {
       "author": "Perringaiden",
@@ -1412,7 +1414,7 @@
         "none"
       ],
       "id_hash": "wolf-linked-highlighter-by-Perringaiden",
-      "updatedAt": "2026-04-28T11:57:26.767Z"
+      "updatedAt": "2026-04-28T17:33:48.055Z"
     },
     {
       "author": "Perringaiden",
@@ -1430,7 +1432,7 @@
         "none"
       ],
       "id_hash": "wolf-recharge-by-Perringaiden",
-      "updatedAt": "2026-04-28T11:57:26.767Z"
+      "updatedAt": "2026-04-28T17:33:48.055Z"
     },
     {
       "author": "Perringaiden",
@@ -1451,7 +1453,7 @@
       ],
       "description": "",
       "id_hash": "wolf-uncaptured-by-Perringaiden",
-      "updatedAt": "2026-04-28T11:57:26.767Z"
+      "updatedAt": "2026-04-28T17:33:48.055Z"
     },
     {
       "author": "Tarsi210",
@@ -1476,7 +1478,7 @@
         "none"
       ],
       "id_hash": "draw-best-link-star-by-Tarsi210",
-      "updatedAt": "2026-04-28T11:57:26.767Z",
+      "updatedAt": "2026-04-28T17:33:48.055Z",
       "_depends_links": [
         {
           "id": "draw-tools@breunigs",
@@ -1512,7 +1514,7 @@
         "none"
       ],
       "id_hash": "DroneRange-by-VE6SRV",
-      "updatedAt": "2026-04-28T11:57:26.767Z"
+      "updatedAt": "2026-04-28T17:33:48.056Z"
     },
     {
       "author": "Whomiga",
@@ -1531,7 +1533,7 @@
         "none"
       ],
       "id_hash": "portaldetailsmod-by-Whomiga",
-      "updatedAt": "2026-04-28T11:57:26.767Z"
+      "updatedAt": "2026-04-28T17:33:48.056Z"
     },
     {
       "author": "Xelminoe",
@@ -1557,7 +1559,7 @@
         "none"
       ],
       "id_hash": "Microfield-checker-by-Xelminoe",
-      "updatedAt": "2026-04-28T11:57:26.768Z",
+      "updatedAt": "2026-04-28T17:33:48.056Z",
       "_depends_links": [
         {
           "id": "draw-tools@breunigs",
@@ -1592,7 +1594,7 @@
         "none"
       ],
       "id_hash": "VRBB-l8-maximizer-by-Xelminoe",
-      "updatedAt": "2026-04-28T11:57:26.769Z"
+      "updatedAt": "2026-04-28T17:33:48.057Z"
     },
     {
       "author": "Zaso",
@@ -1611,7 +1613,7 @@
         "none"
       ],
       "id_hash": "bring-portals-to-front-by-Zaso",
-      "updatedAt": "2026-04-28T11:57:26.769Z"
+      "updatedAt": "2026-04-28T17:33:48.057Z"
     },
     {
       "author": "Zaso",
@@ -1630,7 +1632,7 @@
         "none"
       ],
       "id_hash": "chat-message-length-by-Zaso",
-      "updatedAt": "2026-04-28T11:57:26.769Z"
+      "updatedAt": "2026-04-28T17:33:48.058Z"
     },
     {
       "author": "Zaso",
@@ -1649,7 +1651,7 @@
         "none"
       ],
       "id_hash": "check-point-timer-by-Zaso",
-      "updatedAt": "2026-04-28T11:57:26.769Z"
+      "updatedAt": "2026-04-28T17:33:48.058Z"
     },
     {
       "author": "Zaso",
@@ -1668,7 +1670,7 @@
         "none"
       ],
       "id_hash": "decay-calculator-by-Zaso",
-      "updatedAt": "2026-04-28T11:57:26.769Z"
+      "updatedAt": "2026-04-28T17:33:48.058Z"
     },
     {
       "author": "Zaso",
@@ -1687,7 +1689,7 @@
         "none"
       ],
       "id_hash": "destroyed-links-simulator-by-Zaso",
-      "updatedAt": "2026-04-28T11:57:26.769Z"
+      "updatedAt": "2026-04-28T17:33:48.058Z"
     },
     {
       "author": "Zaso",
@@ -1709,7 +1711,7 @@
         "none"
       ],
       "id_hash": "draw-tools-plus-by-Zaso",
-      "updatedAt": "2026-04-28T11:57:26.769Z",
+      "updatedAt": "2026-04-28T17:33:48.058Z",
       "_depends_links": [
         {
           "id": "draw-tools@breunigs",
@@ -1735,7 +1737,7 @@
         "none"
       ],
       "id_hash": "emoji-chat-by-Zaso",
-      "updatedAt": "2026-04-28T11:57:26.769Z"
+      "updatedAt": "2026-04-28T17:33:48.058Z"
     },
     {
       "author": "Zaso",
@@ -1754,7 +1756,7 @@
         "none"
       ],
       "id_hash": "fake-message-location-by-Zaso",
-      "updatedAt": "2026-04-28T11:57:26.769Z"
+      "updatedAt": "2026-04-28T17:33:48.058Z"
     },
     {
       "author": "Zaso",
@@ -1773,7 +1775,7 @@
         "none"
       ],
       "id_hash": "font-awesome-by-Zaso",
-      "updatedAt": "2026-04-28T11:57:26.769Z"
+      "updatedAt": "2026-04-28T17:33:48.058Z"
     },
     {
       "author": "Zaso",
@@ -1793,7 +1795,7 @@
         "none"
       ],
       "id_hash": "free-sidebar-by-Zaso",
-      "updatedAt": "2026-04-28T11:57:26.770Z"
+      "updatedAt": "2026-04-28T17:33:48.058Z"
     },
     {
       "author": "Zaso",
@@ -1812,7 +1814,7 @@
         "none"
       ],
       "id_hash": "hide-ui-by-Zaso",
-      "updatedAt": "2026-04-28T11:57:26.770Z"
+      "updatedAt": "2026-04-28T17:33:48.058Z"
     },
     {
       "author": "Zaso",
@@ -1831,7 +1833,7 @@
         "none"
       ],
       "id_hash": "last-action-timestamp-by-Zaso",
-      "updatedAt": "2026-04-28T11:57:26.770Z"
+      "updatedAt": "2026-04-28T17:33:48.058Z"
     },
     {
       "author": "Zaso",
@@ -1851,7 +1853,7 @@
         "none"
       ],
       "id_hash": "layers-profiles-by-Zaso",
-      "updatedAt": "2026-04-28T11:57:26.770Z"
+      "updatedAt": "2026-04-28T17:33:48.058Z"
     },
     {
       "author": "Zaso",
@@ -1877,7 +1879,7 @@
         "none"
       ],
       "id_hash": "link-prolongation-by-Zaso",
-      "updatedAt": "2026-04-28T11:57:26.770Z",
+      "updatedAt": "2026-04-28T17:33:48.059Z",
       "_recommends_links": [
         {
           "id": "draw-tools@breunigs",
@@ -1918,7 +1920,7 @@
         "none"
       ],
       "id_hash": "localstorage-manager-by-Zaso",
-      "updatedAt": "2026-04-28T11:57:26.770Z"
+      "updatedAt": "2026-04-28T17:33:48.059Z"
     },
     {
       "author": "Zaso",
@@ -1937,7 +1939,7 @@
         "none"
       ],
       "id_hash": "logs-diary-by-Zaso",
-      "updatedAt": "2026-04-28T11:57:26.770Z"
+      "updatedAt": "2026-04-28T17:33:48.059Z"
     },
     {
       "author": "Zaso",
@@ -1956,7 +1958,7 @@
         "none"
       ],
       "id_hash": "minify-some-portal-details-by-Zaso",
-      "updatedAt": "2026-04-28T11:57:26.770Z"
+      "updatedAt": "2026-04-28T17:33:48.059Z"
     },
     {
       "author": "Zaso",
@@ -1975,7 +1977,7 @@
         "none"
       ],
       "id_hash": "player-ranges-by-Zaso",
-      "updatedAt": "2026-04-28T11:57:26.771Z"
+      "updatedAt": "2026-04-28T17:33:48.059Z"
     },
     {
       "author": "Zaso",
@@ -1994,7 +1996,7 @@
         "none"
       ],
       "id_hash": "pocket-portal-details-by-Zaso",
-      "updatedAt": "2026-04-28T11:57:26.771Z"
+      "updatedAt": "2026-04-28T17:33:48.059Z"
     },
     {
       "author": "Zaso",
@@ -2013,7 +2015,7 @@
         "none"
       ],
       "id_hash": "portal-hack-range-by-Zaso",
-      "updatedAt": "2026-04-28T11:57:26.771Z"
+      "updatedAt": "2026-04-28T17:33:48.059Z"
     },
     {
       "author": "Zaso",
@@ -2032,7 +2034,7 @@
         "none"
       ],
       "id_hash": "scroll-sleep-by-Zaso",
-      "updatedAt": "2026-04-28T11:57:26.771Z"
+      "updatedAt": "2026-04-28T17:33:48.060Z"
     },
     {
       "author": "Zaso",
@@ -2051,7 +2053,7 @@
         "none"
       ],
       "id_hash": "todo-list-by-Zaso",
-      "updatedAt": "2026-04-28T11:57:26.771Z"
+      "updatedAt": "2026-04-28T17:33:48.060Z"
     },
     {
       "author": "azrael-42",
@@ -2070,7 +2072,7 @@
         "none"
       ],
       "id_hash": "dronehelper-by-azrael-42",
-      "updatedAt": "2026-04-28T11:57:26.771Z"
+      "updatedAt": "2026-04-28T17:33:48.060Z"
     },
     {
       "author": "birkett83",
@@ -2092,7 +2094,7 @@
         "none"
       ],
       "id_hash": "landgrab-by-birkett83",
-      "updatedAt": "2026-04-28T11:57:26.772Z"
+      "updatedAt": "2026-04-28T17:33:48.061Z"
     },
     {
       "author": "blsmit5728",
@@ -2116,7 +2118,7 @@
         "none"
       ],
       "id_hash": "direct-link-by-blsmit5728",
-      "updatedAt": "2026-04-28T11:57:26.773Z"
+      "updatedAt": "2026-04-28T17:33:48.061Z"
     },
     {
       "author": "blsmit5728",
@@ -2135,7 +2137,7 @@
         "none"
       ],
       "id_hash": "throwrange-by-blsmit5728",
-      "updatedAt": "2026-04-28T11:57:26.773Z"
+      "updatedAt": "2026-04-28T17:33:48.062Z"
     },
     {
       "author": "Eccenux",
@@ -2160,7 +2162,7 @@
         "none"
       ],
       "id_hash": "short-portal-info-by-eccenux",
-      "updatedAt": "2026-04-28T11:57:26.773Z"
+      "updatedAt": "2026-04-28T17:33:48.062Z"
     },
     {
       "author": "elkuku",
@@ -2185,7 +2187,7 @@
         "https://intel.ingress.com/*"
       ],
       "id_hash": "export-by-elkuku",
-      "updatedAt": "2026-04-28T11:57:26.773Z",
+      "updatedAt": "2026-04-28T17:33:48.062Z",
       "_depends_links": [
         {
           "id": "helper-handlebars@elkuku",
@@ -2211,7 +2213,7 @@
         "https://intel.ingress.com/*"
       ],
       "id_hash": "helper-handlebars-by-elkuku",
-      "updatedAt": "2026-04-28T11:57:26.774Z"
+      "updatedAt": "2026-04-28T17:33:48.062Z"
     },
     {
       "author": "elkuku",
@@ -2234,7 +2236,7 @@
         "https://intel.ingress.com/*"
       ],
       "id_hash": "inventory-by-elkuku",
-      "updatedAt": "2026-04-28T11:57:26.774Z",
+      "updatedAt": "2026-04-28T17:33:48.062Z",
       "_depends_links": [
         {
           "id": "helper-handlebars@elkuku",
@@ -2260,7 +2262,7 @@
         "https://intel.ingress.com/*"
       ],
       "id_hash": "set-zoom-portals-by-elkuku",
-      "updatedAt": "2026-04-28T11:57:26.776Z"
+      "updatedAt": "2026-04-28T17:33:48.065Z"
     },
     {
       "author": "Heistergand",
@@ -2297,7 +2299,7 @@
         "none"
       ],
       "id_hash": "fanfields-by-heistergand",
-      "updatedAt": "2026-04-28T11:57:26.776Z",
+      "updatedAt": "2026-04-28T17:33:48.065Z",
       "_depends_links": [
         {
           "id": "draw-tools@breunigs",
@@ -2348,7 +2350,7 @@
         "none"
       ],
       "id_hash": "IngressMaxFields-by-itayo",
-      "updatedAt": "2026-04-28T11:57:26.777Z"
+      "updatedAt": "2026-04-28T17:33:48.066Z"
     },
     {
       "author": "jaiperdu",
@@ -2367,7 +2369,7 @@
         "none"
       ],
       "id_hash": "basemap-google-custom-by-jaiperdu",
-      "updatedAt": "2026-04-28T11:57:26.778Z"
+      "updatedAt": "2026-04-28T17:33:48.066Z"
     },
     {
       "author": "jaiperdu",
@@ -2386,7 +2388,7 @@
         "none"
       ],
       "id_hash": "cache-portals-by-jaiperdu",
-      "updatedAt": "2026-04-28T11:57:26.778Z"
+      "updatedAt": "2026-04-28T17:33:48.067Z"
     },
     {
       "author": "jaiperdu",
@@ -2405,7 +2407,7 @@
         "none"
       ],
       "id_hash": "comm-filter-tab-by-jaiperdu",
-      "updatedAt": "2026-04-28T11:57:26.778Z"
+      "updatedAt": "2026-04-28T17:33:48.067Z"
     },
     {
       "author": "jaiperdu",
@@ -2424,7 +2426,7 @@
         "none"
       ],
       "id_hash": "dialogs-by-jaiperdu",
-      "updatedAt": "2026-04-28T11:57:26.778Z"
+      "updatedAt": "2026-04-28T17:33:48.067Z"
     },
     {
       "author": "jaiperdu",
@@ -2443,7 +2445,7 @@
         "none"
       ],
       "id_hash": "glify-layer-by-jaiperdu",
-      "updatedAt": "2026-04-28T11:57:26.778Z"
+      "updatedAt": "2026-04-28T17:33:48.067Z"
     },
     {
       "author": "jaiperdu",
@@ -2462,7 +2464,7 @@
         "none"
       ],
       "id_hash": "highlight-intel-uniques-by-jaiperdu",
-      "updatedAt": "2026-04-28T11:57:26.778Z"
+      "updatedAt": "2026-04-28T17:33:48.067Z"
     },
     {
       "author": "jaiperdu",
@@ -2482,7 +2484,7 @@
         "none"
       ],
       "id_hash": "ingress-icons-by-jaiperdu",
-      "updatedAt": "2026-04-28T11:57:26.778Z"
+      "updatedAt": "2026-04-28T17:33:48.067Z"
     },
     {
       "author": "jaiperdu",
@@ -2501,7 +2503,7 @@
         "none"
       ],
       "id_hash": "labels_layer-by-jaiperdu",
-      "updatedAt": "2026-04-28T11:57:26.779Z"
+      "updatedAt": "2026-04-28T17:33:48.067Z"
     },
     {
       "author": "jaiperdu",
@@ -2520,7 +2522,7 @@
         "none"
       ],
       "id_hash": "muTab-by-jaiperdu",
-      "updatedAt": "2026-04-28T11:57:26.779Z"
+      "updatedAt": "2026-04-28T17:33:48.067Z"
     },
     {
       "author": "jaiperdu",
@@ -2539,7 +2541,7 @@
         "none"
       ],
       "id_hash": "player-inventory-by-jaiperdu",
-      "updatedAt": "2026-04-28T11:57:26.779Z"
+      "updatedAt": "2026-04-28T17:33:48.067Z"
     },
     {
       "author": "jaiperdu",
@@ -2558,7 +2560,7 @@
         "none"
       ],
       "id_hash": "portals-pictures-by-jaiperdu",
-      "updatedAt": "2026-04-28T11:57:26.779Z"
+      "updatedAt": "2026-04-28T17:33:48.068Z"
     },
     {
       "author": "modkin",
@@ -2580,7 +2582,7 @@
         "none"
       ],
       "id_hash": "multi_export-by-modkin",
-      "updatedAt": "2026-04-28T11:57:26.780Z"
+      "updatedAt": "2026-04-28T17:33:48.068Z"
     },
     {
       "author": "mrDinckleman",
@@ -2602,7 +2604,7 @@
         "none"
       ],
       "id_hash": "aurora-by-mrDinckleman",
-      "updatedAt": "2026-04-28T11:57:26.780Z"
+      "updatedAt": "2026-04-28T17:33:48.069Z"
     },
     {
       "author": "mrDinckleman",
@@ -2624,7 +2626,7 @@
         "none"
       ],
       "id_hash": "umbra-by-mrDinckleman",
-      "updatedAt": "2026-04-28T11:57:26.781Z"
+      "updatedAt": "2026-04-28T17:33:48.070Z"
     },
     {
       "author": "Kofirs2634 aka Nerotu",
@@ -2643,7 +2645,7 @@
         "none"
       ],
       "id_hash": "portals_gallery_script-by-nerotu",
-      "updatedAt": "2026-04-28T11:57:26.781Z"
+      "updatedAt": "2026-04-28T17:33:48.070Z"
     },
     {
       "author": "Wintervorst",
@@ -2676,7 +2678,7 @@
         "none"
       ],
       "id_hash": "occupied19cells-by-wintervorst",
-      "updatedAt": "2026-04-28T11:57:26.781Z",
+      "updatedAt": "2026-04-28T17:33:48.070Z",
       "_depends_links": [
         {
           "id": "s2celldrawer@wintervorst",
@@ -2713,7 +2715,7 @@
         "none"
       ],
       "id_hash": "s2celldrawer-by-wintervorst",
-      "updatedAt": "2026-04-28T11:57:26.781Z"
+      "updatedAt": "2026-04-28T17:33:48.070Z"
     },
     {
       "author": "Wintervorst",
@@ -2739,7 +2741,7 @@
         "none"
       ],
       "id_hash": "submitrange-by-wintervorst",
-      "updatedAt": "2026-04-28T11:57:26.781Z"
+      "updatedAt": "2026-04-28T17:33:48.070Z"
     },
     {
       "author": "xMAXIMx",
@@ -2758,7 +2760,7 @@
         "*://*.ingress.com/*"
       ],
       "id_hash": "agent-profile-link-by-xMAXIMx",
-      "updatedAt": "2026-04-28T11:57:26.781Z"
+      "updatedAt": "2026-04-28T17:33:48.070Z"
     },
     {
       "author": "xMAXIMx",
@@ -2776,7 +2778,7 @@
         "*://*.ingress.com/*"
       ],
       "id_hash": "scanner-link-copy-by-xMAXIMx",
-      "updatedAt": "2026-04-28T11:57:26.781Z"
+      "updatedAt": "2026-04-28T17:33:48.070Z"
     },
     {
       "author": "xMAXIMx",
@@ -2794,7 +2796,7 @@
         "*://*.ingress.com/*"
       ],
       "id_hash": "scanner-link-by-xMAXIMx",
-      "updatedAt": "2026-04-28T11:57:26.781Z"
+      "updatedAt": "2026-04-28T17:33:48.070Z"
     },
     {
       "author": "xificurk",
@@ -2828,7 +2830,7 @@
         "none"
       ],
       "id_hash": "basemap-seznam-by-xificurk",
-      "updatedAt": "2026-04-28T11:57:26.781Z"
+      "updatedAt": "2026-04-28T17:33:48.070Z"
     },
     {
       "author": "xificurk",
@@ -2863,7 +2865,7 @@
         "none"
       ],
       "id_hash": "portal-highlighter-uniques-opacity-by-xificurk",
-      "updatedAt": "2026-04-28T11:57:26.782Z"
+      "updatedAt": "2026-04-28T17:33:48.071Z"
     },
     {
       "author": "xificurk",
@@ -2897,7 +2899,7 @@
         "none"
       ],
       "id_hash": "uniques-gdpr-by-xificurk",
-      "updatedAt": "2026-04-28T11:57:26.782Z"
+      "updatedAt": "2026-04-28T17:33:48.071Z"
     },
     {
       "author": "xificurk",
@@ -2932,7 +2934,7 @@
         "none"
       ],
       "id_hash": "uniques-heatmap-by-xificurk",
-      "updatedAt": "2026-04-28T11:57:26.782Z"
+      "updatedAt": "2026-04-28T17:33:48.071Z"
     },
     {
       "author": "yavidor",
@@ -2958,7 +2960,7 @@
         "none"
       ],
       "id_hash": "traveling-agent-by-yavidor",
-      "updatedAt": "2026-04-28T11:57:26.782Z",
+      "updatedAt": "2026-04-28T17:33:48.071Z",
       "_depends_links": [
         {
           "id": "bookmarks@ZasoGD",
@@ -3000,7 +3002,7 @@
         "none"
       ],
       "id_hash": "ingress_export-by-zetaphor",
-      "updatedAt": "2026-04-28T11:57:26.782Z"
+      "updatedAt": "2026-04-28T17:33:48.071Z"
     }
   ],
   "version": 2

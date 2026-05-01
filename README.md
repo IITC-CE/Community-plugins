@@ -1002,7 +1002,7 @@ Draw concentric range circles from draggable center points.
 
 *[Homepage](https://github.com/mdiehn/iitc-plugin-range-rings)* |
 *[Issue tracker](https://github.com/mdiehn/iitc-plugin-range-rings/issues)* |
-*Version:* 1.3.0
+*Version:* 1.3.1
 
 
   
@@ -1554,7 +1554,7 @@ Route planning through selected portals with segment drive times, stop-time acco
 
 *[Homepage](https://github.com/mdiehn/iitc-plugin-portal-route)* |
 *[Issue tracker](https://github.com/mdiehn/iitc-plugin-portal-route/issues)* |
-*Version:* 0.4.0-dev
+*Version:* 0.4.0
 
 
   

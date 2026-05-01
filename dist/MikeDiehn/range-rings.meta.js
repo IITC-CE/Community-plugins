@@ -3,7 +3,7 @@
 // @id              range-rings@MikeDiehn
 // @name            Range Rings
 // @category        Layer
-// @version         1.3.0
+// @version         1.3.1
 // @namespace       https://github.com/mdiehn/iitc-plugin-range-rings
 // @updateURL       https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/MikeDiehn/range-rings.meta.js
 // @downloadURL     https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/MikeDiehn/range-rings.user.js

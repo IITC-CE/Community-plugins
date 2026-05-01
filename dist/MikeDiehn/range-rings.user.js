@@ -3,7 +3,7 @@
 // @id              range-rings@MikeDiehn
 // @name            Range Rings
 // @category        Layer
-// @version         1.3.0
+// @version         1.3.1
 // @namespace       https://github.com/mdiehn/iitc-plugin-range-rings
 // @updateURL       https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/MikeDiehn/range-rings.meta.js
 // @downloadURL     https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/MikeDiehn/range-rings.user.js
@@ -30,7 +30,7 @@ function wrapper(plugin_info) {
   // PLUGIN AUTHORS: writing a plugin outside of the IITC build environment? if so, delete these lines!!
   // (leaving them in place might break the 'About IITC' page or break update checks)
   plugin_info.buildName = 'iitc';
-  plugin_info.dateTimeVersion = '20260421.1';
+  plugin_info.dateTimeVersion = '20260430.1';
   plugin_info.pluginId = 'range-rings';
   // END PLUGIN AUTHORS NOTE
 
@@ -71,7 +71,7 @@ rr.defaults = {
 
 rr.state = {
   layerGroup: null,
-  isLayerEnabled: true,
+  isLayerEnabled: false,
   defaultMarkerIcon: null,
 
   panel: null,
@@ -1409,12 +1409,14 @@ rr.interaction.setupLayerTracking = function () {
     rr.state.layerGroup = new L.LayerGroup();
     rr.interaction.setupLayerTracking();
     window.addLayerGroup(rr.constants.layerName, rr.state.layerGroup, true);
-    rr.ui.installPanel();
+
     rr.state.isLayerEnabled = window.map.hasLayer(rr.state.layerGroup);
+    rr.ui.installPanel();
+    rr.ui.syncPanel();
+
     if (rr.state.isLayerEnabled) {
       rr.render.redrawAll();
     }
-//  window.bootPlugins.push(setup);
   }
   const setup = rr.setup;
   setup.info = plugin_info; // add the script info data to the function as a property

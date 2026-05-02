@@ -3,7 +3,7 @@
 // @id             portaldetailsmod@Whomiga
 // @name           Portal Detail Mods
 // @category       Info
-// @version        0.23.0
+// @version        0.25.0
 // @description    Show Mod Pictures in Portal Details
 // @downloadURL    https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Whomiga/portaldetailsmod.user.js
 // @updateURL      https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Whomiga/portaldetailsmod.meta.js
@@ -23,7 +23,7 @@ function wrapper(plugin_info) {
     var self = window.plugin.PortalDetailMods;
     self.id = 'PortalDetailMods';
     self.title = 'PortalDetailMods';
-    self.version = '0.23.0.20260426.113300';
+    self.version = '0.25.0.20260501.143500';
     self.prefix = 'portaldetailmods-';
     self.author = 'Whomiga';
 
@@ -31,7 +31,7 @@ function wrapper(plugin_info) {
     plugin_info.buildName = "PortalDetailMods";
 
     // Datetime-derived version of the plugin
-    plugin_info.dateTimeVersion = "20260426.113300";
+    plugin_info.dateTimeVersion = "20260501.143500";
 
     // ID/name of the plugin
     plugin_info.pluginId = "portalDetailMods";
@@ -51,6 +51,8 @@ function wrapper(plugin_info) {
     self.interfaceColors = Object.freeze({
         Main:     default_Color,
         Label:    '#ffffff',
+        Author:   '#ffffff',
+        Text:     '#ffffff',
         Border:   '#ffffff',
         Gadget:   '#ffffff',
         Header:   default_Color,
@@ -63,7 +65,7 @@ function wrapper(plugin_info) {
     self.interfaceCss = Object.freeze({
         // Main Dialog CSS Information
         'main': {
-            // Don't use 'parent_A' - 'parent_F' anywhere else
+            // Don't use 'parent_A' - 'parent_D' anywhere else
             'id_div_dialog': 'div#dialog-' + self.prefix + 'main',
             '*parent_A': `
                 overflow-x: hidden !important;`,
@@ -72,12 +74,10 @@ function wrapper(plugin_info) {
                 max-width: calc(100vw - 2px);`,
             ' select': `
                 background-color: ${self.interfaceColors.Gadget} !important;`,
-            'id_select': 'select',
-            '*parent_C': `
-                background-color: ${self.interfaceColors.Gadget} !important;`,
             'id_pre_id': 'pre_id',
-            ' h3': `padding: 0 4px 4px 0;
-                margin: 0;
+            ' h3': `
+                margin-top:    0px !important;
+                margin-bottom: 4px !important;
                 color: ${self.interfaceColors.Header} !important;`,
             ' label': `color: ${self.interfaceColors.Label} !important;`,
             '-innersettings': `padding: 8px 8px;
@@ -85,7 +85,7 @@ function wrapper(plugin_info) {
                 background-color: ${self.interfaceColors.BackGrnd};
                 color: ${self.interfaceColors.Text};`,
             'id_pre_main': 'pre_main',
-            'parent_E': `
+            'parent_C': `
                 padding: 4px 4px;
                 border: 1px solid ${self.interfaceColors.Border};
                 background-color: ${self.interfaceColors.BackGrnd};
@@ -94,8 +94,11 @@ function wrapper(plugin_info) {
                 flex-direction: column;
                 flex: 1;`,
             'id_pre_author': 'pre_author',
-            'parent_F': `
-                margin-top: 14px; font-style: italic; font-size: smaller;`,
+            'parent_D': `
+                color: ${self.interfaceColors.Author};
+                margin-top: 8px; 
+                font-style: italic; 
+                font-size: smaller;`,
         }
     });
 //
@@ -245,9 +248,14 @@ function wrapper(plugin_info) {
 **  - obj.class, then obj.sub_id and then obj.tab_id
 **  - if it fails on those it will set ID = prefix + obj.id
 */
-    function init_Css(obj = self.interfaceData) {
+    function init_Css(obj = self.interfaceData, style = null) {
         let targetKey = 'css';
         let prefix = '.';
+        let addstyle = false;
+        if (style == null) {
+            style = document.createElement('style');
+            addstyle = true;
+        }
         for (let key in obj) {
             if (key === targetKey && typeof obj[key] == 'object' && obj[key] !== null) {
                 let style = document.createElement('style');
@@ -306,8 +314,11 @@ function wrapper(plugin_info) {
                 document.body.appendChild(style);
             } else if (typeof obj[key] === 'object' && obj[key] !== null) {
                 // Recurse deeper into the object
-                init_Css(obj[key]);
+                init_Css(obj[key], style);
             }
+        }
+        if (addstyle) {
+            document.body.appendChild(style);
         }
     };
 
@@ -374,10 +385,12 @@ function wrapper(plugin_info) {
         let table = settings.appendChild(document.createElement('table'));
 
         //  Settings
-        settings_createSections(table, main.sections);
+        let area_1 = table.appendChild(document.createElement('tr')).appendChild(document.createElement('td'));
+        settings_createSections(area_1, main.sections);
 
         // Author
-        let author = div.appendChild(document.createElement('div'));
+        let area_2 = table.appendChild(document.createElement('tr')).appendChild(document.createElement('td'));
+        let author = area_2.appendChild(document.createElement('div'));
         author.className = self.prefix + 'author';
         author.innerHTML = self.title + ' version ' + self.version + ' by ' + self.author;
         return div;
@@ -386,17 +399,17 @@ function wrapper(plugin_info) {
 //
 // Create Sections for Settings
 //    
-    function settings_createSections(table, sections) {
+    function settings_createSections(area, sections) {
         Object.values(sections).forEach((section) => {
-            let div = table.appendChild(document.createElement('div'))
-            if (Object.keys(sections).length > 1) {
-                div.className = self.interfaceData.prefix + self.interfaceData.main.id + "-innersettings";
-            }
-            var row = div.appendChild(document.createElement('tr'));
+            let div = area.appendChild(document.createElement('div'))
+            div.className = self.interfaceData.prefix + self.interfaceData.main.id + "-innersettings";
+            var table = div.appendChild(document.createElement('table'));
+            table.style.width = '100%';
+            var row = table.appendChild(document.createElement('tr'));
             var data = row.appendChild(document.createElement('td'));
             var header = data.appendChild(document.createElement('h3'));
             header.innerHTML = section.label;
-            settings_createElements(div, section.elements);
+            settings_createElements(table, section.elements, { newrow: true });
         });
     }
 

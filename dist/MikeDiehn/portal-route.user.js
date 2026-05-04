@@ -3,11 +3,11 @@
 // @id              portal-route@MikeDiehn
 // @name            Portal Route
 // @category        Navigate
-// @version         1.0.0
+// @version         1.1.0-dev.20260503170907
 // @namespace       https://github.com/mdiehn/iitc-plugin-portal-route
 // @updateURL       https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/MikeDiehn/portal-route.meta.js
 // @downloadURL     https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/MikeDiehn/portal-route.user.js
-// @description     Route planning through selected portals with segment drive times, stop-time accounting, and Google Maps export.
+// @description     Route planning through selected portals with segment drive times, stop-time accounting, and map export.
 // @homepageURL     https://github.com/mdiehn/iitc-plugin-portal-route
 // @issueTracker    https://github.com/mdiehn/iitc-plugin-portal-route/issues
 // @include         https://intel.ingress.com/*
@@ -101,6 +101,7 @@ function wrapper(plugin_info) {
   align-items: center;
   gap: 6px 12px;
   margin-top: 8px;
+  padding-bottom: 10px;
 }
 
 .portal-route-checkbox-setting {
@@ -125,7 +126,7 @@ function wrapper(plugin_info) {
 
 .portal-route-waypoint-row {
   display: grid;
-  grid-template-columns: max-content minmax(0, 1fr) max-content 42px 22px 22px 22px;
+  grid-template-columns: max-content minmax(0, 1fr) max-content 42px;
   gap: 2px;
   align-items: center;
   width: 100%;
@@ -148,9 +149,7 @@ function wrapper(plugin_info) {
 }
 
 .portal-route-waypoint-row-draggable .portal-route-wait-cell,
-.portal-route-waypoint-row-draggable .portal-route-row-action,
-.portal-route-waypoint-row-draggable .portal-route-wait-cell *,
-.portal-route-waypoint-row-draggable .portal-route-row-action * {
+.portal-route-waypoint-row-draggable .portal-route-wait-cell * {
   cursor: auto;
 }
 
@@ -174,8 +173,7 @@ function wrapper(plugin_info) {
 .portal-route-waypoint-num,
 .portal-route-waypoint-name-cell,
 .portal-route-leg-cell,
-.portal-route-wait-cell,
-.portal-route-row-action {
+.portal-route-wait-cell {
   min-width: 0;
   border: 0 !important;
   outline: 0 !important;
@@ -204,12 +202,6 @@ function wrapper(plugin_info) {
   text-align: center;
 }
 
-.portal-route-row-action {
-  width: 22px;
-  text-align: center;
-  overflow: visible;
-}
-
 .portal-route-waypoint-name {
   display: block;
   width: 100%;
@@ -231,11 +223,6 @@ function wrapper(plugin_info) {
 }
 
 
-.portal-route-waypoint-name-input {
-  height: 18px;
-  line-height: 18px;
-}
-
 .portal-route-waypoint-name:hover,
 .portal-route-waypoint-name:focus,
 .portal-route-waypoint-name:active {
@@ -249,30 +236,6 @@ function wrapper(plugin_info) {
 .portal-route-wait-input {
   width: 42px;
   padding: 1px 2px;
-}
-
-.portal-route-row-button {
-  width: 22px !important;
-  min-width: 22px !important;
-  max-width: 22px !important;
-  height: 20px;
-  min-height: 20px;
-  padding: 0 !important;
-  border: 0 !important;
-  background: transparent !important;
-  color: inherit !important;
-  text-align: center;
-  line-height: 20px;
-  font-size: 14px !important;
-  font-weight: bold !important;
-}
-
-.portal-route-row-button:disabled {
-  opacity: 0.35;
-}
-
-.portal-route-remove-stop-button {
-  color: #ff8080 !important;
 }
 
 .portal-route-stop-num,
@@ -364,7 +327,7 @@ button.portal-route-waypoint-badge-wide {
 
 .portal-route-control-groups {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 6px;
   margin-top: 7px;
 }
@@ -374,6 +337,10 @@ button.portal-route-waypoint-badge-wide {
   padding: 5px;
   border: 1px solid rgba(255, 255, 255, 0.18);
   background: rgba(0, 0, 0, 0.12);
+}
+
+.portal-route-control-group-wide {
+  grid-column: 1 / -1;
 }
 
 .portal-route-control-group-title {
@@ -389,6 +356,7 @@ button.portal-route-waypoint-badge-wide {
 }
 
 .portal-route-clear-list-button,
+.portal-route-library-actions button,
 .portal-route-control-group-buttons button {
   display: inline-block;
   padding: 3px 7px !important;
@@ -410,7 +378,10 @@ button.portal-route-waypoint-badge-wide {
 .portal-route-clear-list-button:active,
 .portal-route-control-group-buttons button:hover,
 .portal-route-control-group-buttons button:focus,
-.portal-route-control-group-buttons button:active {
+.portal-route-control-group-buttons button:active,
+.portal-route-library-actions button:hover,
+.portal-route-library-actions button:focus,
+.portal-route-library-actions button:active {
   border-color: rgba(255, 216, 0, 0.75) !important;
   background: rgba(255, 255, 255, 0.24) !important;
   color: inherit !important;
@@ -419,9 +390,28 @@ button.portal-route-waypoint-badge-wide {
   box-shadow: none !important;
 }
 
+.portal-route-library-actions button:disabled,
+.portal-route-control-group-buttons button:disabled {
+  border-color: rgba(255, 255, 255, 0.18) !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: rgba(255, 255, 255, 0.45) !important;
+  cursor: default;
+}
+
 .portal-route-control-group-buttons button.portal-route-active-action {
   border-color: rgba(255, 216, 0, 0.85) !important;
   background: rgba(255, 216, 0, 0.22) !important;
+}
+
+.portal-route-control-group-buttons button.portal-route-smart-button,
+.portal-route-smart-button {
+  border-color: rgba(128, 216, 255, 0.75) !important;
+  box-shadow: inset 0 0 0 1px rgba(128, 216, 255, 0.25) !important;
+}
+
+.portal-route-mini-control a.portal-route-smart-button {
+  outline: 1px solid rgba(128, 216, 255, 0.75);
+  outline-offset: -2px;
 }
 
 .portal-route-maps-stages .portal-route-control-group-buttons {
@@ -499,8 +489,137 @@ button.portal-route-waypoint-badge-wide {
 
 .portal-route-points-panel-actions {
   flex: 0 0 auto;
+  gap: 4px;
   justify-content: space-between;
   margin-top: 7px;
+}
+
+.portal-route-button-divider {
+  align-self: stretch;
+  width: 1px;
+  min-height: 20px;
+  margin: 0 2px;
+  background: rgba(255, 255, 255, 0.28);
+}
+
+.portal-route-library-source {
+  margin-bottom: 6px;
+  color: #ffce00;
+  font-size: 11px;
+  text-align: center;
+}
+
+.portal-route-library-storage {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-bottom: 6px;
+  color: #ccc;
+  font-size: 11px;
+}
+
+.portal-route-library-storage label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin: 0;
+}
+
+.portal-route-library-storage select {
+  max-width: 130px;
+  font-size: 11px;
+}
+
+.portal-route-library-toolbar {
+  justify-content: center;
+  margin-bottom: 7px;
+}
+
+.portal-route-library-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.portal-route-library-row {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  gap: 6px;
+  align-items: center;
+  padding: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 4px;
+}
+
+.portal-route-library-row-selected {
+  background: rgba(255, 216, 0, 0.10);
+}
+
+.portal-route-library-select {
+  display: flex;
+  align-items: center;
+  margin: 0;
+}
+
+.portal-route-library-select input {
+  margin: 0;
+}
+
+.portal-route-library-info {
+  min-width: 0;
+}
+
+.portal-route-library-info span {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.portal-route-library-name-input {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  padding: 1px 3px !important;
+  border: 1px solid transparent !important;
+  border-radius: 3px;
+  background: transparent !important;
+  color: inherit !important;
+  font: inherit;
+  font-weight: bold;
+}
+
+.portal-route-library-name-input:hover,
+.portal-route-library-name-input:focus {
+  border-color: rgba(255, 216, 0, 0.45) !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+  outline: none !important;
+}
+
+.portal-route-library-info span {
+  color: #ccc;
+  font-size: 11px;
+}
+
+.portal-route-library-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  justify-content: center;
+}
+
+.portal-route-library-tip {
+  margin-top: 6px;
+  font-size: 11px;
+  color: #ccc;
+  text-align: center;
+}
+
+.portal-route-library-tip-active {
+  color: #ffd800;
 }
 
 .portal-route-bottom-summary {
@@ -509,10 +628,12 @@ button.portal-route-waypoint-badge-wide {
 }
 
 .portal-route-version {
-  margin-top: 6px;
+  align-self: flex-end;
+  margin-left: auto;
   opacity: 0.7;
   font-size: 10px;
   text-align: right;
+  white-space: nowrap;
 }
 
 .portal-route-totals {
@@ -520,6 +641,10 @@ button.portal-route-waypoint-badge-wide {
   grid-template-columns: 1fr 1fr;
   gap: 6px;
   margin-top: 8px;
+}
+
+.portal-route-points-summary {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
 .portal-route-totals div {
@@ -705,17 +830,70 @@ button.portal-route-waypoint-badge-wide {
   display: flex;
   flex-wrap: wrap;
   flex: 0 0 100%;
-  justify-content: space-evenly;
+  justify-content: center;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .portal-route-portal-action-links a {
   flex: 0 0 auto;
-  margin: 0 4px;
+  display: inline-block;
+  margin: 0 4px 2px;
+  padding: 1px 4px;
+  border: 1px solid transparent;
+  border-radius: 3px;
+  background: transparent;
+  line-height: 1.2;
   overflow: hidden;
   text-align: center;
   text-overflow: ellipsis;
+}
+
+.portal-route-portal-action-links a.portal-route-smart-button {
+  border-color: rgba(128, 216, 255, 0.55);
+  outline: 0;
+}
+
+.portal-route-context-menu {
+  position: fixed;
+  z-index: 10000;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 150px;
+  padding: 5px;
+  border: 1px solid rgba(32, 168, 204, 0.8);
+  background: rgba(8, 45, 62, 0.96);
+  color: #ffd800;
+  font-size: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.55);
+}
+
+.portal-route-context-menu button {
+  display: block;
+  width: 100%;
+  padding: 4px 6px !important;
+  border: 0 !important;
+  background: transparent !important;
+  color: inherit !important;
+  font: inherit;
+  text-align: left;
+}
+
+.portal-route-context-menu button:hover,
+.portal-route-context-menu button:focus {
+  background: rgba(255, 255, 255, 0.12) !important;
+  outline: none !important;
+}
+
+.portal-route-context-menu button:disabled {
+  color: rgba(255, 255, 255, 0.42) !important;
+}
+
+.portal-route-context-divider {
+  height: 1px;
+  margin: 3px 0;
+  background: rgba(32, 168, 204, 0.5);
 }
 
 
@@ -726,6 +904,14 @@ button.portal-route-waypoint-badge-wide {
 .ui-dialog.portal-route-dialog .ui-dialog-content {
   box-sizing: border-box !important;
   overflow-x: visible !important;
+}
+
+.portal-route-dialog-content:focus,
+.portal-route-dialog-content:focus-visible,
+.ui-dialog.portal-route-dialog .ui-dialog-content:focus,
+.ui-dialog.portal-route-dialog .ui-dialog-content:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
 }
 
 .portal-route-waypoints-list,
@@ -746,27 +932,6 @@ button.portal-route-waypoint-name,
   box-shadow: none !important;
   background: transparent !important;
   background-image: none !important;
-}
-
-input.portal-route-waypoint-name-input,
-.ui-dialog input.portal-route-waypoint-name-input {
-  height: 20px;
-  line-height: 18px;
-  padding: 1px 4px !important;
-  border: 1px solid rgba(255, 216, 0, 0.35) !important;
-  border-radius: 4px;
-  background: rgba(255, 255, 255, 0.08) !important;
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.25) !important;
-  cursor: text;
-}
-
-input.portal-route-waypoint-name-input:hover,
-input.portal-route-waypoint-name-input:focus,
-.ui-dialog input.portal-route-waypoint-name-input:hover,
-.ui-dialog input.portal-route-waypoint-name-input:focus {
-  border-color: rgba(255, 216, 0, 0.70) !important;
-  background: rgba(255, 255, 255, 0.12) !important;
-  outline: none !important;
 }
 
 @media (max-width: 640px) {
@@ -793,7 +958,7 @@ input.portal-route-waypoint-name-input:focus,
   }
 
   .portal-route-waypoint-row {
-    grid-template-columns: 18px minmax(0, 1fr) max-content 38px 20px 20px 20px;
+    grid-template-columns: 18px minmax(0, 1fr) max-content 38px;
     gap: 1px;
   }
 
@@ -813,16 +978,6 @@ input.portal-route-waypoint-name-input:focus,
     width: 38px;
   }
 
-  .portal-route-row-action {
-    width: 20px;
-  }
-
-  .portal-route-row-button {
-    width: 20px !important;
-    min-width: 20px !important;
-    max-width: 20px !important;
-  }
-
   .portal-route-control-groups {
     grid-template-columns: 1fr;
   }
@@ -836,7 +991,7 @@ input.portal-route-waypoint-name-input:focus,
 
   pr.ID = 'portal-route';
   pr.NAME = 'Portal Route';
-  pr.VERSION = '1.0.0';
+  pr.VERSION = '1.1.0-dev.20260503170907';
   pr.SHOW_VERSION_IN_PANEL = true;
 
   pr.DOM_IDS = {
@@ -845,6 +1000,8 @@ input.portal-route-waypoint-name-input:focus,
     dialogContent: 'iitc-plugin-portal-route-dialog-content',
     pointsDialog: 'iitc-plugin-portal-route-points-dialog',
     pointsDialogContent: 'iitc-plugin-portal-route-points-dialog-content',
+    routeLibrary: 'iitc-plugin-portal-route-library-dialog',
+    routeLibraryContent: 'iitc-plugin-portal-route-library-dialog-content',
     miniControl: 'iitc-plugin-portal-route-mini-control',
     toolboxLink: 'iitc-plugin-portal-route-toolbox-link'
   };
@@ -855,8 +1012,14 @@ input.portal-route-waypoint-name-input:focus,
     panelOpen: 'iitc-portal-route-panel-open',
     panelPosition: 'iitc-portal-route-panel-position',
     panelSize: 'iitc-portal-route-panel-size',
+    panelSizeUserSet: 'iitc-portal-route-panel-size-user-set',
     route: 'iitc-portal-route-route',
-    routeDirty: 'iitc-portal-route-route-dirty'
+    routeDirty: 'iitc-portal-route-route-dirty',
+    routeLibrary: 'iitc-portal-route-library',
+    routeLibraryDriveCache: 'iitc-portal-route-drive-library-cache',
+    routeLibraryDriveFolderId: 'iitc-portal-route-drive-folder-id',
+    routeLibraryDriveFolderName: 'iitc-portal-route-drive-folder-name',
+    routeLibraryDriveFileId: 'iitc-portal-route-drive-file-id'
   };
 
   pr.DEFAULT_SETTINGS = {
@@ -864,16 +1027,37 @@ input.portal-route-waypoint-name-input:focus,
     includeReturnToStart: false,
     startOnCurrentLocation: false,
     showSegmentTimesOnMap: false,
-    autoReplotOnEdit: true,
     showMiniControl: true,
     showPortalDetailsControls: true
+  };
+
+  pr.normalizeSettings = function(settings) {
+    var normalized = Object.assign({}, pr.DEFAULT_SETTINGS);
+    if (!settings || typeof settings !== 'object') return normalized;
+
+    Object.keys(pr.DEFAULT_SETTINGS).forEach(function(key) {
+      var defaultValue = pr.DEFAULT_SETTINGS[key];
+      var value = settings[key];
+
+      if (typeof defaultValue === 'boolean') {
+        if (typeof value === 'boolean') normalized[key] = value;
+        return;
+      }
+
+      if (typeof defaultValue === 'number') {
+        value = Number(value);
+        if (isFinite(value) && value >= 0) normalized[key] = Math.round(value);
+      }
+    });
+
+    return normalized;
   };
 
   pr.state = {
     stops: [],
     route: null,
     routeDirty: false,
-    settings: Object.assign({}, pr.DEFAULT_SETTINGS),
+    settings: pr.normalizeSettings(),
     layers: {
       labels: null,
       routeLine: null,
@@ -883,9 +1067,11 @@ input.portal-route-waypoint-name-input:focus,
     panelPosition: null,
     panelSize: null,
     pointsPanelOpen: false,
-    panelView: 'main',
     addPointMode: false,
     selectedMapPointIndex: null,
+    activeRouteId: null,
+    routeLibraryBackendId: 'local',
+    selectedLibraryRouteIds: [],
     miniControl: null
   };
 
@@ -900,7 +1086,7 @@ input.portal-route-waypoint-name-input:focus,
     try {
       var rawSettings = localStorage.getItem(pr.STORAGE_KEYS.settings);
       if (rawSettings) {
-        pr.state.settings = Object.assign({}, pr.DEFAULT_SETTINGS, JSON.parse(rawSettings));
+        pr.state.settings = pr.normalizeSettings(JSON.parse(rawSettings));
       }
 
       var rawStops = localStorage.getItem(pr.STORAGE_KEYS.stops);
@@ -931,7 +1117,7 @@ input.portal-route-waypoint-name-input:focus,
       }
 
       var rawPanelSize = localStorage.getItem(pr.STORAGE_KEYS.panelSize);
-      if (rawPanelSize) {
+      if (rawPanelSize && localStorage.getItem(pr.STORAGE_KEYS.panelSizeUserSet) === 'true') {
         var panelSize = JSON.parse(rawPanelSize);
         if (panelSize &&
             typeof panelSize.width === 'number' &&
@@ -976,8 +1162,10 @@ input.portal-route-waypoint-name-input:focus,
   pr.savePanelSize = function() {
     if (pr.state.panelSize) {
       localStorage.setItem(pr.STORAGE_KEYS.panelSize, JSON.stringify(pr.state.panelSize));
+      localStorage.setItem(pr.STORAGE_KEYS.panelSizeUserSet, 'true');
     } else {
       localStorage.removeItem(pr.STORAGE_KEYS.panelSize);
+      localStorage.removeItem(pr.STORAGE_KEYS.panelSizeUserSet);
     }
   };
 
@@ -1011,6 +1199,13 @@ input.portal-route-waypoint-name-input:focus,
     var miles = meters / 1609.344;
     if (miles >= 10) return miles.toFixed(0) + ' mi';
     return miles.toFixed(1) + ' mi';
+  };
+
+  pr.formatDistanceKm = function(meters) {
+    meters = Math.max(0, Number(meters || 0));
+    var km = meters / 1000;
+    if (km >= 10) return km.toFixed(0) + ' km';
+    return km.toFixed(1) + ' km';
   };
 
   pr.portalToStop = function(guid) {
@@ -1158,61 +1353,30 @@ input.portal-route-waypoint-name-input:focus,
     var links = document.createElement('div');
     links.className = 'portal-route-portal-action-links';
 
-    var toggleLink = document.createElement('a');
-    toggleLink.href = '#';
-    toggleLink.textContent = isInRoute ? 'Remove' : 'Add';
-    toggleLink.addEventListener('click', function(ev) {
-      ev.preventDefault();
-      if (isInRoute) {
-        pr.removeStop(selectedIndex);
-      } else if (!hasSelectedMapPoint) {
-        pr.addSelectedPortal();
+    function addActionLink(label, action) {
+      var link = document.createElement('a');
+      link.href = '#';
+      link.textContent = label;
+      link.setAttribute('data-action', action);
+      if (label === 'Actions') {
+        link.className = 'portal-route-smart-button';
+        link.setAttribute('data-add-menu', 'true');
+      } else if (label === 'Maps') {
+        link.className = 'portal-route-smart-button';
+        link.setAttribute('data-maps-menu', 'true');
       }
-      pr.injectPortalDetailsAction();
-    });
-    if (isInRoute || window.selectedPortal) links.appendChild(toggleLink);
+      links.appendChild(link);
+      return link;
+    }
 
-    var menuLink = document.createElement('a');
-    menuLink.href = '#';
-    menuLink.textContent = 'Menu';
-    menuLink.addEventListener('click', function(ev) {
-      ev.preventDefault();
-      pr.state.panelOpen = true;
-      pr.savePanelOpen();
-      pr.renderPanel();
-    });
-    links.appendChild(menuLink);
+    if (isInRoute || window.selectedPortal || !hasSelectedMapPoint) addActionLink('Actions', 'open-add-menu');
 
-    var listLink = document.createElement('a');
-    listLink.href = '#';
-    listLink.textContent = 'List';
-    listLink.addEventListener('click', function(ev) {
-      ev.preventDefault();
-      pr.state.pointsPanelOpen = true;
-      pr.renderPointsPanel();
-    });
-    links.appendChild(listLink);
+    addActionLink('Fit', 'fit-route');
+    addActionLink('Maps', 'open-maps-menu');
 
-    var plotLink = document.createElement('a');
-    plotLink.href = '#';
-    plotLink.textContent = pr.state.routeDirty ? 'Replot' : 'Plot';
-    plotLink.addEventListener('click', function(ev) {
-      ev.preventDefault();
-      pr.calculateRoute();
-      pr.injectPortalDetailsAction();
-    });
-    links.appendChild(plotLink);
-
-    var clearLink = document.createElement('a');
-    clearLink.href = '#';
-    clearLink.textContent = 'Clear';
-    clearLink.addEventListener('click', function(ev) {
-      ev.preventDefault();
-      if (pr.state.stops.length && window.confirm && !window.confirm('Clear all points from the route?')) return;
-      pr.clearStops();
-      pr.injectPortalDetailsAction();
-    });
-    links.appendChild(clearLink);
+    var menuLink = addActionLink('Menus', 'open-route-menu');
+    menuLink.className = 'portal-route-smart-button';
+    menuLink.setAttribute('data-route-menu', 'true');
 
     wrapper.appendChild(links);
   };
@@ -1220,8 +1384,9 @@ input.portal-route-waypoint-name-input:focus,
   pr.markRouteStale = function(options) {
     options = options || {};
     var hadRouteState = !!pr.state.route || !!pr.state.routeDirty;
-    var shouldAutoReplot = hadRouteState && pr.state.settings.autoReplotOnEdit && !options.skipAutoReplot;
-    pr.state.routeDirty = hadRouteState;
+    var hasRouteableStops = pr.getRouteStops().length >= 2;
+    var shouldAutoReplot = hasRouteableStops && !options.skipAutoReplot;
+    pr.state.routeDirty = hadRouteState || hasRouteableStops;
 
     if (options.clearRoute && !shouldAutoReplot) {
       pr.state.route = null;
@@ -1241,10 +1406,17 @@ input.portal-route-waypoint-name-input:focus,
 
     pr.state.autoReplotTimer = window.setTimeout(function() {
       pr.state.autoReplotTimer = null;
-      if (!pr.state.settings.autoReplotOnEdit) return;
       if (!pr.state.routeDirty) return;
       pr.calculateRoute();
     }, 0);
+  };
+
+  pr.queueRouteCalculationIfReady = function() {
+    if (pr.getRouteStops().length < 2) return false;
+    pr.state.routeDirty = true;
+    pr.saveRoute();
+    pr.queueAutoReplot();
+    return true;
   };
 
   pr.markRouteCurrent = function() {
@@ -1423,6 +1595,37 @@ input.portal-route-waypoint-name-input:focus,
         pr.showMessage('Could not get current location' + (error && error.message ? ': ' + error.message : '.'));
       }
     );
+  };
+
+  pr.smartAdd = function() {
+    if (!pr.state.stops.length) {
+      pr.showMessage('Getting current location...');
+      pr.getCurrentLocation(
+        function(position) {
+          var stop = pr.currentLocationStopFromPosition(position, { title: 'Current location' });
+          if (!stop) {
+            pr.setAddPointMode(true);
+            pr.showMessage('Could not read current location. Tap the map to add a point.');
+            return;
+          }
+          delete stop.startOnMe;
+          pr.addStop(stop);
+          pr.showMessage('Current location added.');
+        },
+        function(error) {
+          pr.setAddPointMode(true);
+          pr.showMessage('Could not get current location' + (error && error.message ? ': ' + error.message : '') + '. Tap the map to add a point.');
+        }
+      );
+      return;
+    }
+
+    if (window.selectedPortal && pr.portalToStop && pr.portalToStop(window.selectedPortal)) {
+      pr.addSelectedPortal();
+      return;
+    }
+
+    pr.setAddPointMode(true);
   };
 
   pr.stopTitleNeedsHydration = function(title) {
@@ -1737,6 +1940,7 @@ input.portal-route-waypoint-name-input:focus,
     pr.state.route = null;
     pr.state.routeDirty = false;
     pr.state.selectedMapPointIndex = null;
+    pr.state.activeRouteId = null;
     pr.saveStops();
     pr.saveRoute();
     pr.clearRouteLine();
@@ -1749,6 +1953,61 @@ input.portal-route-waypoint-name-input:focus,
     }
   };
 
+  pr.clearRouteWithConfirm = function() {
+    if (pr.state.stops.length && window.confirm && !window.confirm('Clear all points from the route?')) return;
+    pr.clearStops();
+  };
+
+  pr.reverseRoute = function() {
+    if (pr.state.stops.length < 2) {
+      pr.showMessage('Add at least two waypoints to reverse.');
+      return;
+    }
+
+    var selectedStop = typeof pr.state.selectedMapPointIndex === 'number' ? pr.state.stops[pr.state.selectedMapPointIndex] : null;
+    var pinnedStart = pr.isManagedStartIndex(0) ? pr.state.stops.slice(0, 1) : [];
+    var routeStops = pr.state.stops.slice(pinnedStart.length).reverse();
+
+    pr.state.stops = pinnedStart.concat(routeStops);
+    pr.state.selectedMapPointIndex = selectedStop ? pr.state.stops.indexOf(selectedStop) : null;
+    if (pr.state.selectedMapPointIndex < 0) pr.state.selectedMapPointIndex = null;
+
+    pr.markRouteStale({ clearRoute: true });
+    pr.saveStops();
+    pr.redrawLabels();
+    pr.renderPanel();
+    pr.renderMiniControl();
+    pr.showMessage('Route reversed.');
+  };
+
+  pr.renameStop = function(index) {
+    if (index < 0 || index >= pr.state.stops.length) return;
+    var stop = pr.state.stops[index];
+    if (!stop || pr.isManagedStartStop(stop)) return;
+
+    var title = window.prompt ? window.prompt('Waypoint name', stop.title || '') : null;
+    if (title === null) return;
+
+    title = String(title).trim();
+    if (!title) title = stop.type === 'map' ? pr.nextMapPointTitle() : 'Unnamed portal';
+
+    stop.title = title;
+    pr.saveStops();
+    pr.redrawLabels();
+    pr.redrawSegmentTimeLabels();
+    pr.renderPanel();
+    pr.renderMiniControl();
+  };
+
+  pr.moveStopToEdge = function(index, edge) {
+    if (index < 0 || index >= pr.state.stops.length) return;
+    if (pr.isManagedStartIndex(index)) return;
+
+    var toIndex = edge === 'end' ? pr.state.stops.length - 1 : 0;
+    if (edge === 'start' && pr.state.settings.startOnCurrentLocation) toIndex = 1;
+    pr.moveStop(index, toIndex);
+  };
+
   pr.replaceStops = function(stops, options) {
     options = options || {};
     if (!Array.isArray(stops)) return;
@@ -1757,6 +2016,7 @@ input.portal-route-waypoint-name-input:focus,
     pr.state.route = null;
     pr.state.routeDirty = false;
     pr.state.selectedMapPointIndex = null;
+    pr.state.activeRouteId = null;
 
     stops.forEach(function(stop) {
       if (!stop || typeof stop.lat !== 'number' || typeof stop.lng !== 'number') return;
@@ -2116,189 +2376,217 @@ input.portal-route-waypoint-name-input:focus,
     };
   };
 
+  pr.stopMarkerTitle = function(stop, index) {
+    return stop.generatedLoop ? 'Loop back to ' + stop.title : (index + 1) + '. ' + stop.title;
+  };
+
+  pr.stopLabelClass = function(stop, index, hasLoopStop) {
+    var isLoop = !!stop.generatedLoop;
+    var isSelected = !isLoop && pr.selectedStopIndex && pr.selectedStopIndex() === index;
+    var isMapPoint = stop.type === 'map';
+    var canDragRouteStop = !isLoop && !pr.isManagedStartStop(stop);
+    var label = isLoop ? 'L' : (index + 1);
+    var className = 'portal-route-stop-label';
+
+    if (String(label).length > 2) className += ' portal-route-stop-label-wide';
+    if (!isLoop && hasLoopStop && (index === 0 || index === pr.state.stops.length - 1)) {
+      className += ' portal-route-stop-label-loop-endpoint';
+    } else {
+      if (!isLoop && index === 0) className += ' portal-route-stop-label-start';
+      if (!isLoop && pr.state.stops.length > 1 && index === pr.state.stops.length - 1) {
+        className += ' portal-route-stop-label-end';
+      }
+    }
+    if (isMapPoint) className += ' portal-route-map-point-label';
+    if (canDragRouteStop) className += ' portal-route-stop-label-draggable';
+    if (isLoop) className += ' portal-route-loop-label';
+    if (isSelected) className += ' portal-route-stop-label-selected';
+
+    return className;
+  };
+
+  pr.stopMarkerEvent = function(e) {
+    var originalEvent = e && e.originalEvent ? e.originalEvent : e;
+    if (originalEvent && originalEvent.stopPropagation) originalEvent.stopPropagation();
+    if (originalEvent && originalEvent.preventDefault) originalEvent.preventDefault();
+  };
+
+  pr.openRouteListForStop = function(index, e) {
+    pr.stopMarkerEvent(e);
+    pr.selectStopPortal(index, false);
+    pr.state.pointsPanelOpen = true;
+    pr.renderPointsPanel();
+  };
+
+  pr.stopClickHandler = function(index) {
+    var clickTimer = null;
+
+    return function(e) {
+      pr.stopMarkerEvent(e);
+
+      if (!window.setTimeout || !window.clearTimeout) {
+        pr.selectStopPortal(index, false);
+        return;
+      }
+
+      if (clickTimer) {
+        window.clearTimeout(clickTimer);
+        clickTimer = null;
+        pr.openRouteListForStop(index, e);
+        return;
+      }
+
+      clickTimer = window.setTimeout(function() {
+        clickTimer = null;
+        pr.selectStopPortal(index, false);
+      }, 300);
+    };
+  };
+
+  pr.createMapPointMarker = function(stop, index, title, clickHandler) {
+    var isSelected = pr.selectedStopIndex && pr.selectedStopIndex() === index;
+    var pointIcon = L.divIcon({
+      className: 'portal-route-map-point-marker' + (isSelected ? ' portal-route-map-point-marker-selected' : ''),
+      html: '<span></span>',
+      iconSize: [16, 16],
+      iconAnchor: [8, 8]
+    });
+
+    var marker = L.marker([stop.lat, stop.lng], {
+      icon: pointIcon,
+      draggable: !pr.isManagedStartStop(stop),
+      interactive: true,
+      keyboard: false,
+      bubblingMouseEvents: false,
+      title: title
+    });
+
+    marker.on('click', clickHandler);
+    return marker;
+  };
+
+  pr.createStopLabelMarker = function(stop, index, hasLoopStop, title, clickHandler) {
+    var isLoop = !!stop.generatedLoop;
+    var label = isLoop ? 'L' : (index + 1);
+    var icon = L.divIcon({
+      className: pr.stopLabelClass(stop, index, hasLoopStop),
+      html: '<span>' + label + '</span>',
+      iconSize: [18, 18],
+      iconAnchor: isLoop ? [-18, 24] : [0, 24]
+    });
+
+    var marker = L.marker([stop.lat, stop.lng], {
+      icon: icon,
+      draggable: !isLoop && !pr.isManagedStartStop(stop),
+      interactive: true,
+      keyboard: false,
+      bubblingMouseEvents: false,
+      title: title
+    });
+
+    marker.on('click', clickHandler);
+    marker.bindTooltip(title, {
+      direction: 'right',
+      offset: [16, -10],
+      opacity: 0.9,
+      interactive: false,
+      className: 'portal-route-stop-tooltip'
+    });
+
+    return marker;
+  };
+
+  pr.attachMapPointDragHandlers = function(index, pointMarker, labelMarker) {
+    if (!pointMarker) return;
+
+    pointMarker.on('dragstart', function(e) {
+      if (e.target && e.target._icon) e.target._icon.classList.add('portal-route-map-point-marker-dragging');
+      pr.state.selectedMapPointIndex = index;
+      if (pr.clearIitcPortalSelection) pr.clearIitcPortalSelection();
+      if (pr.injectPortalDetailsAction) pr.injectPortalDetailsAction();
+      pr.renderPanel();
+      pr.renderMiniControl();
+    });
+    pointMarker.on('drag', function(e) {
+      var latlng = e.target.getLatLng();
+      pr.updateMapPointPosition(index, latlng, { live: true });
+      pointMarker.setLatLng(latlng);
+      labelMarker.setLatLng(latlng);
+    });
+    pointMarker.on('dragend', function(e) {
+      if (e.target && e.target._icon) e.target._icon.classList.remove('portal-route-map-point-marker-dragging');
+      pr.updateMapPointPosition(index, e.target.getLatLng());
+    });
+  };
+
+  pr.attachStopLabelDragHandlers = function(index, stop, labelMarker) {
+    labelMarker.on('dragstart', function(e) {
+      var originalPoint = e.target && e.target.getLatLng
+        ? window.map.latLngToLayerPoint(e.target.getLatLng())
+        : null;
+      pr.state.stopReplaceDragStartPoint = originalPoint;
+      if (stop.guid) {
+        pr.state.selectedMapPointIndex = null;
+        window.selectedPortal = stop.guid;
+      } else {
+        pr.state.selectedMapPointIndex = index;
+        if (pr.clearIitcPortalSelection) pr.clearIitcPortalSelection();
+      }
+      if (e.target && e.target._icon) e.target._icon.classList.add('portal-route-stop-label-dragging');
+      pr.renderPanel();
+      pr.renderMiniControl();
+    });
+    labelMarker.on('dragend', function(e) {
+      if (e.target && e.target._icon) e.target._icon.classList.remove('portal-route-stop-label-dragging');
+
+      var latlng = e.target.getLatLng();
+      var dropPoint = window.map.latLngToLayerPoint(latlng);
+      var startPoint = pr.state.stopReplaceDragStartPoint;
+      pr.state.stopReplaceDragStartPoint = null;
+
+      if (startPoint && dropPoint && startPoint.distanceTo(dropPoint) < 8) {
+        pr.redrawLabels();
+        return;
+      }
+
+      if (!pr.replaceStopLocation(index, pr.mapReplacementStop(index, latlng))) {
+        pr.redrawLabels();
+      }
+    });
+  };
+
   pr.redrawLabels = function() {
     if (!window.map || !window.L) return;
     pr.ensureLayers();
     pr.clearLabels();
 
+    var loopStop = pr.makeLoopStop && pr.makeLoopStop();
+    var hasLoopStop = !!(loopStop && pr.state.stops.length > 1);
+
     pr.getRouteStops().forEach(function(stop, index) {
       var isLoop = !!stop.generatedLoop;
-      var isSelected = !isLoop && pr.selectedStopIndex && pr.selectedStopIndex() === index;
-      var selectedClass = isSelected ? ' portal-route-stop-label-selected' : '';
-      var startEndClass = '';
-      var hasLoopStop = !!(pr.makeLoopStop && pr.makeLoopStop() && pr.state.stops.length > 1);
-      if (!isLoop && hasLoopStop && (index === 0 || index === pr.state.stops.length - 1)) {
-        startEndClass += ' portal-route-stop-label-loop-endpoint';
-      } else {
-        if (!isLoop && index === 0) startEndClass += ' portal-route-stop-label-start';
-        if (!isLoop && pr.state.stops.length > 1 && index === pr.state.stops.length - 1) {
-          startEndClass += ' portal-route-stop-label-end';
-        }
-      }
       var isMapPoint = stop.type === 'map';
       var canDragMapPoint = isMapPoint && !pr.isManagedStartStop(stop);
       var canDragRouteStop = !isLoop && !pr.isManagedStartStop(stop);
-      var label = isLoop ? 'L' : (index + 1);
-      var labelClass = String(label).length > 2 ? ' portal-route-stop-label-wide' : '';
-      var title = isLoop ? 'Loop back to ' + stop.title : (index + 1) + '. ' + stop.title;
-
-      var selectStop = function(e) {
-        if (e.originalEvent && e.originalEvent.stopPropagation) e.originalEvent.stopPropagation();
-        if (e.originalEvent && e.originalEvent.preventDefault) e.originalEvent.preventDefault();
-        pr.selectStopPortal(index, false);
-      };
-
-      var stopMarkerEvent = function(e) {
-        var originalEvent = e && e.originalEvent ? e.originalEvent : e;
-        if (originalEvent && originalEvent.stopPropagation) originalEvent.stopPropagation();
-        if (originalEvent && originalEvent.preventDefault) originalEvent.preventDefault();
-      };
-
-      var openRouteList = function(e) {
-        stopMarkerEvent(e);
-        pr.selectStopPortal(index, false);
-        pr.state.panelView = 'main';
-        pr.state.panelOpen = true;
-        pr.savePanelOpen();
-        pr.renderPanel();
-      };
-
-      var makeClickHandler = function() {
-        var clickTimer = null;
-
-        return function(e) {
-          stopMarkerEvent(e);
-
-          if (!window.setTimeout || !window.clearTimeout) {
-            selectStop(e);
-            return;
-          }
-
-          if (clickTimer) {
-            window.clearTimeout(clickTimer);
-            clickTimer = null;
-            openRouteList(e);
-            return;
-          }
-
-          clickTimer = window.setTimeout(function() {
-            clickTimer = null;
-            selectStop(e);
-          }, 300);
-        };
-      };
-
+      var title = pr.stopMarkerTitle(stop, index);
+      var clickHandler = pr.stopClickHandler(index);
       var pointMarker = null;
 
       if (isMapPoint) {
-        var pointIcon = L.divIcon({
-          className: 'portal-route-map-point-marker' + (isSelected ? ' portal-route-map-point-marker-selected' : ''),
-          html: '<span></span>',
-          iconSize: [16, 16],
-          iconAnchor: [8, 8]
-        });
-
-        pointMarker = L.marker([stop.lat, stop.lng], {
-          icon: pointIcon,
-          draggable: canDragMapPoint,
-          interactive: true,
-          keyboard: false,
-          bubblingMouseEvents: false,
-          title: title
-        });
-
-        pointMarker.on('click', makeClickHandler());
+        pointMarker = pr.createMapPointMarker(stop, index, title, clickHandler);
         pointMarker.addTo(pr.state.layers.labels);
       }
 
-      var icon = L.divIcon({
-        className: 'portal-route-stop-label' + labelClass + startEndClass + (isMapPoint ? ' portal-route-map-point-label' : '') + (canDragRouteStop ? ' portal-route-stop-label-draggable' : '') + (isLoop ? ' portal-route-loop-label' : '') + selectedClass,
-        html: '<span>' + label + '</span>',
-        iconSize: [18, 18],
-        iconAnchor: isLoop ? [-18, 24] : [0, 24]
-      });
-
-      var marker = L.marker([stop.lat, stop.lng], {
-        icon: icon,
-        draggable: canDragRouteStop,
-        interactive: true,
-        keyboard: false,
-        bubblingMouseEvents: false,
-        title: title
-      });
-
-      marker.on('click', makeClickHandler());
+      var labelMarker = pr.createStopLabelMarker(stop, index, hasLoopStop, title, clickHandler);
 
       if (canDragMapPoint) {
-        var attachMapPointDragging = function(dragMarker, draggingClass) {
-          dragMarker.on('dragstart', function(e) {
-            if (e.target && e.target._icon) e.target._icon.classList.add(draggingClass);
-            pr.state.selectedMapPointIndex = index;
-            if (pr.clearIitcPortalSelection) pr.clearIitcPortalSelection();
-            if (pr.injectPortalDetailsAction) pr.injectPortalDetailsAction();
-            pr.renderPanel();
-            pr.renderMiniControl();
-          });
-          dragMarker.on('drag', function(e) {
-            var latlng = e.target.getLatLng();
-            pr.updateMapPointPosition(index, latlng, { live: true });
-            if (pointMarker) pointMarker.setLatLng(latlng);
-            marker.setLatLng(latlng);
-          });
-          dragMarker.on('dragend', function(e) {
-            if (e.target && e.target._icon) e.target._icon.classList.remove(draggingClass);
-            pr.updateMapPointPosition(index, e.target.getLatLng());
-          });
-        };
-
-        if (pointMarker) attachMapPointDragging(pointMarker, 'portal-route-map-point-marker-dragging');
+        pr.attachMapPointDragHandlers(index, pointMarker, labelMarker);
       }
-
       if (canDragRouteStop) {
-        marker.on('dragstart', function(e) {
-          var originalPoint = e.target && e.target.getLatLng
-            ? window.map.latLngToLayerPoint(e.target.getLatLng())
-            : null;
-          pr.state.stopReplaceDragStartPoint = originalPoint;
-          if (stop.guid) {
-            pr.state.selectedMapPointIndex = null;
-            window.selectedPortal = stop.guid;
-          } else {
-            pr.state.selectedMapPointIndex = index;
-            if (pr.clearIitcPortalSelection) pr.clearIitcPortalSelection();
-          }
-          if (e.target && e.target._icon) e.target._icon.classList.add('portal-route-stop-label-dragging');
-          pr.renderPanel();
-          pr.renderMiniControl();
-        });
-        marker.on('dragend', function(e) {
-          if (e.target && e.target._icon) e.target._icon.classList.remove('portal-route-stop-label-dragging');
-
-          var latlng = e.target.getLatLng();
-          var dropPoint = window.map.latLngToLayerPoint(latlng);
-          var startPoint = pr.state.stopReplaceDragStartPoint;
-          pr.state.stopReplaceDragStartPoint = null;
-
-          if (startPoint && dropPoint && startPoint.distanceTo(dropPoint) < 8) {
-            pr.redrawLabels();
-            return;
-          }
-
-          if (!pr.replaceStopLocation(index, pr.mapReplacementStop(index, latlng))) {
-            pr.redrawLabels();
-          }
-        });
+        pr.attachStopLabelDragHandlers(index, stop, labelMarker);
       }
 
-      marker.bindTooltip(title, {
-        direction: 'right',
-        offset: [16, -10],
-        opacity: 0.9,
-        interactive: false,
-        className: 'portal-route-stop-tooltip'
-      });
-
-      marker.addTo(pr.state.layers.labels);
+      labelMarker.addTo(pr.state.layers.labels);
     });
   };
 
@@ -2431,7 +2719,7 @@ input.portal-route-waypoint-name-input:focus,
 
   pr.fitRouteToMap = function() {
     if (!window.map || !pr.state.layers.routeLine || !pr.state.layers.routeLine.getBounds) {
-      pr.showMessage('Plot a route first.');
+      pr.showMessage('Add at least two waypoints first.');
       return;
     }
 
@@ -2464,7 +2752,7 @@ input.portal-route-waypoint-name-input:focus,
   };
 
   pr.renderEmptyHelp = function() {
-    return '<p class="portal-route-empty">There are no waypoints defined.<br>Select a portal and use Add Portal, use Add Point, add your current location, or tick Start on me.</p>';
+    return '<p class="portal-route-empty">There are no waypoints defined.<br>Use Actions to start a route.</p>';
   };
 
   pr.renderRouteSegment = function(leg) {
@@ -2485,7 +2773,6 @@ input.portal-route-waypoint-name-input:focus,
 
   pr.renderStopsList = function(legsByToIndex) {
     var stops = pr.getRouteStops();
-    var realStops = pr.state.stops;
     if (stops.length === 0) return pr.renderEmptyHelp();
 
     var html = '';
@@ -2511,17 +2798,12 @@ input.portal-route-waypoint-name-input:focus,
 
       if (isLoop) {
         html += '<div class="portal-route-waypoint-name-cell"><button type="button" class="portal-route-waypoint-name" title="Loop back to first waypoint" data-action="select-stop-center" data-index="' + index + '">Loop back to ' + pr.escapeHtml(stop.title) + '</button></div>';
-      } else if (stop.type === 'map' && !isManagedStart) {
-        html += '<div class="portal-route-waypoint-name-cell"><input type="text" class="portal-route-waypoint-name portal-route-waypoint-name-input" title="Edit map point name" data-field="stop-title" data-index="' + index + '" value="' + pr.escapeHtml(stop.title) + '"></div>';
       } else {
         html += '<div class="portal-route-waypoint-name-cell"><button type="button" class="portal-route-waypoint-name" title="Select stop" data-action="select-stop" data-index="' + index + '">' + pr.escapeHtml(stop.title) + '</button></div>';
       }
 
       html += '<div class="portal-route-leg-cell">' + (index < stops.length - 1 ? pr.renderRouteSegment(legsByToIndex[index + 1]) : '') + '</div>';
       html += '<div class="portal-route-wait-cell"><input class="portal-route-wait-input" type="text" inputmode="decimal" value="' + pr.escapeHtml(waitValue) + '" title="Examples: 15m, 1.5h, 2d" data-field="stop-minutes" data-index="' + index + '" ' + (isLoop || isManagedStart ? 'disabled' : '') + '></div>';
-      html += '<div class="portal-route-row-action"><button type="button" class="portal-route-row-button" title="Move up" data-action="move-stop-up" data-index="' + index + '" ' + (isLoop || isManagedStart || index === 0 || (pr.state.settings.startOnCurrentLocation && index === 1) ? 'disabled' : '') + '>&uarr;</button></div>';
-      html += '<div class="portal-route-row-action"><button type="button" class="portal-route-row-button" title="Move down" data-action="move-stop-down" data-index="' + index + '" ' + (isLoop || isManagedStart || index >= realStops.length - 1 ? 'disabled' : '') + '>&darr;</button></div>';
-      html += '<div class="portal-route-row-action"><button type="button" class="portal-route-row-button portal-route-remove-stop-button" title="Remove waypoint" data-action="remove-stop" data-index="' + index + '" ' + (isLoop || isManagedStart ? 'disabled' : '') + '>X</button></div>';
       html += '</div>';
     });
 
@@ -2542,6 +2824,19 @@ input.portal-route-waypoint-name-input:focus,
     return html;
   };
 
+  pr.renderPointsSummary = function(route) {
+    if (!route || !route.totals) return '';
+
+    var html = '';
+    html += '<div class="portal-route-totals portal-route-points-summary">';
+    html += '<div><span>Trip</span><strong>' + pr.formatDuration(route.totals.tripSeconds) + '</strong></div>';
+    html += '<div><span>Driving</span><strong>' + pr.formatDuration(route.totals.driveSeconds) + '</strong></div>';
+    html += '<div><span>Stops</span><strong>' + pr.formatDuration(route.totals.stopSeconds) + '</strong></div>';
+    html += '<div><span>Distance</span><strong>' + pr.formatDistance(route.totals.distanceMeters) + ' / ' + pr.formatDistanceKm(route.totals.distanceMeters) + '</strong></div>';
+    html += '</div>';
+    return html;
+  };
+
   pr.renderMainPanel = function(legsByToIndex) {
     var html = '';
 
@@ -2550,79 +2845,62 @@ input.portal-route-waypoint-name-input:focus,
     html += '<label class="portal-route-setting portal-route-default-stop-setting">Default stop time <input type="text" inputmode="decimal" value="' + pr.escapeHtml(pr.formatDurationInput(pr.state.settings.defaultStopMinutes)) + '" title="Examples: 15m, 1.5h, 2d" data-field="default-stop-minutes"> per portal</label>';
     html += '</div>';
 
-    html += '<div class="portal-route-bottom-summary"><b>Waypoints:</b> ' + pr.state.stops.length + (pr.makeLoopStop() && pr.state.stops.length > 1 ? ' + loop' : '') + '</div>';
-    if (pr.state.routeDirty) {
-      html += '<div class="portal-route-stale">Route needs replot.</div>';
-    }
-    html += pr.renderTotals(pr.state.route);
-
     html += '<div class="portal-route-settings-row">';
-    html += '<label class="portal-route-setting portal-route-checkbox-setting"><input type="checkbox" data-field="start-on-current-location" ' + (pr.state.settings.startOnCurrentLocation ? 'checked ' : '') + '> Start on me</label>';
-    html += '<label class="portal-route-setting portal-route-checkbox-setting"><input type="checkbox" data-field="include-return-to-start" ' + (pr.state.settings.includeReturnToStart ? 'checked ' : '') + '> Loop back to start</label>';
-    html += '<label class="portal-route-setting portal-route-checkbox-setting"><input type="checkbox" data-field="auto-replot-on-edit" ' + (pr.state.settings.autoReplotOnEdit ? 'checked ' : '') + '> Auto-replot</label>';
     html += '<label class="portal-route-setting portal-route-checkbox-setting"><input type="checkbox" data-field="show-segment-times-on-map" ' + (pr.state.settings.showSegmentTimesOnMap ? 'checked ' : '') + '> Show segment times on map</label>';
+    html += '<label class="portal-route-setting portal-route-checkbox-setting"><input type="checkbox" data-field="include-return-to-start" ' + (pr.state.settings.includeReturnToStart ? 'checked ' : '') + '> Loop to start</label>';
     html += '<label class="portal-route-setting portal-route-checkbox-setting"><input type="checkbox" data-field="show-mini-control" ' + (pr.state.settings.showMiniControl ? 'checked ' : '') + '> Mini control</label>';
     html += '<label class="portal-route-setting portal-route-checkbox-setting"><input type="checkbox" data-field="show-portal-details-controls" ' + (pr.state.settings.showPortalDetailsControls ? 'checked ' : '') + '> Info panel controls</label>';
-    html += '</div>';
-
-    html += '<div class="portal-route-control-groups">';
-    html += '<div class="portal-route-control-group"><div class="portal-route-control-group-title">Add</div><div class="portal-route-control-group-buttons">';
-    html += '<button type="button" data-action="add-selected-stop">Portal</button>';
-    html += '<button type="button" data-action="add-map-point"' + (pr.state.addPointMode ? ' class="portal-route-active-action"' : '') + '>Point</button>';
-    html += '<button type="button" data-action="add-current-location">Current</button>';
-    html += '</div></div>';
-
-    html += '<div class="portal-route-control-group"><div class="portal-route-control-group-title">Route</div><div class="portal-route-control-group-buttons">';
-    html += '<button type="button" data-action="calculate-route">' + (pr.state.routeDirty ? 'Replot' : 'Plot') + '</button>';
-    html += '<button type="button" data-action="fit-route">Fit</button>';
-    html += '<button type="button" data-action="open-google-maps">Maps</button>';
-    html += '</div></div>';
-
-    html += '<div class="portal-route-control-group"><div class="portal-route-control-group-title">Data</div><div class="portal-route-control-group-buttons">';
-    html += '<button type="button" data-action="save-route">Save</button>';
-    html += '<button type="button" data-action="load-route">Load</button>';
-    html += '<button type="button" data-action="export-route-json">Export</button>';
-    html += '<button type="button" data-action="import-route-json">Import</button>';
-    html += '</div></div>';
+    if (pr.SHOW_VERSION_IN_PANEL) {
+      html += '<span class="portal-route-version">Portal Route ' + pr.escapeHtml(pr.VERSION) + '</span>';
+    }
     html += '</div>';
 
     html += '<div class="portal-route-control-group-buttons portal-route-footer-actions portal-route-points-actions">';
-    html += '<button type="button" data-action="open-points-list">Open Route List</button>';
-    html += '<button type="button" data-action="clear-route">Delete All Route Points</button>';
+    html += '<button type="button" data-action="calculate-route">Recalc Route</button>';
+    html += '<button type="button" data-action="reverse-route"' + (pr.state.stops.length > 1 ? '' : ' disabled') + '>Reverse route</button>';
+    html += '<button type="button" class="portal-route-smart-button" data-action="open-route-menu" data-route-menu="true">Menus</button>';
     html += '</div>';
-
-    if (pr.SHOW_VERSION_IN_PANEL) {
-      html += '<div class="portal-route-version">Portal Route ' + pr.escapeHtml(pr.VERSION) + '</div>';
-    }
 
     html += '<div class="portal-route-message" id="portal-route-message"></div>';
     html += '</div>';
     return html;
   };
 
-  pr.renderEditPanel = function(legsByToIndex) {
-    return pr.renderMainPanel(legsByToIndex);
+
+  pr.getDialogSize = function(defaultWidth, defaultHeight, minWidth, minHeight) {
+    var viewportWidth = window.innerWidth || document.documentElement.clientWidth || defaultWidth;
+    var viewportHeight = window.innerHeight || document.documentElement.clientHeight || defaultHeight;
+    var maxWidth = viewportWidth <= 640 ? viewportWidth : viewportWidth - 40;
+    var maxHeight = viewportHeight - 90;
+
+    return {
+      width: Math.min(defaultWidth, Math.max(minWidth, maxWidth)),
+      height: Math.min(defaultHeight, Math.max(minHeight, maxHeight))
+    };
   };
 
-
   pr.getDialogWidth = function() {
-    var viewportWidth = window.innerWidth || document.documentElement.clientWidth || 520;
+    return pr.getDialogSize(430, 210, 320, 210).width;
+  };
 
-    if (viewportWidth <= 640) {
-      return Math.max(320, viewportWidth);
-    }
-
-    return Math.min(560, Math.max(460, viewportWidth - 40));
+  pr.getDialogHeight = function() {
+    return pr.getDialogSize(430, 210, 320, 210).height;
   };
 
   pr.getPointsDialogWidth = function() {
-    var viewportWidth = window.innerWidth || document.documentElement.clientWidth || 640;
+    return pr.getDialogSize(600, 375, 320, 260).width;
+  };
 
-    if (viewportWidth <= 640) {
-      return Math.max(320, viewportWidth);
-    }
+  pr.getPointsDialogHeight = function() {
+    return pr.getDialogSize(600, 375, 320, 260).height;
+  };
 
-    return Math.min(760, Math.max(520, viewportWidth - 80));
+  pr.getRouteLibraryDialogWidth = function() {
+    return pr.getDialogSize(430, 375, 320, 260).width;
+  };
+
+  pr.getRouteLibraryDialogHeight = function() {
+    return pr.getDialogSize(430, 375, 320, 260).height;
   };
 
   pr.isDialogOpen = function(content) {
@@ -2699,11 +2977,23 @@ input.portal-route-waypoint-name-input:focus,
     pr.savePanelSize();
   };
 
-  pr.restorePanelSize = function(wrapper) {
+  pr.restorePanelSize = function(wrapper, dialogContent) {
     if (!wrapper || !wrapper.length || !pr.shouldRestorePanelPosition()) return;
 
     var size = pr.clampPanelSize(pr.state.panelSize);
     if (!size) return;
+
+    if (dialogContent && dialogContent.length) {
+      try {
+        dialogContent.dialog('option', {
+          width: size.width,
+          height: size.height
+        });
+        return;
+      } catch (e) {
+        // Fall back to direct sizing if the dialog API is unavailable.
+      }
+    }
 
     wrapper.css({ width: size.width + 'px', height: size.height + 'px' });
   };
@@ -2728,7 +3018,7 @@ input.portal-route-waypoint-name-input:focus,
     try {
       var dialogContent = window.jQuery(content).closest('.ui-dialog-content');
       var wrapper = dialogContent.closest('.ui-dialog');
-      pr.restorePanelSize(wrapper);
+      pr.restorePanelSize(wrapper, dialogContent);
       pr.restorePanelPosition(wrapper);
       dialogContent
         .off('dialogdragstop.portalRoute dialogresizestop.portalRoute')
@@ -2792,10 +3082,11 @@ input.portal-route-waypoint-name-input:focus,
     if (typeof window.dialog === 'function') {
       window.dialog({
         id: pr.DOM_IDS.dialog,
-        title: 'Portal Route',
+        title: 'Portal Route Settings',
         html: html,
         dialogClass: 'portal-route-dialog',
-        width: pr.getDialogWidth()
+        width: pr.getDialogWidth(),
+        height: pr.getDialogHeight()
       });
 
       var newContent = document.getElementById(pr.DOM_IDS.dialogContent);
@@ -2807,7 +3098,6 @@ input.portal-route-waypoint-name-input:focus,
             .closest('.ui-dialog-content')
             .off('dialogclose.portalRoute')
             .on('dialogclose.portalRoute', function() {
-              pr.saveCurrentPanelSize(window.jQuery(this).closest('.ui-dialog'));
               pr.state.panelOpen = false;
               pr.savePanelOpen();
             });
@@ -2840,14 +3130,23 @@ input.portal-route-waypoint-name-input:focus,
     }
 
     var contentHtml = '';
+    contentHtml += pr.renderPointsSummary(route);
+    if (pr.state.routeDirty) {
+      contentHtml += '<div class="portal-route-stale">Route is updating.</div>';
+    }
+    contentHtml += '<div class="portal-route-bottom-summary"><b>Waypoints:</b> ' + pr.state.stops.length + (pr.makeLoopStop() && pr.state.stops.length > 1 ? ' + loop' : '') + '</div>';
     contentHtml += '<div class="portal-route-points-list-body">';
     contentHtml += '<div class="portal-route-body">' + pr.renderStopsList(legsByToIndex) + '</div>';
     contentHtml += '</div>';
     contentHtml += '<div class="portal-route-control-group-buttons portal-route-footer-actions portal-route-points-panel-actions">';
-    contentHtml += '<button type="button" data-action="clear-route">Clear Points</button>';
-    contentHtml += '<button type="button" data-action="open-main">Main Panel</button>';
-    contentHtml += '<button type="button" data-action="calculate-route">' + (pr.state.routeDirty ? 'Replot' : 'Plot') + '</button>';
+    contentHtml += '<button type="button" data-action="open-add-menu" data-add-menu="true" class="portal-route-smart-button' + (pr.state.addPointMode ? ' portal-route-active-action' : '') + '">Actions</button>';
+    contentHtml += '<button type="button" data-action="fit-route">Fit</button>';
+    contentHtml += '<button type="button" class="portal-route-smart-button" data-action="open-maps-menu" data-maps-menu="true">Maps</button>';
+    contentHtml += '<span class="portal-route-button-divider" aria-hidden="true"></span>';
     contentHtml += '<button type="button" data-action="print-route">Print</button>';
+    contentHtml += '<button type="button" data-action="save-route">Save</button>';
+    contentHtml += '<button type="button" data-action="load-route">Load</button>';
+    contentHtml += '<button type="button" class="portal-route-smart-button" data-action="open-route-menu" data-route-menu="true">Menus</button>';
     contentHtml += '</div>';
     var existingContent = document.getElementById(pr.DOM_IDS.pointsDialogContent);
 
@@ -2864,7 +3163,8 @@ input.portal-route-waypoint-name-input:focus,
         title: 'Portal Route Points',
         html: html,
         dialogClass: 'portal-route-dialog portal-route-points-dialog',
-        width: pr.getPointsDialogWidth()
+        width: pr.getPointsDialogWidth(),
+        height: pr.getPointsDialogHeight()
       });
 
       var newContent = document.getElementById(pr.DOM_IDS.pointsDialogContent);
@@ -2888,6 +3188,7 @@ input.portal-route-waypoint-name-input:focus,
 
   pr.GOOGLE_MAPS_TOTAL_POINT_LIMIT = 11;
   pr.GOOGLE_MAPS_INTERMEDIATE_STOP_LIMIT = 9;
+  pr.APPLE_MAPS_TOTAL_POINT_LIMIT = 15;
   pr.ROUTE_EXPORT_FORMAT = 'portal-route.v1';
 
   pr.googleMapsUrlForStops = function(stops) {
@@ -2916,49 +3217,80 @@ input.portal-route-waypoint-name-input:focus,
     return pr.googleMapsUrlForStops(stops);
   };
 
-  pr.googleMapsStages = function() {
+  pr.appleMapsUrlForStops = function(stops) {
+    if (!stops || stops.length < 2) return null;
+    var origin = stops[0];
+    var destination = stops[stops.length - 1];
+    var waypoints = stops.slice(1, -1);
+
+    var params = new URLSearchParams();
+    params.set('source', origin.lat + ',' + origin.lng);
+    params.set('destination', destination.lat + ',' + destination.lng);
+    params.set('mode', 'driving');
+
+    waypoints.forEach(function(stop) {
+      params.append('waypoint', stop.lat + ',' + stop.lng);
+    });
+
+    return 'https://maps.apple.com/directions?' + params.toString();
+  };
+
+  pr.appleMapsUrl = function() {
+    var stops = pr.getRouteStops();
+    return pr.appleMapsUrlForStops(stops);
+  };
+
+  pr.mapsStages = function(pointLimit, urlForStops) {
     var stops = pr.getRouteStops();
     if (stops.length < 2) return [];
-    if (stops.length <= pr.GOOGLE_MAPS_TOTAL_POINT_LIMIT) {
+    if (stops.length <= pointLimit) {
       return [{
         number: 1,
         fromIndex: 0,
         toIndex: stops.length - 1,
         stops: stops,
-        url: pr.googleMapsUrlForStops(stops)
+        url: urlForStops(stops)
       }];
     }
 
     var stages = [];
     var fromIndex = 0;
     while (fromIndex < stops.length - 1) {
-      var toIndex = Math.min(fromIndex + pr.GOOGLE_MAPS_TOTAL_POINT_LIMIT - 1, stops.length - 1);
+      var toIndex = Math.min(fromIndex + pointLimit - 1, stops.length - 1);
       var stageStops = stops.slice(fromIndex, toIndex + 1);
       stages.push({
         number: stages.length + 1,
         fromIndex: fromIndex,
         toIndex: toIndex,
         stops: stageStops,
-        url: pr.googleMapsUrlForStops(stageStops)
+        url: urlForStops(stageStops)
       });
       fromIndex = toIndex;
     }
     return stages;
   };
 
-  pr.formatGoogleMapsStageNumber = function(number) {
+  pr.googleMapsStages = function() {
+    return pr.mapsStages(pr.GOOGLE_MAPS_TOTAL_POINT_LIMIT, pr.googleMapsUrlForStops);
+  };
+
+  pr.appleMapsStages = function() {
+    return pr.mapsStages(pr.APPLE_MAPS_TOTAL_POINT_LIMIT, pr.appleMapsUrlForStops);
+  };
+
+  pr.formatMapsStageNumber = function(number) {
     return number < 10 ? '0' + number : String(number);
   };
 
-  pr.openGoogleMapsStagesDialog = function(stages) {
+  pr.openMapsStagesDialog = function(stages, options) {
     var html = '<div class="portal-route-dialog-content portal-route-maps-stages">';
-    html += '<p class="portal-route-empty">Google Maps uses up to 11 route points per link. Open each stage in order.</p>';
+    html += '<p class="portal-route-empty">' + pr.escapeHtml(options.message) + '</p>';
     html += '<div class="portal-route-control-group-buttons">';
     var longestTextLength = 0;
     stages.forEach(function(stage) {
       var fromStop = stage.stops[0];
       var toStop = stage.stops[stage.stops.length - 1];
-      var label = 'Stage ' + stage.number + ': ' + pr.formatGoogleMapsStageNumber(stage.fromIndex + 1) + '-' + pr.formatGoogleMapsStageNumber(stage.toIndex + 1);
+      var label = 'Stage ' + stage.number + ': ' + pr.formatMapsStageNumber(stage.fromIndex + 1) + '-' + pr.formatMapsStageNumber(stage.toIndex + 1);
       var title = fromStop.title + ' to ' + toStop.title;
       longestTextLength = Math.max(longestTextLength, label.length, title.length);
       html += '<div class="portal-route-stage-item">';
@@ -2973,16 +3305,34 @@ input.portal-route-waypoint-name-input:focus,
       var maxWidth = Math.min(520, Math.max(320, viewportWidth - 40));
       var width = Math.min(maxWidth, Math.max(320, longestTextLength * 6 + 50));
       window.dialog({
-        id: 'iitc-plugin-portal-route-google-maps-stages',
-        title: 'Google Maps stages',
+        id: options.id,
+        title: options.title,
         html: html,
         dialogClass: 'portal-route-dialog',
         width: width
       });
     } else {
-      pr.showMessage('Route split into ' + stages.length + ' Google Maps stages.');
+      pr.showMessage('Route split into ' + stages.length + ' ' + options.name + ' stages.');
       window.open(stages[0].url, '_blank', 'noopener');
     }
+  };
+
+  pr.openGoogleMapsStagesDialog = function(stages) {
+    pr.openMapsStagesDialog(stages, {
+      id: 'iitc-plugin-portal-route-google-maps-stages',
+      title: 'Google Maps stages',
+      name: 'Google Maps',
+      message: 'Google Maps uses up to 11 route points per link. Open each stage in order.'
+    });
+  };
+
+  pr.openAppleMapsStagesDialog = function(stages) {
+    pr.openMapsStagesDialog(stages, {
+      id: 'iitc-plugin-portal-route-apple-maps-stages',
+      title: 'Apple Maps stages',
+      name: 'Apple Maps',
+      message: 'Apple Maps uses up to 15 route points per link. Open each stage in order.'
+    });
   };
 
   pr.openGoogleMaps = function() {
@@ -2994,6 +3344,21 @@ input.portal-route-waypoint-name-input:focus,
 
     if (stages.length > 1) {
       pr.openGoogleMapsStagesDialog(stages);
+      return;
+    }
+
+    window.open(stages[0].url, '_blank', 'noopener');
+  };
+
+  pr.openAppleMaps = function() {
+    var stages = pr.appleMapsStages();
+    if (!stages.length) {
+      pr.showMessage('Add at least two waypoints first.');
+      return;
+    }
+
+    if (stages.length > 1) {
+      pr.openAppleMapsStagesDialog(stages);
       return;
     }
 
@@ -3076,7 +3441,9 @@ input.portal-route-waypoint-name-input:focus,
       lat: lat,
       lng: lng,
       stopMinutes: stopMinutes,
-      startOnMe: !!stop.startOnMe
+      startOnMe: !!stop.startOnMe,
+      accuracy: typeof stop.accuracy === 'number' ? stop.accuracy : null,
+      updatedAt: stop.updatedAt || null
     };
   };
 
@@ -3088,9 +3455,10 @@ input.portal-route-waypoint-name-input:focus,
     if (stops.length !== data.stops.length) throw new Error('One or more stops are missing valid coordinates.');
 
     pr.state.stops = stops;
-    pr.state.settings = Object.assign({}, pr.DEFAULT_SETTINGS, data.settings || {});
+    pr.state.settings = pr.normalizeSettings(data.settings);
     pr.state.route = data.route && Array.isArray(data.route.legs) ? data.route : null;
     pr.state.routeDirty = !!pr.state.route || !!data.routeDirty;
+    pr.state.activeRouteId = null;
 
     pr.saveSettings();
     pr.saveStops();
@@ -3099,7 +3467,8 @@ input.portal-route-waypoint-name-input:focus,
     pr.redrawRouteLine();
     pr.redrawSegmentTimeLabels();
     pr.renderPanel();
-    pr.showMessage('Route imported. Replot before using route totals.');
+    pr.queueAutoReplot();
+    pr.showMessage('Route imported.');
     pr.hydrateStopTitles();
   };
 
@@ -3182,9 +3551,9 @@ input.portal-route-waypoint-name-input:focus,
       '<span><b>Stops:</b> ' + pr.escapeHtml(pr.formatDuration(totals.stopSeconds)) + '</span>' +
       '<span><b>Trip:</b> ' + pr.escapeHtml(pr.formatDuration(totals.tripSeconds)) + '</span>' +
       '<span><b>Distance:</b> ' + pr.escapeHtml(pr.formatDistance(totals.distanceMeters)) + '</span>' +
-      '</div>' : '<div class="warning">Route has not been plotted.</div>';
+      '</div>' : '<div class="warning">Route has not been calculated yet.</div>';
 
-    var staleHtml = pr.state.routeDirty ? '<div class="warning">Route data is stale. Replot before relying on route totals or leg data.</div>' : '';
+    var staleHtml = pr.state.routeDirty ? '<div class="warning">Route is still updating. Totals and leg data may change.</div>' : '';
 
     var html = '<!doctype html><html><head><meta charset="utf-8">' +
       '<title>Portal Route</title>' +
@@ -3226,13 +3595,1165 @@ input.portal-route-waypoint-name-input:focus,
     }
   };
 
+  pr.ROUTE_LIBRARY_SCHEMA_VERSION = 1;
+
+  pr.routeLibraryNow = function() {
+    return new Date().toISOString();
+  };
+
+  pr.newRouteLibraryId = function() {
+    return 'route-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 8);
+  };
+
+  pr.getMapSnapshot = function() {
+    if (!window.map || !window.map.getCenter || !window.map.getZoom) return null;
+
+    var center = window.map.getCenter();
+    if (!center || typeof center.lat !== 'number' || typeof center.lng !== 'number') return null;
+
+    return {
+      center: {
+        lat: center.lat,
+        lng: center.lng
+      },
+      zoom: window.map.getZoom()
+    };
+  };
+
+  pr.routeLibrarySettings = function() {
+    return {
+      defaultStopMinutes: pr.state.settings.defaultStopMinutes,
+      includeReturnToStart: !!pr.state.settings.includeReturnToStart
+    };
+  };
+
+  pr.serializeRouteLibraryStops = function() {
+    return pr.state.stops.map(function(stop) {
+      return {
+        guid: stop.guid || null,
+        type: stop.type || (stop.guid ? 'portal' : 'map'),
+        title: stop.title || ((stop.type || (stop.guid ? 'portal' : 'map')) === 'map' ? 'Map point' : 'Unnamed portal'),
+        lat: Number(stop.lat),
+        lng: Number(stop.lng),
+        stopMinutes: typeof stop.stopMinutes === 'number' ? stop.stopMinutes : null,
+        startOnMe: !!stop.startOnMe,
+        accuracy: typeof stop.accuracy === 'number' ? stop.accuracy : null,
+        updatedAt: stop.updatedAt || null
+      };
+    });
+  };
+
+  pr.suggestRouteName = function() {
+    if (pr.state.stops.length) {
+      var first = pr.state.stops[0] && pr.state.stops[0].title ? pr.state.stops[0].title : 'Route';
+      return first + ' route';
+    }
+    return 'New route';
+  };
+
+  pr.makeRouteRecord = function(existing, name) {
+    var now = pr.routeLibraryNow();
+    var record = existing && typeof existing === 'object' ? existing : {};
+
+    return {
+      schemaVersion: pr.ROUTE_LIBRARY_SCHEMA_VERSION,
+      pluginVersion: pr.VERSION,
+      id: record.id || pr.newRouteLibraryId(),
+      name: name || record.name || pr.suggestRouteName(),
+      createdAt: record.createdAt || now,
+      updatedAt: now,
+      map: pr.getMapSnapshot(),
+      route: {
+        stops: pr.serializeRouteLibraryStops()
+      },
+      settings: pr.routeLibrarySettings()
+    };
+  };
+
+  pr.emptyRouteLibrary = function() {
+    return {
+      schemaVersion: pr.ROUTE_LIBRARY_SCHEMA_VERSION,
+      plugin: pr.ID,
+      pluginVersion: pr.VERSION,
+      updatedAt: pr.routeLibraryNow(),
+      routes: []
+    };
+  };
+
+  pr.normalizeRouteLibrary = function(library) {
+    if (!library || typeof library !== 'object' || !Array.isArray(library.routes)) {
+      return pr.emptyRouteLibrary();
+    }
+
+    var normalized = {
+      schemaVersion: library.schemaVersion || pr.ROUTE_LIBRARY_SCHEMA_VERSION,
+      plugin: library.plugin || pr.ID,
+      pluginVersion: library.pluginVersion || pr.VERSION,
+      updatedAt: library.updatedAt || null,
+      routes: []
+    };
+
+    library.routes.forEach(function(route) {
+      var record = pr.normalizeRouteRecord(route, {
+        keepUpdatedAt: true
+      });
+      if (record) normalized.routes.push(record);
+    });
+
+    if (!normalized.updatedAt) normalized.updatedAt = pr.routeLibraryNow();
+    return normalized;
+  };
+
+  pr.loadRouteLibrary = function() {
+    var raw = localStorage.getItem(pr.STORAGE_KEYS.routeLibrary);
+    if (!raw) return pr.emptyRouteLibrary();
+
+    try {
+      return pr.normalizeRouteLibrary(JSON.parse(raw));
+    } catch (e) {
+      console.warn('Portal Route: failed to load route library', e);
+      return pr.emptyRouteLibrary();
+    }
+  };
+
+  pr.saveRouteLibrary = function(library) {
+    library = pr.normalizeRouteLibrary(library);
+    library.updatedAt = pr.routeLibraryNow();
+    localStorage.setItem(pr.STORAGE_KEYS.routeLibrary, JSON.stringify(library));
+  };
+
+  pr.findLibraryRoute = function(library, id) {
+    if (!library || !Array.isArray(library.routes) || !id) return null;
+    for (var i = 0; i < library.routes.length; i++) {
+      if (library.routes[i] && library.routes[i].id === id) return library.routes[i];
+    }
+    return null;
+  };
+
+  pr.normalizeRouteRecord = function(record, options) {
+    options = options || {};
+    if (!record || typeof record !== 'object') return null;
+    if (record.schemaVersion !== pr.ROUTE_LIBRARY_SCHEMA_VERSION) return null;
+
+    var route = record.route || {};
+    if (!Array.isArray(route.stops)) return null;
+
+    var stops = route.stops.map(pr.normalizeImportedStop).filter(Boolean);
+    if (stops.length !== route.stops.length) return null;
+
+    var now = pr.routeLibraryNow();
+    var id = options.newId ? pr.newRouteLibraryId() : (record.id || pr.newRouteLibraryId());
+    var name = String(record.name || 'Imported route').trim() || 'Imported route';
+    if (options.nameSuffix) name += ' ' + options.nameSuffix;
+
+    return {
+      schemaVersion: pr.ROUTE_LIBRARY_SCHEMA_VERSION,
+      pluginVersion: record.pluginVersion || pr.VERSION,
+      id: id,
+      name: name,
+      createdAt: options.newId ? now : (record.createdAt || now),
+      updatedAt: options.keepUpdatedAt ? (record.updatedAt || now) : now,
+      map: record.map && typeof record.map === 'object' ? record.map : null,
+      route: {
+        stops: stops
+      },
+      settings: record.settings && typeof record.settings === 'object' ? record.settings : {}
+    };
+  };
+
+  pr.prepareImportedRouteRecord = function(record, library) {
+    var id = record && record.id;
+    var duplicate = !!pr.findLibraryRoute(library, id);
+    return pr.normalizeRouteRecord(record, {
+      newId: duplicate,
+      nameSuffix: duplicate ? 'imported' : '',
+      keepUpdatedAt: !duplicate
+    });
+  };
+
+  pr.storageBackends = pr.storageBackends || {};
+
+  pr.localRouteStorage = {
+    id: 'local',
+    label: 'This browser',
+    loadLibrary: function() {
+      return pr.loadRouteLibrary();
+    },
+    saveLibrary: function(library) {
+      pr.saveRouteLibrary(library);
+      return library;
+    },
+    listRoutes: function() {
+      return this.loadLibrary().routes.slice().sort(function(a, b) {
+        return String(b.updatedAt || '').localeCompare(String(a.updatedAt || ''));
+      });
+    },
+    getRoute: function(id) {
+      return pr.findLibraryRoute(this.loadLibrary(), id);
+    },
+    saveRoute: function(route) {
+      var library = this.loadLibrary();
+      var replaced = false;
+
+      library.routes = library.routes.map(function(existing) {
+        if (existing && existing.id === route.id) {
+          replaced = true;
+          return route;
+        }
+        return existing;
+      });
+
+      if (!replaced) library.routes.push(route);
+      this.saveLibrary(library);
+      return route;
+    },
+    deleteRoute: function(id) {
+      var library = this.loadLibrary();
+      var before = library.routes.length;
+      library.routes = library.routes.filter(function(route) {
+        return route && route.id !== id;
+      });
+      this.saveLibrary(library);
+      return library.routes.length !== before;
+    }
+  };
+
+  pr.storageBackends.local = pr.localRouteStorage;
+
+  pr.driveStorage = {
+    id: 'googleDrive',
+    label: 'Google Drive',
+    loadLibrary: function() {
+      return pr.loadDriveRouteLibraryCache();
+    },
+    saveLibrary: function(library) {
+      library = pr.saveDriveRouteLibraryCache(library);
+      pr.pushDriveRouteLibrarySoon();
+      return library;
+    },
+    listRoutes: function() {
+      return this.loadLibrary().routes.slice().sort(function(a, b) {
+        return String(b.updatedAt || '').localeCompare(String(a.updatedAt || ''));
+      });
+    },
+    getRoute: function(id) {
+      return pr.findLibraryRoute(this.loadLibrary(), id);
+    },
+    saveRoute: function(route) {
+      var library = this.loadLibrary();
+      var replaced = false;
+
+      library.routes = library.routes.map(function(existing) {
+        if (existing && existing.id === route.id) {
+          replaced = true;
+          return route;
+        }
+        return existing;
+      });
+
+      if (!replaced) library.routes.push(route);
+      this.saveLibrary(library);
+      return route;
+    },
+    deleteRoute: function(id) {
+      var library = this.loadLibrary();
+      var before = library.routes.length;
+      library.routes = library.routes.filter(function(route) {
+        return route && route.id !== id;
+      });
+      this.saveLibrary(library);
+      return library.routes.length !== before;
+    }
+  };
+
+  pr.storageBackends.googleDrive = pr.driveStorage;
+
+  pr.routeLibraryStorage = function() {
+    var backendId = pr.state.routeLibraryBackendId || 'local';
+    return pr.storageBackends[backendId] || pr.localRouteStorage;
+  };
+
+  pr.setRouteLibraryBackend = function(backendId) {
+    if (!pr.storageBackends[backendId]) backendId = 'local';
+    pr.state.routeLibraryBackendId = backendId;
+    pr.state.selectedLibraryRouteIds = [];
+    pr.refreshRouteLibraryPanel();
+  };
+
+  pr.promptRouteName = function(defaultName) {
+    if (!window.prompt) return defaultName || pr.suggestRouteName();
+
+    var name = window.prompt('Route name', defaultName || pr.suggestRouteName());
+    if (name === null) return null;
+
+    name = String(name).trim();
+    return name || pr.suggestRouteName();
+  };
+
+  pr.saveCurrentRouteToLibrary = function() {
+    if (!pr.state.stops.length) {
+      pr.showMessage('No route to save.');
+      return null;
+    }
+
+    var storage = pr.routeLibraryStorage();
+    var existing = storage.getRoute(pr.state.activeRouteId);
+    var name = pr.promptRouteName(existing && existing.name);
+    if (name === null) return null;
+
+    var record = pr.makeRouteRecord(existing, name);
+    storage.saveRoute(record);
+    pr.state.activeRouteId = record.id;
+    pr.showMessage('Route saved.');
+    return record;
+  };
+
+  pr.saveCurrentRouteAsNewLibraryRoute = function() {
+    if (!pr.state.stops.length) {
+      pr.showMessage('No route to save.');
+      return null;
+    }
+
+    var name = pr.promptRouteName(pr.suggestRouteName());
+    if (name === null) return null;
+
+    var record = pr.makeRouteRecord(null, name);
+    pr.routeLibraryStorage().saveRoute(record);
+    pr.state.activeRouteId = record.id;
+    pr.state.selectedLibraryRouteIds = [record.id];
+    pr.refreshRouteLibraryPanel();
+    pr.showMessage('Route saved.');
+    return record;
+  };
+
+  pr.saveCurrentRouteFromLibraryPanel = function() {
+    var ids = pr.getSelectedLibraryRouteIds();
+    if (ids.length > 1) {
+      pr.showMessage('Select one route to overwrite, or uncheck routes to save new.');
+      return;
+    }
+
+    if (ids.length === 1) {
+      pr.updateSavedRouteFromCurrent(ids[0]);
+      return;
+    }
+
+    pr.saveCurrentRouteAsNewLibraryRoute();
+  };
+
+  pr.setSavedRouteName = function(id, name) {
+    var storage = pr.routeLibraryStorage();
+    var library = storage.loadLibrary();
+    var route = pr.findLibraryRoute(library, id);
+    if (!route) {
+      pr.showMessage('Saved route not found.');
+      return false;
+    }
+
+    name = String(name == null ? '' : name).trim();
+    if (!name) {
+      pr.showMessage('Route name cannot be empty.');
+      return false;
+    }
+
+    route.name = name;
+    route.updatedAt = pr.routeLibraryNow();
+    storage.saveLibrary(library);
+    pr.showMessage('Route renamed.');
+    return true;
+  };
+
+  pr.deleteSavedRoute = function(id) {
+    if (!id) return;
+    var storage = pr.routeLibraryStorage();
+    var route = storage.getRoute(id);
+    if (!route) {
+      pr.showMessage('Saved route not found.');
+      return;
+    }
+
+    if (window.confirm && !window.confirm('Delete saved route "' + (route.name || 'Unnamed route') + '"?')) return;
+
+    if (storage.deleteRoute(id)) {
+      if (pr.state.activeRouteId === id) pr.state.activeRouteId = null;
+      pr.refreshRouteLibraryPanel();
+      pr.showMessage('Route deleted.');
+    }
+  };
+
+  pr.updateSavedRouteFromCurrent = function(id) {
+    if (!id) return;
+    if (!pr.state.stops.length) {
+      pr.showMessage('No route to save.');
+      return;
+    }
+
+    var existing = pr.routeLibraryStorage().getRoute(id);
+    if (!existing) {
+      pr.showMessage('Saved route not found.');
+      return;
+    }
+
+    if (window.confirm && !window.confirm('Overwrite "' + (existing.name || 'Unnamed route') + '" with current route?')) return;
+
+    var record = pr.makeRouteRecord(existing, existing.name);
+    pr.routeLibraryStorage().saveRoute(record);
+    pr.state.activeRouteId = record.id;
+    pr.refreshRouteLibraryPanel();
+    pr.showMessage('Route updated.');
+  };
+
+  pr.getSelectedLibraryRouteIds = function() {
+    var storage = pr.routeLibraryStorage();
+    var library = storage.loadLibrary();
+    var ids = Array.isArray(pr.state.selectedLibraryRouteIds) ? pr.state.selectedLibraryRouteIds : [];
+    var selected = ids.filter(function(id, index) {
+      return ids.indexOf(id) === index && !!pr.findLibraryRoute(library, id);
+    });
+
+    if (selected.length !== ids.length) pr.state.selectedLibraryRouteIds = selected;
+    return selected;
+  };
+
+  pr.setLibraryRouteSelected = function(id, selected) {
+    if (!id) return;
+    var ids = pr.getSelectedLibraryRouteIds();
+    var index = ids.indexOf(id);
+
+    if (selected && index === -1) ids.push(id);
+    if (!selected && index !== -1) ids.splice(index, 1);
+
+    pr.state.selectedLibraryRouteIds = ids;
+  };
+
+  pr.requireSingleSelectedLibraryRouteId = function() {
+    var ids = pr.getSelectedLibraryRouteIds();
+    if (ids.length !== 1) {
+      pr.showMessage('Select one route first.');
+      return null;
+    }
+    return ids[0];
+  };
+
+  pr.requireSelectedLibraryRouteIds = function() {
+    var ids = pr.getSelectedLibraryRouteIds();
+    if (!ids.length) {
+      pr.showMessage('Select a route first.');
+      return null;
+    }
+    return ids;
+  };
+
+  pr.applyRouteLibrarySettings = function(settings) {
+    if (!settings || typeof settings !== 'object') return;
+
+    if (typeof settings.defaultStopMinutes === 'number' && isFinite(settings.defaultStopMinutes) && settings.defaultStopMinutes >= 0) {
+      pr.state.settings.defaultStopMinutes = Math.round(settings.defaultStopMinutes);
+    }
+
+    if (typeof settings.includeReturnToStart === 'boolean') {
+      pr.state.settings.includeReturnToStart = settings.includeReturnToStart;
+    }
+  };
+
+  pr.applyRouteRecord = function(record) {
+    if (!record || record.schemaVersion !== pr.ROUTE_LIBRARY_SCHEMA_VERSION) {
+      pr.showMessage('Saved route is not compatible.');
+      return false;
+    }
+
+    var route = record.route || {};
+    if (!Array.isArray(route.stops)) {
+      pr.showMessage('Saved route has no stops.');
+      return false;
+    }
+
+    var stops = route.stops.map(pr.normalizeImportedStop).filter(Boolean);
+    if (stops.length !== route.stops.length) {
+      pr.showMessage('Saved route has invalid stops.');
+      return false;
+    }
+
+    pr.state.stops = stops;
+    pr.applyRouteLibrarySettings(record.settings);
+    pr.state.route = null;
+    pr.state.routeDirty = stops.length >= 2;
+    pr.state.selectedMapPointIndex = null;
+    pr.state.activeRouteId = record.id || null;
+
+    pr.saveSettings();
+    pr.saveStops();
+    pr.saveRoute();
+    pr.clearRouteLine();
+    pr.redrawLabels();
+    pr.renderPanel();
+    if (pr.state.pointsPanelOpen) pr.renderPointsPanel();
+    pr.renderMiniControl();
+    pr.queueRouteCalculationIfReady();
+    pr.hydrateStopTitles();
+
+    if (record.map && record.map.center && window.map && window.map.setView &&
+        typeof record.map.center.lat === 'number' &&
+        typeof record.map.center.lng === 'number' &&
+        typeof record.map.zoom === 'number') {
+      window.map.setView([record.map.center.lat, record.map.center.lng], record.map.zoom);
+    }
+
+    pr.showMessage('Route loaded.');
+    return true;
+  };
+
+  pr.closeRouteLibraryPanel = function() {
+    var content = document.getElementById(pr.DOM_IDS.routeLibraryContent);
+    if (content && window.jQuery) {
+      try {
+        window.jQuery(content).closest('.ui-dialog-content').dialog('close');
+        return;
+      } catch (e) {
+        // Fall through to hiding the content if the dialog wrapper is unavailable.
+      }
+    }
+    if (content) content.style.display = 'none';
+  };
+
+  pr.routeRecordFilename = function(route) {
+    var safeName = String(route && route.name ? route.name : 'route')
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '') || 'route';
+    return 'portal-route-' + safeName + '.json';
+  };
+
+  pr.routeLibraryFilename = function() {
+    var stamp = new Date().toISOString().replace(/[:.]/g, '-');
+    return 'portal-route-library-' + stamp + '.json';
+  };
+
+  pr.exportSavedRouteJson = function(id) {
+    if (!id) return;
+    var route = pr.routeLibraryStorage().getRoute(id);
+    if (!route) {
+      pr.showMessage('Saved route not found.');
+      return;
+    }
+
+    pr.downloadTextFile(pr.routeRecordFilename(route), JSON.stringify(route, null, 2), 'application/json');
+    pr.showMessage('Saved route exported.');
+  };
+
+  pr.exportRouteLibraryJson = function() {
+    var library = pr.routeLibraryStorage().loadLibrary();
+    pr.exportRouteLibraryRoutesJson(library.routes, 'Route library exported.');
+  };
+
+  pr.exportRouteLibraryRoutesJson = function(routes, message) {
+    var data = {
+      schemaVersion: pr.ROUTE_LIBRARY_SCHEMA_VERSION,
+      plugin: pr.ID,
+      pluginVersion: pr.VERSION,
+      exportedAt: pr.routeLibraryNow(),
+      routes: routes
+    };
+
+    pr.downloadTextFile(pr.routeLibraryFilename(), JSON.stringify(data, null, 2), 'application/json');
+    pr.showMessage(message || 'Route library exported.');
+  };
+
+  pr.exportSelectedSavedRoutesJson = function() {
+    var ids = pr.requireSelectedLibraryRouteIds();
+    if (!ids) return;
+
+    var library = pr.routeLibraryStorage().loadLibrary();
+    var routes = ids.map(function(id) {
+      return pr.findLibraryRoute(library, id);
+    }).filter(Boolean);
+
+    if (routes.length === 1) {
+      pr.exportSavedRouteJson(routes[0].id);
+      return;
+    }
+
+    pr.exportRouteLibraryRoutesJson(routes, routes.length + ' saved routes exported.');
+  };
+
+  pr.deleteSelectedSavedRoutes = function() {
+    var ids = pr.requireSelectedLibraryRouteIds();
+    if (!ids) return;
+
+    if (ids.length === 1) {
+      pr.deleteSavedRoute(ids[0]);
+      return;
+    }
+
+    if (window.confirm && !window.confirm('Delete ' + ids.length + ' saved routes?')) return;
+
+    var storage = pr.routeLibraryStorage();
+    var library = storage.loadLibrary();
+    var idMap = {};
+    ids.forEach(function(id) { idMap[id] = true; });
+    library.routes = library.routes.filter(function(route) {
+      return route && !idMap[route.id];
+    });
+    storage.saveLibrary(library);
+
+    if (idMap[pr.state.activeRouteId]) pr.state.activeRouteId = null;
+    pr.state.selectedLibraryRouteIds = [];
+    pr.refreshRouteLibraryPanel();
+    pr.showMessage(ids.length + ' routes deleted.');
+  };
+
+  pr.readJsonFile = function(onData, onError) {
+    var input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'application/json,.json';
+    input.style.display = 'none';
+
+    input.addEventListener('change', function() {
+      var file = input.files && input.files[0];
+      if (!file) {
+        if (input.parentNode) input.parentNode.removeChild(input);
+        return;
+      }
+
+      var reader = new FileReader();
+      reader.onload = function() {
+        try {
+          onData(JSON.parse(String(reader.result || '')));
+        } catch (e) {
+          if (onError) onError(e);
+        }
+        if (input.parentNode) input.parentNode.removeChild(input);
+      };
+      reader.onerror = function() {
+        if (onError) onError(new Error('Unable to read file.'));
+        if (input.parentNode) input.parentNode.removeChild(input);
+      };
+      reader.readAsText(file);
+    });
+
+    document.body.appendChild(input);
+    input.click();
+  };
+
+  pr.importSavedRouteRecord = function(record) {
+    var storage = pr.routeLibraryStorage();
+    var library = storage.loadLibrary();
+    var imported = pr.prepareImportedRouteRecord(record, library);
+    if (!imported) throw new Error('JSON is not a compatible saved route.');
+
+    library.routes.push(imported);
+    storage.saveLibrary(library);
+    pr.refreshRouteLibraryPanel();
+    pr.showMessage('Saved route imported.');
+  };
+
+  pr.importSavedRouteJson = function() {
+    pr.readJsonFile(function(data) {
+      try {
+        pr.importSavedRouteRecord(data);
+      } catch (e) {
+        console.warn('Portal Route: saved route import failed', e);
+        pr.showMessage('Route import failed: ' + e.message);
+      }
+    }, function(e) {
+      pr.showMessage('Route import failed: ' + e.message);
+    });
+  };
+
+  pr.importRouteLibraryData = function(data) {
+    if (!data || typeof data !== 'object') throw new Error('Import data is not an object.');
+    if (data.schemaVersion !== pr.ROUTE_LIBRARY_SCHEMA_VERSION) throw new Error('Route library version is not compatible.');
+    if (!Array.isArray(data.routes)) throw new Error('Import data does not contain routes.');
+
+    var storage = pr.routeLibraryStorage();
+    var library = storage.loadLibrary();
+    var added = 0;
+
+    data.routes.forEach(function(route) {
+      var imported = pr.prepareImportedRouteRecord(route, library);
+      if (!imported) return;
+      library.routes.push(imported);
+      added += 1;
+    });
+
+    storage.saveLibrary(library);
+    pr.refreshRouteLibraryPanel();
+    pr.showMessage(added ? 'Imported ' + added + ' saved routes.' : 'No routes imported.');
+  };
+
+  pr.renderRouteLibraryStorageControls = function(storage) {
+    var driveReady = pr.isDriveReady();
+    var driveState = pr.driveStatusText();
+    var html = '';
+
+    html += '<div class="portal-route-library-storage">';
+    html += '<label>Store <select data-field="route-library-backend">';
+    html += '<option value="local"' + (storage.id === 'local' ? ' selected' : '') + '>This browser</option>';
+    html += '<option value="googleDrive"' + (storage.id === 'googleDrive' ? ' selected' : '') + '>Google Drive</option>';
+    html += '</select></label>';
+    html += '<span>' + pr.escapeHtml(driveState) + '</span>';
+    html += '</div>';
+
+    if (storage.id === 'googleDrive') {
+      html += '<div class="portal-route-control-group-buttons portal-route-library-toolbar">';
+      html += '<button type="button" data-action="drive-connect">' + (driveReady ? 'Change Folder' : 'Connect Drive') + '</button>';
+      html += '<button type="button" data-action="drive-pull"' + (driveReady ? '' : ' disabled') + '>Pull Drive</button>';
+      html += '<button type="button" data-action="drive-push"' + (driveReady ? '' : ' disabled') + '>Push Drive</button>';
+      html += '</div>';
+    }
+
+    return html;
+  };
+
+  pr.importRouteLibraryJson = function() {
+    pr.readJsonFile(function(data) {
+      try {
+        pr.importRouteLibraryData(data);
+      } catch (e) {
+        console.warn('Portal Route: route library import failed', e);
+        pr.showMessage('Library import failed: ' + e.message);
+      }
+    }, function(e) {
+      pr.showMessage('Library import failed: ' + e.message);
+    });
+  };
+
+  pr.renderRouteLibraryRows = function(routes) {
+    if (!routes.length) {
+      return '<p class="portal-route-empty">No saved routes.</p>';
+    }
+
+    var html = '<div class="portal-route-library-list">';
+    var selectedIds = pr.getSelectedLibraryRouteIds();
+    routes.forEach(function(route) {
+      var stopCount = route.route && Array.isArray(route.route.stops) ? route.route.stops.length : 0;
+      var selected = selectedIds.indexOf(route.id) !== -1;
+      html += '<div class="portal-route-library-row' + (selected ? ' portal-route-library-row-selected' : '') + '">';
+      html += '<label class="portal-route-library-select" title="Select route"><input type="checkbox" data-field="selected-library-route" data-route-id="' + pr.escapeHtml(route.id) + '"' + (selected ? ' checked' : '') + '></label>';
+      html += '<div class="portal-route-library-info">';
+      html += '<input type="text" class="portal-route-library-name-input" value="' + pr.escapeHtml(route.name || 'Unnamed route') + '" data-field="saved-route-name" data-route-id="' + pr.escapeHtml(route.id) + '" title="Edit route name">';
+      html += '<span>' + stopCount + ' stops - ' + pr.escapeHtml(route.updatedAt || '') + '</span>';
+      html += '</div>';
+      html += '</div>';
+    });
+    html += '</div>';
+    return html;
+  };
+
+  pr.renderRouteLibraryContent = function() {
+    var storage = pr.routeLibraryStorage();
+    var routes = storage.listRoutes();
+    var selectedCount = pr.getSelectedLibraryRouteIds().length;
+    var singleDisabled = selectedCount === 1 ? '' : ' disabled';
+    var saveDisabled = selectedCount <= 1 ? '' : ' disabled';
+    var anyDisabled = selectedCount ? '' : ' disabled';
+    var contentHtml = '';
+    contentHtml += '<div class="portal-route-library-source">Stored in: ' + pr.escapeHtml(storage.label || storage.id || 'Route library') + '</div>';
+    contentHtml += pr.renderRouteLibraryStorageControls(storage);
+    contentHtml += '<div class="portal-route-control-group-buttons portal-route-library-toolbar">';
+    contentHtml += '<button type="button" data-action="export-route-library">Export Library</button>';
+    contentHtml += '<button type="button" data-action="import-route-library">Import Library</button>';
+    contentHtml += '</div>';
+    contentHtml += pr.renderRouteLibraryRows(routes);
+    if (selectedCount === 1) {
+      contentHtml += '<div class="portal-route-library-tip">' + selectedCount + ' route selected. Save will overwrite it after confirmation.</div>';
+    } else if (selectedCount > 1) {
+      contentHtml += '<div class="portal-route-library-tip portal-route-library-tip-active">Select one route to load or save over. Export/Delete can use multiple.</div>';
+    } else {
+      contentHtml += '<div class="portal-route-library-tip portal-route-library-tip-active">Save creates a new route. Select one route to load or overwrite.</div>';
+    }
+    contentHtml += '<div class="portal-route-control-group-buttons portal-route-footer-actions portal-route-library-actions">';
+    contentHtml += '<button type="button" data-action="save-route-from-library"' + saveDisabled + '>Save</button>';
+    contentHtml += '<button type="button" data-action="load-selected-saved-route"' + singleDisabled + '>Load</button>';
+    contentHtml += '<button type="button" data-action="import-saved-route">Import</button>';
+    contentHtml += '<button type="button" data-action="export-selected-saved-route"' + anyDisabled + '>Export</button>';
+    contentHtml += '<button type="button" data-action="delete-selected-saved-route"' + anyDisabled + '>Delete</button>';
+    contentHtml += '</div>';
+    contentHtml += '<div class="portal-route-message"></div>';
+    return contentHtml;
+  };
+
+  pr.refreshRouteLibraryPanel = function() {
+    var content = document.getElementById(pr.DOM_IDS.routeLibraryContent);
+    if (!content || !pr.isDialogOpen || !pr.isDialogOpen(content)) {
+      pr.openRouteLibraryPanel();
+      return;
+    }
+
+    content.innerHTML = pr.renderRouteLibraryContent();
+  };
+
+  pr.openRouteLibraryPanel = function() {
+    var contentHtml = '<div class="portal-route-dialog-content portal-route-library-dialog-content" id="' + pr.DOM_IDS.routeLibraryContent + '" tabindex="-1">';
+    contentHtml += pr.renderRouteLibraryContent();
+    contentHtml += '</div>';
+
+    if (typeof window.dialog === 'function') {
+      window.dialog({
+        id: pr.DOM_IDS.routeLibrary,
+        title: 'Route Library',
+        html: contentHtml,
+        dialogClass: 'portal-route-dialog portal-route-library-dialog',
+        width: pr.getRouteLibraryDialogWidth(),
+        height: pr.getRouteLibraryDialogHeight()
+      });
+
+      var content = document.getElementById(pr.DOM_IDS.routeLibraryContent);
+      if (content && pr.focusPanelContainer) pr.focusPanelContainer(content);
+    } else {
+      console.log('Portal Route: IITC dialog API is unavailable.');
+    }
+  };
+
+  pr.DRIVE_LIBRARY_FILE_NAME = 'route-library.json';
+  pr.DRIVE_DEFAULT_FOLDER_NAME = 'IITC Portal Route';
+  pr.DRIVE_API_SCRIPT = 'https://apis.google.com/js/api.js';
+  pr.DRIVE_DISCOVERY_DOCS = ['https://www.googleapis.com/discovery/v1/apis/drive/v3/rest'];
+  pr.DRIVE_SCOPE = 'https://www.googleapis.com/auth/drive.file';
+  pr.DRIVE_API_KEY = 'AIzaSyBeVNFEHh35baf5y9miCjaw43L61BTeyhg';
+  pr.DRIVE_CLIENT_ID = '1099227387115-osrmhfh1i6dto7v7npk4dcpog1cnljtb.apps.googleusercontent.com';
+
+  pr.driveState = {
+    apiLoading: false,
+    apiLoaded: false,
+    authorizing: false,
+    authorized: false,
+    folderId: null,
+    folderName: null,
+    fileId: null,
+    lastError: null,
+    pushTimer: null
+  };
+
+  pr.loadDriveState = function() {
+    pr.driveState.folderId = localStorage.getItem(pr.STORAGE_KEYS.routeLibraryDriveFolderId) || null;
+    pr.driveState.folderName = localStorage.getItem(pr.STORAGE_KEYS.routeLibraryDriveFolderName) || pr.DRIVE_DEFAULT_FOLDER_NAME;
+    pr.driveState.fileId = localStorage.getItem(pr.STORAGE_KEYS.routeLibraryDriveFileId) || null;
+  };
+
+  pr.saveDriveState = function() {
+    if (pr.driveState.folderId) {
+      localStorage.setItem(pr.STORAGE_KEYS.routeLibraryDriveFolderId, pr.driveState.folderId);
+    } else {
+      localStorage.removeItem(pr.STORAGE_KEYS.routeLibraryDriveFolderId);
+    }
+
+    if (pr.driveState.folderName) {
+      localStorage.setItem(pr.STORAGE_KEYS.routeLibraryDriveFolderName, pr.driveState.folderName);
+    } else {
+      localStorage.removeItem(pr.STORAGE_KEYS.routeLibraryDriveFolderName);
+    }
+
+    if (pr.driveState.fileId) {
+      localStorage.setItem(pr.STORAGE_KEYS.routeLibraryDriveFileId, pr.driveState.fileId);
+    } else {
+      localStorage.removeItem(pr.STORAGE_KEYS.routeLibraryDriveFileId);
+    }
+  };
+
+  pr.loadDriveRouteLibraryCache = function() {
+    var raw = localStorage.getItem(pr.STORAGE_KEYS.routeLibraryDriveCache);
+    if (!raw) return pr.emptyRouteLibrary();
+
+    try {
+      return pr.normalizeRouteLibrary(JSON.parse(raw));
+    } catch (e) {
+      console.warn('Portal Route: failed to load Drive route library cache', e);
+      return pr.emptyRouteLibrary();
+    }
+  };
+
+  pr.saveDriveRouteLibraryCache = function(library) {
+    library = pr.normalizeRouteLibrary(library);
+    library.updatedAt = pr.routeLibraryNow();
+    localStorage.setItem(pr.STORAGE_KEYS.routeLibraryDriveCache, JSON.stringify(library));
+    return library;
+  };
+
+  pr.driveStatusText = function() {
+    if (pr.driveState.lastError) return 'Drive: ' + pr.driveState.lastError;
+    if (pr.isDriveReady()) return 'Drive: ' + (pr.driveState.folderName || pr.DRIVE_DEFAULT_FOLDER_NAME);
+    if (pr.driveState.authorizing || pr.driveState.apiLoading) return 'Drive: connecting';
+    if (pr.driveState.folderId) return 'Drive: reconnect needed';
+    return 'Drive: not connected';
+  };
+
+  pr.isDriveReady = function() {
+    return !!(pr.driveState.authorized && pr.driveState.folderId && pr.driveState.fileId);
+  };
+
+  pr.driveEscapeQueryValue = function(value) {
+    return String(value || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+  };
+
+  pr.loadGoogleDriveApi = function() {
+    if (pr.driveState.apiLoaded && window.gapi) return Promise.resolve();
+    if (pr.driveApiPromise) return pr.driveApiPromise;
+
+    pr.driveState.apiLoading = true;
+    pr.driveState.lastError = null;
+
+    pr.driveApiPromise = new Promise(function(resolve, reject) {
+      var finish = function() {
+        pr.driveState.apiLoading = false;
+        pr.driveState.apiLoaded = true;
+        resolve();
+      };
+
+      if (window.gapi) {
+        finish();
+        return;
+      }
+
+      var script = document.createElement('script');
+      script.src = pr.DRIVE_API_SCRIPT;
+      script.onload = finish;
+      script.onerror = function() {
+        pr.driveState.apiLoading = false;
+        pr.driveApiPromise = null;
+        reject(new Error('Could not load Google API.'));
+      };
+      document.head.appendChild(script);
+    });
+
+    return pr.driveApiPromise;
+  };
+
+  pr.authorizeDrive = function() {
+    pr.loadDriveState();
+    pr.driveState.authorizing = true;
+    pr.driveState.authorized = false;
+    pr.driveState.lastError = null;
+    pr.refreshRouteLibraryPanel();
+
+    return pr.loadGoogleDriveApi()
+      .then(function() {
+        return new Promise(function(resolve, reject) {
+          window.gapi.load('client:auth2', {
+            callback: resolve,
+            onerror: function() { reject(new Error('Could not initialize Google auth.')); }
+          });
+        });
+      })
+      .then(function() {
+        return window.gapi.client.init({
+          apiKey: pr.DRIVE_API_KEY,
+          discoveryDocs: pr.DRIVE_DISCOVERY_DOCS,
+          client_id: pr.DRIVE_CLIENT_ID,
+          scope: pr.DRIVE_SCOPE
+        });
+      })
+      .then(function() {
+        var auth = window.gapi.auth2.getAuthInstance();
+        if (auth.isSignedIn.get()) return true;
+        return auth.signIn().then(function() { return true; });
+      })
+      .then(function() {
+        pr.driveState.authorizing = false;
+        pr.driveState.authorized = true;
+        pr.refreshRouteLibraryPanel();
+      })
+      .catch(function(error) {
+        pr.driveState.authorizing = false;
+        pr.driveState.authorized = false;
+        pr.driveState.lastError = error && error.message ? error.message : 'Drive connect failed.';
+        pr.refreshRouteLibraryPanel();
+        throw error;
+      });
+  };
+
+  pr.promptDriveFolderName = function() {
+    var current = pr.driveState.folderName || pr.DRIVE_DEFAULT_FOLDER_NAME;
+    if (!window.prompt) return current;
+
+    var name = window.prompt('Google Drive folder', current);
+    if (name === null) return null;
+
+    name = String(name).trim();
+    return name || pr.DRIVE_DEFAULT_FOLDER_NAME;
+  };
+
+  pr.ensureDriveFolder = function(forcePrompt) {
+    var promptedName = forcePrompt || !pr.driveState.folderName ? pr.promptDriveFolderName() : pr.driveState.folderName;
+    if (promptedName === null) return Promise.reject(new Error('Drive folder not selected.'));
+
+    pr.driveState.folderName = promptedName;
+    pr.saveDriveState();
+
+    if (pr.driveState.folderId && !forcePrompt) return Promise.resolve(pr.driveState.folderId);
+
+    var name = pr.driveEscapeQueryValue(pr.driveState.folderName);
+    var q = "name = '" + name + "' and mimeType = 'application/vnd.google-apps.folder' and trashed = false";
+
+    return window.gapi.client.drive.files.list({
+      q: q,
+      fields: 'files(id,name,modifiedTime)',
+      pageSize: 10
+    }).then(function(response) {
+      var folders = response.result && response.result.files ? response.result.files : [];
+      if (folders.length) {
+        pr.driveState.folderId = folders[0].id;
+        pr.saveDriveState();
+        return pr.driveState.folderId;
+      }
+
+      return window.gapi.client.drive.files.create({
+        fields: 'id',
+        resource: {
+          name: pr.driveState.folderName,
+          mimeType: 'application/vnd.google-apps.folder'
+        }
+      }).then(function(createResponse) {
+        pr.driveState.folderId = createResponse.result.id;
+        pr.saveDriveState();
+        return pr.driveState.folderId;
+      });
+    });
+  };
+
+  pr.ensureDriveLibraryFile = function(forceFolderPrompt) {
+    return pr.ensureDriveFolder(forceFolderPrompt).then(function(folderId) {
+      if (pr.driveState.fileId && !forceFolderPrompt) return pr.driveState.fileId;
+
+      var fileName = pr.driveEscapeQueryValue(pr.DRIVE_LIBRARY_FILE_NAME);
+      var q = "name = '" + fileName + "' and trashed = false and '" + folderId + "' in parents";
+
+      return window.gapi.client.drive.files.list({
+        q: q,
+        fields: 'files(id,name,modifiedTime)',
+        pageSize: 10
+      }).then(function(response) {
+        var files = response.result && response.result.files ? response.result.files : [];
+        if (files.length) {
+          pr.driveState.fileId = files[0].id;
+          pr.saveDriveState();
+          return pr.driveState.fileId;
+        }
+
+        return window.gapi.client.drive.files.create({
+          fields: 'id',
+          resource: {
+            name: pr.DRIVE_LIBRARY_FILE_NAME,
+            mimeType: 'application/json',
+            parents: [folderId]
+          }
+        }).then(function(createResponse) {
+          pr.driveState.fileId = createResponse.result.id;
+          pr.saveDriveState();
+          return pr.writeDriveRouteLibrary(pr.loadDriveRouteLibraryCache());
+        });
+      });
+    });
+  };
+
+  pr.readDriveRouteLibrary = function() {
+    return pr.authorizeDrive().then(function() {
+      return pr.ensureDriveLibraryFile();
+    }).then(function() {
+      return window.gapi.client.drive.files.get({
+        fileId: pr.driveState.fileId,
+        alt: 'media'
+      });
+    }).then(function(response) {
+      var data = response.result;
+      if (typeof data === 'string' && data) data = JSON.parse(data);
+      var library = data && typeof data === 'object' ? pr.normalizeRouteLibrary(data) : pr.emptyRouteLibrary();
+      pr.saveDriveRouteLibraryCache(library);
+      pr.state.routeLibraryBackendId = 'googleDrive';
+      pr.state.selectedLibraryRouteIds = [];
+      pr.refreshRouteLibraryPanel();
+      pr.showMessage('Drive library loaded.');
+      return library;
+    }).catch(function(error) {
+      pr.driveState.lastError = error && error.message ? error.message : 'Drive load failed.';
+      pr.refreshRouteLibraryPanel();
+      pr.showMessage('Drive load failed.');
+    });
+  };
+
+  pr.writeDriveRouteLibrary = function(library) {
+    library = pr.saveDriveRouteLibraryCache(library);
+
+    return window.gapi.client.request({
+      path: '/upload/drive/v3/files/' + pr.driveState.fileId,
+      method: 'PATCH',
+      params: { uploadType: 'media' },
+      body: JSON.stringify(library, null, 2)
+    }).then(function() {
+      pr.driveState.lastError = null;
+      pr.refreshRouteLibraryPanel();
+      return library;
+    });
+  };
+
+  pr.pushDriveRouteLibrary = function() {
+    return pr.authorizeDrive().then(function() {
+      return pr.ensureDriveLibraryFile();
+    }).then(function() {
+      return pr.writeDriveRouteLibrary(pr.loadDriveRouteLibraryCache());
+    }).then(function() {
+      pr.showMessage('Drive library saved.');
+    }).catch(function(error) {
+      pr.driveState.lastError = error && error.message ? error.message : 'Drive save failed.';
+      pr.refreshRouteLibraryPanel();
+      pr.showMessage('Drive save failed.');
+    });
+  };
+
+  pr.pushDriveRouteLibrarySoon = function() {
+    if (pr.state.routeLibraryBackendId !== 'googleDrive') return;
+    if (!pr.isDriveReady()) return;
+
+    if (pr.driveState.pushTimer) window.clearTimeout(pr.driveState.pushTimer);
+    pr.driveState.pushTimer = window.setTimeout(function() {
+      pr.driveState.pushTimer = null;
+      pr.pushDriveRouteLibrary();
+    }, 500);
+  };
+
+  pr.connectDriveRouteLibrary = function() {
+    pr.loadDriveState();
+    return pr.authorizeDrive().then(function() {
+      return pr.ensureDriveLibraryFile();
+    }).then(function() {
+      pr.state.routeLibraryBackendId = 'googleDrive';
+      pr.refreshRouteLibraryPanel();
+      pr.showMessage('Drive connected.');
+    }).catch(function(error) {
+      console.warn('Portal Route: Drive connect failed', error);
+      pr.showMessage('Drive connect failed.');
+    });
+  };
+
+  pr.chooseDriveRouteLibraryFolder = function() {
+    pr.loadDriveState();
+    pr.driveState.folderId = null;
+    pr.driveState.fileId = null;
+    pr.saveDriveState();
+
+    return pr.authorizeDrive().then(function() {
+      return pr.ensureDriveLibraryFile(true);
+    }).then(function() {
+      pr.state.routeLibraryBackendId = 'googleDrive';
+      pr.refreshRouteLibraryPanel();
+      pr.showMessage('Drive folder ready.');
+    }).catch(function(error) {
+      console.warn('Portal Route: Drive folder setup failed', error);
+      pr.showMessage('Drive folder setup failed.');
+    });
+  };
+
+  pr.loadDriveState();
+
   pr.setBusy = function(isBusy) {
     var panel = document.getElementById(pr.DOM_IDS.dialogContent);
     if (panel) panel.classList.toggle('portal-route-busy', !!isBusy);
   };
 
   pr.showMessage = function(message) {
-    var node = document.getElementById('portal-route-message');
+    var node = document.getElementById('portal-route-message') ||
+      document.querySelector('#' + pr.DOM_IDS.routeLibraryContent + ' .portal-route-message') ||
+      document.querySelector('#' + pr.DOM_IDS.pointsDialogContent + ' .portal-route-message');
     if (node) {
       node.textContent = message;
       node.classList.add('portal-route-message-visible');
@@ -3352,68 +4873,98 @@ input.portal-route-waypoint-name-input:focus,
     pr.moveStop(fromIndex, toIndex);
   };
 
+  pr.openMainPanel = function() {
+    pr.state.panelOpen = true;
+    pr.savePanelOpen();
+    pr.renderPanel();
+  };
+
   pr.handleAction = function(action, target) {
     if (pr.isLayerEnabled && !pr.isLayerEnabled()) {
       pr.syncLayerUi();
       return;
     }
 
-    if (action === 'open-main') {
-      pr.state.panelView = 'main';
-      pr.state.panelOpen = true;
-      pr.savePanelOpen();
-      pr.renderPanel();
-    } else if (action === 'open-edit') {
-      pr.state.panelView = 'main';
-      pr.state.panelOpen = true;
-      pr.savePanelOpen();
-      pr.renderPanel();
-    } else if (action === 'close-panel') {
-      pr.state.panelOpen = false;
-      pr.savePanelOpen();
-      pr.closeDialog();
-    } else if (action === 'toggle-selected-stop') {
-      pr.toggleSelectedPortalStop();
-    } else if (action === 'add-selected-stop') {
-      pr.addSelectedPortal();
-    } else if (action === 'add-map-point') {
-      pr.setAddPointMode(!pr.state.addPointMode);
-    } else if (action === 'add-current-location') {
-      pr.addCurrentLocation();
-    } else if (action === 'toggle-loop-back') {
-      pr.toggleLoopBackToStart();
-    } else if (action === 'move-stop-up') {
-      pr.moveStop(Number(target.getAttribute('data-index')), Number(target.getAttribute('data-index')) - 1);
-    } else if (action === 'move-stop-down') {
-      pr.moveStop(Number(target.getAttribute('data-index')), Number(target.getAttribute('data-index')) + 1);
-    } else if (action === 'remove-stop') {
-      pr.removeStop(Number(target.getAttribute('data-index')));
-    } else if (action === 'select-stop') {
-      pr.selectStopPortal(Number(target.getAttribute('data-index')), false);
-    } else if (action === 'select-stop-center') {
-      pr.selectStopPortal(Number(target.getAttribute('data-index')), true);
-    } else if (action === 'calculate-route') {
-      pr.calculateRoute();
-    } else if (action === 'fit-route') {
-      pr.fitRouteToMap();
-    } else if (action === 'open-google-maps') {
-      pr.openGoogleMaps();
-    } else if (action === 'save-route') {
-      pr.showMessage('Save is not wired yet.');
-    } else if (action === 'load-route') {
-      pr.showMessage('Load is not wired yet.');
-    } else if (action === 'export-route-json') {
-      pr.exportRouteJson();
-    } else if (action === 'import-route-json') {
-      pr.importRouteJson();
-    } else if (action === 'print-route') {
-      pr.printRoute();
-    } else if (action === 'open-points-list') {
-      pr.state.pointsPanelOpen = true;
-      pr.renderPointsPanel();
-    } else if (action === 'clear-route') {
-      if (pr.state.stops.length && window.confirm && !window.confirm('Clear all points from the route?')) return;
-      pr.clearStops();
+    var index = target ? Number(target.getAttribute('data-index')) : -1;
+    var actions = {
+      'open-main': pr.openMainPanel,
+      'open-add-menu': function() {
+        if (!target || !target.getBoundingClientRect) {
+          pr.openAddMenu(20, 20);
+          return;
+        }
+        var rect = target.getBoundingClientRect();
+        pr.openAddMenu(rect.left, rect.bottom + 4);
+      },
+      'open-route-menu': function() {
+        if (!target || !target.getBoundingClientRect) {
+          pr.openRouteMenu(20, 20);
+          return;
+        }
+        var rect = target.getBoundingClientRect();
+        pr.openRouteMenu(rect.left, rect.bottom + 4);
+      },
+      'open-maps-menu': function() {
+        if (!target || !target.getBoundingClientRect) {
+          pr.openMapsMenu(20, 20);
+          return;
+        }
+        var rect = target.getBoundingClientRect();
+        pr.openMapsMenu(rect.left, rect.bottom + 4);
+      },
+      'open-edit': pr.openMainPanel,
+      'close-panel': function() {
+        pr.state.panelOpen = false;
+        pr.savePanelOpen();
+        pr.closeDialog();
+      },
+      'toggle-selected-stop': pr.toggleSelectedPortalStop,
+      'smart-add': pr.smartAdd,
+      'add-selected-stop': pr.addSelectedPortal,
+      'add-map-point': function() { pr.setAddPointMode(!pr.state.addPointMode); },
+      'add-current-location': pr.addCurrentLocation,
+      'toggle-loop-back': pr.toggleLoopBackToStart,
+      'reverse-route': pr.reverseRoute,
+      'remove-stop': function() { pr.removeStop(index); },
+      'rename-stop': function() { pr.renameStop(index); },
+      'set-stop-start': function() { pr.moveStopToEdge(index, 'start'); },
+      'set-stop-end': function() { pr.moveStopToEdge(index, 'end'); },
+      'select-stop': function() { pr.selectStopPortal(index, false); },
+      'select-stop-center': function() { pr.selectStopPortal(index, true); },
+      'calculate-route': pr.calculateRoute,
+      'fit-route': pr.fitRouteToMap,
+      'open-google-maps': pr.openGoogleMaps,
+      'open-apple-maps': pr.openAppleMaps,
+      'save-route': pr.saveCurrentRouteToLibrary,
+      'save-route-from-library': pr.saveCurrentRouteFromLibraryPanel,
+      'load-route': pr.openRouteLibraryPanel,
+      'load-selected-saved-route': function() {
+        var route = pr.routeLibraryStorage().getRoute(pr.requireSingleSelectedLibraryRouteId());
+        pr.applyRouteRecord(route);
+      },
+      'delete-selected-saved-route': function() { pr.deleteSelectedSavedRoutes(); },
+      'export-selected-saved-route': function() { pr.exportSelectedSavedRoutesJson(); },
+      'import-saved-route': pr.importSavedRouteJson,
+      'export-route-library': pr.exportRouteLibraryJson,
+      'import-route-library': pr.importRouteLibraryJson,
+      'drive-connect': pr.chooseDriveRouteLibraryFolder,
+      'drive-pull': pr.readDriveRouteLibrary,
+      'drive-push': pr.pushDriveRouteLibrary,
+      'export-route-json': pr.exportRouteJson,
+      'import-route-json': pr.importRouteJson,
+      'print-route': pr.printRoute,
+      'open-points-list': function() {
+        pr.state.pointsPanelOpen = true;
+        pr.renderPointsPanel();
+      },
+      'clear-route': function() {
+        pr.clearRouteWithConfirm();
+      }
+    };
+
+    if (actions[action]) {
+      pr.closeAddMenu();
+      actions[action]();
     }
   };
 
@@ -3438,6 +4989,11 @@ input.portal-route-waypoint-name-input:focus,
           var button = ev.target.closest('[data-action]');
           if (!button) return;
           ev.preventDefault();
+          ev.stopPropagation();
+          if (pr.state.suppressNextAddClick && button.hasAttribute('data-add-menu')) {
+            pr.state.suppressNextAddClick = false;
+            return;
+          }
           pr.handleAction(button.getAttribute('data-action'), button);
         });
         return container;
@@ -3488,192 +5044,379 @@ input.portal-route-waypoint-name-input:focus,
 
     pr.setMiniControlVisible(true);
 
-    var selectedIndex = pr.selectedStopIndex();
-    var selectedInRoute = selectedIndex >= 0;
+    var selectedInRoute = pr.selectedStopIndex() >= 0;
     var addRemoveClass = selectedInRoute ? ' portal-route-mini-remove' : '';
     var addRemoveText = selectedInRoute ? '-' : '+';
-    var addRemoveTitle = selectedInRoute ? 'Remove selected waypoint from route' : 'Add selected portal to route';
-    var plotTitle = pr.state.routeDirty ? 'Replot route on map' : 'Plot route on map';
+    var addRemoveTitle = selectedInRoute ? 'Remove selected waypoint from route' : 'Add to route';
+    var addRemoveAction = selectedInRoute ? 'toggle-selected-stop' : 'smart-add';
     var loopClass = pr.state.settings.includeReturnToStart ? ' portal-route-mini-active' : '';
     var loopTitle = pr.state.settings.includeReturnToStart ? 'Turn off loop back to start' : 'Loop back to start';
 
     container.innerHTML = '' +
-      '<a href="#" title="Open route in Google Maps" data-action="open-google-maps">M</a>' +
-      '<a href="#" title="' + plotTitle + '" data-action="calculate-route">P</a>' +
+      '<a href="#" class="portal-route-smart-button" title="Open map export menu" data-action="open-maps-menu" data-maps-menu="true">M</a>' +
       '<a href="#" class="portal-route-mini-loop' + loopClass + '" title="' + loopTitle + '" data-action="toggle-loop-back">L</a>' +
-      '<a href="#" class="portal-route-mini-add' + addRemoveClass + '" title="' + addRemoveTitle + '" data-action="toggle-selected-stop">' + addRemoveText + '</a>' +
+      '<a href="#" class="portal-route-mini-add' + addRemoveClass + '" title="' + addRemoveTitle + '" data-action="' + addRemoveAction + '">' + addRemoveText + '</a>' +
       '<a href="#" title="Open points list" data-action="open-points-list">' + pr.state.stops.length + '</a>' +
-      '<a href="#" title="Open Portal Route menu" data-action="open-main">=</a>';
+      '<a href="#" class="portal-route-smart-button" title="Open Portal Route menus" data-action="open-route-menu" data-route-menu="true">=</a>';
+  };
+
+  pr.panelForEvent = function(ev) {
+    if (!ev.target || !ev.target.closest) return null;
+    return ev.target.closest('#' + pr.DOM_IDS.dialogContent + ', #' + pr.DOM_IDS.pointsDialogContent + ', #' + pr.DOM_IDS.routeLibraryContent + ', .portal-route-portal-action, .portal-route-context-menu');
+  };
+
+  pr.handleDialogClick = function(ev) {
+    if (!ev.target.closest('.portal-route-context-menu')) pr.closeAddMenu();
+    if (!pr.panelForEvent(ev)) return;
+
+    var target = ev.target.closest('[data-action]');
+    var action = target && target.getAttribute('data-action');
+    if (!action) {
+      var row = ev.target.closest('.portal-route-stop');
+      if (!row || ev.target.closest('input, textarea, select')) return;
+      ev.preventDefault();
+      pr.selectStopPortal(Number(row.getAttribute('data-index')), false);
+      return;
+    }
+
+    ev.preventDefault();
+    if (pr.state.suppressNextAddClick && target.hasAttribute('data-add-menu')) {
+      pr.state.suppressNextAddClick = false;
+      return;
+    }
+    pr.handleAction(action, target);
+  };
+
+  pr.addMenuTarget = function(target) {
+    return target && target.closest ? target.closest('[data-add-menu]') : null;
+  };
+
+  pr.routeMenuTarget = function(target) {
+    return target && target.closest ? target.closest('[data-route-menu]') : null;
+  };
+
+  pr.mapsMenuTarget = function(target) {
+    return target && target.closest ? target.closest('[data-maps-menu]') : null;
+  };
+
+  pr.closeAddMenu = function() {
+    var menu = document.querySelector('.portal-route-context-menu');
+    if (menu && menu.parentNode) menu.parentNode.removeChild(menu);
+    if (menu && pr.injectPortalDetailsAction) pr.injectPortalDetailsAction();
+  };
+
+  pr.openAddMenu = function(x, y) {
+    pr.closeAddMenu();
+
+    var selectedInRoute = pr.selectedStopIndex && pr.selectedStopIndex() >= 0;
+    var canAddRemoveSelected = selectedInRoute || !!window.selectedPortal;
+    var addRemoveSelectedLabel = selectedInRoute ? 'Remove selected' : 'Add selected';
+    var menu = document.createElement('div');
+    menu.className = 'portal-route-context-menu';
+    menu.innerHTML = '' +
+      '<button type="button" data-action="toggle-selected-stop"' + (canAddRemoveSelected ? '' : ' disabled') + '>' + addRemoveSelectedLabel + '</button>' +
+      '<button type="button" data-action="add-map-point">Add waypoint</button>' +
+      '<button type="button" data-action="add-current-location">Add current location</button>' +
+      '<div class="portal-route-context-divider"></div>' +
+      '<button type="button" data-action="toggle-loop-back">' + (pr.state.settings.includeReturnToStart ? 'Unloop' : 'Loop') + '</button>' +
+      '<button type="button" data-action="reverse-route"' + (pr.state.stops.length > 1 ? '' : ' disabled') + '>Reverse route</button>' +
+      '<div class="portal-route-context-divider"></div>' +
+      '<button type="button" data-action="clear-route"' + (pr.state.stops.length ? '' : ' disabled') + '>Clear route</button>';
+
+    document.body.appendChild(menu);
+    pr.positionContextMenu(menu, x, y);
+  };
+
+  pr.openRouteMenu = function(x, y) {
+    pr.closeAddMenu();
+
+    var menu = document.createElement('div');
+    menu.className = 'portal-route-context-menu portal-route-nav-menu';
+    menu.innerHTML = '' +
+      '<button type="button" data-action="open-points-list">Route</button>' +
+      '<button type="button" data-action="load-route">Library</button>' +
+      '<button type="button" data-action="open-main">Settings</button>';
+
+    document.body.appendChild(menu);
+    pr.positionContextMenu(menu, x, y);
+  };
+
+  pr.openMapsMenu = function(x, y) {
+    pr.closeAddMenu();
+
+    var hasRoute = pr.getRouteStops && pr.getRouteStops().length >= 2;
+    var menu = document.createElement('div');
+    menu.className = 'portal-route-context-menu portal-route-maps-menu';
+    menu.innerHTML = '' +
+      '<button type="button" data-action="open-google-maps"' + (hasRoute ? '' : ' disabled') + '>Google Maps</button>' +
+      '<button type="button" data-action="open-apple-maps"' + (hasRoute ? '' : ' disabled') + '>Apple Maps</button>';
+
+    document.body.appendChild(menu);
+    pr.positionContextMenu(menu, x, y);
+  };
+
+  pr.positionContextMenu = function(menu, x, y) {
+    var rect = menu.getBoundingClientRect();
+    var viewportWidth = window.innerWidth || document.documentElement.clientWidth || 320;
+    var viewportHeight = window.innerHeight || document.documentElement.clientHeight || 480;
+    menu.style.left = Math.max(6, Math.min(x, viewportWidth - rect.width - 6)) + 'px';
+    menu.style.top = Math.max(6, Math.min(y, viewportHeight - rect.height - 6)) + 'px';
+  };
+
+  pr.openStopMenu = function(index, x, y) {
+    pr.closeAddMenu();
+
+    var stop = pr.getRouteStop(index);
+    if (!stop || stop.generatedLoop) return;
+    var isManagedStart = pr.isManagedStartStop(stop);
+
+    var menu = document.createElement('div');
+    menu.className = 'portal-route-context-menu';
+    menu.innerHTML = '' +
+      '<button type="button" data-action="remove-stop" data-index="' + index + '"' + (isManagedStart ? ' disabled' : '') + '>Delete</button>' +
+      '<button type="button" data-action="rename-stop" data-index="' + index + '"' + (isManagedStart ? ' disabled' : '') + '>Rename</button>' +
+      '<div class="portal-route-context-divider"></div>' +
+      '<button type="button" data-action="set-stop-start" data-index="' + index + '"' + (isManagedStart ? ' disabled' : '') + '>Set as start</button>' +
+      '<button type="button" data-action="set-stop-end" data-index="' + index + '"' + (isManagedStart ? ' disabled' : '') + '>Set as end</button>';
+
+    document.body.appendChild(menu);
+    pr.positionContextMenu(menu, x, y);
+  };
+
+  pr.handleStopMenuContext = function(ev) {
+    var row = ev.target.closest('.portal-route-stop');
+    if (!row || ev.target.closest('input, textarea, select')) return false;
+
+    ev.preventDefault();
+    pr.openStopMenu(Number(row.getAttribute('data-index')), ev.clientX || 12, ev.clientY || 12);
+    return true;
+  };
+
+  pr.handleAddMenuContext = function(ev) {
+    if (pr.handleStopMenuContext(ev)) return;
+
+    var target = pr.addMenuTarget(ev.target);
+    if (target) {
+      ev.preventDefault();
+      pr.openAddMenu(ev.clientX || 12, ev.clientY || 12);
+      return;
+    }
+
+    target = pr.mapsMenuTarget(ev.target);
+    if (target) {
+      ev.preventDefault();
+      pr.openMapsMenu(ev.clientX || 12, ev.clientY || 12);
+      return;
+    }
+
+    target = pr.routeMenuTarget(ev.target);
+    if (!target) return;
+
+    ev.preventDefault();
+    pr.openRouteMenu(ev.clientX || 12, ev.clientY || 12);
+  };
+
+  pr.handleAddMenuTouchStart = function(ev) {
+    var target = pr.addMenuTarget(ev.target);
+    var mapsTarget = pr.mapsMenuTarget(ev.target);
+    var routeTarget = pr.routeMenuTarget(ev.target);
+    var row = ev.target.closest('.portal-route-stop');
+    if ((!target && !mapsTarget && !routeTarget && !row) || !window.setTimeout) return;
+
+    if (pr.state.addMenuLongPressTimer) window.clearTimeout(pr.state.addMenuLongPressTimer);
+    var touch = ev.touches && ev.touches[0];
+    var x = touch ? touch.clientX : 12;
+    var y = touch ? touch.clientY : 12;
+
+    pr.state.addMenuLongPressTimer = window.setTimeout(function() {
+      pr.state.addMenuLongPressTimer = null;
+      pr.state.suppressNextAddClick = true;
+      if (row && !ev.target.closest('input, textarea, select')) {
+        pr.openStopMenu(Number(row.getAttribute('data-index')), x, y);
+      } else if (mapsTarget) {
+        pr.openMapsMenu(x, y);
+      } else if (routeTarget) {
+        pr.openRouteMenu(x, y);
+      } else {
+        pr.openAddMenu(x, y);
+      }
+    }, 650);
+  };
+
+  pr.cancelAddMenuTouch = function() {
+    if (!pr.state.addMenuLongPressTimer) return;
+    window.clearTimeout(pr.state.addMenuLongPressTimer);
+    pr.state.addMenuLongPressTimer = null;
+  };
+
+  pr.handleDialogDragStart = function(ev) {
+    if (!pr.panelForEvent(ev)) return;
+
+    var item = ev.target.closest('.portal-route-stop');
+    if (!item) return;
+    if (ev.target.closest('.portal-route-wait-cell')) {
+      ev.preventDefault();
+      return;
+    }
+
+    pr.state.dragStopIndex = Number(item.getAttribute('data-index'));
+    if (!isFinite(pr.state.dragStopIndex)) {
+      pr.state.dragStopIndex = null;
+      ev.preventDefault();
+      return;
+    }
+
+    ev.dataTransfer.effectAllowed = 'move';
+    ev.dataTransfer.setData('text/plain', String(pr.state.dragStopIndex));
+    item.classList.add('portal-route-dragging');
+  };
+
+  pr.handleDialogDragEnd = function(ev) {
+    var item = ev.target.closest('.portal-route-stop');
+    if (item) item.classList.remove('portal-route-dragging');
+    document.querySelectorAll('.portal-route-drop-target').forEach(function(row) {
+      row.classList.remove('portal-route-drop-target', 'portal-route-drop-after');
+    });
+    pr.state.dragStopIndex = null;
+  };
+
+  pr.handleDialogDragOver = function(ev) {
+    if (!pr.panelForEvent(ev)) return;
+
+    var item = ev.target.closest('.portal-route-stop');
+    if (!item) return;
+    if (pr.state.dragStopIndex === null || pr.state.dragStopIndex === undefined) return;
+
+    ev.preventDefault();
+    ev.dataTransfer.dropEffect = 'move';
+    document.querySelectorAll('.portal-route-drop-target').forEach(function(row) {
+      if (row !== item) row.classList.remove('portal-route-drop-target', 'portal-route-drop-after');
+    });
+    var dropTarget = pr.listDropTarget(ev, item);
+    item.classList.add('portal-route-drop-target');
+    item.classList.toggle('portal-route-drop-after', !!(dropTarget && dropTarget.after));
+  };
+
+  pr.handleDialogDrop = function(ev) {
+    if (!pr.panelForEvent(ev)) return;
+
+    var item = ev.target.closest('.portal-route-stop');
+    if (!item) return;
+
+    ev.preventDefault();
+    item.classList.remove('portal-route-drop-target', 'portal-route-drop-after');
+
+    var fromIndex = pr.state.dragStopIndex;
+    var dropTarget = pr.listDropTarget(ev, item);
+    pr.state.dragStopIndex = null;
+
+    if (!dropTarget) return;
+    pr.moveStopToInsertIndex(fromIndex, dropTarget.index);
+  };
+
+  pr.handleDialogSettingChange = function(target) {
+    var field = target && target.getAttribute('data-field');
+    if (field === 'start-on-current-location') {
+      pr.setStartOnCurrentLocation(!!target.checked);
+      return true;
+    }
+
+    if (field === 'include-return-to-start') {
+      pr.setLoopBackToStart(!!target.checked);
+      return true;
+    }
+
+    if (field === 'show-segment-times-on-map') {
+      pr.state.settings.showSegmentTimesOnMap = !!target.checked;
+      pr.saveSettings();
+      pr.redrawSegmentTimeLabels();
+      return true;
+    }
+
+    if (field === 'show-mini-control') {
+      pr.state.settings.showMiniControl = !!target.checked;
+      pr.saveSettings();
+      if (pr.state.settings.showMiniControl) {
+        pr.createMiniControl();
+        pr.renderMiniControl();
+      } else {
+        pr.removeMiniControl();
+      }
+      return true;
+    }
+
+    if (field === 'show-portal-details-controls') {
+      pr.state.settings.showPortalDetailsControls = !!target.checked;
+      pr.saveSettings();
+      if (pr.state.settings.showPortalDetailsControls) {
+        pr.injectPortalDetailsAction();
+      } else {
+        pr.removePortalDetailsAction();
+      }
+      return true;
+    }
+
+    return false;
+  };
+
+  pr.handleDialogFieldChange = function(ev) {
+    if (!pr.panelForEvent(ev)) return;
+
+    var target = ev.target;
+    var field = target && target.getAttribute('data-field');
+    if (pr.handleDialogSettingChange(target)) return;
+
+    if (field === 'default-stop-minutes') {
+      var value = pr.parseDurationMinutes(target.value);
+      if (value === null) {
+        pr.showMessage('Invalid duration. Use values like 15m, 1.5h, or 2d.');
+        target.value = pr.formatDurationInput(pr.state.settings.defaultStopMinutes);
+        return;
+      }
+
+      pr.state.settings.defaultStopMinutes = value;
+      pr.saveSettings();
+      pr.markRouteStale();
+      pr.renderPanel();
+    } else if (field === 'stop-minutes') {
+      var stopIndex = Number(target.getAttribute('data-index'));
+      var stopValue = pr.parseDurationMinutes(target.value);
+      if (stopValue === null) {
+        pr.showMessage('Invalid duration. Use values like 15m, 1.5h, or 2d.');
+        target.value = pr.formatDurationInput(pr.getEffectiveStopMinutes(pr.state.stops[stopIndex]));
+        return;
+      }
+
+      pr.setStopMinutes(stopIndex, stopValue);
+    } else if (field === 'saved-route-name') {
+      var routeId = target.getAttribute('data-route-id');
+      var previous = pr.routeLibraryStorage().getRoute(routeId);
+      if (!pr.setSavedRouteName(routeId, target.value) && previous) {
+        target.value = previous.name || '';
+      }
+    } else if (field === 'selected-library-route') {
+      pr.setLibraryRouteSelected(target.getAttribute('data-route-id'), target.checked);
+      pr.refreshRouteLibraryPanel();
+    } else if (field === 'route-library-backend') {
+      pr.setRouteLibraryBackend(target.value);
+    }
   };
 
   pr.setupDialogEventHandlers = function() {
     if (pr.dialogEventsRegistered) return;
     pr.dialogEventsRegistered = true;
 
-    document.addEventListener('click', function(ev) {
-      var panel = ev.target.closest('#' + pr.DOM_IDS.dialogContent + ', #' + pr.DOM_IDS.pointsDialogContent);
-      if (!panel) return;
-
-      var target = ev.target.closest('[data-action]');
-      var action = target && target.getAttribute('data-action');
-      if (!action) return;
-
-      ev.preventDefault();
-      pr.handleAction(action, target);
-    });
-
-    document.addEventListener('dragstart', function(ev) {
-      var panel = ev.target.closest('#' + pr.DOM_IDS.dialogContent + ', #' + pr.DOM_IDS.pointsDialogContent);
-      if (!panel) return;
-
-      var item = ev.target.closest('.portal-route-stop');
-      if (!item) return;
-      if (ev.target.closest('.portal-route-wait-cell, .portal-route-row-action')) {
-        ev.preventDefault();
-        return;
-      }
-
-      pr.state.dragStopIndex = Number(item.getAttribute('data-index'));
-      if (!isFinite(pr.state.dragStopIndex)) {
-        pr.state.dragStopIndex = null;
-        ev.preventDefault();
-        return;
-      }
-
-      ev.dataTransfer.effectAllowed = 'move';
-      ev.dataTransfer.setData('text/plain', String(pr.state.dragStopIndex));
-      item.classList.add('portal-route-dragging');
-    });
-
-    document.addEventListener('dragend', function(ev) {
-      var item = ev.target.closest('.portal-route-stop');
-      if (item) item.classList.remove('portal-route-dragging');
-      document.querySelectorAll('.portal-route-drop-target').forEach(function(row) {
-        row.classList.remove('portal-route-drop-target', 'portal-route-drop-after');
-      });
-      pr.state.dragStopIndex = null;
-    });
-
-    document.addEventListener('dragover', function(ev) {
-      var panel = ev.target.closest('#' + pr.DOM_IDS.dialogContent + ', #' + pr.DOM_IDS.pointsDialogContent);
-      if (!panel) return;
-
-      var item = ev.target.closest('.portal-route-stop');
-      if (!item) return;
-      if (pr.state.dragStopIndex === null || pr.state.dragStopIndex === undefined) return;
-
-      ev.preventDefault();
-      ev.dataTransfer.dropEffect = 'move';
-      document.querySelectorAll('.portal-route-drop-target').forEach(function(row) {
-        if (row !== item) row.classList.remove('portal-route-drop-target', 'portal-route-drop-after');
-      });
-      var dropTarget = pr.listDropTarget(ev, item);
-      item.classList.add('portal-route-drop-target');
-      item.classList.toggle('portal-route-drop-after', !!(dropTarget && dropTarget.after));
-    });
-
-    document.addEventListener('drop', function(ev) {
-      var panel = ev.target.closest('#' + pr.DOM_IDS.dialogContent + ', #' + pr.DOM_IDS.pointsDialogContent);
-      if (!panel) return;
-
-      var item = ev.target.closest('.portal-route-stop');
-      if (!item) return;
-
-      ev.preventDefault();
-      item.classList.remove('portal-route-drop-target', 'portal-route-drop-after');
-
-      var fromIndex = pr.state.dragStopIndex;
-      var dropTarget = pr.listDropTarget(ev, item);
-      pr.state.dragStopIndex = null;
-
-      if (!dropTarget) return;
-      pr.moveStopToInsertIndex(fromIndex, dropTarget.index);
-    });
-
-    document.addEventListener('change', function(ev) {
-      var panel = ev.target.closest('#' + pr.DOM_IDS.dialogContent + ', #' + pr.DOM_IDS.pointsDialogContent);
-      if (!panel) return;
-
-      var target = ev.target;
-      if (target && target.getAttribute('data-field') === 'start-on-current-location') {
-        pr.setStartOnCurrentLocation(!!target.checked);
-        return;
-      }
-
-      if (target && target.getAttribute('data-field') === 'include-return-to-start') {
-        pr.setLoopBackToStart(!!target.checked);
-        return;
-      }
-
-      if (target && target.getAttribute('data-field') === 'show-segment-times-on-map') {
-        pr.state.settings.showSegmentTimesOnMap = !!target.checked;
-        pr.saveSettings();
-        pr.redrawSegmentTimeLabels();
-        return;
-      }
-
-      if (target && target.getAttribute('data-field') === 'auto-replot-on-edit') {
-        pr.state.settings.autoReplotOnEdit = !!target.checked;
-        pr.saveSettings();
-        if (!pr.state.settings.autoReplotOnEdit && pr.state.autoReplotTimer) {
-          window.clearTimeout(pr.state.autoReplotTimer);
-          pr.state.autoReplotTimer = null;
-        }
-        if (pr.state.settings.autoReplotOnEdit && pr.state.routeDirty && pr.calculateRoute) {
-          pr.queueAutoReplot();
-        }
-        return;
-      }
-
-      if (target && target.getAttribute('data-field') === 'show-mini-control') {
-        pr.state.settings.showMiniControl = !!target.checked;
-        pr.saveSettings();
-        if (pr.state.settings.showMiniControl) {
-          pr.createMiniControl();
-          pr.renderMiniControl();
-        } else {
-          pr.removeMiniControl();
-        }
-        return;
-      }
-
-      if (target && target.getAttribute('data-field') === 'show-portal-details-controls') {
-        pr.state.settings.showPortalDetailsControls = !!target.checked;
-        pr.saveSettings();
-        if (pr.state.settings.showPortalDetailsControls) {
-          pr.injectPortalDetailsAction();
-        } else {
-          pr.removePortalDetailsAction();
-        }
-        return;
-      }
-
-      if (target && target.getAttribute('data-field') === 'default-stop-minutes') {
-        var value = pr.parseDurationMinutes(target.value);
-        if (value === null) {
-          pr.showMessage('Invalid duration. Use values like 15m, 1.5h, or 2d.');
-          target.value = pr.formatDurationInput(pr.state.settings.defaultStopMinutes);
-          return;
-        }
-
-        pr.state.settings.defaultStopMinutes = value;
-        pr.saveSettings();
-        pr.markRouteStale();
-        pr.renderPanel();
-      } else if (target && target.getAttribute('data-field') === 'stop-minutes') {
-        var stopIndex = Number(target.getAttribute('data-index'));
-        var stopValue = pr.parseDurationMinutes(target.value);
-        if (stopValue === null) {
-          pr.showMessage('Invalid duration. Use values like 15m, 1.5h, or 2d.');
-          target.value = pr.formatDurationInput(pr.getEffectiveStopMinutes(pr.state.stops[stopIndex]));
-          return;
-        }
-
-        pr.setStopMinutes(stopIndex, stopValue);
-      } else if (target && target.getAttribute('data-field') === 'stop-title') {
-        pr.setStopTitle(Number(target.getAttribute('data-index')), target.value);
-      }
-    });
+    document.addEventListener('click', pr.handleDialogClick);
+    document.addEventListener('dragstart', pr.handleDialogDragStart);
+    document.addEventListener('dragend', pr.handleDialogDragEnd);
+    document.addEventListener('dragover', pr.handleDialogDragOver);
+    document.addEventListener('drop', pr.handleDialogDrop);
+    document.addEventListener('change', pr.handleDialogFieldChange);
+    document.addEventListener('contextmenu', pr.handleAddMenuContext);
+    document.addEventListener('touchstart', pr.handleAddMenuTouchStart);
+    document.addEventListener('touchend', pr.cancelAddMenuTouch);
+    document.addEventListener('touchcancel', pr.cancelAddMenuTouch);
+    document.addEventListener('touchmove', pr.cancelAddMenuTouch);
   };
 
   pr.addToolboxLink = function() {
@@ -3687,10 +5430,7 @@ input.portal-route-waypoint-name-input:focus,
     link.addEventListener('click', function(ev) {
       ev.preventDefault();
       if (!pr.isLayerEnabled()) return;
-      pr.state.panelView = 'main';
-      pr.state.panelOpen = true;
-      pr.savePanelOpen();
-      pr.renderPanel();
+      pr.openMainPanel();
     });
 
     var toolbox = document.getElementById('toolbox');
@@ -3818,6 +5558,7 @@ input.portal-route-waypoint-name-input:focus,
       pr.renderMiniControl();
       pr.redrawLabels();
       pr.redrawRouteLine();
+      if (!pr.state.route || pr.state.routeDirty) pr.queueRouteCalculationIfReady();
       pr.injectPortalDetailsAction();
 
       if (typeof window.addHook === 'function' && !pr.portalHookRegistered) {

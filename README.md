@@ -1550,11 +1550,11 @@ Plan a route with multiple portals and open Google Maps (max 9 waypoints) or App
 
 
 
-Route planning through selected portals with segment drive times, stop-time accounting, and Google Maps export.
+Route planning through selected portals with segment drive times, stop-time accounting, and map export.
 
 *[Homepage](https://github.com/mdiehn/iitc-plugin-portal-route)* |
 *[Issue tracker](https://github.com/mdiehn/iitc-plugin-portal-route/issues)* |
-*Version:* 1.0.0
+*Version:* 1.1.0-dev.20260503170907
 
 
   

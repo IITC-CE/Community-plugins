@@ -3,11 +3,11 @@
 // @id              portal-route@MikeDiehn
 // @name            Portal Route
 // @category        Navigate
-// @version         1.0.0
+// @version         1.1.0-dev.20260503170907
 // @namespace       https://github.com/mdiehn/iitc-plugin-portal-route
 // @updateURL       https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/MikeDiehn/portal-route.meta.js
 // @downloadURL     https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/MikeDiehn/portal-route.user.js
-// @description     Route planning through selected portals with segment drive times, stop-time accounting, and Google Maps export.
+// @description     Route planning through selected portals with segment drive times, stop-time accounting, and map export.
 // @homepageURL     https://github.com/mdiehn/iitc-plugin-portal-route
 // @issueTracker    https://github.com/mdiehn/iitc-plugin-portal-route/issues
 // @include         https://intel.ingress.com/*

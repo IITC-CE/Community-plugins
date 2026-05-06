@@ -2,7 +2,7 @@
 // @author         jaiperdu
 // @name           COMM Filter Tab
 // @category       COMM
-// @version        0.4.13
+// @version        0.4.14
 // @description    Show virus in the regular Comm and add a new tab with portal/player name filter and event type filter.
 // @id             comm-filter-tab@jaiperdu
 // @namespace      https://github.com/IITC-CE/ingress-intel-total-conversion
@@ -20,7 +20,7 @@ if(typeof window.plugin !== 'function') window.plugin = function() {};
 //PLUGIN AUTHORS: writing a plugin outside of the IITC build environment? if so, delete these lines!!
 //(leaving them in place might break the 'About IITC' page or break update checks)
 plugin_info.buildName = 'lejeu';
-plugin_info.dateTimeVersion = '2025-08-19-120857';
+plugin_info.dateTimeVersion = '2026-05-05-195436';
 plugin_info.pluginId = 'comm-filter-tab';
 //END PLUGIN AUTHORS NOTE
 
@@ -660,14 +660,8 @@ function setup() {
 }\
 ').appendTo('head');
 
-  // injection
-  if (window.script_info.script.version < '0.34') {
-    alert('comm-filter: require IITC 0.34+');
-    return;
-  } else {
-    console.info('comm-filter: replace renderPortal');
-    window.chat.renderPortal = renderPortal;
-  }
+  console.info('comm-filter: replace renderPortal');
+  window.chat.renderPortal = renderPortal;
 
   // plugin
   commFilter.filters = {

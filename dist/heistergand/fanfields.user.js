@@ -3,7 +3,7 @@
 // @id              fanfields@heistergand
 // @name            Fan Fields 2
 // @category        Layer
-// @version         2.8.1.20260501
+// @version         2.8.2.20260506
 // @description     Calculate how to link the portals to create the largest tidy set of nested fields. Enable from the layer chooser.
 // @downloadURL     https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/heistergand/fanfields.user.js
 // @updateURL       https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/heistergand/fanfields.meta.js
@@ -26,7 +26,7 @@ function wrapper(plugin_info) {
   // ensure plugin framework is there, even if iitc is not yet loaded
   if (typeof window.plugin !== 'function') window.plugin = function () {};
   plugin_info.buildName = 'main';
-  plugin_info.dateTimeVersion = '2026-02-18-004642';
+  plugin_info.dateTimeVersion = '2026-05-06-233150';
   plugin_info.pluginId = 'fanfields';
 
   /* global L, $, dialog, map, portals, links, plugin, formatDistance  -- eslint*/
@@ -34,6 +34,11 @@ function wrapper(plugin_info) {
 
   var arcname = (window.PLAYER && window.PLAYER.team === 'ENLIGHTENED') ? 'Arc' : '***';
   var changelog = [{
+      version: '2.8.2',
+      changes: [
+        'FIX: Respect Intel integrates already existing own-faction links into planned fields.',
+      ],
+    },{
       version: '2.8.1',
       changes: [
         'NEW: Add support for 3rd party plugin "Portal Route".',
@@ -622,7 +627,8 @@ function wrapper(plugin_info) {
         '<p><b>Avoid blockers</b><br>' +
         'If you need to plan around links you cannot or do not want to destroy, use <i>Respect&nbsp;Intel</i>. ' +
         'Choose which factions\' links are treated as blockers (NONE / ALL / ENL / RES / ENL &amp; MAC / RES &amp; MAC / MAC). ' +
-        'The plan avoids crossing those currently visible intel links.</p>' +
+        'The plan avoids crossing those currently visible intel links. When the selected mode includes your own faction, existing visible links from your own faction, ' +
+        'with both portals inside the selected area, are integrated as already-built links for field planning.</p>' +
 
         '<p><b>Order & route planning</b><br>' +
         'Switch between <i>Clockwise</i> and <i>Counterclockwise</i> order to find an easier route or squeeze out extra fields. ' +
@@ -1498,6 +1504,28 @@ function wrapper(plugin_info) {
     }
   };
 
+  thisplugin.getOwnFactionTeam = function () {
+    if (!window.PLAYER) return undefined;
+
+    if (window.PLAYER.team === 'ENLIGHTENED' || window.PLAYER.team === window.TEAM_ENL) {
+      return window.TEAM_ENL;
+    }
+
+    if (window.PLAYER.team === 'RESISTANCE' || window.PLAYER.team === window.TEAM_RES) {
+      return window.TEAM_RES;
+    }
+
+    return undefined;
+  };
+
+  thisplugin.isOwnFactionRespected = function () {
+    var ownTeam = thisplugin.getOwnFactionTeam();
+    if (ownTeam === undefined) return false;
+
+    return thisplugin.getRespectIntelTeams()
+      .indexOf(ownTeam) !== -1;
+  };
+
   thisplugin.getRespectIntelLabel = function () {
     switch (thisplugin.respectIntelLinksMode) {
       case thisplugin.respectIntelLinksModeENUM.ALL:
@@ -2270,6 +2298,7 @@ function wrapper(plugin_info) {
   thisplugin.validTriangles = null;
   thisplugin.validLinkCount = 0;
   thisplugin.validTriangleCount = 0;
+  thisplugin.existingIntelPlanLinks = [];
 
   thisplugin.pointKey = function (p) {
     return p.x + ',' + p.y;
@@ -2340,6 +2369,15 @@ function wrapper(plugin_info) {
 
     // Track successful links (undirected) so we can decide which triangles can actually be formed.
     var builtLinks = {};
+    var existingIntelPlanLinks = thisplugin.existingIntelPlanLinks || [];
+    for (var ei = 0; ei < existingIntelPlanLinks.length; ei++) {
+      var existingLink = existingIntelPlanLinks[ei];
+      var existingGuidA = existingLink.guidA || pointToGuid[thisplugin.pointKey(existingLink.a)];
+      var existingGuidB = existingLink.guidB || pointToGuid[thisplugin.pointKey(existingLink.b)];
+      if (existingGuidA && existingGuidB) {
+        builtLinks[thisplugin.getUndirectedLinkKey(existingGuidA, existingGuidB)] = true;
+      }
+    }
 
     // Track whether a portal is under a field at the moment we arrive there.
     var portalUnderFieldAtVisit = {};
@@ -2676,6 +2714,7 @@ function wrapper(plugin_info) {
     thisplugin.startingMarker = undefined;
     thisplugin.startingMarkerGUID = undefined;
     thisplugin.centerKeys = 0;
+    thisplugin.existingIntelPlanLinks = [];
 
 
 
@@ -2867,6 +2906,37 @@ function wrapper(plugin_info) {
 
     // Store signature for the next run
     thisplugin.lastPlanSignature = currentSignature;
+
+    thisplugin.existingIntelPlanLinks = [];
+    if (thisplugin.isOwnFactionRespected()) {
+      var ownTeam = thisplugin.getOwnFactionTeam();
+      var fanpointGuidByPoint = {};
+      for (guid in this.fanpoints) {
+        fanpointGuidByPoint[thisplugin.pointKey(this.fanpoints[guid])] = guid;
+      }
+
+      if (ownTeam !== undefined) {
+        thisplugin.existingIntelPlanLinks = Object.values(thisplugin.intelLinks)
+          .filter(function (link) {
+            var guidA = fanpointGuidByPoint[thisplugin.pointKey(link.a)];
+            var guidB = fanpointGuidByPoint[thisplugin.pointKey(link.b)];
+            return link.team === ownTeam && guidA && guidB;
+          })
+          .map(function (link) {
+            var guidA = fanpointGuidByPoint[thisplugin.pointKey(link.a)];
+            var guidB = fanpointGuidByPoint[thisplugin.pointKey(link.b)];
+            return {
+              a: link.a,
+              b: link.b,
+              team: link.team,
+              guidA: guidA,
+              guidB: guidB,
+              isExistingIntelLink: true,
+              counts: false
+            };
+          });
+      }
+    }
 
 
 
@@ -3204,9 +3274,15 @@ function wrapper(plugin_info) {
               break;
             }
           }
-          if (intersection === 0 && this.linkExists(maplinks, possibleline)) {
+          var existsAsBlockingIntelLink = this.linkExists(maplinks, possibleline);
+          var existsAsOwnIntelLink = this.linkExists(thisplugin.existingIntelPlanLinks, possibleline);
+          if (intersection === 0 && (existsAsBlockingIntelLink || existsAsOwnIntelLink)) {
             possibleline.counts = false;
-            if (possibleline.isFanLink && outbound === 1) centerOutgoings--;
+            if (possibleline.isFanLink && outbound === 1) {
+              centerOutgoings--;
+            } else if (possibleline.isFanLink) {
+              thisplugin.centerKeys--;
+            }
           }
         }
         if (intersection === 0) {
@@ -3239,8 +3315,7 @@ function wrapper(plugin_info) {
           var thirds = [];
           if (thisplugin.isRespectingIntel()) {
             if (possibleline.counts) {
-              // thirds = this.getThirds(donelinks.concat(maplinks), possibleline.a, possibleline.b);
-              thirds = thisplugin.getThirds2(donelinks, maplinks, possibleline.a, possibleline.b);
+              thirds = thisplugin.getThirds2(donelinks, thisplugin.existingIntelPlanLinks, possibleline.a, possibleline.b);
             }
           } else {
             // thirds = this.getThirds(donelinks, possibleline.a, possibleline.b);

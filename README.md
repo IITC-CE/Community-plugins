@@ -838,7 +838,7 @@ Calculate how to link the portals to create the largest tidy set of nested field
 *Recommends*: bookmarks@ZasoGD draw-tools-plus@zaso liveInventory@DanielOnDiordna keys@xelio  |
 *[Homepage](https://github.com/Heistergand/fanfields2/)* |
 *[Issue tracker](https://github.com/Heistergand/fanfields2/issues)* |
-*Version:* 2.8.1.20260501
+*Version:* 2.8.2.20260506
 
 
   
@@ -1554,7 +1554,7 @@ Route planning through selected portals with segment drive times, stop-time acco
 
 *[Homepage](https://github.com/mdiehn/iitc-plugin-portal-route)* |
 *[Issue tracker](https://github.com/mdiehn/iitc-plugin-portal-route/issues)* |
-*Version:* 1.1.0-dev.20260503170907
+*Version:* 1.3.0
 
 
   

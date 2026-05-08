@@ -3,7 +3,7 @@
 // @id             portaldetailsmod@Whomiga
 // @name           Portal Detail Mods
 // @category       Info
-// @version        0.25.0
+// @version        0.27.0
 // @description    Show Mod Pictures in Portal Details
 // @downloadURL    https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Whomiga/portaldetailsmod.user.js
 // @updateURL      https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Whomiga/portaldetailsmod.meta.js
@@ -23,15 +23,22 @@ function wrapper(plugin_info) {
     var self = window.plugin.PortalDetailMods;
     self.id = 'PortalDetailMods';
     self.title = 'PortalDetailMods';
-    self.version = '0.25.0.20260501.143500';
+    self.version = '0.27.0.20260506.233600';
     self.prefix = 'portaldetailmods-';
     self.author = 'Whomiga';
+
+   // Debug Output
+    self.debugTypes = Object.freeze({
+        enabled:  false,
+        initCss:  true,
+        settings: true,
+    });
 
     // Name of the IITC build for first-party plugins
     plugin_info.buildName = "PortalDetailMods";
 
     // Datetime-derived version of the plugin
-    plugin_info.dateTimeVersion = "20260501.143500";
+    plugin_info.dateTimeVersion = "20260506.233600";
 
     // ID/name of the plugin
     plugin_info.pluginId = "portalDetailMods";
@@ -79,8 +86,10 @@ function wrapper(plugin_info) {
                 margin-top:    0px !important;
                 margin-bottom: 4px !important;
                 color: ${self.interfaceColors.Header} !important;`,
-            ' label': `color: ${self.interfaceColors.Label} !important;`,
-            '-innersettings': `padding: 8px 8px;
+            ' label': `
+                color: ${self.interfaceColors.Label} !important;`,
+            '-innersettings': `
+                padding: 8px 8px;
                 border: 1px solid ${self.interfaceColors.Border};
                 background-color: ${self.interfaceColors.BackGrnd};
                 color: ${self.interfaceColors.Text};`,
@@ -118,6 +127,7 @@ function wrapper(plugin_info) {
             id:    'main',
             // Colors Used In Dialog
             css: {
+                comment: 'Main Dialog',
                 ...self.interfaceCss.main
             },
             colors: {
@@ -171,6 +181,7 @@ function wrapper(plugin_info) {
                 id: 'modimage',
                 // CSS Information
                 css: {
+                    comment: 'Portal Details',
                     id_pre_id: 'pre_id',
                     parent_1: `
                         display: inline-block !important`,
@@ -193,6 +204,11 @@ function wrapper(plugin_info) {
     const KEY_SETTINGS = "plugin-portaldetailmods";
     const SETTINGS_PREFIX = self.interfaceData.prefix + "settings--";
     self.settings = {
+        // Version Info
+        versionData: {
+            version: self.version
+        },
+        // Element values
         elementData: {
             ...get_elementData(self.interfaceData)
         }
@@ -238,8 +254,6 @@ function wrapper(plugin_info) {
 **  parent?? - must be unique in CSS
 **   - parent_1: value = '.|#' + ID + '{ value }'
 **   - parent_2: value = '.|#' + ID + '{ value }'
-**  content
-**   - content: parent: value = '.|# + ID + 'content { value }'
 **  otherwise
 **  key: subkey = '.|#' + ID + 'key { subkey }'
 **
@@ -254,11 +268,11 @@ function wrapper(plugin_info) {
         let addstyle = false;
         if (style == null) {
             style = document.createElement('style');
+            style.innerHTML += `\n/*\n** Begin CSS for ` + self.title + `\n*/\n`;
             addstyle = true;
         }
         for (let key in obj) {
             if (key === targetKey && typeof obj[key] == 'object' && obj[key] !== null) {
-                let style = document.createElement('style');
                 id = (obj.class || obj.sub_id || obj.tab_id ||  self.prefix + obj.id);
                 Object.entries(obj.css).forEach(([subKey, value]) => {
                     let add_prefix = false;
@@ -292,39 +306,71 @@ function wrapper(plugin_info) {
                         subKey = 'parent';
                     }
                     switch(subKey) {
-                        case 'parent':
-                            style.innerHTML += prefix + id + ' {' + value + '}'; 
+                        case 'comment':
+                            style.innerHTML += '\n/* ' + value.replace(/[^\S\r\n]+/g, ' ').replace(/\n/g, "\n   ").trim() + ' */';
                             break;
-                        case "content":
-                            Object.entries(value).forEach(([type, content]) => {
-                                switch(type) {
-                                    case 'parent':
-                                        style.innerHTML += prefix + id + 'content {' + content + '}'; 
-                                        break;
-                                }
-                                style.innerHTML += "\n";
-                            });
+                        case 'parent':
+                            style.innerHTML += prefix + id + ' {\n    ' + value.replace(/[^\S\r\n]+/g, ' ').replace(/\n/g, "\n   ").trim() + '\n}'; 
                             break;
                         default:
-                            style.innerHTML += prefix + id + '' + subKey + ' {' + value + '}'; 
+                            style.innerHTML += prefix + id + '' + subKey + ' {\n    ' + value.replace(/[^\S\r\n]+/g, ' ').replace(/\n/g, "\n   ").trim() + '\n}'; 
                             break;
                     }
                     style.innerHTML += "\n";
                 });
-                document.body.appendChild(style);
             } else if (typeof obj[key] === 'object' && obj[key] !== null) {
                 // Recurse deeper into the object
                 init_Css(obj[key], style);
             }
         }
         if (addstyle) {
+            style.innerHTML += `/*\n** End CSS for ` + self.title + `\n*/\n`;
             document.body.appendChild(style);
+            debugLog('initCss', self.title, style);
         }
     };
 
-//
-// Type of OS/Browser
-//    
+/*
+** Debug and Output Functions
+*/
+    // Output Functions, Always Output To Console
+    function outputInfo(...args) {
+        return debugOutput('force', 'info', ...args);
+    }
+
+    function outputLog(...args) {
+        return debugOutput('force', 'log', ...args);
+    }
+
+    function outputError(...args) {
+        return debugOutput('force', 'error', ...args);
+    }
+
+    // Debug Functions, Controlled By Debug Types
+    function debugInfo(debugType, ...args) {
+        return debugOutput(debugType, 'info', ...args)
+    }
+
+    function debugLog(debugType, ...args) {
+        return debugOutput(debugType, 'log', ...args)
+    }
+
+    function debugError(debugType, ...args) {
+        return debugOutput(debugType, 'error', ...args);
+    }
+
+    // Used By Both Output And Debug Functions
+    function debugOutput(debugType, consoleType, ...args) {
+        if ((self.debugTypes.enabled) || (debugType == 'force')) {
+            if ((self.debugTypes[debugType])||(debugType === 'force')||(debugType === 'always')) {
+                console[consoleType]?.(...args);
+            }
+        }
+    }
+
+/*
+** Type of OS/Browser
+*/    
     function isMobile() {
         return (typeof android !== "undefined" && !!android);
     }
@@ -709,7 +755,7 @@ function wrapper(plugin_info) {
         if ('settings' in localData && localData.settings instanceof Object) {
             if (localData.settings.imageMode) {
                 // Update for version 0.20.0
-                console.log(self.title + " - Updated settings for 0.20.0");
+                outputLog(self.title + " - Updated settings for 0.20.0");
                 let tempsettings = { elementData: { ...localData.settings } };
                 // Deep Merge Of Fixed Settings
                 $.extend(true, self.settings, tempsettings);
@@ -719,6 +765,7 @@ function wrapper(plugin_info) {
             else {
                 // Deep Merge
                 $.extend(true, self.settings, localData.settings);
+                localStorage_Save();
             }
         }
     };
@@ -741,13 +788,16 @@ function wrapper(plugin_info) {
 //
 	self.setup = function() {
         if ('pluginloaded' in self) {
-            console.log('IITC plugin already loaded: ' + self.title + ' version ' + self.version);
+            outputLog('IITC plugin already loaded: ' + self.title + ' version ' + self.version);
             return;
         } 
         else {
             self.pluginloaded = true;
         }
 
+        // Debug Output
+        debugLog('settings', self.title, self.settings);
+    
         localStorage_Init();
         localStorage_loadSettings();
 
@@ -770,7 +820,7 @@ function wrapper(plugin_info) {
         //
         init_Css(self.interfaceData);
 
-        console.log('IITC plugin loaded: ' + self.title + ' version ' + self.version + " ");
+        outputLog('IITC plugin loaded: ' + self.title + ' version ' + self.version + " ");
     };
 
     var setup = function() {

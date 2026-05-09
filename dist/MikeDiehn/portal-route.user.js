@@ -3,7 +3,7 @@
 // @id              portal-route@MikeDiehn
 // @name            Portal Route
 // @category        Navigate
-// @version         1.3.0
+// @version         1.3.1
 // @namespace       https://github.com/mdiehn/iitc-plugin-portal-route
 // @updateURL       https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/MikeDiehn/portal-route.meta.js
 // @downloadURL     https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/MikeDiehn/portal-route.user.js
@@ -6308,6 +6308,50 @@ button.portal-route-waypoint-name,
       console.error('Portal Route setup failed:', e);
     }
   };
+
+(function() {
+  function isPortalRouteLayerOff() {
+    return pr.isLayerEnabled && !pr.isLayerEnabled();
+  }
+
+  function removePortalRouteInfoPanelControls() {
+    if (pr.removePortalDetailsAction) pr.removePortalDetailsAction();
+  }
+
+  var originalInjectPortalDetailsAction = pr.injectPortalDetailsAction;
+  if (typeof originalInjectPortalDetailsAction === 'function') {
+    pr.injectPortalDetailsAction = function() {
+      if (isPortalRouteLayerOff()) {
+        removePortalRouteInfoPanelControls();
+        return;
+      }
+
+      return originalInjectPortalDetailsAction.apply(this, arguments);
+    };
+  }
+
+  var originalSyncLayerUi = pr.syncLayerUi;
+  if (typeof originalSyncLayerUi === 'function') {
+    pr.syncLayerUi = function() {
+      var result = originalSyncLayerUi.apply(this, arguments);
+
+      if (isPortalRouteLayerOff()) {
+        removePortalRouteInfoPanelControls();
+      }
+
+      return result;
+    };
+  }
+
+  var originalDisable = pr.disable;
+  if (typeof originalDisable === 'function') {
+    pr.disable = function() {
+      var result = originalDisable.apply(this, arguments);
+      removePortalRouteInfoPanelControls();
+      return result;
+    };
+  }
+})();
 
 
   var setup = pr.setup;

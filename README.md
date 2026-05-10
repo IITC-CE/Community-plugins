@@ -1554,7 +1554,7 @@ Route planning through selected portals with segment drive times, stop-time acco
 
 *[Homepage](https://github.com/mdiehn/iitc-plugin-portal-route)* |
 *[Issue tracker](https://github.com/mdiehn/iitc-plugin-portal-route/issues)* |
-*Version:* 1.3.1
+*Version:* 1.4.1
 
 
   

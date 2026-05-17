@@ -3,7 +3,7 @@
 // @id              portal-route@MikeDiehn
 // @name            Portal Route
 // @category        Navigate
-// @version         1.4.1
+// @version         1.6.0
 // @namespace       https://github.com/mdiehn/iitc-plugin-portal-route
 // @updateURL       https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/MikeDiehn/portal-route.meta.js
 // @downloadURL     https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/MikeDiehn/portal-route.user.js

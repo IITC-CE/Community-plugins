@@ -3,7 +3,7 @@
 // @id              portal-route@MikeDiehn
 // @name            Portal Route
 // @category        Navigate
-// @version         1.4.1
+// @version         1.6.0
 // @namespace       https://github.com/mdiehn/iitc-plugin-portal-route
 // @updateURL       https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/MikeDiehn/portal-route.meta.js
 // @downloadURL     https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/MikeDiehn/portal-route.user.js
@@ -63,7 +63,9 @@ function wrapper(plugin_info) {
 }
 
 .leaflet-container.portal-route-add-point-mode,
-.leaflet-container.portal-route-add-point-mode * {
+.leaflet-container.portal-route-add-point-mode *,
+.leaflet-container.portal-route-home-pick-mode,
+.leaflet-container.portal-route-home-pick-mode * {
   cursor: crosshair !important;
 }
 
@@ -98,8 +100,67 @@ function wrapper(plugin_info) {
   width: 4.5em;
 }
 
+.portal-route-setting select {
+  max-width: 100%;
+}
+
 .portal-route-default-stop-setting {
   flex: 1 1 auto;
+}
+
+.portal-route-travel-controls {
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.portal-route-travel-controls .portal-route-setting {
+  flex: 0 1 auto;
+  white-space: nowrap;
+}
+
+.portal-route-travel-controls .portal-route-setting input {
+  width: 3.4em;
+}
+
+.portal-route-travel-controls .portal-route-setting select {
+  width: 5.8em;
+}
+
+.portal-route-home-coordinate-setting input {
+  width: 9em;
+}
+
+
+.portal-route-line-style-options {
+  align-items: center;
+}
+
+.portal-route-line-style-options .portal-route-setting {
+  flex: 0 1 auto;
+  white-space: nowrap;
+}
+
+.portal-route-line-style-options select {
+  width: 6.4em;
+}
+
+
+.portal-route-long-setting-row {
+  align-items: stretch;
+}
+
+.portal-route-long-setting {
+  display: flex;
+  flex: 1 1 100%;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 4px;
+}
+
+.portal-route-long-setting input {
+  width: 100%;
+  min-width: 18em;
 }
 
 .portal-route-clear-list-button {
@@ -569,17 +630,50 @@ button.portal-route-waypoint-badge-wide {
   justify-content: space-between;
 }
 
+
+.portal-route-settings-dialog-content {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  max-height: calc(100vh - 120px);
+  min-height: 0;
+  overflow: hidden !important;
+}
+
+.portal-route-settings-body {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.portal-route-settings-scroll-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: visible;
+  padding-right: 3px;
+}
+
+.portal-route-settings-footer {
+  flex: 0 0 auto;
+}
+
 .portal-route-points-dialog-content {
   display: flex;
   flex-direction: column;
+  height: 100%;
   max-height: calc(100vh - 120px);
+  min-height: 0;
   overflow: hidden !important;
 }
 
 .portal-route-points-list-body {
+  flex: 1 1 auto;
   min-height: 0;
   overflow-y: auto;
   overflow-x: visible;
+  padding-right: 3px;
 }
 
 .portal-route-points-panel-actions {
@@ -630,6 +724,27 @@ button.portal-route-waypoint-badge-wide {
 .portal-route-library-toolbar {
   justify-content: center;
   margin-bottom: 7px;
+}
+
+.portal-route-library-dialog-content {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  max-height: calc(100vh - 120px);
+  min-height: 0;
+  overflow: hidden !important;
+}
+
+.portal-route-library-scroll-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: visible;
+  padding-right: 3px;
+}
+
+.portal-route-library-footer {
+  flex: 0 0 auto;
 }
 
 .portal-route-library-list {
@@ -873,6 +988,26 @@ button.portal-route-waypoint-badge-wide {
   cursor: grab;
 }
 
+.portal-route-home-point-marker span {
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  background: rgba(116, 226, 142, 0.88);
+  text-align: center;
+  line-height: 18px;
+}
+
+.portal-route-home-point-marker span::before {
+  content: "⌂";
+  color: #111;
+  font-size: 15px;
+  font-weight: bold;
+}
+
+.portal-route-home-point-label span {
+  border-color: #74e28e;
+}
+
 .portal-route-map-point-marker-selected span {
   outline: 1px solid #fff;
   outline-offset: 2px;
@@ -1062,6 +1197,21 @@ button.portal-route-waypoint-badge-wide {
   overflow-x: visible !important;
 }
 
+.ui-dialog.portal-route-settings-dialog .ui-dialog-content,
+.ui-dialog.portal-route-points-dialog .ui-dialog-content,
+.ui-dialog.portal-route-library-dialog .ui-dialog-content {
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+}
+
+.ui-dialog.portal-route-settings-dialog .ui-dialog-content > .portal-route-settings-dialog-content,
+.ui-dialog.portal-route-points-dialog .ui-dialog-content > .portal-route-points-dialog-content,
+.ui-dialog.portal-route-library-dialog .ui-dialog-content > .portal-route-library-dialog-content {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
 
 .ui-dialog.portal-route-anchored-dialog {
   max-width: calc(100vw - 20px) !important;
@@ -1122,6 +1272,18 @@ button.portal-route-waypoint-name,
     padding-left: 8px !important;
     padding-right: 8px !important;
     padding-bottom: 8px !important;
+  }
+
+  .ui-dialog.portal-route-settings-dialog .ui-dialog-content,
+  .ui-dialog.portal-route-points-dialog .ui-dialog-content,
+  .ui-dialog.portal-route-library-dialog .ui-dialog-content {
+    overflow: hidden !important;
+  }
+
+  .portal-route-settings-dialog-content,
+  .portal-route-points-dialog-content,
+  .portal-route-library-dialog-content {
+    max-height: calc(100dvh - 90px);
   }
 
   .portal-route-waypoint-row {
@@ -1194,6 +1356,11 @@ button.portal-route-waypoint-name,
 
   .portal-route-list-options {
     align-items: flex-start;
+  }
+
+  .portal-route-travel-controls {
+    overflow-x: auto;
+    padding-bottom: 2px;
   }
 
 }
@@ -1308,7 +1475,7 @@ button.portal-route-waypoint-name,
 
   pr.ID = 'portal-route';
   pr.NAME = 'Portal Route';
-  pr.VERSION = '1.2.0';
+  pr.VERSION = '1.6.0';
   pr.SHOW_VERSION_IN_PANEL = true;
 
   pr.DOM_IDS = {
@@ -1323,6 +1490,38 @@ button.portal-route-waypoint-name,
     bulkSelectDialogContent: 'iitc-plugin-portal-route-bulk-select-dialog-content',
     miniControl: 'iitc-plugin-portal-route-mini-control',
     toolboxLink: 'iitc-plugin-portal-route-toolbox-link'
+  };
+
+  pr.normalizeRouteLineColor = function(color) {
+    color = String(color == null ? '' : color).trim();
+    if (/^#[0-9a-fA-F]{6}$/.test(color)) return color.toLowerCase();
+    return pr.DEFAULT_SETTINGS.routeLineColor;
+  };
+
+  pr.normalizeRouteLineWeight = function(weight) {
+    weight = Number(weight);
+    if (weight === 3 || weight === 5 || weight === 7 || weight === 9) return weight;
+    return pr.DEFAULT_SETTINGS.routeLineWeight;
+  };
+
+  pr.ROUTE_LINE_STYLES = {
+    solid: 'solid',
+    dashed: 'dashed',
+    dotted: 'dotted'
+  };
+
+  pr.normalizeRouteLineStyle = function(style) {
+    style = String(style == null ? '' : style).trim();
+    if (style === pr.ROUTE_LINE_STYLES.solid || style === pr.ROUTE_LINE_STYLES.dashed || style === pr.ROUTE_LINE_STYLES.dotted) return style;
+    return pr.DEFAULT_SETTINGS.routeLineStyle;
+  };
+
+  pr.getRouteLineDashArray = function(style, weight) {
+    style = pr.normalizeRouteLineStyle(style);
+    weight = pr.normalizeRouteLineWeight(weight);
+    if (style === pr.ROUTE_LINE_STYLES.dashed) return String(weight * 3) + ' ' + String(weight * 2);
+    if (style === pr.ROUTE_LINE_STYLES.dotted) return '1 ' + String(weight * 2);
+    return '';
   };
 
   pr.STORAGE_KEYS = {
@@ -1341,10 +1540,34 @@ button.portal-route-waypoint-name,
     routeLibraryDriveFileId: 'iitc-portal-route-drive-file-id'
   };
 
+  pr.TRAVEL_MODES = {
+    drive: 'drive',
+    bike: 'bike',
+    walk: 'walk'
+  };
+
+  pr.ROUTING_PROVIDERS = {
+    google: 'google',
+    ors: 'ors'
+  };
+
   pr.DEFAULT_SETTINGS = {
     defaultStopMinutes: 5,
     includeReturnToStart: false,
     startOnCurrentLocation: false,
+    routingProvider: pr.ROUTING_PROVIDERS.google,
+    defaultTravelMode: pr.TRAVEL_MODES.drive,
+    driveSpeedMph: 30,
+    bikeSpeedMph: 10,
+    walkSpeedMph: 3,
+    orsApiKey: '',
+    orsBaseUrl: 'https://api.openrouteservice.org',
+    routeLineColor: '#ff7f00',
+    routeLineWeight: 5,
+    routeLineStyle: 'solid',
+    homeTitle: 'Home',
+    homeLat: '',
+    homeLng: '',
     googleDriveOAuthClientId: '',
     showSegmentTimesOnMap: false,
     showMiniControl: true,
@@ -1366,12 +1589,55 @@ button.portal-route-waypoint-name,
 
       if (typeof defaultValue === 'number') {
         value = Number(value);
-        if (isFinite(value) && value >= 0) normalized[key] = Math.round(value);
+        if (!isFinite(value) || value < 0) return;
+        if (key === 'routeLineWeight') {
+          normalized[key] = pr.normalizeRouteLineWeight ? pr.normalizeRouteLineWeight(value) : Math.round(value);
+          return;
+        }
+        if (/SpeedMph$/.test(key)) {
+          if (value > 0) normalized[key] = value;
+          return;
+        }
+        normalized[key] = Math.round(value);
         return;
       }
 
       if (typeof defaultValue === 'string') {
-        if (typeof value === 'string') normalized[key] = value.trim();
+        if (typeof value !== 'string') return;
+        value = value.trim();
+        if (key === 'defaultTravelMode') {
+          if (value === pr.TRAVEL_MODES.drive || value === pr.TRAVEL_MODES.bike || value === pr.TRAVEL_MODES.walk) {
+            normalized[key] = value;
+          }
+          return;
+        }
+        if (key === 'routingProvider') {
+          if (value === pr.ROUTING_PROVIDERS.google || value === pr.ROUTING_PROVIDERS.ors) {
+            normalized[key] = value;
+          }
+          return;
+        }
+        if (key === 'orsBaseUrl') {
+          normalized[key] = value.replace(/\/+$/, '') || pr.DEFAULT_SETTINGS.orsBaseUrl;
+          return;
+        }
+        if (key === 'routeLineColor') {
+          normalized[key] = pr.normalizeRouteLineColor ? pr.normalizeRouteLineColor(value) : value;
+          return;
+        }
+        if (key === 'routeLineStyle') {
+          normalized[key] = pr.normalizeRouteLineStyle ? pr.normalizeRouteLineStyle(value) : value;
+          return;
+        }
+        if (key === 'homeTitle') {
+          normalized[key] = value || pr.DEFAULT_SETTINGS.homeTitle;
+          return;
+        }
+        if (key === 'homeLat' || key === 'homeLng') {
+          normalized[key] = value;
+          return;
+        }
+        normalized[key] = value;
       }
     });
 
@@ -1393,6 +1659,7 @@ button.portal-route-waypoint-name,
     panelSize: null,
     pointsPanelOpen: false,
     addPointMode: false,
+    homePickMode: false,
     selectedMapPointIndex: null,
     activeRouteId: null,
     routeLibraryBackendId: 'local',
@@ -1424,7 +1691,8 @@ button.portal-route-waypoint-name,
           pr.state.stops = stops.map(function(stop) {
             if (!stop) return stop;
             return Object.assign({}, stop, {
-              type: stop.type || (stop.guid ? 'portal' : 'map')
+              type: stop.type || (stop.guid ? 'portal' : 'map'),
+              home: (stop.type || (stop.guid ? 'portal' : 'map')) === 'map' && !!stop.home
             });
           });
         }
@@ -1457,7 +1725,10 @@ button.portal-route-waypoint-name,
       var rawRoute = localStorage.getItem(pr.STORAGE_KEYS.route);
       if (rawRoute) {
         var route = JSON.parse(rawRoute);
-        if (route && Array.isArray(route.legs)) pr.state.route = route;
+        if (route && Array.isArray(route.legs)) {
+          pr.state.route = route;
+          if (pr.refreshRouteTravelEstimates) pr.refreshRouteTravelEstimates(pr.state.route);
+        }
       }
 
       var rawRouteDirty = localStorage.getItem(pr.STORAGE_KEYS.routeDirty);
@@ -1522,7 +1793,12 @@ button.portal-route-waypoint-name,
     return {
       defaultStopMinutes: settings.defaultStopMinutes,
       includeReturnToStart: !!settings.includeReturnToStart,
-      startOnCurrentLocation: !!settings.startOnCurrentLocation
+      startOnCurrentLocation: !!settings.startOnCurrentLocation,
+      routingProvider: settings.routingProvider || pr.ROUTING_PROVIDERS.google,
+      defaultTravelMode: settings.defaultTravelMode || pr.TRAVEL_MODES.drive,
+      driveSpeedMph: settings.driveSpeedMph,
+      bikeSpeedMph: settings.bikeSpeedMph,
+      walkSpeedMph: settings.walkSpeedMph
     };
   };
 
@@ -1671,6 +1947,12 @@ button.portal-route-waypoint-name,
     var km = meters / 1000;
     if (km >= 10) return km.toFixed(0) + ' km';
     return km.toFixed(1) + ' km';
+  };
+
+  pr.formatSpeedInput = function(mph) {
+    mph = Number(mph || 0);
+    if (!isFinite(mph) || mph <= 0) return '';
+    return String(Math.round(mph * 10) / 10).replace(/\.0$/, '');
   };
 
   pr.escapeHtml = pr.escapeHtml || function(value) {
@@ -1893,6 +2175,14 @@ button.portal-route-waypoint-name,
     };
   };
 
+  pr.loopBackButtonOptions = function() {
+    return {
+      label: pr.state.settings.includeReturnToStart ? 'Unloop' : 'Loop',
+      action: 'toggle-loop-back',
+      ariaLabel: pr.state.settings.includeReturnToStart ? 'Turn off loop back to start' : 'Loop back to start'
+    };
+  };
+
   pr.createMiniControlButton = function(options) {
     options = options || {};
 
@@ -1966,6 +2256,8 @@ button.portal-route-waypoint-name,
 
     return [
       { label: 'Add me', action: 'add-current-location' },
+      { label: 'Add Home', action: 'add-home-location', disabled: !pr.getHomeLocation() },
+      { label: window.selectedPortal ? 'Set Home to portal' : 'Pick Home on map', action: 'set-home-current-location' },
       { label: 'Bulk select', action: 'open-bulk-select-menu' },
       { label: pr.state.settings.includeReturnToStart ? 'Unloop' : 'Loop', action: 'toggle-loop-back' },
       { label: 'Clear Route', action: 'clear-route', disabled: !hasStops },
@@ -2173,12 +2465,21 @@ button.portal-route-waypoint-name,
     addActionButton(pr.undoRouteEditButtonOptions());
 
     addActionLink('Fit', 'fit-route');
+    addActionLink(
+      pr.state.settings.includeReturnToStart ? 'Unloop' : 'Loop',
+      'toggle-loop-back',
+      pr.loopBackButtonOptions()
+    );
     addActionLink('Menu', 'open-main-menu', pr.mainMenuLinkOptions());
 
     wrapper.appendChild(links);
 
     if (pr.renderAddPointModeHint) {
       wrapper.insertAdjacentHTML('beforeend', pr.renderAddPointModeHint());
+    }
+
+    if (pr.renderHomePickModeHint) {
+      wrapper.insertAdjacentHTML('beforeend', pr.renderHomePickModeHint());
     }
 
     if (pr.renderCompactRouteStats) {
@@ -2197,7 +2498,7 @@ button.portal-route-waypoint-name,
       pr.state.route = null;
       pr.clearRouteLine();
     } else if (pr.state.route && pr.state.route.legs) {
-      pr.state.route.totals = pr.calculateTotals(pr.state.route.legs);
+      pr.refreshRouteTravelEstimates(pr.state.route);
     }
 
     if (pr.applyRouteLineStyle) pr.applyRouteLineStyle();
@@ -2343,6 +2644,7 @@ button.portal-route-waypoint-name,
     pr.saveStops();
     pr.redrawLabels();
     pr.renderPanel();
+    if (pr.state.pointsPanelOpen) pr.renderPointsPanel();
     pr.renderMiniControl();
     if (pr.injectPortalDetailsAction) pr.injectPortalDetailsAction();
     return true;
@@ -2417,6 +2719,130 @@ button.portal-route-waypoint-name,
     );
   };
 
+
+  pr.parseHomeCoordinate = function(value, min, max) {
+    var number = Number(String(value == null ? '' : value).trim());
+    if (!isFinite(number) || number < min || number > max) return null;
+    return number;
+  };
+
+  pr.getHomeLocation = function() {
+    var lat = pr.parseHomeCoordinate(pr.state.settings.homeLat, -90, 90);
+    var lng = pr.parseHomeCoordinate(pr.state.settings.homeLng, -180, 180);
+    if (lat === null || lng === null) return null;
+
+    return {
+      type: 'map',
+      title: pr.state.settings.homeTitle || pr.DEFAULT_SETTINGS.homeTitle,
+      lat: lat,
+      lng: lng,
+      stopMinutes: null,
+      home: true
+    };
+  };
+
+  pr.updateHomeWaypoint = function(home) {
+    if (!home || typeof home.lat !== 'number' || typeof home.lng !== 'number') return false;
+
+    var existingIndex = pr.state.stops.findIndex(function(stop) {
+      return stop && stop.type === 'map' && !!stop.home;
+    });
+
+    if (existingIndex < 0) {
+      pr.addStop(home);
+      return true;
+    }
+
+    if (pr.pushUndoSnapshot) pr.pushUndoSnapshot('update Home waypoint');
+
+    pr.state.stops[existingIndex].title = home.title || pr.DEFAULT_SETTINGS.homeTitle;
+    pr.state.stops[existingIndex].lat = home.lat;
+    pr.state.stops[existingIndex].lng = home.lng;
+    pr.state.stops[existingIndex].stopMinutes = typeof home.stopMinutes === 'number' ? home.stopMinutes : null;
+    pr.state.stops[existingIndex].home = true;
+    pr.state.selectedMapPointIndex = existingIndex;
+    if (pr.clearIitcPortalSelection) pr.clearIitcPortalSelection();
+
+    pr.markRouteStale({ clearRoute: true });
+    pr.saveStops();
+    pr.redrawLabels();
+    pr.renderPanel();
+    pr.renderMiniControl();
+    if (pr.injectPortalDetailsAction) pr.injectPortalDetailsAction();
+    return true;
+  };
+
+  pr.setHomeLocation = function(lat, lng, title, options) {
+    options = options || {};
+    lat = pr.parseHomeCoordinate(lat, -90, 90);
+    lng = pr.parseHomeCoordinate(lng, -180, 180);
+    if (lat === null || lng === null) {
+      pr.showMessage('Invalid home location.');
+      return false;
+    }
+
+    pr.state.settings.homeLat = String(lat);
+    pr.state.settings.homeLng = String(lng);
+    pr.state.settings.homeTitle = String(title || pr.state.settings.homeTitle || pr.DEFAULT_SETTINGS.homeTitle).trim() || pr.DEFAULT_SETTINGS.homeTitle;
+    pr.saveSettings();
+
+    if (options.addWaypoint) {
+      pr.updateHomeWaypoint(pr.getHomeLocation());
+    } else {
+      pr.renderPanel();
+      if (pr.state.pointsPanelOpen) pr.renderPointsPanel();
+    }
+
+    pr.showMessage(options.addWaypoint ? 'Home saved and added to route.' : 'Home location saved.');
+    return true;
+  };
+
+  pr.setHomeToCurrentLocation = function() {
+    var selectedPortal = pr.portalToStop && pr.portalToStop(window.selectedPortal);
+    if (selectedPortal) {
+      pr.cancelHomePickMode({ silent: true });
+      pr.cancelAddPointMode({ silent: true });
+      pr.setHomeLocation(selectedPortal.lat, selectedPortal.lng, selectedPortal.title || pr.DEFAULT_SETTINGS.homeTitle, { addWaypoint: true });
+      return;
+    }
+
+    pr.setHomePickMode(true);
+  };
+
+  pr.cancelHomePickMode = function(options) {
+    options = options || {};
+    if (!pr.state.homePickMode) return false;
+    pr.state.homePickMode = false;
+    pr.syncAddPointModeUi();
+    if (!options.silent) pr.showMessage(options.message || 'Set Home canceled.');
+    return true;
+  };
+
+  pr.setHomePickMode = function(enabled, options) {
+    options = options || {};
+    enabled = !!enabled;
+    if (enabled === !!pr.state.homePickMode) return false;
+
+    pr.state.homePickMode = enabled;
+    if (enabled && pr.state.addPointMode) pr.state.addPointMode = false;
+    pr.syncAddPointModeUi();
+    if (!options.silent) {
+      pr.showMessage(enabled ? 'Click or tap the map to set Home. Select a portal first to use that portal instead.' : 'Set Home canceled.');
+    }
+    return true;
+  };
+
+  pr.addHomeLocation = function() {
+    var home = pr.getHomeLocation();
+    if (!home) {
+      pr.showMessage('Set Home first.');
+      return;
+    }
+
+    pr.addStop(home);
+    pr.showMessage('Home added.');
+  };
+
   pr.smartAdd = function() {
     if (window.selectedPortal && pr.portalToStop && pr.portalToStop(window.selectedPortal)) {
       pr.setAddPointMode(false, { silent: true });
@@ -2446,6 +2872,66 @@ button.portal-route-waypoint-name,
     if (!details) return null;
     var data = details.details || details.portalDetails || details.portalData || details;
     return data.title || data.name || null;
+  };
+
+  pr.normalizeRoutingProvider = function(provider) {
+    if (provider === pr.ROUTING_PROVIDERS.ors) return provider;
+    return pr.ROUTING_PROVIDERS.google;
+  };
+
+  pr.getRoutingProvider = function() {
+    return pr.normalizeRoutingProvider(pr.state.settings.routingProvider);
+  };
+
+  pr.getRoutingProviderLabel = function(provider) {
+    provider = pr.normalizeRoutingProvider(provider);
+    if (provider === pr.ROUTING_PROVIDERS.ors) return 'OpenRouteService beta';
+    return 'Google';
+  };
+
+  pr.normalizeTravelMode = function(mode) {
+    if (mode === pr.TRAVEL_MODES.bike || mode === pr.TRAVEL_MODES.walk) return mode;
+    return pr.TRAVEL_MODES.drive;
+  };
+
+  pr.getTravelMode = function() {
+    return pr.normalizeTravelMode(pr.state.settings.defaultTravelMode);
+  };
+
+  pr.getTravelModeLabel = function(mode) {
+    mode = pr.normalizeTravelMode(mode);
+    if (mode === pr.TRAVEL_MODES.bike) return 'Bike';
+    if (mode === pr.TRAVEL_MODES.walk) return 'Walk';
+    return 'Drive';
+  };
+
+  pr.getTravelSpeedMph = function(mode) {
+    mode = pr.normalizeTravelMode(mode);
+    if (mode === pr.TRAVEL_MODES.bike) return Number(pr.state.settings.bikeSpeedMph) || pr.DEFAULT_SETTINGS.bikeSpeedMph;
+    if (mode === pr.TRAVEL_MODES.walk) return Number(pr.state.settings.walkSpeedMph) || pr.DEFAULT_SETTINGS.walkSpeedMph;
+    return Number(pr.state.settings.driveSpeedMph) || pr.DEFAULT_SETTINGS.driveSpeedMph;
+  };
+
+  pr.travelSecondsForDistance = function(distanceMeters, mode) {
+    var miles = Math.max(0, Number(distanceMeters || 0)) / 1609.344;
+    var mph = Math.max(0.1, pr.getTravelSpeedMph(mode));
+    return miles / mph * 3600;
+  };
+
+  pr.refreshRouteTravelEstimates = function(route) {
+    route = route || pr.state.route;
+    if (!route || !Array.isArray(route.legs)) return route;
+
+    var mode = pr.getTravelMode();
+    route.legs.forEach(function(leg) {
+      leg.travelMode = mode;
+      leg.durationSeconds = pr.travelSecondsForDistance(leg.distanceMeters, mode);
+      leg.durationText = pr.formatDuration(leg.durationSeconds);
+      leg.durationSource = 'speed';
+    });
+
+    route.totals = pr.calculateTotals(route.legs);
+    return route;
   };
 
   pr.applyPortalTitleFromDetails = function(guid, details) {
@@ -2598,7 +3084,8 @@ button.portal-route-waypoint-name,
       stopMinutes: typeof stop.stopMinutes === 'number' ? stop.stopMinutes : null,
       startOnMe: !!stop.startOnMe,
       accuracy: typeof stop.accuracy === 'number' ? stop.accuracy : null,
-      updatedAt: stop.updatedAt || null
+      updatedAt: stop.updatedAt || null,
+      home: stopType === 'map' && !!stop.home
     });
 
     if (stopType === 'map') {
@@ -2686,7 +3173,8 @@ button.portal-route-waypoint-name,
       lng: replacement.lng,
       startOnMe: false,
       accuracy: typeof replacement.accuracy === 'number' ? replacement.accuracy : null,
-      updatedAt: replacement.updatedAt || null
+      updatedAt: replacement.updatedAt || null,
+      home: stopType === 'map' && !!(replacement.home || existing.home)
     });
 
     if (stopType === 'map') {
@@ -2717,6 +3205,7 @@ button.portal-route-waypoint-name,
     var mapContainer = window.map && window.map.getContainer ? window.map.getContainer() : null;
     if (mapContainer && mapContainer.classList) {
       mapContainer.classList.toggle('portal-route-add-point-mode', !!pr.state.addPointMode);
+      mapContainer.classList.toggle('portal-route-home-pick-mode', !!pr.state.homePickMode);
     }
     pr.renderPanel();
     pr.renderMiniControl();
@@ -2738,6 +3227,7 @@ button.portal-route-waypoint-name,
     if (enabled === !!pr.state.addPointMode) return false;
 
     pr.state.addPointMode = enabled;
+    if (enabled && pr.state.homePickMode) pr.state.homePickMode = false;
     pr.syncAddPointModeUi();
     if (!options.silent) {
       pr.showMessage(enabled ? 'Click or tap the map to add a point. Press Add again or Esc to cancel.' : 'Add point canceled.');
@@ -2878,7 +3368,8 @@ button.portal-route-waypoint-name,
         stopMinutes: typeof stop.stopMinutes === 'number' ? stop.stopMinutes : null,
         startOnMe: !!stop.startOnMe,
         accuracy: typeof stop.accuracy === 'number' ? stop.accuracy : null,
-        updatedAt: stop.updatedAt || null
+        updatedAt: stop.updatedAt || null,
+        home: stopType === 'map' && !!stop.home
       });
     });
 
@@ -3051,7 +3542,9 @@ button.portal-route-waypoint-name,
       driveSeconds: driveSeconds,
       stopSeconds: stopSeconds,
       tripSeconds: driveSeconds + stopSeconds,
-      distanceMeters: distanceMeters
+      distanceMeters: distanceMeters,
+      travelMode: pr.getTravelMode(),
+      routingProvider: pr.getRoutingProvider()
     };
   };
 
@@ -3059,7 +3552,15 @@ button.portal-route-waypoint-name,
     return new google.maps.LatLng(stop.lat, stop.lng);
   };
 
-  pr.calculateRoute = function() {
+  pr.googleDirectionsTravelMode = function() {
+    var mode = pr.getTravelMode();
+    if (!window.google || !google.maps || !google.maps.TravelMode) return null;
+    if (mode === pr.TRAVEL_MODES.bike && google.maps.TravelMode.BICYCLING) return google.maps.TravelMode.BICYCLING;
+    if (mode === pr.TRAVEL_MODES.walk && google.maps.TravelMode.WALKING) return google.maps.TravelMode.WALKING;
+    return google.maps.TravelMode.DRIVING;
+  };
+
+  pr.calculateGoogleRoute = function() {
     var stops = pr.getRouteStops();
     if (stops.length < 2) {
       pr.showMessage('Add at least two waypoints to calculate a route.');
@@ -3083,7 +3584,7 @@ button.portal-route-waypoint-name,
       destination: pr.getGoogleLatLng(destination),
       waypoints: waypoints,
       optimizeWaypoints: false,
-      travelMode: google.maps.TravelMode.DRIVING
+      travelMode: pr.googleDirectionsTravelMode()
     };
 
     pr.setBusy(true);
@@ -3125,6 +3626,8 @@ button.portal-route-waypoint-name,
           durationSeconds: leg.duration ? leg.duration.value : 0,
           distanceText: leg.distance ? leg.distance.text : '',
           durationText: leg.duration ? leg.duration.text : '',
+          googleDurationSeconds: leg.duration ? leg.duration.value : 0,
+          googleDurationText: leg.duration ? leg.duration.text : '',
           path: legPath
         };
       });
@@ -3137,12 +3640,16 @@ button.portal-route-waypoint-name,
       }
 
       pr.state.route = {
+        providerId: pr.ROUTING_PROVIDERS.google,
+        providerLabel: pr.getRoutingProviderLabel(pr.ROUTING_PROVIDERS.google),
+        travelMode: pr.getTravelMode(),
         legs: legs,
         totals: pr.calculateTotals(legs),
         path: path.map(function(point) {
           return { lat: point.lat, lng: point.lng };
         })
       };
+      pr.refreshRouteTravelEstimates(pr.state.route);
       pr.markRouteCurrent();
 
       pr.drawRoutePath(path);
@@ -3151,6 +3658,222 @@ button.portal-route-waypoint-name,
       if (pr.state.pointsPanelOpen) pr.renderPointsPanel();
       if (pr.injectPortalDetailsAction) pr.injectPortalDetailsAction();
     });
+  };
+
+  pr.ORS_PROFILES = {
+    drive: 'driving-car',
+    bike: 'cycling-regular',
+    walk: 'foot-walking'
+  };
+
+  pr.orsProfileForTravelMode = function(mode) {
+    mode = pr.normalizeTravelMode(mode);
+    return pr.ORS_PROFILES[mode] || pr.ORS_PROFILES.drive;
+  };
+
+  pr.getOrsBaseUrl = function() {
+    return String(pr.state.settings.orsBaseUrl || pr.DEFAULT_SETTINGS.orsBaseUrl || '').trim().replace(/\/+$/, '');
+  };
+
+  pr.getOrsApiKey = function() {
+    return String(pr.state.settings.orsApiKey || '').trim();
+  };
+
+  pr.orsRouteUrl = function(profile) {
+    return pr.getOrsBaseUrl() + '/v2/directions/' + encodeURIComponent(profile) + '/geojson';
+  };
+
+  pr.orsErrorMessage = function(data, status) {
+    if (data && data.error && data.error.message) return data.error.message;
+    if (data && data.error && data.error.code) return 'OpenRouteService error ' + data.error.code;
+    if (data && data.message) return data.message;
+    if (status) return 'OpenRouteService request failed: HTTP ' + status;
+    return 'OpenRouteService request failed.';
+  };
+
+  pr.orsPathDistanceMeters = function(points) {
+    if (!points || points.length < 2 || !window.L) return 0;
+
+    var distance = 0;
+    for (var i = 1; i < points.length; i++) {
+      distance += L.latLng(points[i - 1].lat, points[i - 1].lng).distanceTo(L.latLng(points[i].lat, points[i].lng));
+    }
+    return distance;
+  };
+
+  pr.orsLegPath = function(path, steps) {
+    if (!path || !path.length || !steps || !steps.length) return [];
+
+    var start = null;
+    var end = null;
+    steps.forEach(function(step) {
+      var wayPoints = step && step.way_points;
+      if (!Array.isArray(wayPoints) || wayPoints.length < 2) return;
+      if (start === null || wayPoints[0] < start) start = wayPoints[0];
+      if (end === null || wayPoints[1] > end) end = wayPoints[1];
+    });
+
+    if (start === null || end === null || start < 0 || end < start) return [];
+    return path.slice(start, end + 1);
+  };
+
+  pr.orsFallbackLegDistance = function(stops, index) {
+    var fromStop = stops[index];
+    var toStop = stops[index + 1];
+    if (!fromStop || !toStop || !window.L) return 0;
+    return L.latLng(fromStop.lat, fromStop.lng).distanceTo(L.latLng(toStop.lat, toStop.lng));
+  };
+
+  pr.routeFromOrsGeoJson = function(data, stops, profile) {
+    var feature = data && data.features && data.features[0];
+    var properties = feature && feature.properties ? feature.properties : {};
+    var geometry = feature && feature.geometry ? feature.geometry : {};
+    var coordinates = Array.isArray(geometry.coordinates) ? geometry.coordinates : [];
+    var path = coordinates.map(function(coord) {
+      return { lat: Number(coord[1]), lng: Number(coord[0]) };
+    }).filter(function(point) {
+      return isFinite(point.lat) && isFinite(point.lng);
+    });
+
+    var segments = Array.isArray(properties.segments) ? properties.segments : [];
+    var legs = [];
+
+    for (var i = 0; i < stops.length - 1; i++) {
+      var fromStop = stops[i];
+      var toStop = stops[i + 1];
+      var segment = segments[i] || {};
+      var segmentDistance = Number(segment.distance);
+      var segmentDuration = Number(segment.duration);
+      var legPath = pr.orsLegPath(path, segment.steps);
+
+      if (!isFinite(segmentDistance) || segmentDistance <= 0) {
+        segmentDistance = legPath.length > 1 ? pr.orsPathDistanceMeters(legPath) : pr.orsFallbackLegDistance(stops, i);
+      }
+
+      legs.push({
+        fromIndex: i,
+        toIndex: i + 1,
+        fromLabel: fromStop ? fromStop.title : 'Stop ' + (i + 1),
+        toLabel: toStop ? toStop.title : 'Stop ' + (i + 2),
+        distanceMeters: segmentDistance,
+        durationSeconds: isFinite(segmentDuration) && segmentDuration > 0 ? segmentDuration : 0,
+        distanceText: pr.formatDistance(segmentDistance),
+        durationText: isFinite(segmentDuration) && segmentDuration > 0 ? pr.formatDuration(segmentDuration) : '',
+        providerDurationSeconds: isFinite(segmentDuration) && segmentDuration > 0 ? segmentDuration : 0,
+        providerDurationText: isFinite(segmentDuration) && segmentDuration > 0 ? pr.formatDuration(segmentDuration) : '',
+        providerProfile: profile,
+        path: legPath
+      });
+    }
+
+    return {
+      providerId: pr.ROUTING_PROVIDERS.ors,
+      providerLabel: pr.getRoutingProviderLabel(pr.ROUTING_PROVIDERS.ors),
+      providerProfile: profile,
+      travelMode: pr.getTravelMode(),
+      legs: legs,
+      totals: pr.calculateTotals(legs),
+      path: path
+    };
+  };
+
+  pr.calculateOrsRoute = function() {
+    var stops = pr.getRouteStops();
+    if (stops.length < 2) {
+      pr.showMessage('Add at least two waypoints to calculate a route.');
+      return;
+    }
+
+    if (!window.fetch) {
+      pr.showMessage('OpenRouteService routing needs browser fetch support.');
+      return;
+    }
+
+    var apiKey = pr.getOrsApiKey();
+    var baseUrl = pr.getOrsBaseUrl();
+    if (!baseUrl) {
+      pr.showMessage('Set an OpenRouteService URL first.');
+      return;
+    }
+    if (!apiKey && baseUrl.indexOf('api.openrouteservice.org') !== -1) {
+      pr.showMessage('Set an OpenRouteService API key first.');
+      return;
+    }
+
+    var profile = pr.orsProfileForTravelMode(pr.getTravelMode());
+    var body = {
+      coordinates: stops.map(function(stop) {
+        return [Number(stop.lng), Number(stop.lat)];
+      }),
+      instructions: true,
+      geometry: true,
+      units: 'm'
+    };
+
+    var headers = {
+      'Accept': 'application/geo+json, application/json',
+      'Content-Type': 'application/json'
+    };
+    if (apiKey) headers.Authorization = apiKey;
+
+    pr.setBusy(true);
+    fetch(pr.orsRouteUrl(profile), {
+      method: 'POST',
+      headers: headers,
+      body: JSON.stringify(body)
+    }).then(function(response) {
+      return response.text().then(function(text) {
+        var data = null;
+        if (text) {
+          try {
+            data = JSON.parse(text);
+          } catch (e) {
+            data = { message: text };
+          }
+        }
+        if (!response.ok) throw new Error(pr.orsErrorMessage(data, response.status));
+        return data;
+      });
+    }).then(function(data) {
+      var route = pr.routeFromOrsGeoJson(data, stops, profile);
+      if (!route.path || route.path.length < 2 || !route.legs.length) {
+        pr.showMessage('OpenRouteService returned no usable route.');
+        return;
+      }
+
+      pr.state.route = route;
+      pr.refreshRouteTravelEstimates(pr.state.route);
+      pr.markRouteCurrent();
+
+      var path = pr.state.route.path.map(function(point) {
+        return L.latLng(point.lat, point.lng);
+      });
+      pr.drawRoutePath(path);
+      pr.renderPanel();
+      pr.renderMiniControl();
+      if (pr.state.pointsPanelOpen) pr.renderPointsPanel();
+      if (pr.injectPortalDetailsAction) pr.injectPortalDetailsAction();
+    }, function(error) {
+      pr.showMessage(error && error.message ? error.message : 'OpenRouteService route calculation failed.');
+    }).then(function() {
+      pr.setBusy(false);
+    });
+  };
+
+  pr.calculateRoute = function() {
+    var provider = pr.getRoutingProvider();
+
+    if (provider === pr.ROUTING_PROVIDERS.ors) {
+      if (pr.calculateOrsRoute) {
+        pr.calculateOrsRoute();
+        return;
+      }
+
+      pr.showMessage('OpenRouteService routing is not available in this build.');
+      return;
+    }
+
+    pr.calculateGoogleRoute();
   };
 
   pr.routeOverlayTarget = function() {
@@ -3233,7 +3956,8 @@ button.portal-route-waypoint-name,
       type: 'map',
       title: existing.type === 'map' && existing.title ? existing.title : 'Map point ' + (index + 1),
       lat: latlng.lat,
-      lng: latlng.lng
+      lng: latlng.lng,
+      home: !!(existing.type === 'map' && existing.home)
     };
   };
 
@@ -3245,6 +3969,7 @@ button.portal-route-waypoint-name,
     var isLoop = !!stop.generatedLoop;
     var isSelected = !isLoop && pr.selectedStopIndex && pr.selectedStopIndex() === index;
     var isMapPoint = stop.type === 'map';
+    var isHomePoint = isMapPoint && !!stop.home;
     var canDragRouteStop = !isLoop && !pr.isManagedStartStop(stop);
     var label = index + 1;
     var className = 'portal-route-stop-label';
@@ -3258,6 +3983,7 @@ button.portal-route-waypoint-name,
       className += ' portal-route-stop-label-end';
     }
     if (isMapPoint) className += ' portal-route-map-point-label';
+    if (isHomePoint) className += ' portal-route-home-point-label';
     if (canDragRouteStop) className += ' portal-route-stop-label-draggable';
     if (isLoop) className += ' portal-route-loop-label';
     if (isSelected) className += ' portal-route-stop-label-selected';
@@ -3306,7 +4032,7 @@ button.portal-route-waypoint-name,
   pr.createMapPointMarker = function(stop, index, title, clickHandler) {
     var isSelected = pr.selectedStopIndex && pr.selectedStopIndex() === index;
     var pointIcon = L.divIcon({
-      className: 'portal-route-map-point-marker' + (isSelected ? ' portal-route-map-point-marker-selected' : ''),
+      className: 'portal-route-map-point-marker' + (stop.home ? ' portal-route-home-point-marker' : '') + (isSelected ? ' portal-route-map-point-marker-selected' : ''),
       html: '<span></span>',
       iconSize: [16, 16],
       iconAnchor: [8, 8]
@@ -3534,22 +4260,18 @@ button.portal-route-waypoint-name,
   };
 
   pr.getRouteLineStyle = function() {
-    if (pr.state.routeDirty) {
-      return {
-        color: '#ff7f00',
-        weight: 5,
-        opacity: 0.35,
-        dashArray: '',
-        interactive: false,
-        bubblingMouseEvents: false
-      };
-    }
+    var color = pr.normalizeRouteLineColor(pr.state.settings.routeLineColor);
+    var weight = pr.normalizeRouteLineWeight(pr.state.settings.routeLineWeight);
+    var lineStyle = pr.normalizeRouteLineStyle(pr.state.settings.routeLineStyle);
+    var dashArray = pr.getRouteLineDashArray(lineStyle, weight);
 
     return {
-      color: '#ff7f00',
-      weight: 5,
-      opacity: 0.8,
-      dashArray: '',
+      color: color,
+      weight: weight,
+      opacity: pr.state.routeDirty ? 0.35 : 0.8,
+      dashArray: dashArray,
+      lineCap: 'round',
+      lineJoin: 'round',
       interactive: false,
       bubblingMouseEvents: false
     };
@@ -3679,9 +4401,10 @@ button.portal-route-waypoint-name,
   pr.renderTotals = function(route) {
     if (!route || !route.totals) return '';
 
+    var travelLabel = pr.getTravelModeLabel(route.totals.travelMode);
     var html = '';
     html += '<div class="portal-route-totals">';
-    html += '<div><span>Driving</span><strong>' + pr.formatDuration(route.totals.driveSeconds) + '</strong></div>';
+    html += '<div><span>' + pr.escapeHtml(travelLabel) + '</span><strong>' + pr.formatDuration(route.totals.driveSeconds) + '</strong></div>';
     html += '<div><span>Stops</span><strong>' + pr.formatDuration(route.totals.stopSeconds) + '</strong></div>';
     html += '<div><span>Trip</span><strong>' + pr.formatDuration(route.totals.tripSeconds) + '</strong></div>';
     html += '<div><span>Distance</span><strong>' + pr.formatDistance(route.totals.distanceMeters) + '</strong></div>';
@@ -3692,10 +4415,11 @@ button.portal-route-waypoint-name,
   pr.renderPointsSummary = function(route) {
     if (!route || !route.totals) return '';
 
+    var travelLabel = pr.getTravelModeLabel(route.totals.travelMode);
     var html = '';
     html += '<div class="portal-route-totals portal-route-points-summary">';
     html += '<div><span>Trip</span><strong>' + pr.formatDuration(route.totals.tripSeconds) + '</strong></div>';
-    html += '<div><span>Driving</span><strong>' + pr.formatDuration(route.totals.driveSeconds) + '</strong></div>';
+    html += '<div><span>' + pr.escapeHtml(travelLabel) + '</span><strong>' + pr.formatDuration(route.totals.driveSeconds) + '</strong></div>';
     html += '<div><span>Stops</span><strong>' + pr.formatDuration(route.totals.stopSeconds) + '</strong></div>';
     html += '<div><span>Distance</span><strong>' + pr.formatDistance(route.totals.distanceMeters) + ' / ' + pr.formatDistanceKm(route.totals.distanceMeters) + '</strong></div>';
     html += '</div>';
@@ -3705,6 +4429,11 @@ button.portal-route-waypoint-name,
   pr.renderAddPointModeHint = function() {
     if (!pr.state.addPointMode) return '';
     return '<div class="portal-route-add-point-hint">Tap map to add point · Add/Esc cancels</div>';
+  };
+
+  pr.renderHomePickModeHint = function() {
+    if (!pr.state.homePickMode) return '';
+    return '<div class="portal-route-add-point-hint">Tap map to set Home · Esc cancels</div>';
   };
 
   pr.renderRouteStaleHint = function() {
@@ -3720,9 +4449,24 @@ button.portal-route-waypoint-name,
     var html = '';
     html += '<div class="portal-route-compact-stats' + staleClass + '">' + staleText;
     html += '<span><b>Tot</b> ' + pr.escapeHtml(pr.formatDuration(route.totals.tripSeconds)) + '</span>';
-    html += '<span><b>Drv</b> ' + pr.escapeHtml(pr.formatDuration(route.totals.driveSeconds)) + '</span>';
+    html += '<span><b>' + pr.escapeHtml(pr.getTravelModeLabel(route.totals.travelMode).slice(0, 1)) + '</b> ' + pr.escapeHtml(pr.formatDuration(route.totals.driveSeconds)) + '</span>';
     html += '<span><b>Wait</b> ' + pr.escapeHtml(pr.formatDuration(route.totals.stopSeconds)) + '</span>';
     html += '<span><b>Dist</b> ' + pr.escapeHtml(pr.formatDistance(route.totals.distanceMeters)) + '</span>';
+    html += '</div>';
+    return html;
+  };
+
+  pr.renderTravelModeControls = function() {
+    var html = '';
+    html += '<div class="portal-route-list-options portal-route-travel-controls">';
+    html += '<label class="portal-route-setting portal-route-default-stop-setting">Mode <select aria-label="Default travel mode" data-field="default-travel-mode">' +
+      '<option value="' + pr.TRAVEL_MODES.drive + '"' + (pr.getTravelMode() === pr.TRAVEL_MODES.drive ? ' selected' : '') + '>Drive</option>' +
+      '<option value="' + pr.TRAVEL_MODES.bike + '"' + (pr.getTravelMode() === pr.TRAVEL_MODES.bike ? ' selected' : '') + '>Bike</option>' +
+      '<option value="' + pr.TRAVEL_MODES.walk + '"' + (pr.getTravelMode() === pr.TRAVEL_MODES.walk ? ' selected' : '') + '>Walk</option>' +
+      '</select></label>';
+    html += '<label class="portal-route-setting portal-route-default-stop-setting">Drive <input type="text" inputmode="decimal" value="' + pr.escapeHtml(pr.formatSpeedInput(pr.state.settings.driveSpeedMph)) + '" aria-label="Drive speed in miles per hour" placeholder="30" data-field="drive-speed-mph"></label>';
+    html += '<label class="portal-route-setting portal-route-default-stop-setting">Bike <input type="text" inputmode="decimal" value="' + pr.escapeHtml(pr.formatSpeedInput(pr.state.settings.bikeSpeedMph)) + '" aria-label="Bike speed in miles per hour" placeholder="10" data-field="bike-speed-mph"></label>';
+    html += '<label class="portal-route-setting portal-route-default-stop-setting">Walk <input type="text" inputmode="decimal" value="' + pr.escapeHtml(pr.formatSpeedInput(pr.state.settings.walkSpeedMph)) + '" aria-label="Walk speed in miles per hour" placeholder="3" data-field="walk-speed-mph"></label>';
     html += '</div>';
     return html;
   };
@@ -3730,10 +4474,25 @@ button.portal-route-waypoint-name,
 
   pr.renderMainPanel = function(legsByToIndex) {
     var html = '';
+    var provider = pr.getRoutingProvider();
 
-    html += '<div class="portal-route-body">';
+    html += '<div class="portal-route-body portal-route-settings-body">';
+    html += '<div class="portal-route-settings-scroll-body">';
     html += '<div class="portal-route-list-options">';
     html += '<label class="portal-route-setting portal-route-default-stop-setting">Default stop time <input type="text" inputmode="decimal" value="' + pr.escapeHtml(pr.formatDurationInput(pr.state.settings.defaultStopMinutes)) + '" aria-label="Default stop time" placeholder="15m" data-field="default-stop-minutes"> per portal</label>';
+    html += '</div>';
+
+    html += '<div class="portal-route-list-options">';
+    html += '<label class="portal-route-setting portal-route-default-stop-setting">Routing <select aria-label="Routing provider" data-field="routing-provider">' +
+      '<option value="' + pr.ROUTING_PROVIDERS.google + '"' + (provider === pr.ROUTING_PROVIDERS.google ? ' selected' : '') + '>Google</option>' +
+      '<option value="' + pr.ROUTING_PROVIDERS.ors + '"' + (provider === pr.ROUTING_PROVIDERS.ors ? ' selected' : '') + '>ORS beta</option>' +
+      '</select></label>';
+    html += '</div>';
+    html += '<div class="portal-route-list-options portal-route-long-setting-row portal-route-ors-settings">';
+    html += '<label class="portal-route-setting portal-route-default-stop-setting portal-route-long-setting">ORS API key <input type="password" autocomplete="off" value="' + pr.escapeHtml(pr.state.settings.orsApiKey || '') + '" aria-label="OpenRouteService API key" placeholder="Required for public ORS" data-field="ors-api-key"></label>';
+    html += '</div>';
+    html += '<div class="portal-route-list-options portal-route-long-setting-row portal-route-ors-settings">';
+    html += '<label class="portal-route-setting portal-route-default-stop-setting portal-route-long-setting">ORS URL <input type="text" value="' + pr.escapeHtml(pr.state.settings.orsBaseUrl || pr.DEFAULT_SETTINGS.orsBaseUrl) + '" aria-label="OpenRouteService base URL" placeholder="https://api.openrouteservice.org" data-field="ors-base-url"></label>';
     html += '</div>';
 
     html += '<div class="portal-route-settings-row">';
@@ -3745,21 +4504,50 @@ button.portal-route-waypoint-name,
       html += '<span class="portal-route-version">Portal Route ' + pr.escapeHtml(pr.VERSION) + '</span>';
     }
     html += '</div>';
-    html += '<div class="portal-route-list-options">';
-    html += '<label class="portal-route-setting portal-route-default-stop-setting">Google Drive OAuth Client ID <input type="text" value="' + pr.escapeHtml(pr.state.settings.googleDriveOAuthClientId || '') + '" aria-label="Google Drive OAuth Client ID" placeholder="Used when Sync auth is unavailable" data-field="google-drive-oauth-client-id"></label>';
+    var routeLineWeight = pr.normalizeRouteLineWeight(pr.state.settings.routeLineWeight);
+    var routeLineStyle = pr.normalizeRouteLineStyle(pr.state.settings.routeLineStyle);
+    html += '<div class="portal-route-list-options portal-route-line-style-options">';
+    html += '<label class="portal-route-setting portal-route-default-stop-setting">Route color <input type="color" value="' + pr.escapeHtml(pr.normalizeRouteLineColor(pr.state.settings.routeLineColor)) + '" aria-label="Route line color" data-field="route-line-color"></label>';
+    html += '<label class="portal-route-setting portal-route-default-stop-setting">Thickness <select aria-label="Route line thickness" data-field="route-line-weight">' +
+      '<option value="3"' + (routeLineWeight === 3 ? ' selected' : '') + '>Thin</option>' +
+      '<option value="5"' + (routeLineWeight === 5 ? ' selected' : '') + '>Normal</option>' +
+      '<option value="7"' + (routeLineWeight === 7 ? ' selected' : '') + '>Thick</option>' +
+      '<option value="9"' + (routeLineWeight === 9 ? ' selected' : '') + '>Heavy</option>' +
+      '</select></label>';
+    html += '<label class="portal-route-setting portal-route-default-stop-setting">Style <select aria-label="Route line style" data-field="route-line-style">' +
+      '<option value="solid"' + (routeLineStyle === pr.ROUTE_LINE_STYLES.solid ? ' selected' : '') + '>Solid</option>' +
+      '<option value="dashed"' + (routeLineStyle === pr.ROUTE_LINE_STYLES.dashed ? ' selected' : '') + '>Dashed</option>' +
+      '<option value="dotted"' + (routeLineStyle === pr.ROUTE_LINE_STYLES.dotted ? ' selected' : '') + '>Dotted</option>' +
+      '</select></label>';
     html += '</div>';
 
+    html += '<div class="portal-route-list-options portal-route-long-setting-row">';
+    html += '<label class="portal-route-setting portal-route-default-stop-setting portal-route-long-setting">Home name <input type="text" value="' + pr.escapeHtml(pr.state.settings.homeTitle || pr.DEFAULT_SETTINGS.homeTitle) + '" aria-label="Home name" placeholder="Home" data-field="home-title"></label>';
+    html += '</div>';
+    html += '<div class="portal-route-list-options">';
+    html += '<label class="portal-route-setting portal-route-default-stop-setting portal-route-home-coordinate-setting">Home lat <input type="text" inputmode="decimal" value="' + pr.escapeHtml(pr.state.settings.homeLat || '') + '" aria-label="Home latitude" placeholder="43.000000" data-field="home-lat"></label>';
+    html += '<label class="portal-route-setting portal-route-default-stop-setting portal-route-home-coordinate-setting">Home lng <input type="text" inputmode="decimal" value="' + pr.escapeHtml(pr.state.settings.homeLng || '') + '" aria-label="Home longitude" placeholder="-72.000000" data-field="home-lng"></label>';
+    html += '<button type="button" data-action="set-home-current-location">' + (window.selectedPortal ? 'Set Home to portal' : 'Pick Home on map') + '</button>';
+    html += '</div>';
+
+    html += '<div class="portal-route-list-options portal-route-long-setting-row">';
+    html += '<label class="portal-route-setting portal-route-default-stop-setting portal-route-long-setting">Google Drive OAuth Client ID <input type="text" value="' + pr.escapeHtml(pr.state.settings.googleDriveOAuthClientId || '') + '" aria-label="Google Drive OAuth Client ID" placeholder="Used when Sync auth is unavailable" data-field="google-drive-oauth-client-id"></label>';
+    html += '</div>';
+    html += '</div>';
+
+    html += '<div class="portal-route-settings-footer">';
     html += '<div class="portal-route-control-group-buttons portal-route-footer-actions portal-route-points-actions">';
     html += pr.selectedAddDeleteButton();
     html += pr.undoRouteEditButton();
     html += pr.routeButtonHtml(pr.routeReplotButtonOptions());
-    html += pr.routeButtonHtml(pr.reverseRouteButtonOptions());
     html += pr.mainMenuButton();
     html += '</div>';
     html += pr.renderAddPointModeHint();
+    html += pr.renderHomePickModeHint();
     html += pr.renderRouteStaleHint();
 
     html += '<div class="portal-route-message" id="portal-route-message"></div>';
+    html += '</div>';
     html += '</div>';
     return html;
   };
@@ -3778,11 +4566,11 @@ button.portal-route-waypoint-name,
   };
 
   pr.getDialogWidth = function() {
-    return pr.getDialogSize(430, 210, 320, 210).width;
+    return pr.getDialogSize(540, 280, 360, 260).width;
   };
 
   pr.getDialogHeight = function() {
-    return pr.getDialogSize(430, 210, 320, 210).height;
+    return pr.getDialogSize(540, 280, 360, 260).height;
   };
 
   pr.getPointsDialogWidth = function() {
@@ -3975,14 +4763,14 @@ button.portal-route-waypoint-name,
       return;
     }
 
-    var html = '<div id="' + pr.DOM_IDS.dialogContent + '" class="portal-route-dialog-content" tabindex="-1">' + contentHtml + '</div>';
+    var html = '<div id="' + pr.DOM_IDS.dialogContent + '" class="portal-route-dialog-content portal-route-settings-dialog-content" tabindex="-1">' + contentHtml + '</div>';
 
     if (typeof window.dialog === 'function') {
       window.dialog({
         id: pr.DOM_IDS.dialog,
         title: 'Portal Route Settings',
         html: html,
-        dialogClass: 'portal-route-dialog',
+        dialogClass: 'portal-route-dialog portal-route-settings-dialog',
         width: pr.getDialogWidth(),
         height: pr.getDialogHeight()
       });
@@ -4031,20 +4819,24 @@ button.portal-route-waypoint-name,
     contentHtml += pr.renderPointsSummary(route);
     contentHtml += pr.renderRouteStaleHint();
     contentHtml += '<div class="portal-route-bottom-summary"><b>Waypoints:</b> ' + pr.state.stops.length + (pr.makeLoopStop() && pr.state.stops.length > 1 ? ' + loop' : '') + '</div>';
+    contentHtml += pr.renderTravelModeControls();
     contentHtml += '<div class="portal-route-points-list-body">';
     contentHtml += '<div class="portal-route-body">' + pr.renderStopsList(legsByToIndex) + '</div>';
     contentHtml += '</div>';
     contentHtml += '<div class="portal-route-control-group-buttons portal-route-footer-actions portal-route-points-panel-actions">';
     contentHtml += pr.selectedAddDeleteButton();
     contentHtml += pr.undoRouteEditButton();
+    contentHtml += pr.routeButtonHtml(pr.loopBackButtonOptions());
     contentHtml += pr.routeButtonHtml(pr.fitRouteButtonOptions());
-    contentHtml += pr.mainMenuButton();
+    contentHtml += pr.routeButtonHtml(pr.reverseRouteButtonOptions());
     contentHtml += '<span class="portal-route-button-divider" aria-hidden="true"></span>';
     contentHtml += '<button type="button" data-action="print-route">Print</button>';
     contentHtml += '<button type="button" data-action="save-route">Save</button>';
     contentHtml += '<button type="button" data-action="load-route">Load</button>';
+    contentHtml += pr.mainMenuButton();
     contentHtml += '</div>';
     contentHtml += pr.renderAddPointModeHint();
+    contentHtml += pr.renderHomePickModeHint();
     var existingContent = document.getElementById(pr.DOM_IDS.pointsDialogContent);
 
     if (pr.isDialogOpen(existingContent)) {
@@ -4087,6 +4879,15 @@ button.portal-route-waypoint-name,
   pr.GOOGLE_MAPS_INTERMEDIATE_STOP_LIMIT = 9;
   pr.APPLE_MAPS_TOTAL_POINT_LIMIT = 15;
   pr.ROUTE_EXPORT_FORMAT = 'portal-route.v1';
+  pr.GOOGLE_MAPS_TRAVEL_MODES = {
+    drive: 'driving',
+    bike: 'bicycling',
+    walk: 'walking'
+  };
+
+  pr.googleMapsTravelMode = function() {
+    return pr.GOOGLE_MAPS_TRAVEL_MODES[pr.getTravelMode()] || 'driving';
+  };
 
   pr.googleMapsUrlForStops = function(stops) {
     if (!stops || stops.length < 2) return null;
@@ -4096,7 +4897,7 @@ button.portal-route-waypoint-name,
 
     var params = new URLSearchParams();
     params.set('api', '1');
-    params.set('travelmode', 'driving');
+    params.set('travelmode', pr.googleMapsTravelMode());
     params.set('origin', origin.lat + ',' + origin.lng);
     params.set('destination', destination.lat + ',' + destination.lng);
 
@@ -4112,6 +4913,20 @@ button.portal-route-waypoint-name,
   pr.googleMapsUrl = function() {
     var stops = pr.getRouteStops();
     return pr.googleMapsUrlForStops(stops);
+  };
+
+  pr.routeExportProviders = {
+    google: {
+      id: 'google',
+      label: 'Google Maps',
+      pointLimit: pr.GOOGLE_MAPS_TOTAL_POINT_LIMIT,
+      urlForStops: function(stops) {
+        return pr.googleMapsUrlForStops(stops);
+      },
+      openStagesDialog: function(stages) {
+        pr.openGoogleMapsStagesDialog(stages);
+      }
+    }
   };
 
   pr.appleMapsUrlForStops = function(stops) {
@@ -4168,7 +4983,7 @@ button.portal-route-waypoint-name,
   };
 
   pr.googleMapsStages = function() {
-    return pr.mapsStages(pr.GOOGLE_MAPS_TOTAL_POINT_LIMIT, pr.googleMapsUrlForStops);
+    return pr.mapsStages(pr.routeExportProviders.google.pointLimit, pr.routeExportProviders.google.urlForStops);
   };
 
   pr.appleMapsStages = function() {
@@ -4233,6 +5048,7 @@ button.portal-route-waypoint-name,
   };
 
   pr.openGoogleMaps = function() {
+    var provider = pr.routeExportProviders.google;
     var stages = pr.googleMapsStages();
     if (!stages.length) {
       pr.showMessage('Add at least two waypoints first.');
@@ -4240,7 +5056,7 @@ button.portal-route-waypoint-name,
     }
 
     if (stages.length > 1) {
-      pr.openGoogleMapsStagesDialog(stages);
+      provider.openStagesDialog(stages);
       return;
     }
 
@@ -4269,7 +5085,15 @@ button.portal-route-waypoint-name,
       pluginName: pr.NAME,
       pluginVersion: pr.VERSION,
       exportedAt: new Date().toISOString(),
-      settings: Object.assign({}, pr.state.settings),
+      settings: pr.routeLibrarySettings ? pr.routeLibrarySettings() : {
+        defaultStopMinutes: pr.state.settings.defaultStopMinutes,
+        includeReturnToStart: !!pr.state.settings.includeReturnToStart,
+        routingProvider: pr.state.settings.routingProvider || pr.ROUTING_PROVIDERS.google,
+        defaultTravelMode: pr.state.settings.defaultTravelMode || pr.TRAVEL_MODES.drive,
+        driveSpeedMph: pr.state.settings.driveSpeedMph,
+        bikeSpeedMph: pr.state.settings.bikeSpeedMph,
+        walkSpeedMph: pr.state.settings.walkSpeedMph
+      },
       stops: pr.state.stops.map(function(stop) {
         return {
           guid: stop.guid || null,
@@ -4278,7 +5102,8 @@ button.portal-route-waypoint-name,
           lat: Number(stop.lat),
           lng: Number(stop.lng),
           stopMinutes: typeof stop.stopMinutes === 'number' ? stop.stopMinutes : null,
-          startOnMe: !!stop.startOnMe
+          startOnMe: !!stop.startOnMe,
+          home: (stop.type || (stop.guid ? 'portal' : 'map')) === 'map' && !!stop.home
         };
       }),
       route: pr.state.route || null,
@@ -4339,6 +5164,7 @@ button.portal-route-waypoint-name,
       lng: lng,
       stopMinutes: stopMinutes,
       startOnMe: !!stop.startOnMe,
+      home: type === 'map' && !!stop.home,
       accuracy: typeof stop.accuracy === 'number' ? stop.accuracy : null,
       updatedAt: stop.updatedAt || null
     };
@@ -4354,8 +5180,9 @@ button.portal-route-waypoint-name,
     if (pr.pushUndoSnapshot) pr.pushUndoSnapshot('import route');
 
     pr.state.stops = stops;
-    pr.state.settings = pr.normalizeSettings(data.settings);
+    pr.state.settings = pr.normalizeSettings(Object.assign({}, pr.state.settings, data.settings || {}));
     pr.state.route = data.route && Array.isArray(data.route.legs) ? data.route : null;
+    if (pr.state.route && pr.refreshRouteTravelEstimates) pr.refreshRouteTravelEstimates(pr.state.route);
     pr.state.routeDirty = !!pr.state.route || !!data.routeDirty;
     pr.state.activeRouteId = null;
 
@@ -4446,7 +5273,7 @@ button.portal-route-waypoint-name,
     }).join('');
 
     var totalsHtml = totals ? '<div class="totals">' +
-      '<span><b>Drive:</b> ' + pr.escapeHtml(pr.formatDuration(totals.driveSeconds)) + '</span>' +
+      '<span><b>Travel:</b> ' + pr.escapeHtml(pr.formatDuration(totals.driveSeconds)) + '</span>' +
       '<span><b>Stops:</b> ' + pr.escapeHtml(pr.formatDuration(totals.stopSeconds)) + '</span>' +
       '<span><b>Trip:</b> ' + pr.escapeHtml(pr.formatDuration(totals.tripSeconds)) + '</span>' +
       '<span><b>Distance:</b> ' + pr.escapeHtml(pr.formatDistance(totals.distanceMeters)) + '</span>' +
@@ -4522,7 +5349,12 @@ button.portal-route-waypoint-name,
   pr.routeLibrarySettings = function() {
     return {
       defaultStopMinutes: pr.state.settings.defaultStopMinutes,
-      includeReturnToStart: !!pr.state.settings.includeReturnToStart
+      includeReturnToStart: !!pr.state.settings.includeReturnToStart,
+      routingProvider: pr.state.settings.routingProvider || pr.ROUTING_PROVIDERS.google,
+      defaultTravelMode: pr.state.settings.defaultTravelMode || pr.TRAVEL_MODES.drive,
+      driveSpeedMph: pr.state.settings.driveSpeedMph,
+      bikeSpeedMph: pr.state.settings.bikeSpeedMph,
+      walkSpeedMph: pr.state.settings.walkSpeedMph
     };
   };
 
@@ -4536,6 +5368,7 @@ button.portal-route-waypoint-name,
         lng: Number(stop.lng),
         stopMinutes: typeof stop.stopMinutes === 'number' ? stop.stopMinutes : null,
         startOnMe: !!stop.startOnMe,
+        home: (stop.type || (stop.guid ? 'portal' : 'map')) === 'map' && !!stop.home,
         accuracy: typeof stop.accuracy === 'number' ? stop.accuracy : null,
         updatedAt: stop.updatedAt || null
       };
@@ -4953,6 +5786,22 @@ button.portal-route-waypoint-name,
     if (typeof settings.includeReturnToStart === 'boolean') {
       pr.state.settings.includeReturnToStart = settings.includeReturnToStart;
     }
+
+    if (settings.routingProvider === pr.ROUTING_PROVIDERS.google ||
+        settings.routingProvider === pr.ROUTING_PROVIDERS.ors) {
+      pr.state.settings.routingProvider = settings.routingProvider;
+    }
+
+    if (settings.defaultTravelMode === pr.TRAVEL_MODES.drive ||
+        settings.defaultTravelMode === pr.TRAVEL_MODES.bike ||
+        settings.defaultTravelMode === pr.TRAVEL_MODES.walk) {
+      pr.state.settings.defaultTravelMode = settings.defaultTravelMode;
+    }
+
+    ['driveSpeedMph', 'bikeSpeedMph', 'walkSpeedMph'].forEach(function(key) {
+      var value = Number(settings[key]);
+      if (isFinite(value) && value > 0) pr.state.settings[key] = value;
+    });
   };
 
   pr.applyRouteRecord = function(record) {
@@ -5255,7 +6104,10 @@ button.portal-route-waypoint-name,
     contentHtml += '<button type="button" data-action="export-route-library">Export Library</button>';
     contentHtml += '<button type="button" data-action="import-route-library">Import Library</button>';
     contentHtml += '</div>';
+    contentHtml += '<div class="portal-route-library-scroll-body">';
     contentHtml += pr.renderRouteLibraryRows(routes);
+    contentHtml += '</div>';
+    contentHtml += '<div class="portal-route-library-footer">';
     if (selectedCount === 1) {
       contentHtml += '<div class="portal-route-library-tip">' + selectedCount + ' route selected. Save will overwrite it after confirmation.</div>';
     } else if (selectedCount > 1) {
@@ -5272,6 +6124,7 @@ button.portal-route-waypoint-name,
     contentHtml += pr.mainMenuButton('Menu', 'portal-route-library-menu-button');
     contentHtml += '</div>';
     contentHtml += '<div class="portal-route-message"></div>';
+    contentHtml += '</div>';
     return contentHtml;
   };
 
@@ -6819,6 +7672,8 @@ button.portal-route-waypoint-name,
       'add-selected-stop': pr.addSelectedPortal,
       'add-map-point': function() { pr.setAddPointMode(!pr.state.addPointMode); },
       'add-current-location': pr.addCurrentLocation,
+      'add-home-location': pr.addHomeLocation,
+      'set-home-current-location': pr.setHomeToCurrentLocation,
       'select-portals-circle': function() { pr.startBulkPortalSelection('circle'); },
       'select-portals-polygon': function() { pr.startBulkPortalSelection('polygon'); },
       'select-portals-bookmarks': function() { pr.openBookmarkFolderPicker(target); },
@@ -7183,6 +8038,29 @@ button.portal-route-waypoint-name,
     var field = target && target.getAttribute('data-field');
     if (pr.handleDialogSettingChange(target)) return;
 
+    var applyTravelTimeSettings = function() {
+      if (pr.refreshRouteTravelEstimates && pr.state.route) {
+        pr.refreshRouteTravelEstimates(pr.state.route);
+        pr.saveRoute();
+        pr.redrawSegmentTimeLabels();
+      }
+      pr.renderPanel();
+      if (pr.state.pointsPanelOpen) pr.renderPointsPanel();
+      pr.renderMiniControl();
+      if (pr.injectPortalDetailsAction) pr.injectPortalDetailsAction();
+    };
+
+    var replotForRoutingChange = function() {
+      if (pr.getRouteStops().length >= 2) {
+        pr.markRouteStale({ clearRoute: true });
+      } else {
+        pr.renderPanel();
+        if (pr.state.pointsPanelOpen) pr.renderPointsPanel();
+        pr.renderMiniControl();
+        if (pr.injectPortalDetailsAction) pr.injectPortalDetailsAction();
+      }
+    };
+
     if (field === 'default-stop-minutes') {
       var value = pr.parseDurationMinutes(target.value);
       if (value === null) {
@@ -7198,6 +8076,103 @@ button.portal-route-waypoint-name,
       pr.saveSettings();
       pr.markRouteStale();
       pr.renderPanel();
+    } else if (field === 'routing-provider') {
+      var provider = pr.normalizeRoutingProvider(target.value);
+      if (provider === pr.state.settings.routingProvider) return;
+      if (pr.pushUndoSnapshot) pr.pushUndoSnapshot('change routing provider');
+      pr.state.settings.routingProvider = provider;
+      pr.saveSettings();
+      replotForRoutingChange();
+    } else if (field === 'default-travel-mode') {
+      var mode = pr.normalizeTravelMode(target.value);
+      if (mode === pr.state.settings.defaultTravelMode) return;
+      if (pr.pushUndoSnapshot) pr.pushUndoSnapshot('change travel mode');
+      pr.state.settings.defaultTravelMode = mode;
+      pr.saveSettings();
+      replotForRoutingChange();
+    } else if (field === 'drive-speed-mph' || field === 'bike-speed-mph' || field === 'walk-speed-mph') {
+      var speed = Number(String(target.value || '').trim());
+      if (!isFinite(speed) || speed <= 0) {
+        pr.showMessage('Invalid speed. Use a number greater than 0.');
+        if (field === 'drive-speed-mph') target.value = pr.formatSpeedInput(pr.state.settings.driveSpeedMph);
+        if (field === 'bike-speed-mph') target.value = pr.formatSpeedInput(pr.state.settings.bikeSpeedMph);
+        if (field === 'walk-speed-mph') target.value = pr.formatSpeedInput(pr.state.settings.walkSpeedMph);
+        return;
+      }
+
+      var settingsKey = field === 'drive-speed-mph'
+        ? 'driveSpeedMph'
+        : (field === 'bike-speed-mph' ? 'bikeSpeedMph' : 'walkSpeedMph');
+      if (speed === pr.state.settings[settingsKey]) return;
+      if (pr.pushUndoSnapshot) pr.pushUndoSnapshot('change travel speed');
+      pr.state.settings[settingsKey] = speed;
+      pr.saveSettings();
+      target.value = pr.formatSpeedInput(speed);
+      applyTravelTimeSettings();
+    } else if (field === 'ors-api-key') {
+      var orsApiKey = String(target.value || '').trim();
+      if (orsApiKey === pr.state.settings.orsApiKey) return;
+
+      pr.state.settings.orsApiKey = orsApiKey;
+      pr.saveSettings();
+      if (pr.getRoutingProvider() === pr.ROUTING_PROVIDERS.ors) replotForRoutingChange();
+    } else if (field === 'ors-base-url') {
+      var orsBaseUrl = String(target.value || '').trim().replace(/\/+$/, '') || pr.DEFAULT_SETTINGS.orsBaseUrl;
+      if (orsBaseUrl === pr.state.settings.orsBaseUrl) return;
+
+      pr.state.settings.orsBaseUrl = orsBaseUrl;
+      pr.saveSettings();
+      target.value = orsBaseUrl;
+      if (pr.getRoutingProvider() === pr.ROUTING_PROVIDERS.ors) replotForRoutingChange();
+    } else if (field === 'route-line-color') {
+      var routeLineColor = pr.normalizeRouteLineColor(target.value);
+      if (routeLineColor === pr.state.settings.routeLineColor) return;
+
+      pr.state.settings.routeLineColor = routeLineColor;
+      pr.saveSettings();
+      target.value = routeLineColor;
+      if (pr.applyRouteLineStyle) pr.applyRouteLineStyle();
+    } else if (field === 'route-line-weight') {
+      var routeLineWeight = pr.normalizeRouteLineWeight(target.value);
+      if (routeLineWeight === pr.state.settings.routeLineWeight) return;
+
+      pr.state.settings.routeLineWeight = routeLineWeight;
+      pr.saveSettings();
+      target.value = String(routeLineWeight);
+      if (pr.applyRouteLineStyle) pr.applyRouteLineStyle();
+    } else if (field === 'route-line-style') {
+      var routeLineStyle = pr.normalizeRouteLineStyle(target.value);
+      if (routeLineStyle === pr.state.settings.routeLineStyle) return;
+
+      pr.state.settings.routeLineStyle = routeLineStyle;
+      pr.saveSettings();
+      target.value = routeLineStyle;
+      if (pr.applyRouteLineStyle) pr.applyRouteLineStyle();
+    } else if (field === 'home-title') {
+      var homeTitle = String(target.value || '').trim() || pr.DEFAULT_SETTINGS.homeTitle;
+      if (homeTitle === pr.state.settings.homeTitle) return;
+
+      pr.state.settings.homeTitle = homeTitle;
+      pr.saveSettings();
+      target.value = homeTitle;
+    } else if (field === 'home-lat' || field === 'home-lng') {
+      var homeValue = String(target.value || '').trim();
+      var parsedHomeValue = field === 'home-lat'
+        ? pr.parseHomeCoordinate(homeValue, -90, 90)
+        : pr.parseHomeCoordinate(homeValue, -180, 180);
+      if (homeValue && parsedHomeValue === null) {
+        pr.showMessage(field === 'home-lat' ? 'Invalid latitude.' : 'Invalid longitude.');
+        target.value = field === 'home-lat' ? pr.state.settings.homeLat : pr.state.settings.homeLng;
+        return;
+      }
+
+      var homeKey = field === 'home-lat' ? 'homeLat' : 'homeLng';
+      var normalizedHomeValue = homeValue ? String(parsedHomeValue) : '';
+      if (normalizedHomeValue === pr.state.settings[homeKey]) return;
+
+      pr.state.settings[homeKey] = normalizedHomeValue;
+      pr.saveSettings();
+      target.value = normalizedHomeValue;
     } else if (field === 'google-drive-oauth-client-id') {
       var clientId = String(target.value || '').trim();
       if (clientId === pr.state.settings.googleDriveOAuthClientId) return;
@@ -7241,6 +8216,12 @@ button.portal-route-waypoint-name,
     if (key === 'Escape' && pr.state.addPointMode) {
       ev.preventDefault();
       if (pr.cancelAddPointMode) pr.cancelAddPointMode();
+      return;
+    }
+
+    if (key === 'Escape' && pr.state.homePickMode) {
+      ev.preventDefault();
+      if (pr.cancelHomePickMode) pr.cancelHomePickMode();
       return;
     }
 
@@ -7389,8 +8370,20 @@ button.portal-route-waypoint-name,
     if (!window.map) return;
 
     window.map.on('click', function(e) {
-      if (!pr.state.addPointMode) return;
       if (pr.isLayerEnabled && !pr.isLayerEnabled()) return;
+
+      if (pr.state.homePickMode) {
+        if (pr.cancelHomePickMode) {
+          pr.cancelHomePickMode({ silent: true });
+        } else {
+          pr.state.homePickMode = false;
+          if (pr.syncAddPointModeUi) pr.syncAddPointModeUi();
+        }
+        pr.setHomeLocation(e.latlng.lat, e.latlng.lng, pr.state.settings.homeTitle || pr.DEFAULT_SETTINGS.homeTitle, { addWaypoint: true });
+        return;
+      }
+
+      if (!pr.state.addPointMode) return;
 
       if (pr.cancelAddPointMode) {
         pr.cancelAddPointMode({ silent: true });

@@ -3,7 +3,7 @@
 // @author         jaiperdu
 // @name           Player Inventory
 // @category       Info
-// @version        0.4.5
+// @version        0.4.6
 // @description    View inventory and highlight portals with keys at any zoom. Can be used with the official plugins Keys and Keys on map to show the number of keys on the map.
 // @id             player-inventory@jaiperdu
 // @namespace      https://github.com/IITC-CE/ingress-intel-total-conversion
@@ -1527,33 +1527,17 @@ function setupDisplay() {
     });
     playerInventory.pane.style.display = 'none';
     document.body.append(playerInventory.pane);
-    if (window.script_info.script.version < '0.38') {
-      document.getElementById('toolbox').append(jsx("a", {
-        title: "Inventory options",
-        onclick: displayOpt,
-        children: "Inventory Opt"
-      }));
-    } else {
-      window.IITC.toolbox.addButton({
-        label: 'Inventory Opt',
-        title: 'Inventory options',
-        action: displayOpt
-      });
-    }
+    window.IITC.toolbox.addButton({
+      label: 'Inventory Opt',
+      title: 'Inventory options',
+      action: displayOpt
+    });
   } else {
-    if (window.script_info.script.version < '0.38') {
-      document.getElementById('toolbox').append(jsx("a", {
-        title: "Show inventory",
-        onclick: () => displayInventory(playerInventory.inventory),
-        children: "Inventory"
-      }));
-    } else {
-      window.IITC.toolbox.addButton({
-        label: 'Inventory',
-        title: 'Show inventory',
-        action: () => displayInventory(playerInventory.inventory)
-      });
-    }
+    window.IITC.toolbox.addButton({
+      label: 'Inventory',
+      title: 'Show inventory',
+      action: () => displayInventory(playerInventory.inventory)
+    });
   }
 }
 

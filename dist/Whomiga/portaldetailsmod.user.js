@@ -3,7 +3,7 @@
 // @id             portaldetailsmod@Whomiga
 // @name           Portal Detail Mods
 // @category       Info
-// @version        0.27.0
+// @version        0.30.0
 // @description    Show Mod Pictures in Portal Details
 // @downloadURL    https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Whomiga/portaldetailsmod.user.js
 // @updateURL      https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Whomiga/portaldetailsmod.meta.js
@@ -23,13 +23,14 @@ function wrapper(plugin_info) {
     var self = window.plugin.PortalDetailMods;
     self.id = 'PortalDetailMods';
     self.title = 'PortalDetailMods';
-    self.version = '0.27.0.20260506.233600';
+    self.version = '0.30.0.20260522.102200';
     self.prefix = 'portaldetailmods-';
     self.author = 'Whomiga';
 
    // Debug Output
     self.debugTypes = Object.freeze({
         enabled:  false,
+        lists:    true,
         initCss:  true,
         settings: true,
     });
@@ -38,7 +39,7 @@ function wrapper(plugin_info) {
     plugin_info.buildName = "PortalDetailMods";
 
     // Datetime-derived version of the plugin
-    plugin_info.dateTimeVersion = "20260506.233600";
+    plugin_info.dateTimeVersion = "20260522.102200";
 
     // ID/name of the plugin
     plugin_info.pluginId = "portalDetailMods";
@@ -67,6 +68,13 @@ function wrapper(plugin_info) {
     });
 
 /*
+** Interface Widths
+*/
+    self.interfaceWidths = Object.freeze({
+        main: 500,
+    });
+
+/*
 ** Interface CSS Values
 */
     self.interfaceCss = Object.freeze({
@@ -81,7 +89,7 @@ function wrapper(plugin_info) {
                 max-width: calc(100vw - 2px);`,
             ' select': `
                 background-color: ${self.interfaceColors.Gadget} !important;`,
-            'id_pre_id': 'pre_id',
+            'id_pre_key': 'pre_key',
             ' h3': `
                 margin-top:    0px !important;
                 margin-bottom: 4px !important;
@@ -111,9 +119,9 @@ function wrapper(plugin_info) {
         }
     });
 //
-// Interface Information
+// Interface Configuration
 //
-    self.interfaceData = Object.freeze({
+    self.interfaceConfig = Object.freeze({
         // Prefix
         prefix: self.prefix,
         // Toolbox Info
@@ -124,7 +132,11 @@ function wrapper(plugin_info) {
         // Main Dialog Info
         main: {
             title: self.title,
-            id:    'main',
+            tab:    true, 
+            // Default Values
+            [common_DefaultID]: {
+                width: self.interfaceWidths.main,
+            },
             // Colors Used In Dialog
             css: {
                 comment: 'Main Dialog',
@@ -198,11 +210,28 @@ function wrapper(plugin_info) {
         }
    });   
 
+/*
+** Lists created from self.interfaceConfig
+*/
+    self.interfaceLists = Object.freeze({
+        ...init_interfaceLists(self.interfaceConfig)
+    });
+
+    self.interfaceTabs = self.interfaceLists.tabs;
+    self.interfaceData = self.interfaceLists.data;
+
+/*
+** Portal Details Data
+*/
+    self.portaldetails = {
+        ...self.interfaceData.portaldetails
+    }
+
 //
 // Settings
 //
     const KEY_SETTINGS = "plugin-portaldetailmods";
-    const SETTINGS_PREFIX = self.interfaceData.prefix + "settings--";
+    const SETTINGS_PREFIX = self.prefix + "settings--";
     self.settings = {
         // Version Info
         versionData: {
@@ -210,8 +239,12 @@ function wrapper(plugin_info) {
         },
         // Element values
         elementData: {
-            ...get_elementData(self.interfaceData)
-        }
+            ...get_elementData(self.interfaceConfig)
+        },
+        // Widths of Dialogs
+        dialogWidths: {
+            ...get_dialogWidths(self.interfaceTabs),
+        },
     };
 
 /*
@@ -235,7 +268,110 @@ function wrapper(plugin_info) {
     };
 
 /*
+** Creates Dialog Widths Structure For Settings From Interface Tabs
+*/
+    function get_dialogWidths(tabList) {
+        let results = {};
+        Object.entries(tabList).forEach(([key, node]) => {
+            if (node.dialog) {
+                results[node.dialog] = node[common_DefaultID]?.width; 
+            }
+            // Recurse into subtabs to catch nested relationships
+            if (node.subtabs) {
+                Object.assign(results, get_dialogWidths(node.subtabs));
+            }
+        })
+        return results;
+    }
+
+/*
+** Creates Interface Lists From Interface Config
+*/
+    function init_interfaceLists(obj = self.interfaceConfig) {
+        let firstStage = init_tabFirstStage(obj);
+        init_tabFinalStage(firstStage.tabs);
+        return firstStage;
+    }
+
+    function init_tabFinalStage(tabs) {
+        Object.entries(tabs).forEach(([key, entry]) => {
+            if (entry === entry.root) {
+                entry['sub_id'] = self.prefix + key + '-tab';
+                entry['tab_id'] = self.prefix + key + '-tab';
+                entry['dialog'] = key + 'Dialog';
+            }
+            else {
+                entry['tab_id'] = entry.parent.sub_id;
+            }
+            if (entry.subtabs) {
+                entry['sub_id'] = self.prefix + key + '-tab';
+                init_tabFinalStage(entry.subtabs);
+            }
+        })
+    }
+
+    function init_tabFirstStage(obj = self.interfaceConfig, objKey, addition = "", path = "", parentRef = null, branchRoot = null) {
+        let origList;
+        let dataList;
+        let tabList = {};
+        if (path === "") {
+            origList = tabList;
+            origList['tabs'] = {};
+            origList['data'] = {};
+            tabList = origList['tabs'];
+            dataList = origList['data'];
+        }
+        addition = addition + (parentRef?.key ? parentRef.key + '-' : '')
+        Object.entries(obj).forEach(([key, entry]) => {
+            if (entry && typeof entry === 'object' && entry.tab) {
+                const currentPath = path ? `${path}.${key}` : key;
+                let newTab = { 
+                    key: key,
+                    path: currentPath, 
+                    root: branchRoot, 
+                    parent: parentRef,
+                    ...entry,
+                    tab: 'tab-' + self.prefix + addition + key,
+                    table: self.prefix + addition + key
+                };
+                const currentBranchRoot = branchRoot || newTab;
+                if (!newTab.root) 
+                    newTab.root = currentBranchRoot;
+                const subTabs = init_tabFirstStage(entry, key, addition, currentPath, newTab, currentBranchRoot);
+                if (Object.keys(subTabs).length > 0) { 
+                    newTab.subtabs = subTabs;
+                    Object.assign(newTab, subTabs);
+                }
+                tabList[key] = newTab;
+            }
+            else {
+                if (entry && typeof entry === 'object' && path === "") {
+                    let newData = {
+                        key: key,
+                        ...entry
+                    }
+                    Object.entries(entry).forEach(([key, node]) => {
+                        if (node.id) {
+                            if (!newData.subdata) {
+                                newData.subdata = {};
+                            }
+                            newData.subdata[key] = { ...node };
+                        }
+                    })
+                    dataList[key] = newData;
+                }
+            }
+        })
+        if (path === "") {
+            tabList = origList;
+        }
+        return tabList;
+    }
+
+/*
 ** CSS Functions    
+**
+** Creates and adds a Style Sheet created from Interface Lists to Document Body
 **
 ** Changing of ID to be used  - keys must be unique in CSS
 **  key: id_example - ID = example
@@ -262,66 +398,88 @@ function wrapper(plugin_info) {
 **  - obj.class, then obj.sub_id and then obj.tab_id
 **  - if it fails on those it will set ID = prefix + obj.id
 */
-    function init_Css(obj = self.interfaceData, style = null) {
-        let targetKey = 'css';
+    function parse_Css(node, style) {
         let prefix = '.';
+
+        let id = (node.class || node.sub_id || node.tab_id ||  self.prefix + node.id);
+        Object.entries(node.css).forEach(([subKey, value]) => {
+            let add_prefix = false;
+            // Determine from subKey if prefixed with '.', '*' or '#'
+            if (subKey[0] == '#') {
+                prefix = "#";
+                subKey = subKey.substring(1);
+            } else {
+                if (subKey[0] == "*") { 
+                    prefix = '';
+                    subKey = subKey.substring(1);
+                }
+                else {
+                    prefix = '.';
+                }
+            }
+            // Change/Set id using id_? subKey and value
+            if (subKey.substring(0,3) == "id_") {
+                if (value.substring(0, 4) == 'pre_') {
+                    add_prefix = true;
+                    value = value.substring(4);
+                }
+                if (value.substring(0, 4) == 'str_') {
+                    id = value.substring(4);
+                    return;
+                }
+                id = ((add_prefix) ?  self.prefix : "") + (node[value] || value);
+                return;
+            }
+            if (subKey.substring(0, 6) == 'parent') {
+                subKey = 'parent';
+            }
+            switch(subKey) {
+                case 'comment':
+                    style.innerHTML += '\n/* ' + value.replace(/[^\S\r\n]+/g, ' ').replace(/\n/g, "\n   ").trim() + ' */';
+                    break;
+                case 'parent':
+                    style.innerHTML += prefix + id + ' {\n    ' + value.replace(/[^\S\r\n]+/g, ' ').replace(/\n/g, "\n   ").trim() + '\n}'; 
+                    break;
+                default:
+                    style.innerHTML += prefix + id + '' + subKey + ' {\n    ' + value.replace(/[^\S\r\n]+/g, ' ').replace(/\n/g, "\n   ").trim() + '\n}'; 
+                    break;
+                }
+            style.innerHTML += "\n";
+        });
+    }
+
+    function init_Css(lists, subtab = false, style = null) {
         let addstyle = false;
-        if (style == null) {
+        if (style === null) {
             style = document.createElement('style');
             style.innerHTML += `\n/*\n** Begin CSS for ` + self.title + `\n*/\n`;
             addstyle = true;
         }
-        for (let key in obj) {
-            if (key === targetKey && typeof obj[key] == 'object' && obj[key] !== null) {
-                id = (obj.class || obj.sub_id || obj.tab_id ||  self.prefix + obj.id);
-                Object.entries(obj.css).forEach(([subKey, value]) => {
-                    let add_prefix = false;
-                    // Determine from subKey if prefixed with '.', '*' or '#'
-                    if (subKey[0] == '#') {
-                        prefix = "#";
-                        subKey = subKey.substring(1);
-                    } else {
-                        if (subKey[0] == "*") { 
-                            prefix = '';
-                            subKey = subKey.substring(1);
-                        }
-                        else {
-                            prefix = '.';
-                        }
+        if (subtab) {
+            Object.entries(lists).forEach(([key, node]) => {
+                if (typeof node.css == 'object' && node.css !== null) {
+                    parse_Css(node, style);
+                }
+                // Recurse into subtabs/subdata to catch nested relationships
+                let subitems = (node.subtabs || node.subdata)
+                if (subitems) {
+                    init_Css(subitems, true, style);
+                }
+            })
+        }
+        else {
+            Object.values(lists).forEach(list => {
+                Object.entries(list).forEach(([key, node]) => {
+                    if (typeof node.css == 'object' && node.css !== null) {
+                        parse_Css(node, style);
                     }
-                    // Change/Set id using id_? subKey and value
-                    if (subKey.substring(0,3) == "id_") {
-                        if (value.substring(0, 4) == 'pre_') {
-                            add_prefix = true;
-                            value = value.substring(4);
-                        }
-                        if (value.substring(0, 4) == 'str_') {
-                            id = value.substring(4);
-                            return;
-                        }
-                        id = ((add_prefix) ?  self.prefix : "") + (obj[value] || value);
-                        return;
+                    // Recurse into subtabs/subdata to catch nested relationships
+                    let subitems = (node.subtabs || node.subdata)
+                    if (subitems) {
+                        init_Css(subitems, true, style);
                     }
-                    if (subKey.substring(0, 6) == 'parent') {
-                        subKey = 'parent';
-                    }
-                    switch(subKey) {
-                        case 'comment':
-                            style.innerHTML += '\n/* ' + value.replace(/[^\S\r\n]+/g, ' ').replace(/\n/g, "\n   ").trim() + ' */';
-                            break;
-                        case 'parent':
-                            style.innerHTML += prefix + id + ' {\n    ' + value.replace(/[^\S\r\n]+/g, ' ').replace(/\n/g, "\n   ").trim() + '\n}'; 
-                            break;
-                        default:
-                            style.innerHTML += prefix + id + '' + subKey + ' {\n    ' + value.replace(/[^\S\r\n]+/g, ' ').replace(/\n/g, "\n   ").trim() + '\n}'; 
-                            break;
-                    }
-                    style.innerHTML += "\n";
-                });
-            } else if (typeof obj[key] === 'object' && obj[key] !== null) {
-                // Recurse deeper into the object
-                init_Css(obj[key], style);
-            }
+                })
+            })
         }
         if (addstyle) {
             style.innerHTML += `/*\n** End CSS for ` + self.title + `\n*/\n`;
@@ -387,8 +545,8 @@ function wrapper(plugin_info) {
 // Main Dialog
 //
     function main_showDialog() {
-        let main = self.interfaceData.main;
-        let dialog_id = self.interfaceData.prefix + main.id;
+        let main = self.interfaceTabs.main;
+        let dialog_id = self.prefix + main.key;
         let dialog = dialog_getDialog(dialog_id);
         if (dialog && dialog.dialog('isOpen')) {
             dialog.dialog('close');
@@ -399,19 +557,30 @@ function wrapper(plugin_info) {
         let container = main.createContents();
 
         // Create and open the dialog
+        let position = dialog_getPosition(dialog_id);
         dialog = window.dialog({
 			html: container,
             title: main.title,
             id: dialog_id,
-            dialogClass: 'ui-dialog-' + self.interfaceData.prefix + main.id,
-            position: {
-                my: 'auto',
-                at: 'auto',
-                of: window
+            dialogClass: 'ui-dialog-' + self.prefix + main.key,
+            resizable: true,
+            position: position ? position : { 
+			    my: "auto", 
+		   	    at: "auto", 
+		        of: window
             },
-            width: '400px',
+            resizeStop: function(event, ui) {
+                // Keeping height as auto on this one
+                dialog_addPosition(id, dialog.dialog("option", "position"));
+                $(this).dialog('option', {height:'auto'});
+                const width = $(this).parent().innerWidth();
+                self.settings.dialogWidths[main.dialog] = width;
+                localStorage_Save();
+            },
+            width: self.settings.dialogWidths[main.dialog],
             height: 'auto',
       	    closeCallback: function () {
+                dialog_addPosition(dialog_id, $(this).dialog("option", "position"));
                 dialog_removeDialog(dialog_id);
 	        }
         }).dialog('option', 'buttons', { ...main.buttons});
@@ -422,12 +591,12 @@ function wrapper(plugin_info) {
 ** Main Dialog - Contents
 */
     function main_createContents() {
-        let main = self.interfaceData.main;
+        let main = self.interfaceTabs.main;
         let div = document.createElement('div');
-        div.id = self.interfaceData.prefix + main.id;
+        div.id = self.prefix + main.key;
 
         let settings = div.appendChild(document.createElement('div'));
-        settings.className = self.interfaceData.prefix + main.id;
+        settings.className = self.prefix + main.key;
         let table = settings.appendChild(document.createElement('table'));
 
         //  Settings
@@ -448,7 +617,7 @@ function wrapper(plugin_info) {
     function settings_createSections(area, sections) {
         Object.values(sections).forEach((section) => {
             let div = area.appendChild(document.createElement('div'))
-            div.className = self.interfaceData.prefix + self.interfaceData.main.id + "-innersettings";
+            div.className = self.prefix + self.interfaceTabs.main.key + "-innersettings";
             var table = div.appendChild(document.createElement('table'));
             table.style.width = '100%';
             var row = table.appendChild(document.createElement('tr'));
@@ -503,19 +672,19 @@ function wrapper(plugin_info) {
 // Settings - Event Handlers
 //
     function settings_handleImageMode(event, element) {
-        let portaldetails = self.interfaceData.portaldetails;
+        let portaldetails = self.portaldetails;
         if (self.settings.elementData[element.settings] == 'disabled') {
             if (self.id != portaldetails.mods.owner()) {
                 return;
             }
             else {
-                self.interfaceData.portaldetails.mods.handler();
+                self.portaldetails.mods.handler();
                 portaldetails.mods.owner(self.id, true);
             }
         }
         else {
             if (self.id == portaldetails.mods.owner(self.id)) {
-                self.interfaceData.portaldetails.mods.handler();
+                self.portaldetails.mods.handler();
             }
             else {
                 select = document.getElementById(SETTINGS_PREFIX + "imagemode")
@@ -523,6 +692,27 @@ function wrapper(plugin_info) {
                 select.dispatchEvent(new Event('change', { bubbles: true }));
             }
         }
+    }
+
+/*
+** Handle Dialogs When Windows Are Resized/Repositioned
+*/
+    function dialog_WindowResize() {
+        dialog_DialogList.forEach(el => {
+            let position = dialog_getPosition(el.id);
+            el.dialog.dialog('option', 'position', position ? position : { 
+			    my: "auto", 
+		   	    at: "auto", 
+		        of: window
+            });
+            if (el.id === self.prefix + self.interfaceTabs.main.key) {
+                el.dialog.dialog('option', 'width', self.settings.dialogWidths[self.interfaceTabs.main.dialog]);
+                el.dialog.dialog('option', 'height', 'auto');
+            }
+            else {
+                el.dialog.dialog('option', 'height', 'auto');
+            }
+        });
     }
 
 //
@@ -557,11 +747,36 @@ function wrapper(plugin_info) {
         $(this).dialog('close');
     }
 
+/*
+** List of Dialog Positions
+*/
+    let dialog_Positions = [];
+    function dialog_addPosition(id, position) {
+        let index = dialog_Positions.findIndex(item => item.id === id);
+        if (index > -1) {
+            dialog_Positions[index].position = position;
+        }
+        else {
+            dialog_Positions.push( {
+                id: id,
+                position: position
+            })
+        }
+    }
+
+    function dialog_getPosition(id) {
+        let position = undefined;
+        let index = dialog_Positions.findIndex(item => item.id === id);
+        if (index > -1)
+            position = dialog_Positions[index].position;
+        return position;
+    }
+
 //
 //  Place Mods Graphics in Portal Details box
 //        
     function update_PortalDetails(p) {
-        let portaldetails = self.interfaceData.portaldetails;
+        let portaldetails = self.portaldetails;
         portaldetails.mods.handler();
 	}
 
@@ -601,7 +816,7 @@ function wrapper(plugin_info) {
 
     // Update/Change Mods on Portal Details
     function mods_PortalDetails() {
-        let portaldetails = self.interfaceData.portaldetails;
+        let portaldetails = self.portaldetails;
         let setting = self.settings.elementData.imageMode;
         mods = document.querySelectorAll('.mods span');
         if (mods) {
@@ -632,7 +847,7 @@ function wrapper(plugin_info) {
                         key = el.dataset.key;
                     }
                     if (key != '') {
-                        el.className = self.interfaceData.prefix + portaldetails.mods.id;
+                        el.className = self.prefix + portaldetails.mods.id;
                         el.dataset.key = key;
                         let itemimage = document.createElement('img');
                         var image = mods_getImageByKey(key, setting);
@@ -796,6 +1011,7 @@ function wrapper(plugin_info) {
         }
 
         // Debug Output
+        debugLog('lists', self.title, self.interfaceLists);
         debugLog('settings', self.title, self.settings);
     
         localStorage_Init();
@@ -803,22 +1019,27 @@ function wrapper(plugin_info) {
 
         // Check/Take Mods Ownership Or Disable
         if (self.settings.elementData.imageMode != 'disabled') {
-            if (self.id != self.interfaceData.portaldetails.mods.owner(self.id)) {
+            if (self.id != self.portaldetails.mods.owner(self.id)) {
                 self.settings.elementData.imageMode = 'disabled';
             }
         }
 
       	$(`<a href="#" title="${self.interfaceData.toolbox.title}">`)
        		.text(self.interfaceData.toolbox.text)
-       		.click(self.interfaceData.main.showDialog)
+       		.click(self.interfaceTabs.main.showDialog)
        		.appendTo($('#toolbox'));
 
-        window.addHook('portalDetailsUpdated', self.interfaceData.portaldetails.handler);
+        window.addHook('portalDetailsUpdated', self.portaldetails.handler);
 
         // 
         // init_Css()
         //
-        init_Css(self.interfaceData);
+        init_Css(self.interfaceLists);
+
+        //
+        // Handle Changes in Window Size
+        //
+        window.addEventListener('resize', dialog_WindowResize);
 
         outputLog('IITC plugin loaded: ' + self.title + ' version ' + self.version + " ");
     };

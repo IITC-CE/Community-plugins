@@ -2,7 +2,7 @@
 
 A collection of amazing plugins made by community.
 
-There are now 128 plugins from 42 authors in the collection.
+There are now 129 plugins from 42 authors in the collection.
 
 > Note: You must install IITC-CE on your [desktop](https://iitc.app/download_desktop)
 or [mobile device](https://iitc.app/download_mobile) to use IITC plugins.
@@ -865,6 +865,20 @@ View a Glympse tag directly on the Intel map.
 *[Homepage](https://github.com/MaxEtMoritz/iitc-glympse)* |
 *[Issue tracker](https://github.com/MaxEtMoritz/iitc-glympse/issues)* |
 *Version:* 0.0.3
+
+
+  
+### [Herringbone Planner](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Tarsi210/herringbone-planner.user.js) by Tarsi210
+
+
+
+
+
+Finds and draws an optimal visible-portal spine for herringbone multilayer planning, with CSV export.
+
+*[Homepage](https://github.com/Tarsi210/iitc-herringbone-planner)* |
+*[Issue tracker](https://github.com/Tarsi210/iitc-herringbone-planner/issues)* |
+*Version:* 0.4.4
 
 
   

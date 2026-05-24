@@ -2,7 +2,7 @@
 
 A collection of amazing plugins made by community.
 
-There are now 129 plugins from 42 authors in the collection.
+There are now 130 plugins from 43 authors in the collection.
 
 > Note: You must install IITC-CE on your [desktop](https://iitc.app/download_desktop)
 or [mobile device](https://iitc.app/download_mobile) to use IITC plugins.
@@ -43,6 +43,20 @@ Bookmark plugin add-on, to replace the default yellow marker by a color marker (
 
 *Depends*: bookmarks@ZasoGD  |
 *Version:* 2.1.0.20240227.204800
+
+
+  
+### [Follow Mode Add-on](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/MikeDiehn/follow-mode.user.js) by Mike Diehn and Frank
+
+
+
+
+
+Use smoothed, heading-up, IITC user-location follow movement.
+
+*[Homepage](https://github.com/mdiehn/iitc-plugin-follow-mode)* |
+*[Issue tracker](https://github.com/mdiehn/iitc-plugin-follow-mode/issues)* |
+*Version:* 1.0.0
 
 
   

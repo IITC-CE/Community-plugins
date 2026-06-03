@@ -3,7 +3,7 @@
 // @id             portaldetailsmod@Whomiga
 // @name           Portal Detail Mods
 // @category       Info
-// @version        0.32.0
+// @version        0.34.0
 // @description    Show Mod Pictures in Portal Details
 // @downloadURL    https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Whomiga/portaldetailsmod.user.js
 // @updateURL      https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Whomiga/portaldetailsmod.meta.js
@@ -23,11 +23,11 @@ function wrapper(plugin_info) {
     var self = window.plugin.PortalDetailMods;
     self.id = 'PortalDetailMods';
     self.title = 'PortalDetailMods';
-    self.version = '0.32.0.20260527.214900';
+    self.version = '0.34.0.20260602.192000';
     self.prefix = 'portaldetailmods-';
     self.author = 'Whomiga';
 
-   // Debug output
+    // Debug Output
     self.debugTypes = Object.freeze({
         enabled:  false,
         lists:    true,
@@ -39,7 +39,7 @@ function wrapper(plugin_info) {
     plugin_info.buildName = "PortalDetailMods";
 
     // Datetime-derived version of the plugin
-    plugin_info.dateTimeVersion = "20260527.214900";
+    plugin_info.dateTimeVersion = "20260602.192000";
 
     // ID/name of the plugin
     plugin_info.pluginId = "portalDetailMods";
@@ -82,39 +82,42 @@ function wrapper(plugin_info) {
     self.interfaceCss = Object.freeze({
         // Main Dialog CSS Information
         'main': {
-            // Don't use 'parent_A' - 'parent_D' anywhere else
+            // Don't use 'parent_A' - 'parent_Z' anywhere else
             'id_div_dialog': 'div#dialog-' + self.prefix + 'main',
             '*parent_A': `
                 overflow-x: hidden !important;`,
-            'id_ui_dialog': 'ui-dialog.ui-dialog-' + self.prefix + 'main',
+            'id_ui_dialog': 'ui-dialog-' + self.prefix + 'main',
             'parent_B': `
                 max-width: calc(100vw - 2px);`,
+            ' .ui-dialog-content': `
+                color: inherit;
+                background: transparent !important;`,
             ' select': `
-                background-color: ${self.interfaceColors.Gadget} !important;`,
+                background-color: var(--${self.prefix}Gadget) !important;`,
             'id_pre_key': 'pre_key',
             ' h3': `
                 margin-top:    0px !important;
                 margin-bottom: 4px !important;
-                color: ${self.interfaceColors.Header} !important;`,
+                color: var(--${self.prefix}Header) !important;`,
             ' label': `
-                color: ${self.interfaceColors.Label} !important;`,
+                color: var(--${self.prefix}Label) !important;`,
             '-innersettings': `
                 padding: 8px 8px;
-                border: 1px solid ${self.interfaceColors.Border};
-                background-color: ${self.interfaceColors.BackGrnd};
-                color: ${self.interfaceColors.Text};`,
+                border: var(--${self.prefix}Border);
+                background-color: inherit !important;
+                color: inherit !important;`,
             'id_pre_main': 'pre_main',
             'parent_C': `
                 padding: 4px 4px;
-                border: 1px solid ${self.interfaceColors.Border};
-                background-color: ${self.interfaceColors.BackGrnd};
-                color: ${self.interfaceColors.Main};
+                border: var(--${self.prefix}Border);
+                background-color: inherit !important;
+                color: inherit !important;
                 display: flex;
                 flex-direction: column;
                 flex: 1;`,
             'id_pre_author': 'pre_author',
             'parent_D': `
-                color: ${self.interfaceColors.Author};
+                color: var(--${self.prefix}Author) !important;
                 margin-top: 8px; 
                 font-style: italic; 
                 font-size: smaller;`,
@@ -131,7 +134,23 @@ function wrapper(plugin_info) {
 ** Assorted Information
 ** Retabulated for use via self.interfaceLists.data (self.interfaceData)
 */
-        // Toolbox Info
+        variables: {
+            css: {
+                comment: 'Global CSS Variables',
+                id_root: ':root',
+                '*parent_1': `
+                    /* Default Colors */
+                    --${self.prefix}Main:               ${self.interfaceColors.Main};
+                    --${self.prefix}Text:               ${self.interfaceColors.Text};
+                    --${self.prefix}Label:              ${self.interfaceColors.Label};
+                    --${self.prefix}Author:             ${self.interfaceColors.Author};
+                    --${self.prefix}Gadget:             ${self.interfaceColors.Gadget};
+                    --${self.prefix}Border:             1px solid ${self.interfaceColors.Border};
+                    /* Header Colors */
+                    --${self.prefix}Header:             ${self.interfaceColors.Header};`
+            }
+        },
+        // Toolbox Information
         toolbox: {
             title: 'Shows Mod Pictures on Portal Detail',
             text: self.title,
@@ -240,7 +259,6 @@ function wrapper(plugin_info) {
     self.interfaceLists = {};
     Object.assign(self.interfaceLists, { 
         colors: self.interfaceColors,
-        config: self.interfaceConfig,
         css:    self.interfaceCss,
         data:   self.interfaceData,
         tabs:   self.interfaceTabs,
@@ -309,7 +327,7 @@ function wrapper(plugin_info) {
     }
 
 /*
-** Creates Interface Lists From Interface Config
+** Creates Interface Tablist From Interface Data
 */
 /************************************/
 /* Interface Tabs and Data          */

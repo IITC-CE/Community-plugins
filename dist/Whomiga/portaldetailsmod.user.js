@@ -3,7 +3,7 @@
 // @id             portaldetailsmod@Whomiga
 // @name           Portal Detail Mods
 // @category       Info
-// @version        0.34.0
+// @version        0.36.0
 // @description    Show Mod Pictures in Portal Details
 // @downloadURL    https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Whomiga/portaldetailsmod.user.js
 // @updateURL      https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Whomiga/portaldetailsmod.meta.js
@@ -169,6 +169,7 @@ function wrapper(plugin_info) {
                         width: auto;
                         height: 64px;`
                 },
+                property: '--portaldetails-mods-owner',
                 // Callback Function
                 handler: mods_PortalDetails,
                 owner: mods_PortalDetailsOwner
@@ -858,38 +859,31 @@ function wrapper(plugin_info) {
 	}
 
     /* Store Current Owner of Portal Mods */
-    function mods_PortalDetailsOwner(newowner = null, clear = false) {
-        let playername = document.querySelectorAll('.playername');
-        let owner = null;
-        if (playername) {
-            el = Array.from(playername)[0];
-            if (newowner) {
-                if (clear) {
-                    if (el.dataset.modsowner == newowner) {
-                        delete el.dataset.modsowner;
-                        owner = newowner;
-                    }
-                    else {
-                        owner = el.dataset.modsowner;
-                    }
-                    return owner;
-                }
-                else {
-                    if (el.dataset.modsowner == undefined) {
-                        el.dataset.modsowner = newowner;
-                        owner = newowner;
-                    }
-                    else {
-                        owner = el.dataset.modsowner;
-                    }
-                }
+    function mods_PortalDetailsOwner(newOwner = null, clear = false) {
+        const rootStyle = document.documentElement.style;
+        const propName = self.interfacePortalDetails.mods.property;
+        const modsOwner = window.getComputedStyle(document.documentElement).getPropertyValue(propName).trim();
+
+        // Case 1: Clear the property if it matches newowner
+        if (newOwner && clear) {
+            if (modsOwner === newOwner) {
+                rootStyle.removeProperty(propName);
             }
-            else {
-                owner = el.dataset.modsowner;
-            }
+            return modsOwner;
         }
-        return owner
-	}
+
+        // Case 2: Set the property if it is currently empty
+        if (newOwner && !clear) {
+            if (modsOwner === "") {
+                rootStyle.setProperty(propName, `${newOwner}`);
+                return newOwner;
+            }
+            return modsOwner;
+        }
+
+        // Case 3: No newowner provided, just fetch current
+        return modsOwner;
+    }
 
     // Update/Change Mods on Portal Details
     function mods_PortalDetails() {

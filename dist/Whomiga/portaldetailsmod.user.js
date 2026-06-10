@@ -3,7 +3,7 @@
 // @id             portaldetailsmod@Whomiga
 // @name           Portal Detail Mods
 // @category       Info
-// @version        0.36.0
+// @version        1.0.0
 // @description    Show Mod Pictures in Portal Details
 // @downloadURL    https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Whomiga/portaldetailsmod.user.js
 // @updateURL      https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Whomiga/portaldetailsmod.meta.js
@@ -23,7 +23,7 @@ function wrapper(plugin_info) {
     var self = window.plugin.PortalDetailMods;
     self.id = 'PortalDetailMods';
     self.title = 'PortalDetailMods';
-    self.version = '0.34.0.20260602.192000';
+    self.version = '1.0.0.20260609.210700';
     self.prefix = 'portaldetailmods-';
     self.author = 'Whomiga';
 
@@ -39,7 +39,7 @@ function wrapper(plugin_info) {
     plugin_info.buildName = "PortalDetailMods";
 
     // Datetime-derived version of the plugin
-    plugin_info.dateTimeVersion = "20260602.192000";
+    plugin_info.dateTimeVersion = "20260609.210700";
 
     // ID/name of the plugin
     plugin_info.pluginId = "portalDetailMods";
@@ -742,25 +742,26 @@ function wrapper(plugin_info) {
     ** Settings - Event Handlers
     */
     function settings_handleImageMode(event, element) {
-        let portaldetails = self.interfacePortalDetails;
-        if (self.settings.elementData[element.settings] == 'disabled') {
-            if (self.id != portaldetails.mods.owner()) {
+        const portalDetails = self.interfacePortalDetails;
+        const portalSettings = self.settings.elementData[element.settings];
+        if (portalSettings === 'disabled') {
+            if (self.id !== portalDetails.mods.owner()) {
                 return;
             }
-            else {
-                self.interfacePortalDetails.mods.handler();
-                portaldetails.mods.owner(self.id, true);
-            }
+            self.interfacePortalDetails.mods.handler();
+            portalDetails.mods.owner(self.id, true);
         }
         else {
-            if (self.id == portaldetails.mods.owner(self.id)) {
+            if (self.id === portalDetails.mods.owner(self.id)) {
                 self.interfacePortalDetails.mods.handler();
             }
             else {
-                select = document.getElementById(SETTINGS_PREFIX + "imagemode")
-                select.value = 'disabled';
-                select.dispatchEvent(new Event('change', { bubbles: true }));
-            }
+                const selectElement = document.getElementById(SETTINGS_PREFIX + "imagemode")
+                if (selectElement) {
+                    selectElement.value = 'disabled';
+                    selectElement.dispatchEvent(new Event('change', { bubbles: true }));
+                }
+           }
         }
     }
 

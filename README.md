@@ -652,7 +652,7 @@ Counts portals by level and faction inside polygons or search result.
 
 Show Mod Pictures in Portal Details
 
-*Version:* 0.36.0
+*Version:* 1.0.0
 
 
   

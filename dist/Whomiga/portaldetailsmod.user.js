@@ -3,7 +3,7 @@
 // @id             portaldetailsmod@Whomiga
 // @name           Portal Detail Mods
 // @category       Info
-// @version        1.0.0
+// @version        1.2.0
 // @description    Show Mod Pictures in Portal Details
 // @downloadURL    https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Whomiga/portaldetailsmod.user.js
 // @updateURL      https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Whomiga/portaldetailsmod.meta.js
@@ -23,7 +23,7 @@ function wrapper(plugin_info) {
     var self = window.plugin.PortalDetailMods;
     self.id = 'PortalDetailMods';
     self.title = 'PortalDetailMods';
-    self.version = '1.0.0.20260609.210700';
+    self.version = '1.2.0.20260614.090800';
     self.prefix = 'portaldetailmods-';
     self.author = 'Whomiga';
 
@@ -39,7 +39,7 @@ function wrapper(plugin_info) {
     plugin_info.buildName = "PortalDetailMods";
 
     // Datetime-derived version of the plugin
-    plugin_info.dateTimeVersion = "20260609.210700";
+    plugin_info.dateTimeVersion = "20260614.090800";
 
     // ID/name of the plugin
     plugin_info.pluginId = "portalDetailMods";
@@ -57,7 +57,6 @@ function wrapper(plugin_info) {
 /********************/
     // Tangerine Yellow
     const default_Color = '#ffce00';
-    const default_Border = '#ffeb97';
     self.interfaceColors = Object.freeze({
         Main:     default_Color,
         Label:    '#ffffff',
@@ -65,8 +64,6 @@ function wrapper(plugin_info) {
         Text:     '#ffffff',
         Gadget:   '#ffffff',
         Header:   '#ffce00',
-        Border:   default_Border,
-        BackGrnd: 'rgba(8, 60, 78, 0.9)',
     });
 
 /********************/
@@ -88,6 +85,7 @@ function wrapper(plugin_info) {
                 overflow-x: hidden !important;`,
             'id_ui_dialog': 'ui-dialog-' + self.prefix + 'main',
             'parent_B': `
+                background-color: var(--${self.prefix}window-BkGrnd);
                 max-width: calc(100vw - 2px);`,
             ' .ui-dialog-content': `
                 color: inherit;
@@ -103,13 +101,13 @@ function wrapper(plugin_info) {
                 color: var(--${self.prefix}Label) !important;`,
             '-innersettings': `
                 padding: 8px 8px;
-                border: var(--${self.prefix}Border);
+                border: var(--${self.prefix}window-Border);
                 background-color: inherit !important;
                 color: inherit !important;`,
             'id_pre_main': 'pre_main',
             'parent_C': `
                 padding: 4px 4px;
-                border: var(--${self.prefix}Border);
+                border: var(--${self.prefix}window-Border);
                 background-color: inherit !important;
                 color: inherit !important;
                 display: flex;
@@ -134,6 +132,7 @@ function wrapper(plugin_info) {
 ** Assorted Information
 ** Retabulated for use via self.interfaceLists.data (self.interfaceData)
 */
+        // CSS Variables
         variables: {
             css: {
                 comment: 'Global CSS Variables',
@@ -145,7 +144,6 @@ function wrapper(plugin_info) {
                     --${self.prefix}Label:              ${self.interfaceColors.Label};
                     --${self.prefix}Author:             ${self.interfaceColors.Author};
                     --${self.prefix}Gadget:             ${self.interfaceColors.Gadget};
-                    --${self.prefix}Border:             1px solid ${self.interfaceColors.Border};
                     /* Header Colors */
                     --${self.prefix}Header:             ${self.interfaceColors.Header};`
             }
@@ -194,14 +192,6 @@ function wrapper(plugin_info) {
                 comment: 'Main Dialog',
                 ...self.interfaceCss.main
             },
-            colors: {
-                Main:     self.interfaceColors.Main,
-                Label:    self.interfaceColors.Label,
-                Border:   self.interfaceColors.Border,
-                Gadget:   self.interfaceColors.Gadget,
-                Header:   self.interfaceColors.Header,
-                BackGrnd: self.interfaceColors.BackGrnd,
-            },
             // Buttons Used In Dialog
             buttons: {
                 ok: {
@@ -241,9 +231,6 @@ function wrapper(plugin_info) {
         }
    });   
 
-/*
-** Lists created from self.interfaceConfig
-*/
 /***************************************************/
 /* Interface Lists - Created from Interface Config */
 /***************************************************/
@@ -251,9 +238,13 @@ function wrapper(plugin_info) {
     // Get Interface Tabs and Data
     const { tabs: interfaceTabs, data: interfaceData } = get_interfaceTabsAndData(self.interfaceConfig);
 
+    // Theme Data For Later
+    interfaceData.theme = {};
+
     // Define Interface Shortcuts for Tabs and Data
     self.interfaceData =          interfaceData;
     self.interfacePortalDetails = interfaceData.portaldetails;
+    self.interfaceTheme =         interfaceData.theme;
     self.interfaceTabs =          interfaceTabs;
 
     // Assign all Interface Items to Interface Lists
@@ -327,9 +318,6 @@ function wrapper(plugin_info) {
         return results;
     }
 
-/*
-** Creates Interface Tablist From Interface Data
-*/
 /************************************/
 /* Interface Tabs and Data          */
 /* Creation and Auxiliary Functions */
@@ -548,6 +536,48 @@ function wrapper(plugin_info) {
             debugLog('initCss', self.title, style);
         }
     };
+
+    function get_dialogTheme() {
+        var dummy = window.dialog({
+            title: "Theme Test",
+            html: "<div class='theme-body-test'>Body</div>",
+            buttons: { "OK": function() {} }
+        });
+  
+        var wrapper = dummy.parent();
+        var titlebar = wrapper.find('.ui-dialog-titlebar');
+        var content = wrapper.find('.ui-dialog-content');
+        var buttonpane = wrapper.find('.ui-dialog-buttonpane');
+        var button = buttonpane.find('button');
+        var theme = {
+            key: 'theme',
+            css: {
+                comment: 'Theme CSS Values',
+                id_root: ':root',
+                '*parent_1': `
+                    /* Outer window border and background */
+                    --${self.prefix}window-BkGrnd: ${wrapper.css('background-color')};
+                    --${self.prefix}window-Border: ${wrapper.css('border')};
+                    --${self.prefix}window-BorderRadius: ${wrapper.css('border-radius')};
+                    /* Top header bar */
+                    --${self.prefix}header-BkGrnd: ${titlebar.css('background-image') !== 'none' ? titlebar.css('background-image') : titlebar.css('background-color')};
+                    --${self.prefix}header-TextColor: ${titlebar.find('.ui-dialog-title').css('color')};
+                    --${self.prefix}header-FontSize: ${titlebar.find('.ui-dialog-title').css('font-size')};
+                    /* Main inner text area */
+                    --${self.prefix}body-BkGrnd: ${content.css('background-color')};
+                    --${self.prefix}body-TextColor: ${content.css('color')};
+                    --${self.prefix}body-FontFamily: ${content.css('font-family')};
+                    /* Bottom action bar and buttons */
+                    --${self.prefix}footer-BkGrnd: ${buttonpane.css('background-color')};
+                    --${self.prefix}footer-ButtonBkGrnd: ${button.css('background-color')};
+                    --${self.prefix}footer-ButtonTextColor: ${button.css('color')};
+                    --${self.prefix}footer-ButtonBorder: ${button.css('border-top-color')};`
+            },
+        };
+        dummy.dialog('close').remove();
+        return theme;
+    }
+        
 
 /**********************************/
 /* Console Debug/Output Functions */
@@ -1107,7 +1137,11 @@ function wrapper(plugin_info) {
 
         window.addHook('portalDetailsUpdated', self.interfacePortalDetails.handler);
 
-        // init_Css()
+        // Get Dialog Theme Values
+        self.interfaceData.theme = Object.freeze({
+            ...get_dialogTheme()
+        });
+
         // Init CSS and Add to Document Body
         init_Css(self.interfaceLists);
 

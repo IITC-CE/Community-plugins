@@ -3,7 +3,7 @@
 // @id             portaldetailsmod@Whomiga
 // @name           Portal Detail Mods
 // @category       Info
-// @version        1.3.0
+// @version        1.4.0
 // @description    Show Mod Pictures in Portal Details
 // @downloadURL    https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Whomiga/portaldetailsmod.user.js
 // @updateURL      https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Whomiga/portaldetailsmod.meta.js
@@ -23,7 +23,7 @@ function wrapper(plugin_info) {
     var self = window.plugin.PortalDetailMods;
     self.id = 'PortalDetailMods';
     self.title = 'PortalDetailMods';
-    self.version = '1.3.0.20260617.194600';
+    self.version = '1.4.0.20260619.151800';
     self.prefix = 'portaldetailmods-';
     self.author = 'Whomiga';
 
@@ -39,7 +39,7 @@ function wrapper(plugin_info) {
     plugin_info.buildName = "PortalDetailMods";
 
     // Datetime-derived version of the plugin
-    plugin_info.dateTimeVersion = "20260617.194600";
+    plugin_info.dateTimeVersion = "20260619.151800";
 
     // ID/name of the plugin
     plugin_info.pluginId = "portalDetailMods";
@@ -95,22 +95,26 @@ function wrapper(plugin_info) {
             }
         };
         dummy.dialog('close').remove();
-        // Main Colors
-        var default_Color =     `var(--${self.prefix}Main)`
-        var default_TextColor = `var(--${self.prefix}Text)`
+
+        // Default Colors
+        var default_MainColor =    `var(--${self.prefix}default_MainColor)`
+        var default_TextColor =    `var(--${self.prefix}default_TextColor)`
+        var default_Backgrnd =     `var(--${self.prefix}default_Backgrnd)`
+        var default_HeaderColor =  `var(--${self.prefix}default_HeaderColor)`
+        var default_BorderColor =  `var(--${self.prefix}default_BorderColor)`
         var main = {
-            // Default Colors
-            Main:               dialog.title.TextColor,
-            Text:               dialog.body.TextColor,
+            // Main Colors
+            Main:               default_MainColor,
+            Text:               default_TextColor,
             Label:              default_TextColor,
-            Author:             default_TextColor,
+            Author:             dialog.body.TextColor,
             Gadget:             '#ffffff',
-            Backgrnd:           dialog.window.BkGrnd,
-            /* Border Definition */
-            Border:             `1px solid var(--${self.prefix}BorderColor)`,
-            BorderColor:        dialog.window.Border,
+            Backgrnd:           default_Backgrnd,
+            // Border Definitions
+            Border:             `1px solid ${default_BorderColor}`,
+            BorderColor:        default_BorderColor,
             // Header Colors
-            Header:             default_Color
+            Header:             default_HeaderColor,
         };
 
         // CSS Values
@@ -118,7 +122,13 @@ function wrapper(plugin_info) {
             comment: 'Global CSS Variables',
             id_root: ':root',
             '*parent_1': `
-                /* Default Colors */
+                /* Default Colors from Dialog */
+                --${self.prefix}default_MainColor:    ${dialog.title.TextColor};
+                --${self.prefix}default_HeaderColor:  ${dialog.title.TextColor};
+                --${self.prefix}default_TextColor:    ${dialog.body.TextColor};
+                --${self.prefix}default_Backgrnd:     ${dialog.window.BkGrnd};
+                --${self.prefix}default_BorderColor:  ${dialog.window.Border};
+                /* Main Colors */
                 --${self.prefix}Main:               ${main.Main};
                 --${self.prefix}Text:               ${main.Text};
                 --${self.prefix}Label:              ${main.Label};

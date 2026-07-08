@@ -2,10 +2,10 @@
 // @author         DanielOnDiordna
 // @name           Player Tracker add-on
 // @category       Addon
-// @version        2.0.1.20251028.233800
+// @version        2.1.1.20260708.001000
 // @updateURL      https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/player-tracker-addon.meta.js
 // @downloadURL    https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/player-tracker-addon.user.js
-// @description    [danielondiordna-2.0.1.20251028.233800] Add-on to the player tracker plugin: Adjust history limit of 3 hours to another value. Toggle name labels, last action time, toggle/adjust player colors, focus on players, display 1 single player. Integrated Marker Label plugin and Spectrum Colorpicker 1.8.1 plugin. Supports Machina _̶̱̍_̴̳͉̆̈́M̷͔̤͒Ą̷̍C̴̼̕ͅH̶̹͕̼̾Ḭ̵̇̾̓N̵̺͕͒̀̍Ä̴̞̰́_̴̦̀͆̓_̷̣̈́  player.
+// @description    [danielondiordna-2.1.1.20260708.001000] Add-on to the player tracker plugin: Adjust history limit of 3 hours to another value. Toggle name labels, last action time, toggle/adjust player colors, focus on players, display 1 single player. Integrated Marker Label plugin and Spectrum Colorpicker 1.8.1 plugin. Supports Machina _̶̱̍_̴̳͉̆̈́M̷͔̤͒Ą̷̍C̴̼̕ͅH̶̹͕̼̾Ḭ̵̇̾̓N̵̺͕͒̀̍Ä̴̞̰́_̴̦̀͆̓_̷̣̈́  player.
 // @id             player-tracker-addon@DanielOnDiordna
 // @namespace      https://softspot.nl/ingress/
 // @depends        player-activity-tracker@breunigs
@@ -16,17 +16,23 @@
 
 function wrapper(plugin_info) {
     // ensure plugin framework is there, even if iitc is not yet loaded
-    if(typeof window.plugin !== 'function') window.plugin = function() {};
+    if (typeof window.plugin !== 'function') window.plugin = () => {};
 
     // use own namespace for plugin
-    window.plugin.playerTrackerAddon = function() {};
-    var self = window.plugin.playerTrackerAddon;
+    const self = window.plugin.playerTrackerAddon = () => {};
     self.id = 'playerTrackerAddon';
     self.title = 'Player Tracker add-on';
-    self.version = '2.0.1.20251028.233800';
+    self.version = '2.1.1.20260708.001000';
     self.author = 'DanielOnDiordna';
     self.changelog = `
 Changelog:
+
+version 2.1.1.20260708.001000
+version 2.1.1.20260708.000600
+version 2.1.0.20260707.235400
+- modified the script into modern javascript formatting
+- created a formatted list of stored players with clickable event lists
+- fixed the history lines selector
 
 version 2.0.1.20251028.233800
 - fix drawData for Player tracker 0.14.0.20251027.080601 (part of IITC beta 0.41.0)
@@ -101,10 +107,10 @@ version 0.0.1.20181018.104200
 version 0.0.1.20181030.212900
 - intel URL changed from www.ingress.com to *.ingress.com
 `;
-    self.namespace = 'window.plugin.' + self.id + '.';
-    self.pluginname = 'plugin-' + self.id;
+    self.namespace = `window.plugin.${self.id}.`;
+    self.pluginname = `plugin-${self.id}`;
 
-    self.localstoragesettings = 'plugin-' + self.id + '-settings';
+    self.localstoragesettings = `plugin-${self.id}-settings`;
     self.settings = {
         limit: 3,
         showlabels: true,
@@ -121,17 +127,17 @@ version 0.0.1.20181030.212900
     self.drawData_backup = '';
     self.ago_backup = '';
 
-    let unknown = 'U̶͚̓̍N̴̖̈K̠͔̍͑̂͜N̞̥͋̀̉Ȯ̶̹͕̀W̶̢͚͑̚͝Ṉ̨̟̒̅';
-    let machina = '_̶̱̍_̴̳͉̆̈́M̷͔̤͒Ą̷̍C̴̼̕ͅH̶̹͕̼̾Ḭ̵̇̾̓N̵̺͕͒̀̍Ä̴̞̰́_̴̦̀͆̓_̷̣̈́';
+    const unknown = 'U̶͚̓̍N̴̖̈K̠͔̍͑̂͜N̞̥͋̀̉Ȯ̶̹͕̀W̶̢͚͑̚͝Ṉ̨̟̒̅';
+    const machina = '_̶̱̍_̴̳͉̆̈́M̷͔̤͒Ą̷̍C̴̼̕ͅH̶̹͕̼̾Ḭ̵̇̾̓N̵̺͕͒̀̍Ä̴̞̰́_̴̦̀͆̓_̷̣̈́';
 
-    self.restoresettings = function() {
+    self.restoresettings = () => {
         if (!Object.keys(localStorage).includes(self.localstoragesettings) || localStorage.getItem(self.localstoragesettings) == '') return;
 
-        function isObject(element) {
+        const isObject = (element) => {
             return (typeof element == 'object' && element instanceof Object && !(element instanceof Array));
-        }
+        };
 
-        function parseSettings(source,target) {
+        const parseSettings = (source,target) => {
             if (!isObject(source) || !isObject(target)) return;
 
             for (const key in target) {
@@ -143,7 +149,7 @@ version 0.0.1.20181030.212900
                     }
                 }
             }
-        }
+        };
 
         try {
             let settings = JSON.parse(localStorage.getItem(self.localstoragesettings));
@@ -181,7 +187,7 @@ version 0.0.1.20181030.212900
             return false;
         }
     };
-    self.storesettings = function() {
+    self.storesettings = () => {
         try {
             localStorage.setItem(self.localstoragesettings,JSON.stringify(self.settings));
         } catch(e) {
@@ -189,7 +195,7 @@ version 0.0.1.20181030.212900
         }
     };
 
-    self.setlimit = function(hours) {
+    self.setlimit = (hours) => {
         hours = parseFloat(hours);
         self.settings.limit = hours;
         self.storesettings();
@@ -197,14 +203,14 @@ version 0.0.1.20181030.212900
         window.plugin.playerTracker.handleData(); // call to processNewData requires data, this is fixed by rewriting that function elsewhere
     };
 
-    self.setmaxdisplayevents = function(max) {
+    self.setmaxdisplayevents = (max) => {
         max = parseInt(max);
         self.settings.maxdisplayevents = max;
         self.storesettings();
         self.resettracks();
     };
 
-    self.labelsetup = function() {
+    self.labelsetup = () => {
         // documentation: https://github.com/jacobtoye/Leaflet.iconlabel
         // create a label for each marker, override the original code:
 
@@ -251,13 +257,13 @@ version 0.0.1.20181030.212900
         });
     };
 
-    function replaceText(source,search,replace) {
+    const replaceText = (source,search,replace) => {
         let result = source.replace(search,replace);
         if (result == source) console.warn(`${self.title} - ${(new Error()).stack?.split("\n")[2]?.trim().split(" ")[1]} replaceText failed: ${search}`);
         return result;
-    }
+    };
 
-    function functionExists(functionname) {
+    const functionExists = (functionname) => {
         let functionexists = false;
         try {
             functionexists = typeof(eval(functionname)) == 'function';
@@ -265,9 +271,9 @@ version 0.0.1.20181030.212900
             functionexists = false;
         }
         return functionexists;
-    }
+    };
 
-    function replaceFunction(functionname,functiontext) {
+    const replaceFunction = (functionname,functiontext) => {
         if (!functionExists(functionname)) {
             console.warn(`${self.title} - ${(new Error()).stack?.split("\n")[2]?.trim().split(" ")[1]} function does not exist: ${functionname}`);
             return;
@@ -278,9 +284,9 @@ version 0.0.1.20181030.212900
         } catch(e) {
             console.warn(`${self.title} - ${(new Error()).stack?.split("\n")[2]?.trim().split(" ")[1]} replace function failed: ${functionname}`,e,functiontext);
         }
-    }
+    };
 
-    self.modify_processNewData = function() {
+    self.modify_processNewData = () => {
         if (!functionExists('window.plugin.playerTracker.processNewData')) return;
 
         let processNewData_override = window.plugin.playerTracker.processNewData.toString();
@@ -304,7 +310,7 @@ version 0.0.1.20181030.212900
         replaceFunction('window.plugin.playerTracker.processNewData',processNewData_override);
     };
 
-    self.resettracks = function() {
+    self.resettracks = () => {
         if (!window.plugin.playerTracker.drawnTracesEnl) return;
         window.plugin.playerTracker.drawnTracesEnl.clearLayers();
         window.plugin.playerTracker.drawnTracesRes.clearLayers();
@@ -312,7 +318,7 @@ version 0.0.1.20181030.212900
         window.plugin.playerTracker.drawData();
     };
 
-    self.modify_drawData = function() {
+    self.modify_drawData = () => {
         if (!functionExists('window.plugin.playerTracker.drawData')) return;
         if (!self.drawData_backup) {
             self.drawData_backup = window.plugin.playerTracker.drawData.toString();
@@ -411,7 +417,7 @@ $1$2$3$4`);
         replaceFunction('window.plugin.playerTracker.drawData',drawData_override);
     };
 
-    self.modify_ago = function() {
+    self.modify_ago = () => {
         if (functionExists('window.plugin.playerTracker.ago')) {
             window.plugin.playerTracker.ago = self.ago;
             return;
@@ -433,7 +439,7 @@ $1$2$3$4`);
         */
     };
 
-    self.getRandomTeamColor = function(plrname,team) {
+    self.getRandomTeamColor = (plrname,team) => {
         //  return '#' + (Math.random().toString(16) + '00000000').slice(2, 8).toUpperCase();
         if (!plrname) plrname = '';
 
@@ -449,41 +455,60 @@ $1$2$3$4`);
         let randomcolor = hash.toString(16).toUpperCase();
         if (team === 'ENLIGHTENED') {
             // random green color
-            return '#00' + randomcolor + '00';
+            return `#00${randomcolor}00`;
         } else if (team === 'RESISTANCE') {
             // random blue color
-            return '#0000' + randomcolor;
+            return `#0000${randomcolor}`;
         } else if (team === 'NEUTRAL') {
             // random red color
-            return '#' + randomcolor + '0000';
+            return `#${randomcolor}0000`;
         }
 
         return '#' + (hash.toString(16) + '00000000').slice(2, 8).toUpperCase();
     };
 
-    self.showlist = function() {
+    self.showlist = () => {
         if (!window.plugin.playerTracker.stored) return;
-        let resultsE = [];
-        let resultsR = [];
-        let resultsU = [];
 
-        for (const [plrname, player] of Object.entries(window.plugin.playerTracker.stored)) {
-            let text = `${plrname} ${self.ago(player.events[player.events.length-1].time, new Date().getTime())}${self.settings.showdatetime ? '' : ' ago'}${player.events.length > 1 ? ` (${player.events.length} events)`:''}`;
+        let container = document.createElement('div');
+        container.innerHTML = `
+<div>ENLIGHTENED:</div>
+<div><ul class="${self.id}ENLIGHTENED"></ul></div>
+<div>RESISTANCE:</div>
+<div><ul class="${self.id}RESISTANCE"></ul></div>
+<div>${machina}:</div>
+<div><ul class="${self.id}NEUTRAL"></ul></div>
+`;
+        const traces = { ENLIGHTENED: 'drawnTracesEnl', RESISTANCE: 'drawnTracesRes', NEUTRAL: 'drawnTracesMac' };
+        Object.keys(window.plugin.playerTracker.stored).sort((a, b) => a.localeCompare(b, undefined, {sensitivity: 'base'})).forEach(plrname => {
+            let player = window.plugin.playerTracker.stored[plrname];
+            let text = `[${self.ago(player.events[player.events.length-1].time, new Date().getTime())}${self.settings.showdatetime ? '' : ' ago'}]${player.events.length > 1 ? ` (${player.events.length} events)`:''}`;
 
-            if (player.team === "ENLIGHTENED") {
-                resultsE.push(text);
-            } else if (player.team === "NEUTRAL") {
-                resultsU.push(text);
-            } else {
-                resultsR.push(text);
-            }
-        }
-        alert('ENLIGHTENED:\n' + resultsE.sort(function(a,b) { return (a.toLowerCase() < b.toLowerCase()?-1:(a.toLowerCase() > b.toLowerCase()?1:0)); }).join('\n') + '\n' +
-              '\nRESISTANCE:\n' + resultsR.sort(function(a,b) { return (a.toLowerCase() < b.toLowerCase()?-1:(a.toLowerCase() > b.toLowerCase()?1:0)); }).join('\n') + '\n' +
-              `\n${machina}:\n` + resultsU.sort(function(a,b) { return (a.toLowerCase() < b.toLowerCase()?-1:(a.toLowerCase() > b.toLowerCase()?1:0)); }).join('\n'));
+            let li = container.querySelector(`ul.${self.id}${player.team}`).appendChild(document.createElement('li'));
+            li.innerHTML = `<span class="${self.id}plrname"></span> <span class="${self.id}events"></span>`;
+            li.querySelector(`span.${self.id}plrname`).style.color = player.color;
+            li.querySelector(`span.${self.id}plrname`).innerText = plrname;
+            li.querySelector(`span.${self.id}events`).innerText = text;
+            li.querySelector(`span.${self.id}events`).addEventListener('click', e => {
+                self.selectedplayer = plrname;
+                if (player.marker?._icon) player.marker._icon.click();
+                self.viewselectedplayer();
+            },false);
+        });
+
+        const dialog = window.dialog({
+            id: `ui-dialog-${self.id}`,
+            html: container,
+            title: self.title,
+            position: { my: "left center", at: "left center" }
+        }).dialog('option', 'buttons', {
+            '< Back': self.menu,
+            'Refresh': self.showlist,
+            'Close': () => { $(dialog).dialog('close'); }
+        });
     };
 
-    self.setSelectedPlayerColor = function(color) {
+    self.setSelectedPlayerColor = (color) => {
         if (!self.selectedplayer || !window.plugin.playerTracker?.stored[self.selectedplayer]) return;
         window.plugin.playerTracker.stored[self.selectedplayer].color = color;
 
@@ -496,7 +521,7 @@ $1$2$3$4`);
         self.resettracks();
     };
 
-    self.updateplayerlist = function(playerselectlist_select,input_playercolor) {
+    self.updateplayerlist = (playerselectlist_select,input_playercolor) => {
         if (!playerselectlist_select) playerselectlist_select = document.querySelector(`select[name=${self.id}_playerselectlist]`);
         if (!input_playercolor) input_playercolor = document.querySelector(`input[name=${self.id}_playercolor]`);
         if (!playerselectlist_select || !input_playercolor) return;
@@ -511,7 +536,7 @@ $1$2$3$4`);
             playerselectlist_select.style.color = 'black';
             $(input_playercolor).spectrum('set','black');
         } else {
-            Object.keys(window.plugin.playerTracker?.stored).sort(function(a,b) { return (a.toLowerCase() < b.toLowerCase()?-1:(a.toLowerCase() > b.toLowerCase()?1:0)); }).forEach(plrname => {
+            Object.keys(window.plugin.playerTracker?.stored).sort((a,b) => a.toLowerCase() < b.toLowerCase() ? -1 : (a.toLowerCase() > b.toLowerCase() ? 1 : 0)).forEach(plrname => {
                 let option = playerselectlist_select.appendChild(document.createElement('option'));
                 option.value = plrname;
                 option.text = `${plrname} ${window.plugin.playerTracker?.stored[plrname]?.team || ''}`;
@@ -526,17 +551,17 @@ $1$2$3$4`);
         }
     };
 
-    self.viewselectedplayer = function() {
-        let plyrname = self.selectedplayer;
-        if (!plyrname || !window.plugin.playerTracker?.stored[plyrname]?.events) return;
+    self.viewselectedplayer = () => {
+        let plrname = self.selectedplayer;
+        if (!plrname || !window.plugin.playerTracker?.stored[plrname]?.events) return;
 
-        let lasteventlatlng = window.plugin.playerTracker.stored[plyrname].events[window.plugin.playerTracker.stored[plyrname].events.length-1].latlngs[0];
+        let lasteventlatlng = window.plugin.playerTracker.stored[plrname].events[window.plugin.playerTracker.stored[plrname].events.length-1].latlngs[0];
         // map.fitBounds(window.plugin.quickdrawlinks.drawnItems.getBounds());
         let position = new window.L.LatLng(lasteventlatlng[0],lasteventlatlng[1]);
         window.map.setView(position, window.map.getZoom());
     };
 
-    self.menu = function() {
+    self.menu = () => {
         let limitchoices = {'30 minutes':0.5,'1 hour':1,'2 hours':2,'3 hours (default)':3,'4 hours':4,'5 hours':5,'6 hours':6,'12 hours':12,'1 day':24,'2 days':48,'3 days':72,'4 days':96,'5 days':120,'6 days':144,'1 week':168};
         let maxdisplayeventschoices = {'1':1,'5':5,'10 (default)':10,'15':15,'20':20,'25':25,'30':30,'40':40};
 
@@ -557,7 +582,7 @@ History lines: <select name="${self.id}_historylines"></select><br>
 <label><input type="checkbox" name="${self.id}_selectedplayer">Display selected player only</label><br>
 <a href="#" name="${self.id}_focus">Focus on selected player</a>
 <a href="#" name="${self.id}_showlist">Show list of stored players</a>
-<div class="${self.id}author">${self.title} version ${self.version} by ${self.author}</div>
+<div class="${self.id}author">${self.title} version ${self.version} by ${self.author} <a href="https://softspot.nl/ingress/" target="_blank">softspot.nl</a></div>
 `;
 
         let showlabels = container.querySelector(`input[name=${self.id}_showlabels]`);
@@ -579,75 +604,81 @@ History lines: <select name="${self.id}_historylines"></select><br>
         // let hideonyourportalactions = container.querySelector(`input[name=${self.id}_hideonyourportalactions]`);
         // hideonyourportalactions.checked = self.settings.hideonyourportalactions;
 
-        function applySettings() {
+        const applySettings = () => {
             window.map.closePopup(window.plugin.playerTracker.playerPopup);
             self.resettracks();
             showlastaction.disabled = !self.settings.showlabels;
             //showdatetime.disabled = !(self.settings.showlabels && self.settings.showlastaction);
             hidedatetoday.disabled = !self.settings.showdatetime; //!(self.settings.showlabels && self.settings.showlastaction && self.settings.showdatetime);
-        }
+        };
 
-        showlabels.addEventListener('change', function(e) {
+        showlabels.addEventListener('change', e => {
             e.preventDefault();
-            self.settings.showlabels = this.checked;
+            self.settings.showlabels = showlabels.checked;
             self.storesettings();
             applySettings();
         },false);
 
-        showlastaction.addEventListener('change', function(e) {
+        showlastaction.addEventListener('change', e => {
             e.preventDefault();
-            self.settings.showlastaction = this.checked;
+            self.settings.showlastaction = showlastaction.checked;
             self.storesettings();
             applySettings();
         },false);
 
-        showdatetime.addEventListener('change', function(e) {
+        showdatetime.addEventListener('change', e => {
             e.preventDefault();
-            self.settings.showdatetime = this.checked;
+            self.settings.showdatetime = showdatetime.checked;
             self.storesettings();
             applySettings();
         },false);
 
-        hidedatetoday.addEventListener('change', function(e) {
+        hidedatetoday.addEventListener('change', e => {
             e.preventDefault();
-            self.settings.hidedatetoday = this.checked;
+            self.settings.hidedatetoday = hidedatetoday.checked;
             self.storesettings();
             applySettings();
         },false);
 
         /*
-        hideonyourportalactions.addEventListener('change', function(e) {
+        hideonyourportalactions.addEventListener('change', e => {
             e.preventDefault();
-            self.settings.hideonyourportalactions = this.checked;
+            self.settings.hideonyourportalactions = hideonyourportalactions.checked;
             self.storesettings();
             self.resettracks();
         },false);
         */
 
         let history_select = container.querySelector(`select[name=${self.id}_history]`);
-        for (let key of Object.keys(limitchoices).sort(function(a, b) {return -(limitchoices[b] - limitchoices[a])})) {
+        for (let key of Object.keys(limitchoices).sort((a, b) => -(limitchoices[b] - limitchoices[a]) )) {
             let option = history_select.appendChild(document.createElement('option'));
             option.value = limitchoices[key].toString();
             option.text = key;
             if (limitchoices[key] == self.settings.limit) option.selected = true;
-        }
-        history_select.addEventListener('change', function(e) {
+        };
+        history_select.addEventListener('change', e => {
             e.preventDefault();
-            self.setlimit(this.value);
+            self.setlimit(history_select.value);
         },false);
         let historylines_select = container.querySelector(`select[name=${self.id}_historylines]`);
-        for (let key of Object.keys(maxdisplayeventschoices).sort(function(a, b) {return -(maxdisplayeventschoices[b] - maxdisplayeventschoices[a])})) {
+        for (let key of Object.keys(maxdisplayeventschoices).sort((a, b) => -(maxdisplayeventschoices[b] - maxdisplayeventschoices[a]) )) {
             let option = historylines_select.appendChild(document.createElement('option'));
             option.value = maxdisplayeventschoices[key].toString();
             option.text = key;
             if (maxdisplayeventschoices[key] == self.settings.maxdisplayevents) option.selected = true;
         }
+        historylines_select.addEventListener('change', e => {
+            e.preventDefault();
+            self.settings.maxdisplayevents = historylines_select.value;
+            self.storesettings();
+            self.resettracks();
+        });
 
         let showcenter_checkbox = container.querySelector(`input[name=${self.id}_showcenter]`);
         showcenter_checkbox.checked = self.settings.showcenter;
-        showcenter_checkbox.addEventListener('change', function(e) {
+        showcenter_checkbox.addEventListener('change', e => {
             e.preventDefault();
-            self.settings.showcenter = this.checked;
+            self.settings.showcenter = showcenter_checkbox.checked;
             self.storesettings();
             self.resettracks();
         },false);
@@ -672,24 +703,24 @@ History lines: <select name="${self.id}_historylines"></select><br>
                 ['#c1c34a','#c38a4a','#c34a4a','#c34a6f'],
                 ['#000000','#666666','#bbbbbb','#ffffff']
             ],
-            change: function(color) { self.setSelectedPlayerColor(color.toHexString()); }
+            change: (color) => { self.setSelectedPlayerColor(color.toHexString()); }
         });
 
         let playerselectlist_select = container.querySelector(`select[name=${self.id}_playerselectlist]`);
         self.updateplayerlist(playerselectlist_select,input_playercolor);
-        playerselectlist_select.addEventListener('change', function(e) {
+        playerselectlist_select.addEventListener('change', e => {
             e.preventDefault();
-            self.selectedplayer = this.value;
+            self.selectedplayer = playerselectlist_select.value;
             if (self.displayselectedplayer) self.resettracks();
-            this.style.color = this.options[this.options.selectedIndex].style.color;
-            $(input_playercolor).spectrum('set',this.style.color);
+            playerselectlist_select.style.color = playerselectlist_select.options[playerselectlist_select.options.selectedIndex].style.color;
+            $(input_playercolor).spectrum('set',playerselectlist_select.style.color);
         },false);
 
         let randomcolor_checkbox = container.querySelector(`input[name=${self.id}_randomcolor]`);
         randomcolor_checkbox.checked = self.settings.applyrandomcolors;
-        randomcolor_checkbox.addEventListener('change', function(e) {
+        randomcolor_checkbox.addEventListener('change', e => {
             e.preventDefault();
-            self.settings.applyrandomcolors = this.checked;
+            self.settings.applyrandomcolors = randomcolor_checkbox.checked;
 
             for (let [plrname, player] of Object.entries(window.plugin.playerTracker.stored)) {
                 player.color = self.settings.applyrandomcolors ? self.getRandomTeamColor(plrname,player.team) : window.PLAYER_TRACKER_LINE_COLOUR;
@@ -701,33 +732,33 @@ History lines: <select name="${self.id}_historylines"></select><br>
         },false);
         let selectedplayer_checkbox = container.querySelector(`input[name=${self.id}_selectedplayer]`);
         selectedplayer_checkbox.checked = self.displayselectedplayer;
-        selectedplayer_checkbox.addEventListener('change', function(e) {
+        selectedplayer_checkbox.addEventListener('change', e => {
             e.preventDefault();
-            self.displayselectedplayer = this.checked;
+            self.displayselectedplayer = selectedplayer_checkbox.checked;
             self.resettracks();
         },false);
         let focus_button = container.querySelector(`a[name=${self.id}_focus]`);
-        focus_button.addEventListener('click', function(e) {
+        focus_button.addEventListener('click', e => {
             e.preventDefault();
             self.viewselectedplayer();
         },false);
         let showlist_button = container.querySelector(`a[name=${self.id}_showlist]`);
-        showlist_button.addEventListener('click', function(e) {
+        showlist_button.addEventListener('click', e => {
             e.preventDefault();
             self.showlist();
         },false);
 
-        window.dialog({
+        const dialog = window.dialog({
             id: `ui-dialog-${self.id}`,
             html: container,
             title: self.title
         }).dialog('option', 'buttons', {
-            'Changelog': function() { alert(self.changelog); },
-            'Close': function() { $(this).dialog('close'); }
+            'Changelog': () => { alert(self.changelog); },
+            'Close': () => { $(dialog).dialog('close'); }
         });
     };
 
-    self.setupMarkerlabel = function() {
+    self.setupMarkerlabel = () => {
         /*
 Leaflet.iconlabel (https://github.com/jacobtoye/Leaflet.iconlabel) Copyright 2012 Jacob Toye
 
@@ -751,7 +782,7 @@ OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-        L.Icon.Label = L.Icon.extend({
+        window.L.Icon.Label = window.L.Icon.extend({
             options: {
                 /*
 		labelAnchor: (Point) (top left position of the label within the wrapper, default is right)
@@ -771,8 +802,8 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
             },
 
             initialize: function (options) {
-                L.Util.setOptions(this, options);
-                L.Icon.prototype.initialize.call(this, this.options);
+                window.L.Util.setOptions(this, options);
+                window.L.Icon.prototype.initialize.call(this, this.options);
             },
 
             setLabelAsHidden: function () {
@@ -780,14 +811,14 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
             },
 
             createIcon: function () {
-                return this._createLabel(L.Icon.prototype.createIcon.call(this));
+                return this._createLabel(window.L.Icon.prototype.createIcon.call(this));
             },
 
             createShadow: function () {
                 if (!this.options.shadowUrl) {
                     return null;
                 }
-                var shadow = L.Icon.prototype.createShadow.call(this);
+                var shadow = window.L.Icon.prototype.createShadow.call(this);
                 //need to reposition the shadow
                 if (shadow) {
                     shadow.style.marginLeft = (-this.options.wrapperAnchor.x) + 'px';
@@ -864,43 +895,43 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
             }
         });
 
-        L.Icon.Label.Default = L.Icon.Label.extend({
+        window.L.Icon.Label.Default = window.L.Icon.Label.extend({
             options: {
                 //This is the top left position of the label within the wrapper. By default it will display at the right
                 //middle position of the default icon. x = width of icon + padding
                 //If the icon height is greater than the label height you will need to set the y value.
                 //y = (icon height - label height) / 2
-                labelAnchor: new L.Point(29, 8),
+                labelAnchor: new window.L.Point(29, 8),
 
                 //This is the position of the wrapper div. Use this to position icon + label relative to the Lat/Lng.
                 //By default the point of the default icon is anchor
-                wrapperAnchor: new L.Point(13, 41),
+                wrapperAnchor: new window.L.Point(13, 41),
 
                 //This is now the top left position of the icon within the wrapper.
                 //If the label height is greater than the icon you will need to set the y value.
                 //y = (label height - icon height) / 2
-                iconAnchor: new L.Point(0, 0),
+                iconAnchor: new window.L.Point(0, 0),
 
                 //label's text component, if this is null the element will not be created
                 labelText: null,
 
                 /* From L.Icon.Default */
-                iconUrl: L.Icon.Default.imagePath + '/marker-icon.png',
-                iconSize: new L.Point(25, 41),
-                popupAnchor: new L.Point(0, -33),
+                iconUrl: window.L.Icon.Default.imagePath + '/marker-icon.png',
+                iconSize: new window.L.Point(25, 41),
+                popupAnchor: new window.L.Point(0, -33),
 
-                shadowUrl: L.Icon.Default.imagePath + '/marker-shadow.png',
-                shadowSize: new L.Point(41, 41)
+                shadowUrl: window.L.Icon.Default.imagePath + '/marker-shadow.png',
+                shadowSize: new window.L.Point(41, 41)
             }
         });
 
-        L.Marker.Label = L.Marker.extend({
+        window.L.Marker.Label = window.L.Marker.extend({
             updateLabel: function (text) {
                 this.options.icon.updateLabel(this._icon, text);
             },
 
             _initIcon: function () {
-                if (!(this.options.icon instanceof L.Icon.Label)) {
+                if (!(this.options.icon instanceof window.L.Icon.Label)) {
                     throw new Error('Icon must be an instance of L.Icon.Label.');
                 }
 
@@ -909,27 +940,27 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
                     this.options.icon.setLabelAsHidden();
                 }
 
-                L.Marker.prototype._initIcon.call(this);
+                window.L.Marker.prototype._initIcon.call(this);
             },
 
             _removeIcon: function () {
                 if (this.options.revealing) {
-                    L.DomEvent
+                    window.L.DomEvent
                         .off(this._icon, 'mouseover', this._showLabel)
                         .off(this._icon, 'mouseout', this._hideLabel);
                 }
 
-                L.Marker.prototype._removeIcon.call(this);
+                window.L.Marker.prototype._removeIcon.call(this);
             },
 
             _initInteraction: function () {
-                L.Marker.prototype._initInteraction.call(this);
+                window.L.Marker.prototype._initInteraction.call(this);
 
                 if (!this.options.revealing) {
                     return;
                 }
 
-                L.DomEvent
+                window.L.DomEvent
                     .on(this._icon, 'mouseover', this._showLabel, this)
                     .on(this._icon, 'mouseout', this._hideLabel, this);
             },
@@ -945,34 +976,34 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
         //  '	font: 9px/0.5 Arial;' +
         // '	font: 12px/1.5 Arial;' +
-        $('head').append(
-            '<style>' +
-            '.leaflet-marker-icon-wrapper {' +
-            '	position: absolute;' +
-            '}' +
-            '' +
-            '.leaflet-marker-iconlabel {' +
-            '	background: white;' +
-            '	-moz-border-radius: 7px; ' +
-            '	-webkit-border-radius: 7px;' +
-            '	border-radius: 7px;' +
-            '	-moz-box-shadow: 0 3px 10px #888;' +
-            '	-webkit-box-shadow: 0 3px 14px #999;' +
-            '	box-shadow: 0 3px 10px #888;' +
-            '	display: block;' +
-            '	font: 9px/0.5 Arial;' +
-            '  color: black;' +
-            '	padding: 4px 6px;' +
-            '	-ms-user-select: none;' +
-            '	-moz-user-select: none;' +
-            '	-webkit-user-select: none;' +
-            '	user-select: none;' +
-            '	white-space: nowrap;' +
-            '}' +
-            '</style>');
+        let stylesheet = document.head.appendChild(document.createElement('style'));
+        stylesheet.innerHTML = `
+.leaflet-marker-icon-wrapper {
+    position: absolute;
+}
+
+.leaflet-marker-iconlabel {
+    background: white;
+    -moz-border-radius: 7px;
+    -webkit-border-radius: 7px;
+    border-radius: 7px;
+    -moz-box-shadow: 0 3px 10px #888;
+    -webkit-box-shadow: 0 3px 14px #999;
+    box-shadow: 0 3px 10px #888;
+    display: block;
+    font: 9px/0.5 Arial;
+    color: black;
+    padding: 4px 6px;
+    -ms-user-select: none;
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    user-select: none;
+    white-space: nowrap;
+}
+`;
     }; // end self.setupMarkerlabel
 
-    self.setupColorpickerSpectrum = function() {
+    self.setupColorpickerSpectrum = () => {
         // source: https://github.com/bgrins/spectrum
         // minified with https://www.minifier.org/
 
@@ -1175,7 +1206,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
     }; // end setupColorpickerSpectrum
 
     // improve the original time display function, to enable display of time in minutes, hours or days:
-    self.ago = function(time, now) {
+    self.ago = (time, now) => {
         if (window.plugin.playerTrackerAddon.settings.showdatetime) {
             if (!(time instanceof Date)) {
                 if (time) {
@@ -1206,30 +1237,30 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
         return returnVal;
     };
 
-    self.setup = function() {
+    self.setup = () => {
         if (!window.plugin.playerTracker) {
-            console.warn('IITC plugin ERROR: ' + self.title + ' version ' + self.version + ' - window.plugin.playerTracker required');
+            console.warn(`IITC plugin ERROR: ${self.title} version ${self.version} - window.plugin.playerTracker required`);
             return;
         }
 
         if (!window.plugin.playerTracker.drawnTracesEnl) {
             if (window.iitcLoaded) {
-                console.warn('IITC plugin ERROR: ' + self.title + ' version ' + self.version + ' - window.plugin.playerTracker.drawnTracesEnl required');
+                console.warn(`IITC plugin ERROR: ${self.title} version ${self.version} - window.plugin.playerTracker.drawnTracesEnl required`);
                 return;
             }
-            console.log('IITC plugin: ' + self.title + ' version ' + self.version + ' - wait for window.plugin.playerTracker');
+            console.log(`IITC plugin: ${self.title} version ${self.version} - wait for window.plugin.playerTracker`)
             // window.addHook('iitcLoaded',self.setup);
             // inject add-on setup into the last function of the playerTracker setup function:
             let playerTracker_setupUserSearch = window.plugin.playerTracker.setupUserSearch;
-            window.plugin.playerTracker.setupUserSearch = function() {
+            window.plugin.playerTracker.setupUserSearch = () => {
                 playerTracker_setupUserSearch();
                 self.setup();
-            }
+            };
             return;
         }
 
         if ('pluginloaded' in self) {
-            console.log('IITC plugin already loaded: ' + self.title + ' version ' + self.version);
+            console.log(`IITC plugin already loaded: ${self.title} version ${self.version}`);
             return;
         } else {
             self.pluginloaded = true;
@@ -1242,8 +1273,8 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
         // inject code for Machina:
         if (!window.plugin.playerTracker.iconMac) {
-            let iconMacImage = 'data:image/png;base64,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';
-            let iconMacRetImage = 'data:image/png;base64,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';
+            const iconMacImage = 'data:image/png;base64,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';
+            const iconMacRetImage = 'data:image/png;base64,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';
             window.plugin.playerTracker.iconMac = window.L.Icon.Default.extend({options: {
                 iconUrl: iconMacImage,
                 iconRetinaUrl: iconMacRetImage
@@ -1260,9 +1291,9 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
                 window.addLayerGroup(`Player Tracker ${machina}`, window.plugin.playerTracker.drawnTracesMac, true);
             }
 
-            window.map.on('layeradd',function(obj) {
+            window.map.on('layeradd',obj => {
                 if (obj.layer === window.plugin.playerTracker.drawnTracesMac) {
-                    obj.layer.eachLayer(function(marker) {
+                    obj.layer.eachLayer((marker) => {
                         if (marker._icon) window.setupTooltips($(marker._icon));
                     });
                 }
@@ -1276,7 +1307,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
             self.modify_ago();
             self.resettracks();
         } catch(e) {
-            console.warn('IITC plugin ERROR: ' + self.title + ' version ' + self.version + ' - setup failed');
+            console.warn(`IITC plugin ERROR: ${self.title} version ${self.version} - setup failed`);
             return;
         }
 
@@ -1285,7 +1316,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
             let original_closeIconTooltips = window.plugin.playerTracker.closeIconTooltips;
             window.plugin.playerTracker.closeIconTooltips = function() {
                 original_closeIconTooltips();
-                window.plugin.playerTracker.drawnTracesMac.eachLayer(function (layer) {
+                window.plugin.playerTracker.drawnTracesMac.eachLayer(layer => {
                     if ($(layer._icon)) {
                         $(layer._icon).tooltip('close');
                     }
@@ -1293,7 +1324,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
             };
             if (functionExists('window.plugin.playerTracker.zoomListener')) {
                 let original_zoomListener = window.plugin.playerTracker.zoomListener;
-                window.plugin.playerTracker.zoomListener = function() {
+                window.plugin.playerTracker.zoomListener = () => {
                     original_zoomListener();
                     if (window.map.getZoom() < window.PLAYER_TRACKER_MIN_ZOOM) {
                         window.plugin.playerTracker.drawnTracesMac.clearLayers();
@@ -1326,22 +1357,26 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
         //add options menu
         let toolboxlink = document.getElementById('toolbox').appendChild(document.createElement('a'));
         toolboxlink.textContent = self.title;
-        toolboxlink.addEventListener('click', function(e) {
+        toolboxlink.addEventListener('click', e => {
             e.preventDefault();
             self.menu();
         }, false);
 
-        let stylesheet = document.body.appendChild(document.createElement('style'));
+        let stylesheet = document.head.appendChild(document.createElement('style'));
         stylesheet.innerHTML = `
 .${self.id}menu > a { display:block; color:#ffce00; border:1px solid #ffce00; padding:3px 0; margin:10px auto; width:80%; text-align:center; background:rgba(8,48,78,.9); }
 .${self.id}menu > label { user-select: none; }
 .${self.id}author { margin-top: 14px; font-style: italic; font-size: smaller; }
+span.${self.id}events {
+    cursor: pointer;
+    text-decoration: underline;
+}
 `;
 
         console.log('IITC plugin loaded: ' + self.title + ' version ' + self.version);
     };
 
-    self.runSetupRightAfterPlayerTracker = function() {
+    self.runSetupRightAfterPlayerTracker = () => {
         if (!window.plugin.playerTracker?.setupUserSearch) {
             self.setup();
             return;
@@ -1350,11 +1385,11 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
         // setupUserSearch is the last called function of the playerTracker setup
         // inject setup for this add-on into that function, to make sure the layer chooser for machina will be placed right under the others:
         let playerTracker_setupUserSearch = window.plugin.playerTracker.setupUserSearch;
-        window.plugin.playerTracker.setupUserSearch = function() {
+        window.plugin.playerTracker.setupUserSearch = () => {
             playerTracker_setupUserSearch();
             self.setup();
-        }
-    }
+        };
+    };
 
     var setup = self.runSetupRightAfterPlayerTracker;
     // set priority to boot, to make sure the add-on will run before player-activity-tracker setup:

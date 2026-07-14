@@ -2,7 +2,7 @@
 
 A collection of amazing plugins made by community.
 
-There are now 130 plugins from 43 authors in the collection.
+There are now 131 plugins from 44 authors in the collection.
 
 > Note: You must install IITC-CE on your [desktop](https://iitc.app/download_desktop)
 or [mobile device](https://iitc.app/download_mobile) to use IITC plugins.
@@ -770,6 +770,22 @@ Plugin for planning fields in IITC
 *[Homepage](https://www.youtube.com/@57Cell)* |
 *[Issue tracker](https://github.com/mike40033/iitc-57Cell/issues)* |
 *Version:* 2.1.9.20250810
+
+
+  
+### [Anchor Planner](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/emgeka/anchor-planner.user.js) by emgeka
+
+**Anti-features:** **[scraper](/CONTRIBUTING.md#anti-features)** **[export](/CONTRIBUTING.md#anti-features)** 
+
+
+
+Anchor Planner: scans Draw Tools plans, resolves portal names, lists plan portals and key counts.
+
+*Depends*: draw-tools@breunigs  |
+*Recommends*: bookmarks@ZasoGD  |
+*[Homepage](https://github.com/emgeka/iitc-anchor-planner)* |
+*[Issue tracker](https://github.com/emgeka/iitc-anchor-planner/issues)* |
+*Version:* 0.1.41
 
 
   

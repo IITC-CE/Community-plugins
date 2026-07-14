@@ -1,0 +1,11 @@
+updateURL: https://raw.githubusercontent.com/emgeka/iitc-anchor-planner/main/releases/iitc-anchor-planner.user.js
+downloadURL: https://raw.githubusercontent.com/emgeka/iitc-anchor-planner/main/releases/iitc-anchor-planner.user.js
+homepageURL: https://github.com/emgeka/iitc-anchor-planner
+issueTracker: https://github.com/emgeka/iitc-anchor-planner/issues
+depends:
+  - draw-tools@breunigs
+recommends:
+  - bookmarks@ZasoGD
+antiFeatures:
+  - scraper
+  - export

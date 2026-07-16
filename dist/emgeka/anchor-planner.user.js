@@ -3,7 +3,7 @@
 // @id              anchor-planner@emgeka
 // @name            Anchor Planner
 // @category        Layer
-// @version         0.1.41
+// @version         0.1.44
 // @namespace       https://example.local/iitc
 // @description     Anchor Planner: scans Draw Tools plans, resolves portal names, lists plan portals and key counts.
 // @updateURL       https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/emgeka/anchor-planner.meta.js
@@ -28,13 +28,13 @@ function wrapper(plugin_info) {
   if (typeof window.plugin !== 'function') window.plugin = function () {};
 
   plugin_info.buildName = 'local';
-  plugin_info.dateTimeVersion = '20260714143016';
+  plugin_info.dateTimeVersion = '20260715124448';
   plugin_info.pluginId = 'anchor-planner';
 
   window.plugin.anchorPlanner = function () {};
   var ap = window.plugin.anchorPlanner;
 
-  ap.VERSION = '0.1.41';
+  ap.VERSION = '0.1.44';
   ap.STORAGE_KEY = 'plugin-anchor-planner-v1';
   ap.DEFAULT_TOLERANCE_M = 25;
   ap.MIN_ANCHOR_LINKS = 3;
@@ -48,7 +48,8 @@ function wrapper(plugin_info) {
     panelCollapsed: false,
     showDebug: false,
     listFilter: 'all',
-    endpointAssignments: {}
+    endpointAssignments: {},
+    blockerRoutePortals: {}
   };
 
   ap.runtime = {
@@ -65,7 +66,8 @@ function wrapper(plugin_info) {
     userLocationHooksBound: false,
     nextTargetKey: null,
     overlayCount: 0,
-    htmlOverlay: null
+    htmlOverlay: null,
+    mapDataPanelRefreshTimer: null
   };
 
   ap.escapeHtml = function (value) {
@@ -134,6 +136,7 @@ function wrapper(plugin_info) {
         ap.state = Object.assign(ap.state, parsed);
         ap.state.anchors = ap.state.anchors || {};
         ap.state.endpointAssignments = ap.state.endpointAssignments || {};
+        ap.state.blockerRoutePortals = ap.state.blockerRoutePortals || {};
         ap.state.tolerance = parseInt(ap.state.tolerance, 10) || ap.DEFAULT_TOLERANCE_M;
         ap.state.minAnchorLinks = parseInt(ap.state.minAnchorLinks, 10) || ap.MIN_ANCHOR_LINKS;
       }
@@ -1024,13 +1027,13 @@ function wrapper(plugin_info) {
     ap.renderPanel();
   };
 
-  ap.getNextPortal = function () {
+  ap.getNextPortal = function (location) {
     var open = ap.sortedStats(false).filter(function (stat) {
       return !ap.ensureAnchorState(stat.guid).done;
     });
     if (!open.length) return null;
 
-    var location = ap.getCurrentUserLocation();
+    if (!arguments.length) location = ap.getCurrentUserLocation();
     if (!location || !location.latlng) return open[0];
     var nearest = open[0];
     var nearestDistance = Infinity;
@@ -1047,10 +1050,173 @@ function wrapper(plugin_info) {
     return nearest;
   };
 
-  ap.updateNextTarget = function () {
-    var nextPortal = ap.getNextPortal();
-    var usesLocation = !!ap.getCurrentUserLocation();
-    var key = (usesLocation ? 'location:' : 'route:') + (nextPortal ? nextPortal.guid : 'complete');
+  ap.distanceToPortal = function (location, portal) {
+    if (!location || !location.latlng || !portal) return null;
+    try {
+      var point = L.latLng(Number(portal.lat), Number(portal.lng));
+      var distance = location.latlng.distanceTo(point);
+      return isFinite(distance) && distance >= 0 ? distance : null;
+    } catch (e) {
+      return null;
+    }
+  };
+
+  ap.formatDistance = function (distance) {
+    if (distance == null || !isFinite(Number(distance)) || Number(distance) < 0) return '';
+    distance = Number(distance);
+    if (distance < 1000) return (Math.round(distance / 10) * 10) + ' m';
+    return (distance / 1000).toFixed(1).replace('.', ',') + ' km';
+  };
+
+  ap.getBlockerWorklist = function (location) {
+    var candidates = {};
+    var selections = ap.state.blockerRoutePortals || {};
+
+    function addEndpoint(guid, fallbackTitle, latlng, blockerId) {
+      if (!guid || !latlng || !isFinite(Number(latlng.lat)) || !isFinite(Number(latlng.lng))) return;
+      if (!candidates[guid]) {
+        candidates[guid] = {
+          guid: guid,
+          title: ap.portalDisplayLabel(guid, fallbackTitle, latlng),
+          lat: Number(latlng.lat),
+          lng: Number(latlng.lng),
+          blockerIds: {},
+          isPlanPortal: !!(ap.runtime.stats && ap.runtime.stats[guid]),
+          isOpenPlanPortal: !!(ap.runtime.stats && ap.runtime.stats[guid] && !ap.ensureAnchorState(guid).done),
+          selected: false,
+          distance: null
+        };
+      }
+      candidates[guid].blockerIds[blockerId] = true;
+    }
+
+    (ap.runtime.links || []).forEach(function (plannedLink) {
+      if (!plannedLink || plannedLink.existing || !plannedLink.blocked) return;
+      (plannedLink.blockers || []).forEach(function (blocker, blockerIndex) {
+        var blockerId = blocker.guid || ap.normalizedLinkId(blocker.a, blocker.b) || (plannedLink.id + ':' + blockerIndex);
+        addEndpoint(blocker.a, blocker.titleA, blocker.latlngA, blockerId);
+        addEndpoint(blocker.b, blocker.titleB, blocker.latlngB, blockerId);
+      });
+    });
+
+    var list = Object.keys(candidates).map(function (guid) {
+      var candidate = candidates[guid];
+      candidate.blockerCount = Object.keys(candidate.blockerIds).length;
+      candidate.selected = !candidate.isOpenPlanPortal && Object.prototype.hasOwnProperty.call(selections, guid) && !!selections[guid];
+      candidate.distance = ap.distanceToPortal(location, candidate);
+      return candidate;
+    });
+
+    list.sort(function (a, b) {
+      if (b.blockerCount !== a.blockerCount) return b.blockerCount - a.blockerCount;
+      if (a.isPlanPortal !== b.isPlanPortal) return a.isPlanPortal ? -1 : 1;
+      var ad = a.distance == null ? Infinity : a.distance;
+      var bd = b.distance == null ? Infinity : b.distance;
+      if (ad !== bd) return ad - bd;
+      return String(a.title || '').localeCompare(String(b.title || ''));
+    });
+    return list;
+  };
+
+  ap.getRouteTasks = function (location) {
+    var tasks = [];
+    var included = {};
+    ap.sortedStats(false).forEach(function (stat) {
+      if (ap.ensureAnchorState(stat.guid).done || included[stat.guid]) return;
+      var task = Object.assign({}, stat, { routeTargetType: 'plan' });
+      tasks.push(task);
+      included[stat.guid] = true;
+    });
+    ap.getBlockerWorklist(location).forEach(function (candidate) {
+      if (!candidate.selected || included[candidate.guid]) return;
+      candidate.routeTargetType = 'blocker';
+      tasks.push(candidate);
+      included[candidate.guid] = true;
+    });
+    return tasks;
+  };
+
+  ap.getNextRouteTarget = function (location) {
+    var tasks = ap.getRouteTasks(location);
+    if (!tasks.length) return null;
+    if (!location || !location.latlng) return tasks[0];
+    var nearest = tasks[0];
+    var nearestDistance = Infinity;
+    tasks.forEach(function (candidate) {
+      var distance = ap.distanceToPortal(location, candidate);
+      if (distance != null && distance < nearestDistance) {
+        nearest = candidate;
+        nearestDistance = distance;
+      }
+    });
+    return nearest;
+  };
+
+  ap.getRouteEstimate = function (location) {
+    if (!location || !location.latlng) return null;
+    var remaining = ap.getRouteTasks(location).slice();
+    if (!remaining.length) return null;
+    var targetCount = remaining.length;
+    var currentPoint = location.latlng;
+    var distance = 0;
+    while (remaining.length) {
+      var bestIndex = 0;
+      var bestDistance = Infinity;
+      for (var i = 0; i < remaining.length; i++) {
+        try {
+          var point = L.latLng(Number(remaining[i].lat), Number(remaining[i].lng));
+          var candidateDistance = currentPoint.distanceTo(point);
+          if (candidateDistance < bestDistance) {
+            bestDistance = candidateDistance;
+            bestIndex = i;
+          }
+        } catch (e) {}
+      }
+      if (!isFinite(bestDistance)) break;
+      var next = remaining.splice(bestIndex, 1)[0];
+      distance += bestDistance;
+      currentPoint = L.latLng(Number(next.lat), Number(next.lng));
+    }
+    return { distance: distance, targetCount: targetCount };
+  };
+
+  ap.routeTargetLabel = function (target, usesLocation) {
+    var type = target && target.routeTargetType === 'blocker' ? 'Blocker-Portal' : 'Planportal';
+    return 'Nächstes ' + type + (usesLocation ? ' ab Standort:' : ':');
+  };
+
+  ap.routeTargetHtml = function (target, location) {
+    if (!target) return 'Alle Routenziele erledigt.';
+    var distanceLabel = location ? ap.formatDistance(ap.distanceToPortal(location, target)) : '';
+    var nav = ap.navigationLinks(target);
+    return '<span><b>' + ap.routeTargetLabel(target, !!location) + '</b> ' + ap.escapeHtml(target.title) + (distanceLabel ? ' <span class="ap-next-distance" title="Luftlinienentfernung vom IITC-Standort">· ' + ap.escapeHtml(distanceLabel) + ' Luftlinie</span>' : '') + '</span><a target="_blank" rel="noopener" href="' + ap.escapeHtml(nav.waze) + '">Waze</a>';
+  };
+
+  ap.routeSummaryHtml = function (estimate) {
+    if (!estimate) return '';
+    return '<b>Reststrecke:</b> ca. ' + ap.escapeHtml(ap.formatDistance(estimate.distance)) + ' Luftlinie · ' + ap.escapeHtml(estimate.targetCount) + (estimate.targetCount === 1 ? ' Ziel' : ' Ziele');
+  };
+
+  ap.updateBlockerWorklistDistances = function (location) {
+    var panel = ap.runtime.panel;
+    if (!panel) return;
+    Array.prototype.forEach.call(panel.querySelectorAll('.ap-blocker-work-row'), function (row) {
+      var distanceEl = row.querySelector('.ap-blocker-work-distance');
+      if (!distanceEl) return;
+      var portal = { lat: Number(row.getAttribute('data-lat')), lng: Number(row.getAttribute('data-lng')) };
+      var label = ap.formatDistance(ap.distanceToPortal(location, portal));
+      distanceEl.textContent = label ? ' · ' + label + ' Luftlinie' : '';
+    });
+  };
+
+  ap.updateNextTarget = function (location) {
+    if (!arguments.length) location = ap.getCurrentUserLocation();
+    var nextPortal = ap.getNextRouteTarget(location);
+    var usesLocation = !!location;
+    var distanceLabel = usesLocation && nextPortal ? ap.formatDistance(ap.distanceToPortal(location, nextPortal)) : '';
+    var estimate = usesLocation ? ap.getRouteEstimate(location) : null;
+    var estimateLabel = estimate ? ap.formatDistance(estimate.distance) + ':' + estimate.targetCount : '';
+    var key = (usesLocation ? 'location:' : 'route:') + (nextPortal ? nextPortal.guid + ':' + nextPortal.routeTargetType : 'complete') + ':' + distanceLabel + ':' + estimateLabel;
     var changed = key !== ap.runtime.nextTargetKey;
     ap.runtime.nextTargetKey = key;
     if (!changed) return;
@@ -1058,19 +1224,25 @@ function wrapper(plugin_info) {
     var el = document.getElementById('ap-next-target');
     if (el) {
       if (nextPortal) {
-        var nav = ap.navigationLinks(nextPortal);
         el.className = 'ap-next-target';
-        el.innerHTML = '<span><b>' + (usesLocation ? 'Nächstes Portal ab Standort:' : 'Nächstes Portal:') + '</b> ' + ap.escapeHtml(nextPortal.title) + '</span><a target="_blank" rel="noopener" href="' + ap.escapeHtml(nav.waze) + '">Waze</a>';
+        el.innerHTML = ap.routeTargetHtml(nextPortal, location);
       } else {
         el.className = 'ap-next-target ap-next-complete';
-        el.innerHTML = 'Alle Planportale erledigt.';
+        el.innerHTML = 'Alle Routenziele erledigt.';
       }
+    }
+    var summaryEl = document.getElementById('ap-route-summary');
+    if (summaryEl) {
+      summaryEl.innerHTML = ap.routeSummaryHtml(estimate);
+      summaryEl.style.display = estimate ? '' : 'none';
     }
     if (ap.runtime.enabled) ap.renderOverlays();
   };
 
   ap.refreshLocationDependentUi = function () {
-    ap.updateNextTarget();
+    var location = ap.getCurrentUserLocation();
+    ap.updateNextTarget(location);
+    ap.updateBlockerWorklistDistances(location);
   };
 
   ap.scan = function () {
@@ -1285,6 +1457,63 @@ function wrapper(plugin_info) {
     return counts;
   };
 
+  ap.getReadiness = function (stats) {
+    var last = ap.state.lastScan;
+    if (!last) return null;
+
+    var result = {
+      key: 'ready',
+      label: 'Bereit (geladener Stand)',
+      summary: [],
+      missingKeyPortals: 0,
+      missingKeys: 0,
+      missingNames: 0,
+      unconfirmedLinks: Number(last.unconfirmedLinks) || 0,
+      loadedExistingLinks: Number(last.loadedExistingLinks) || 0,
+      unresolvedExistingLinks: Number(last.unresolvedExistingLinks) || 0
+    };
+
+    (stats || []).forEach(function (stat) {
+      var local = ap.ensureAnchorState(stat.guid);
+      if (!local.done) {
+        var keyDeficit = Math.max(0, (Number(stat.requiredKeys) || 0) - (Number(local.ownedKeys) || 0));
+        if (keyDeficit) {
+          result.missingKeyPortals++;
+          result.missingKeys += keyDeficit;
+        }
+      }
+      if (!ap.cleanTitle(stat.title) || stat.title === 'Name nicht geladen') result.missingNames++;
+    });
+
+    var unresolvedEndpoints = Number(last.unresolvedEndpoints) || 0;
+    var blockedPlannedLinks = Number(last.blockedPlannedLinks) || 0;
+    var needsScan = !(stats || []).length && ((Number(last.resolvedPortals) || 0) > 0 || (Number(last.plannedLinks) || 0) > 0);
+    var noPlan = !needsScan && !(Number(last.plannedLinks) || 0) && !unresolvedEndpoints;
+
+    if (needsScan) {
+      result.key = 'check';
+      result.label = 'Neu scannen';
+      result.summary.push('Sitzungsdaten fehlen');
+    } else {
+      if (unresolvedEndpoints) result.summary.push(unresolvedEndpoints + (unresolvedEndpoints === 1 ? ' offener Endpunkt' : ' offene Endpunkte'));
+      if (blockedPlannedLinks) result.summary.push(blockedPlannedLinks + (blockedPlannedLinks === 1 ? ' Planlink blockiert' : ' Planlinks blockiert'));
+      if (result.missingKeys) result.summary.push(result.missingKeys + (result.missingKeys === 1 ? ' Key fehlt' : ' Keys fehlen'));
+      if (result.missingNames) result.summary.push(result.missingNames + (result.missingNames === 1 ? ' Name fehlt' : ' Namen fehlen'));
+      if (result.unresolvedExistingLinks) result.summary.push(result.unresolvedExistingLinks + (result.unresolvedExistingLinks === 1 ? ' Link nicht auswertbar' : ' Links nicht auswertbar'));
+      if (noPlan) result.summary.push('kein Planlink erkannt');
+
+      if (unresolvedEndpoints || blockedPlannedLinks || result.missingKeys) {
+        result.key = 'blocked';
+        result.label = 'Nicht bereit';
+      } else if (result.missingNames || result.unresolvedExistingLinks || noPlan) {
+        result.key = 'check';
+        result.label = 'Prüfen';
+      }
+    }
+
+    return result;
+  };
+
   ap.sortedStats = function (doneLast) {
     if (doneLast == null) doneLast = true;
     var arr = Object.keys(ap.runtime.stats).map(function (guid) { return ap.runtime.stats[guid]; });
@@ -1394,6 +1623,15 @@ function wrapper(plugin_info) {
     ap.runtime.overlayCount++;
   };
 
+  ap.withOverlayPane = function (options) {
+    try {
+      if (window.map && typeof window.map.getPane === 'function' && window.map.getPane(ap.PANE_NAME)) {
+        options.pane = ap.PANE_NAME;
+      }
+    } catch (e) {}
+    return options;
+  };
+
   ap.renderOverlays = function () {
     if (!ap.runtime.layerGroup) return;
     ap.runtime.layerGroup.clearLayers();
@@ -1401,14 +1639,40 @@ function wrapper(plugin_info) {
     ap.runtime.overlayCount = 0;
     if (!ap.runtime.enabled) return;
     ap.ensureOverlayLayerVisible();
+    var renderedBlockers = {};
     (ap.runtime.links || []).forEach(function (link) {
       if (!link || !link.blocked || !link.latlngA || !link.latlngB) return;
       try {
         var path = L.polyline([link.latlngA, link.latlngB], {
-          color: '#ff3b30', weight: 4, opacity: 0.9, dashArray: '7,6', interactive: false
+          color: '#ff2d95', weight: 5, opacity: 0.9, dashArray: '8,6', interactive: false
         });
+        path.options = ap.withOverlayPane(path.options);
         path.addTo(ap.runtime.layerGroup);
       } catch (e) {}
+      (link.blockers || []).forEach(function (blocker, blockerIndex) {
+        if (!blocker || !blocker.latlngA || !blocker.latlngB) return;
+        var blockerId = blocker.guid || ap.normalizedLinkId(blocker.a, blocker.b) || (link.id + ':' + blockerIndex);
+        if (!renderedBlockers[blockerId]) {
+          renderedBlockers[blockerId] = true;
+          try {
+            var blockerPath = L.polyline([blocker.latlngA, blocker.latlngB], {
+              color: '#00e5ff', weight: 5, opacity: 0.95, interactive: false
+            });
+            blockerPath.options = ap.withOverlayPane(blockerPath.options);
+            blockerPath.addTo(ap.runtime.layerGroup);
+          } catch (e2) {}
+        }
+        var crossing = ap.segmentIntersectionPoint(link.latlngA, link.latlngB, blocker.latlngA, blocker.latlngB);
+        if (crossing) {
+          try {
+            var crossingMarker = L.circleMarker(crossing, {
+              radius: 5, color: '#111', weight: 2, fillColor: '#ffe600', fillOpacity: 1, interactive: false
+            });
+            crossingMarker.options = ap.withOverlayPane(crossingMarker.options);
+            crossingMarker.addTo(ap.runtime.layerGroup);
+          } catch (e3) {}
+        }
+      });
     });
     var selected = ap.runtime.selectedBlocker;
     if (selected && selected.plannedLink && selected.blocker) {
@@ -1416,20 +1680,27 @@ function wrapper(plugin_info) {
       var blocker = selected.blocker;
       var crossing = selected.intersection || ap.segmentIntersectionPoint(planned.latlngA, planned.latlngB, blocker.latlngA, blocker.latlngB);
       try {
-        L.polyline([planned.latlngA, planned.latlngB], {
+        var selectedPlannedPath = L.polyline([planned.latlngA, planned.latlngB], {
           color: '#ff2d95', weight: 7, opacity: 1, dashArray: '10,6', interactive: false
-        }).addTo(ap.runtime.layerGroup);
-        L.polyline([blocker.latlngA, blocker.latlngB], {
+        });
+        selectedPlannedPath.options = ap.withOverlayPane(selectedPlannedPath.options);
+        selectedPlannedPath.addTo(ap.runtime.layerGroup);
+        var selectedBlockerPath = L.polyline([blocker.latlngA, blocker.latlngB], {
           color: '#00e5ff', weight: 7, opacity: 1, interactive: false
-        }).addTo(ap.runtime.layerGroup);
+        });
+        selectedBlockerPath.options = ap.withOverlayPane(selectedBlockerPath.options);
+        selectedBlockerPath.addTo(ap.runtime.layerGroup);
         if (crossing) {
-          L.circleMarker(crossing, {
+          var selectedCrossingMarker = L.circleMarker(crossing, {
             radius: 7, color: '#111', weight: 3, fillColor: '#ffe600', fillOpacity: 1, interactive: false
-          }).addTo(ap.runtime.layerGroup);
+          });
+          selectedCrossingMarker.options = ap.withOverlayPane(selectedCrossingMarker.options);
+          selectedCrossingMarker.addTo(ap.runtime.layerGroup);
         }
-      } catch (e2) {}
+      } catch (e4) {}
     }
-    var nextPortal = ap.getNextPortal();
+    var overlayLocation = ap.getCurrentUserLocation();
+    var nextPortal = ap.getNextRouteTarget(overlayLocation);
     Object.keys(ap.runtime.stats).forEach(function (guid) {
       var stat = ap.runtime.stats[guid];
       var local = ap.ensureAnchorState(guid);
@@ -1438,6 +1709,23 @@ function wrapper(plugin_info) {
       var status = ap.getStatus(guid, stat);
       var title = ap.escapeHtml(stat.title) + '<br>' + ap.escapeHtml(status.label) + ' · Keys benötigt ' + ap.escapeHtml(local.ownedKeys) + '/' + ap.escapeHtml(stat.requiredKeys);
       ap.addHtmlStatusMarker(stat, status, title, !!(nextPortal && nextPortal.guid === guid));
+    });
+    ap.getBlockerWorklist(overlayLocation).forEach(function (candidate) {
+      if (!candidate.selected || (ap.runtime.stats && ap.runtime.stats[candidate.guid])) return;
+      try {
+        var isNext = !!(nextPortal && nextPortal.guid === candidate.guid);
+        var routeMarker = L.circleMarker(L.latLng(candidate.lat, candidate.lng), {
+          radius: isNext ? 11 : 8,
+          color: isNext ? '#ffffff' : '#f5d76e',
+          weight: isNext ? 4 : 3,
+          fillColor: '#111111',
+          fillOpacity: 0.35,
+          opacity: 1,
+          interactive: false
+        });
+        routeMarker.options = ap.withOverlayPane(routeMarker.options);
+        routeMarker.addTo(ap.runtime.layerGroup);
+      } catch (e5) {}
     });
   };
 
@@ -1771,6 +2059,7 @@ function wrapper(plugin_info) {
   ap.clearData = function () {
     if (!confirm('Anchor-Planner-Daten löschen? Draw-Tools-Zeichnungen bleiben unverändert.')) return;
     ap.state.anchors = {};
+    ap.state.blockerRoutePortals = {};
     ap.state.lastScan = null;
     ap.runtime.stats = {};
     ap.runtime.links = [];
@@ -1809,6 +2098,8 @@ function wrapper(plugin_info) {
   ap.renderPanel = function () {
     var panel = ap.runtime.panel;
     if (!panel) return;
+    var readinessOpen = !!panel.querySelector('.ap-readiness[open]');
+    var blockerSectionOpen = !!panel.querySelector('.ap-blocker-section[open], .ap-blocker-worklist[open], .ap-blocker-details[open]');
     panel.style.display = ap.runtime.enabled ? '' : 'none';
     if (!ap.runtime.enabled) return;
 
@@ -1821,9 +2112,20 @@ function wrapper(plugin_info) {
       return count + (local.done ? 1 : 0);
     }, 0);
     var last = ap.state.lastScan;
+    var readiness = ap.getReadiness(stats);
     var blockedLinks = (ap.runtime.links || []).filter(function (link) {
       return link && !link.existing && link.blocked && link.blockers && link.blockers.length;
     });
+    var blockingLinkIds = {};
+    blockedLinks.forEach(function (link, linkIndex) {
+      (link.blockers || []).forEach(function (blocker, blockerIndex) {
+        var blockerId = blocker.guid || ap.normalizedLinkId(blocker.a, blocker.b) || (linkIndex + ':' + blockerIndex);
+        blockingLinkIds[blockerId] = true;
+      });
+    });
+    var blockingLinkCount = Object.keys(blockingLinkIds).length;
+    var blockerWorkLocation = ap.getCurrentUserLocation();
+    var blockerWorklist = ap.getBlockerWorklist(blockerWorkLocation);
 
     var html = '';
     html += '<div class="ap-head"><b>Anchor Planner</b><span>v' + ap.VERSION + '</span><button id="ap-collapse">' + (ap.state.panelCollapsed ? '▴' : '▾') + '</button></div>';
@@ -1847,6 +2149,16 @@ function wrapper(plugin_info) {
       html += '<button class="ap-filter' + ((ap.state.listFilter || 'all') === item[0] ? ' ap-filter-active' : '') + '" data-filter="' + item[0] + '">' + item[1] + ' <span>' + item[2] + '</span></button>';
     });
     html += '</div>';
+    if (readiness) {
+      html += '<details class="ap-readiness ap-readiness-' + ap.escapeHtml(readiness.key) + '"' + (readinessOpen ? ' open' : '') + '><summary><b>Einsatzcheck:</b> ' + ap.escapeHtml(readiness.label);
+      if (readiness.summary.length) html += ' · ' + ap.escapeHtml(readiness.summary.join(' · '));
+      html += '</summary><div class="ap-readiness-detail">';
+      html += '<div>Nicht bestätigte Planlinks: ' + ap.escapeHtml(readiness.unconfirmedLinks) + '</div>';
+      if (readiness.missingKeyPortals) html += '<div>Keys fehlen an ' + ap.escapeHtml(readiness.missingKeyPortals) + (readiness.missingKeyPortals === 1 ? ' Portal.' : ' Portalen.') + '</div>';
+      html += '<div>Geladene vorhandene Links: ' + ap.escapeHtml(readiness.loadedExistingLinks);
+      if (readiness.unresolvedExistingLinks) html += ' · nicht auswertbar: ' + ap.escapeHtml(readiness.unresolvedExistingLinks);
+      html += '</div><div class="ap-readiness-hint">Link- und Blockerprüfung nur anhand der aktuell in IITC geladenen vorhandenen Links.</div></div></details>';
+    }
     html += '<div id="ap-message" class="ap-message">';
     if (last) {
       html += 'Letzter Scan: ' + ap.escapeHtml(last.plannedLinks) + ' Links, ' + ap.escapeHtml(last.resolvedPortals) + ' Planportale, ' + ap.escapeHtml(last.unresolvedEndpoints) + ' offene Endpunkte.';
@@ -1887,31 +2199,40 @@ function wrapper(plugin_info) {
     } else html += 'Draw Tools/Auto Draw Plan erzeugen und dann scannen. Portal-Bookmarks werden bevorzugt ausgewertet; fehlende Namen werden anschließend automatisch nachgeladen.';
     html += '</div>';
 
-    if (blockedLinks.length) {
-      html += '<details class="ap-blocker-details"><summary>Blocker-Details (' + ap.escapeHtml(blockedLinks.length) + ')</summary>';
-      blockedLinks.forEach(function (link, linkIndex) {
-        var plannedA = ap.portalDisplayLabel(link.a, link.titleA, link.latlngA);
-        var plannedB = ap.portalDisplayLabel(link.b, link.titleB, link.latlngB);
-        html += '<div class="ap-blocker-item"><div><b>Planlink:</b> ' + ap.escapeHtml(plannedA) + ' ↔ ' + ap.escapeHtml(plannedB) + '</div>';
-        link.blockers.forEach(function (blocker, blockerIndex) {
-          var blockerA = ap.portalDisplayLabel(blocker.a, blocker.titleA, blocker.latlngA);
-          var blockerB = ap.portalDisplayLabel(blocker.b, blocker.titleB, blocker.latlngB);
-          html += '<div class="ap-blocker-existing"><span>Blockiert durch: ' + ap.escapeHtml(blockerA) + ' ↔ ' + ap.escapeHtml(blockerB) + '</span><button type="button" class="ap-show-blocker" data-link-index="' + linkIndex + '" data-blocker-index="' + blockerIndex + '">zeigen</button></div>';
+    if (blockerWorklist.length || blockedLinks.length) {
+      var selectedBlockerPortals = blockerWorklist.filter(function (candidate) { return candidate.selected; }).length;
+      html += '<details class="ap-blocker-section"' + (blockerSectionOpen ? ' open' : '') + '><summary>Blocker (' + ap.escapeHtml(blockingLinkCount) + (blockingLinkCount === 1 ? ' Blocklink' : ' Blocklinks') + (blockerWorklist.length ? ' · ' + ap.escapeHtml(blockerWorklist.length) + ' Endportale' : '') + (selectedBlockerPortals ? ' · ' + ap.escapeHtml(selectedBlockerPortals) + ' vorgemerkt' : '') + ')</summary>';
+      if (blockerWorklist.length) {
+        html += '<div class="ap-blocker-work-hint">Beide Endpunkte eines Blocklinks sind mögliche Ziele. Geeigneten Endpunkt abhängig von der Spielsituation für die gemeinsame Arbeitsroute vormerken.</div>';
+        blockerWorklist.forEach(function (candidate) {
+          var blockerNav = ap.navigationLinks(candidate);
+          var blockerDistance = ap.formatDistance(candidate.distance);
+          html += '<div class="ap-blocker-work-row" data-guid="' + ap.escapeHtml(candidate.guid) + '" data-lat="' + ap.escapeHtml(candidate.lat) + '" data-lng="' + ap.escapeHtml(candidate.lng) + '">';
+          html += '<div class="ap-blocker-work-main">';
+          if (candidate.isOpenPlanPortal) html += '<span class="ap-blocker-work-plan">✓</span> <b>' + ap.escapeHtml(candidate.title) + '</b>';
+          else html += '<label class="ap-blocker-work-select"><input type="checkbox" class="ap-blocker-route-check" data-guid="' + ap.escapeHtml(candidate.guid) + '"' + (candidate.selected ? ' checked' : '') + '> <b>' + ap.escapeHtml(candidate.title) + '</b></label>';
+          html += '</div>';
+          html += '<div class="ap-blocker-work-meta">Endpunkt von ' + ap.escapeHtml(candidate.blockerCount) + (candidate.blockerCount === 1 ? ' Blocklink' : ' Blocklinks') + (candidate.isOpenPlanPortal ? ' · bereits offenes Planportal' : (candidate.isPlanPortal ? ' · Planportal erledigt' : '')) + '<span class="ap-blocker-work-distance">' + (blockerDistance ? ' · ' + ap.escapeHtml(blockerDistance) + ' Luftlinie' : '') + '</span></div>';
+          html += '<a class="ap-blocker-work-nav" target="_blank" rel="noopener" href="' + ap.escapeHtml(blockerNav.waze) + '">Waze</a></div>';
         });
-        html += '</div>';
-      });
-      html += '<div class="ap-blocker-hint">Geprüft wurden nur die aktuell in IITC geladenen vorhandenen Links.</div></details>';
+      }
+      html += '<div class="ap-blocker-hint">Karte: Planlinks pink gestrichelt · Blocklinks türkis · Kreuzungen gelb. Geprüft wurden nur die aktuell in IITC geladenen vorhandenen Links.</div>';
+      html += '</details>';
     }
 
-    var nextPortal = ap.getNextPortal();
-    var nextUsesLocation = !!ap.getCurrentUserLocation();
-    ap.runtime.nextTargetKey = (nextUsesLocation ? 'location:' : 'route:') + (nextPortal ? nextPortal.guid : 'complete');
+    var nextLocation = ap.getCurrentUserLocation();
+    var nextPortal = ap.getNextRouteTarget(nextLocation);
+    var nextUsesLocation = !!nextLocation;
+    var nextDistanceLabel = nextUsesLocation && nextPortal ? ap.formatDistance(ap.distanceToPortal(nextLocation, nextPortal)) : '';
+    var routeEstimate = nextUsesLocation ? ap.getRouteEstimate(nextLocation) : null;
+    var routeEstimateLabel = routeEstimate ? ap.formatDistance(routeEstimate.distance) + ':' + routeEstimate.targetCount : '';
+    ap.runtime.nextTargetKey = (nextUsesLocation ? 'location:' : 'route:') + (nextPortal ? nextPortal.guid + ':' + nextPortal.routeTargetType : 'complete') + ':' + nextDistanceLabel + ':' + routeEstimateLabel;
     if (nextPortal) {
-      var nextNav = ap.navigationLinks(nextPortal);
-      html += '<div id="ap-next-target" class="ap-next-target"><span><b>' + (nextUsesLocation ? 'Nächstes Portal ab Standort:' : 'Nächstes Portal:') + '</b> ' + ap.escapeHtml(nextPortal.title) + '</span><a target="_blank" rel="noopener" href="' + ap.escapeHtml(nextNav.waze) + '">Waze</a></div>';
+      html += '<div id="ap-next-target" class="ap-next-target">' + ap.routeTargetHtml(nextPortal, nextLocation) + '</div>';
     } else if (stats.length) {
-      html += '<div id="ap-next-target" class="ap-next-target ap-next-complete">Alle Planportale erledigt.</div>';
+      html += '<div id="ap-next-target" class="ap-next-target ap-next-complete">Alle Routenziele erledigt.</div>';
     }
+    html += '<div id="ap-route-summary" class="ap-route-summary"' + (routeEstimate ? '' : ' style="display:none"') + '>' + ap.routeSummaryHtml(routeEstimate) + '</div>';
 
     html += '<div class="ap-list">';
     visibleStats.forEach(function (stat) {
@@ -1946,13 +2267,15 @@ function wrapper(plugin_info) {
         ap.renderPanel();
       };
     });
-    Array.prototype.forEach.call(panel.querySelectorAll('.ap-show-blocker'), function (button) {
-      button.onclick = function () {
-        var linkIndex = parseInt(this.getAttribute('data-link-index'), 10);
-        var blockerIndex = parseInt(this.getAttribute('data-blocker-index'), 10);
-        var link = blockedLinks[linkIndex];
-        var blocker = link && link.blockers ? link.blockers[blockerIndex] : null;
-        if (link && blocker) ap.focusBlocker(link, blocker);
+    Array.prototype.forEach.call(panel.querySelectorAll('.ap-blocker-route-check'), function (checkbox) {
+      checkbox.onchange = function () {
+        var guid = this.getAttribute('data-guid');
+        ap.state.blockerRoutePortals = ap.state.blockerRoutePortals || {};
+        if (this.checked) ap.state.blockerRoutePortals[guid] = true;
+        else delete ap.state.blockerRoutePortals[guid];
+        ap.save();
+        ap.renderOverlays();
+        ap.renderPanel();
       };
     });
     Array.prototype.forEach.call(panel.querySelectorAll('.ap-row'), function (row) {
@@ -1961,6 +2284,7 @@ function wrapper(plugin_info) {
       row.querySelector('.ap-owned').onchange = function () { local.ownedKeys = parseInt(this.value, 10) || 0; ap.save(); ap.renderOverlays(); ap.renderPanel(); };
       row.querySelector('.ap-done-check').onchange = function () {
         local.done = !!this.checked;
+        if (!local.done && ap.state.blockerRoutePortals) delete ap.state.blockerRoutePortals[guid];
         ap.save();
         ap.renderOverlays();
         ap.renderPanel();
@@ -1981,13 +2305,15 @@ function wrapper(plugin_info) {
 #iitc-anchor-planner button{margin:2px;padding:3px 6px;background:#333;color:#eee;border:1px solid #777;border-radius:3px}#iitc-anchor-planner button:hover{background:#444}\
 #iitc-anchor-planner input{background:#111;color:#fff;border:1px solid #666;border-radius:2px}#iitc-anchor-planner .ap-settings input,#iitc-anchor-planner .ap-owned{width:42px}\
 #iitc-anchor-planner .ap-filters{display:flex;flex-wrap:wrap;gap:4px;padding:5px 8px;border-bottom:1px solid #333}#iitc-anchor-planner .ap-filter{margin:0;padding:4px 7px}#iitc-anchor-planner .ap-filter span{color:#aaa;font-size:10px}#iitc-anchor-planner .ap-filter-active{background:#666;color:#fff;border-color:#bbb}#iitc-anchor-planner .ap-filter-active span{color:#fff}.ap-list-empty,.ap-list-end{padding:7px 8px;color:#aaa;text-align:center}\
+#iitc-anchor-planner .ap-readiness{padding:5px 8px;border-bottom:1px solid #333}#iitc-anchor-planner .ap-readiness summary{cursor:pointer;overflow-wrap:anywhere}#iitc-anchor-planner .ap-readiness-ready summary{color:#8ee68e}#iitc-anchor-planner .ap-readiness-check summary{color:#f5d76e}#iitc-anchor-planner .ap-readiness-blocked summary{color:#ff8b80}#iitc-anchor-planner .ap-readiness-detail{margin-top:5px;color:#ddd;font-size:11px;line-height:1.35}#iitc-anchor-planner .ap-readiness-hint{margin-top:3px;color:#aaa}\
 #iitc-anchor-planner .ap-actions,.ap-settings,.ap-message,.ap-mini{padding:5px 8px;border-bottom:1px solid #333}.ap-message{color:#ccc}.ap-source{margin-top:2px;color:#9fd0ff}.ap-progress{margin-top:4px;color:#ddd;font-size:11px;line-height:1.3}.ap-unresolved-item{margin-top:4px;border-top:1px solid #554;padding-top:3px}.ap-mini{color:#ddd}.ap-unresolved{margin-top:4px;color:#f5d76e;font-size:11px;line-height:1.3}\
-#iitc-anchor-planner .ap-blocker-details{padding:5px 8px;border-bottom:1px solid #443;color:#ddd}#iitc-anchor-planner .ap-blocker-details summary{cursor:pointer;color:#ff8b80;font-weight:bold}#iitc-anchor-planner .ap-blocker-item{margin-top:5px;padding-top:5px;border-top:1px solid #443;overflow-wrap:anywhere}#iitc-anchor-planner .ap-blocker-existing{display:flex;align-items:flex-start;gap:4px;margin-top:3px;color:#ffb0a8}#iitc-anchor-planner .ap-blocker-existing span{flex:1}#iitc-anchor-planner .ap-show-blocker{flex:none;margin:0;padding:2px 6px}#iitc-anchor-planner .ap-blocker-hint{margin-top:5px;color:#aaa;font-size:11px}\
+#iitc-anchor-planner .ap-blocker-section{padding:5px 8px;border-bottom:1px solid #443;color:#ddd}#iitc-anchor-planner .ap-blocker-section>summary{cursor:pointer;color:#f5d76e;font-weight:bold}#iitc-anchor-planner .ap-blocker-hint{margin-top:5px;color:#aaa;font-size:11px}\
+#iitc-anchor-planner .ap-blocker-work-hint{margin:5px 0;color:#aaa;font-size:11px}#iitc-anchor-planner .ap-blocker-work-row{position:relative;margin-top:4px;padding:5px 50px 5px 0;border-top:1px solid #443;overflow-wrap:anywhere}#iitc-anchor-planner .ap-blocker-work-main{color:#fff}#iitc-anchor-planner .ap-blocker-work-main input{vertical-align:middle}#iitc-anchor-planner .ap-blocker-work-select{display:inline-block;cursor:pointer;padding:2px 0}#iitc-anchor-planner .ap-blocker-work-plan{color:#8ee68e;font-weight:bold}#iitc-anchor-planner .ap-blocker-work-meta{margin-top:2px;color:#ccc;font-size:11px}#iitc-anchor-planner .ap-blocker-work-distance{color:#9fd0ff}#iitc-anchor-planner .ap-blocker-work-nav{position:absolute;right:0;top:5px;padding:3px 6px;background:#333;color:#f0d16b;border:1px solid #777;border-radius:3px;text-decoration:none}\
 #iitc-anchor-planner .ap-list{overflow:visible;padding-bottom:16px}\
 #iitc-anchor-planner .ap-row{padding:6px 8px;border-bottom:1px solid #333;background:rgba(255,255,255,.02)}#iitc-anchor-planner .ap-row.ap-candidate{background:rgba(255,255,255,.055)}\
 #iitc-anchor-planner .ap-row-title{font-size:13px}.ap-address{color:#bbb;margin:2px 0}.ap-meta{margin:4px 0;color:#ddd}.ap-controls{margin:3px 0}.ap-controls a{color:#f0d16b;text-decoration:none;margin-right:5px}.ap-note{width:98%;box-sizing:border-box;margin-top:3px}\
 .ap-blocked{color:#ff3b30}.ap-status{display:inline-block;min-width:18px;text-align:center;font-weight:bold}.ap-badge-icon{background:transparent!important;border:none!important}.ap-svg-badge-icon{display:block!important;visibility:visible!important;opacity:1!important;background:transparent!important;border:0!important}.ap-badge{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:15px;border:2px solid #eee;background:rgba(0,0,0,.75);box-shadow:0 0 4px #000;color:#fff}\
-.ap-missing{color:#ff9f43}.ap-partial{color:#f5d76e}.ap-ready{color:#ff6ad5}.ap-existing{color:#bdbdbd}.ap-done{color:#eee}.ap-badge.ap-missing{border-color:#ff9f43}.ap-badge.ap-partial{border-color:#f5d76e}.ap-badge.ap-ready{border-color:#ff6ad5}.ap-badge.ap-existing{border-color:#bdbdbd}.ap-badge.ap-done{border-color:#eee}.ap-next-target{display:flex;align-items:center;gap:8px;padding:6px 8px;border-bottom:1px solid #444;background:#1c2530;color:#fff}.ap-next-target span{flex:1}.ap-next-target a{padding:4px 7px;background:#333;color:#f0d16b;border:1px solid #777;border-radius:3px;text-decoration:none}.ap-next-complete{color:#ddd}.ap-route-number{display:inline-block;min-width:22px;color:#aaa}.ap-map-badge-next{box-shadow:0 0 0 3px #fff,0 0 0 6px rgba(0,0,0,.95),0 0 12px rgba(255,255,255,.9)!important}.ap-move-up,.ap-move-down{min-width:28px}\
+.ap-missing{color:#ff9f43}.ap-partial{color:#f5d76e}.ap-ready{color:#ff6ad5}.ap-existing{color:#bdbdbd}.ap-done{color:#eee}.ap-badge.ap-missing{border-color:#ff9f43}.ap-badge.ap-partial{border-color:#f5d76e}.ap-badge.ap-ready{border-color:#ff6ad5}.ap-badge.ap-existing{border-color:#bdbdbd}.ap-badge.ap-done{border-color:#eee}.ap-next-target{display:flex;align-items:center;gap:8px;padding:6px 8px;border-bottom:1px solid #444;background:#1c2530;color:#fff}.ap-next-target span{flex:1}.ap-next-target .ap-next-distance{color:#9fd0ff;white-space:nowrap}.ap-next-target a{padding:4px 7px;background:#333;color:#f0d16b;border:1px solid #777;border-radius:3px;text-decoration:none}.ap-next-complete{color:#ddd}.ap-route-summary{padding:4px 8px;border-bottom:1px solid #444;background:#17202a;color:#9fd0ff;font-size:11px}.ap-route-number{display:inline-block;min-width:22px;color:#aaa}.ap-map-badge-next{box-shadow:0 0 0 3px #fff,0 0 0 6px rgba(0,0,0,.95),0 0 12px rgba(255,255,255,.9)!important}.ap-move-up,.ap-move-down{min-width:28px}\
 .ap-action-label{margin-top:10px;font-weight:bold;color:#ddd}.ap-share-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:6px}.ap-share-grid-single{grid-template-columns:1fr}.ap-share-grid a,.ap-share-grid button{display:block;padding:6px;background:#222;color:#f0d16b;border:1px solid #666;border-radius:4px;text-align:center;text-decoration:none}.ap-share-grid .ap-share-main{color:#fff;font-weight:bold;border-color:#aaa}\
 .ap-export-tabs{display:flex;gap:6px;margin-bottom:8px}.ap-export-tab{padding:6px 10px!important}.ap-export-tab-active{background:#555!important;color:#fff!important}.ap-export-text,.ap-export-json{width:100%;height:320px;box-sizing:border-box;font-family:monospace;font-size:12px;background:#111;color:#eee;border:1px solid #666}.ap-export-actions{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}.ap-export-actions button{padding:6px 10px;background:#222;color:#f0d16b;border:1px solid #666;border-radius:4px}\
 .ap-map-html-overlay{position:absolute!important;left:0!important;top:0!important;right:0!important;bottom:0!important;z-index:2500!important;pointer-events:none!important;overflow:visible!important}.ap-map-badge{position:absolute!important;transform:translate(-50%,-50%)!important;min-width:24px!important;height:24px!important;padding:0 3px!important;border-radius:13px!important;border:3px solid #ff9f43!important;background:rgba(0,0,0,.88)!important;color:#fff!important;font:bold 10px/24px Arial,sans-serif!important;text-align:center!important;white-space:nowrap!important;box-sizing:border-box!important;text-shadow:0 1px 2px #000!important;z-index:2501!important}.ap-map-badge-done{font-size:9px!important}.ap-map-badge-ready{font-size:14px!important}.ap-map-badge-partial{font-size:13px!important}\
@@ -1995,7 +2321,24 @@ function wrapper(plugin_info) {
 ').appendTo('head');
   };
 
+  ap.scheduleMapDataPanelRefresh = function (delay) {
+    if (ap.runtime.mapDataPanelRefreshTimer) clearTimeout(ap.runtime.mapDataPanelRefreshTimer);
+    ap.runtime.mapDataPanelRefreshTimer = setTimeout(function () {
+      ap.runtime.mapDataPanelRefreshTimer = null;
+      if (ap.runtime.enabled && ap.runtime.panel && (ap.runtime.links || []).length) ap.renderPanel();
+    }, delay == null ? 150 : delay);
+  };
+
   ap.setupLayer = function () {
+    if (window.map && typeof window.map.createPane === 'function' && typeof window.map.getPane === 'function') {
+      try {
+        var pane = window.map.getPane(ap.PANE_NAME) || window.map.createPane(ap.PANE_NAME);
+        if (pane && pane.style) {
+          pane.style.zIndex = '550';
+          pane.style.pointerEvents = 'none';
+        }
+      } catch (e) {}
+    }
     ap.runtime.layerGroup = new L.LayerGroup();
     if (typeof window.addLayerGroup === 'function') window.addLayerGroup('Anchor Planner', ap.runtime.layerGroup, true);
     if (window.map && typeof window.map.hasLayer === 'function' && !window.map.hasLayer(ap.runtime.layerGroup)) {
@@ -2021,7 +2364,15 @@ function wrapper(plugin_info) {
           ap.renderPanel();
         }
       });
-      window.map.on('zoomend moveend resize', function () { if (ap.runtime.enabled) ap.renderOverlays(); });
+      window.map.on('zoomend moveend resize', function () {
+        if (!ap.runtime.enabled) return;
+        ap.renderOverlays();
+        // Fallback for IITC variants that do not expose mapDataRefreshEnd reliably.
+        ap.scheduleMapDataPanelRefresh(1200);
+      });
+    }
+    if (typeof window.addHook === 'function') {
+      try { window.addHook('mapDataRefreshEnd', function () { ap.scheduleMapDataPanelRefresh(100); }); } catch (e) {}
     }
   };
 

@@ -652,7 +652,7 @@ Counts portals by level and faction inside polygons or search result.
 
 Show Mod Pictures in Portal Details
 
-*Version:* 1.8.0
+*Version:* 1.9.0
 
 
   
@@ -785,7 +785,7 @@ Anchor Planner: scans Draw Tools plans, resolves portal names, lists plan portal
 *Recommends*: bookmarks@ZasoGD  |
 *[Homepage](https://github.com/emgeka/iitc-anchor-planner)* |
 *[Issue tracker](https://github.com/emgeka/iitc-anchor-planner/issues)* |
-*Version:* 0.1.41
+*Version:* 0.1.44
 
 
   

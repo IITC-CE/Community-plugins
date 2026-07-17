@@ -3,7 +3,7 @@
 // @id              anchor-planner@emgeka
 // @name            Anchor Planner
 // @category        Layer
-// @version         0.1.44
+// @version         0.1.45
 // @namespace       https://example.local/iitc
 // @description     Anchor Planner: scans Draw Tools plans, resolves portal names, lists plan portals and key counts.
 // @updateURL       https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/emgeka/anchor-planner.meta.js

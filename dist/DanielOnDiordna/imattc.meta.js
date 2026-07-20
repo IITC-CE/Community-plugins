@@ -5,6 +5,7 @@
 // @updateURL      https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/imattc.meta.js
 // @downloadURL    https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/imattc.user.js
 // @description    Ingress Mission Authoring Tool Total Conversion, adding categories for missions, show banner preview, export json, download images, and more.
+// @namespace      https://softspot.nl/ingress/
 // @id             imattc@DanielOnDiordna
 // @category       Mission Creator
 // @match          http://missions.ingress.com/

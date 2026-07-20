@@ -1,7 +1,10 @@
 import fs from 'fs';
 import path from 'path';
+import {execFileSync} from 'child_process';
 import YAML from 'yaml';
-import {ajaxGet, check_meta_match_pattern, parseMeta} from 'lib-iitc-manager';
+import {fetchData, checkMetaMatchPattern, parseMeta} from 'lib-iitc-manager';
+
+const REPO_DIR = '..';
 
 const METABLOCK_RE_HEADER = /==UserScript==\s*([\s\S]*)\/\/\s*==\/UserScript==/m;
 const fileExists = async path => !!(await fs.promises.stat(path).catch(() => false));
@@ -79,7 +82,7 @@ export const ext = (filename, prefix) => {
 };
 
 export const is_plugin_update_available = async (metadata, author, filename) => {
-    const source_meta_js = await ajaxGet(metadata.updateURL);
+    const source_meta_js = await fetchData(metadata.updateURL);
     if (source_meta_js === null) throw new Error(`${metadata.updateURL} is not a valid URL`);
 
     const source_meta = parseMeta(source_meta_js);
@@ -147,14 +150,14 @@ const prepare_meta_js = (meta) => {
 };
 
 export const update_plugin = async (metadata, author, filename) => {
-    const source_plugin_js = await ajaxGet(metadata.downloadURL);
+    const source_plugin_js = await fetchData(metadata.downloadURL);
     if (source_plugin_js === null) throw new Error(`${metadata.downloadURL} is not a valid URL`);
 
     const source_meta = parseMeta(source_plugin_js);
     if (source_meta === null) throw new Error(`${metadata.downloadURL} is not a valid metadata file`);
 
     const meta = {...{author}, ...source_meta, ...metadata, ...replace_update_url(author, filename)};
-    if (meta.skipMatchCheck !== true && !check_meta_match_pattern(meta)) throw new Error(`Not a valid match pattern in ${meta.match} and ${meta.include}`);
+    if (meta.skipMatchCheck !== true && !checkMetaMatchPattern(meta)) throw new Error(`Not a valid match pattern in ${meta.match} and ${meta.include}`);
     if (meta.skipMatchCheck) {delete meta.skipMatchCheck;}
     if (meta.name === undefined) throw new Error(`name is missing in ${filename}`);
     meta.id = filename.replace(/\.yml$/, '')+'@'+author;
@@ -230,13 +233,69 @@ const remove_brackets = (input) => {
   return input;
 }
 
+// Maps each repo-relative dist file to the ISO date of the last commit that
+// changed it (single newest-first `git log` pass, so the first hit wins).
+// Returns null when git history is unavailable (e.g. not a git checkout).
+const get_dist_commit_dates = () => {
+    try {
+        const out = execFileSync('git', ['log', '--format=commit:%cI', '--name-only', '--', 'dist'],
+            {cwd: REPO_DIR, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024});
+        const dates = new Map();
+        let commit = null;
+        for (const line of out.split('\n')) {
+            if (line.startsWith('commit:')) commit = line.slice('commit:'.length);
+            else if (line && commit && !dates.has(line)) dates.set(line, commit);
+        }
+        return dates;
+    } catch {
+        console.warn('git history unavailable; falling back to file mtime for updatedAt');
+        return null;
+    }
+};
+
+// Repo-relative dist paths with uncommitted changes, i.e. regenerated this run.
+const get_dirty_dist_files = () => {
+    try {
+        const out = execFileSync('git', ['status', '--porcelain', '--', 'dist'], {cwd: REPO_DIR, encoding: 'utf8'});
+        const dirty = new Set();
+        for (const line of out.split('\n')) {
+            if (!line) continue;
+            const entry = line.slice(3); // strip the "XY " status prefix
+            const arrow = entry.indexOf(' -> '); // renames read as "old -> new"
+            dirty.add(arrow === -1 ? entry : entry.slice(arrow + 4));
+        }
+        return dirty;
+    } catch {
+        return null;
+    }
+};
+
+// Real "last updated" time of a plugin. Both .meta.js and .user.js are checked,
+// because an author may change the code without bumping the version (then only
+// .user.js changes). Files regenerated this run, or a missing git history, fall
+// back to the filesystem mtime.
+const get_plugin_updated_at = (meta_path, commit_dates, dirty_files) => {
+    const meta_rel = path.relative(REPO_DIR, meta_path);
+    const user_rel = meta_rel.replace(/\.meta\.js$/, '.user.js');
+
+    if (dirty_files === null || dirty_files.has(meta_rel) || dirty_files.has(user_rel)) {
+        return fs.statSync(meta_path).mtime.toISOString();
+    }
+    if (commit_dates) {
+        const dates = [commit_dates.get(meta_rel), commit_dates.get(user_rel)].filter(Boolean).map(d => new Date(d));
+        if (dates.length) return new Date(Math.max(...dates)).toISOString();
+    }
+    return fs.statSync(meta_path).mtime.toISOString();
+};
+
 export const get_dist_plugins = async () => {
     const files = get_all_dist_files();
+    const commit_dates = get_dist_commit_dates();
+    const dirty_files = get_dirty_dist_files();
     const community_plugins_ids = [];
     const plugins = [];
     for (const [filepath, ,] of files) {
         const metajs = fs.readFileSync(filepath, 'utf8');
-        const dist_stats = fs.statSync(filepath);
 
         const meta = parseMeta(metajs);
         for (const mergeKey of ['antiFeatures', 'depends', 'recommends']) {
@@ -247,7 +306,7 @@ export const get_dist_plugins = async () => {
         meta.description = remove_brackets(meta.description || "");
         meta.id_hash = meta.id.replace("@", "-by-");
         community_plugins_ids.push(meta.id_hash);
-        meta.updatedAt = dist_stats.mtime.toISOString();
+        meta.updatedAt = get_plugin_updated_at(filepath, commit_dates, dirty_files);
         plugins.push(meta);
     }
 

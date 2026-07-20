@@ -26,11 +26,6 @@ jobs:
         run: npm install
         working-directory: ./tools
 
-      - name: Restore correct mtime
-        run: |
-          sudo apt install git-restore-mtime
-          git restore-mtime
-
       - name: Set force environment variable if manually triggered
         if: github.event_name == 'workflow_dispatch'
         run: echo "FORCE_UPDATE=true" >> $GITHUB_ENV

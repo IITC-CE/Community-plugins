@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import {execFileSync} from 'child_process';
 import YAML from 'yaml';
-import {ajaxGet, check_meta_match_pattern, parseMeta} from 'lib-iitc-manager';
+import {fetchData, checkMetaMatchPattern, parseMeta} from 'lib-iitc-manager';
 
 const REPO_DIR = '..';
 
@@ -82,7 +82,7 @@ export const ext = (filename, prefix) => {
 };
 
 export const is_plugin_update_available = async (metadata, author, filename) => {
-    const source_meta_js = await ajaxGet(metadata.updateURL);
+    const source_meta_js = await fetchData(metadata.updateURL);
     if (source_meta_js === null) throw new Error(`${metadata.updateURL} is not a valid URL`);
 
     const source_meta = parseMeta(source_meta_js);
@@ -150,14 +150,14 @@ const prepare_meta_js = (meta) => {
 };
 
 export const update_plugin = async (metadata, author, filename) => {
-    const source_plugin_js = await ajaxGet(metadata.downloadURL);
+    const source_plugin_js = await fetchData(metadata.downloadURL);
     if (source_plugin_js === null) throw new Error(`${metadata.downloadURL} is not a valid URL`);
 
     const source_meta = parseMeta(source_plugin_js);
     if (source_meta === null) throw new Error(`${metadata.downloadURL} is not a valid metadata file`);
 
     const meta = {...{author}, ...source_meta, ...metadata, ...replace_update_url(author, filename)};
-    if (meta.skipMatchCheck !== true && !check_meta_match_pattern(meta)) throw new Error(`Not a valid match pattern in ${meta.match} and ${meta.include}`);
+    if (meta.skipMatchCheck !== true && !checkMetaMatchPattern(meta)) throw new Error(`Not a valid match pattern in ${meta.match} and ${meta.include}`);
     if (meta.skipMatchCheck) {delete meta.skipMatchCheck;}
     if (meta.name === undefined) throw new Error(`name is missing in ${filename}`);
     meta.id = filename.replace(/\.yml$/, '')+'@'+author;

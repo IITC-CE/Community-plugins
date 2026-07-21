@@ -1430,7 +1430,7 @@ Upload and contribute your Media to Mediagress. Requires a C.O.R.E. subscription
 
 *[Homepage](https://ingress.plus/media)* |
 *[Issue tracker](https://github.com/dedo1911/ingress-plus/issues)* |
-*Version:* 1.0.5
+*Version:* 1.0.6
 
 
   

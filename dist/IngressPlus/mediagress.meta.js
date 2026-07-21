@@ -2,7 +2,7 @@
 // @author          IngressPlus
 // @name            Mediagress
 // @category        Misc
-// @version         1.0.5
+// @version         1.0.6
 // @namespace       https://ingress.plus
 // @downloadURL     https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/IngressPlus/mediagress.user.js
 // @updateURL       https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/IngressPlus/mediagress.meta.js

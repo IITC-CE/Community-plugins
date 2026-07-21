@@ -537,7 +537,7 @@
         "none"
       ],
       "id_hash": "imattc-by-DanielOnDiordna",
-      "updatedAt": "2026-07-20T14:32:36.473Z"
+      "updatedAt": "2026-07-20T14:32:55.000Z"
     },
     {
       "author": "DanielOnDiordna",
@@ -595,7 +595,7 @@
         "none"
       ],
       "id_hash": "loadmorecommshistory-by-DanielOnDiordna",
-      "updatedAt": "2026-07-20T14:32:36.928Z"
+      "updatedAt": "2026-07-20T14:32:55.000Z"
     },
     {
       "author": "DanielOnDiordna",
@@ -979,7 +979,7 @@
         "none"
       ],
       "id_hash": "zoom-override-by-DanielOnDiordna",
-      "updatedAt": "2026-07-20T14:32:39.794Z"
+      "updatedAt": "2026-07-20T14:32:55.000Z"
     },
     {
       "author": "EisFrei",
@@ -1078,7 +1078,7 @@
       "author": "IngressPlus",
       "name": "Mediagress",
       "category": "Misc",
-      "version": "1.0.5",
+      "version": "1.0.6",
       "namespace": "https://ingress.plus",
       "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/IngressPlus/mediagress.user.js",
       "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/IngressPlus/mediagress.meta.js",
@@ -1102,7 +1102,7 @@
         "none"
       ],
       "id_hash": "mediagress-by-IngressPlus",
-      "updatedAt": "2025-06-10T01:21:28.000Z"
+      "updatedAt": "2026-07-21T02:21:51.298Z"
     },
     {
       "author": "Jormund",
@@ -1620,7 +1620,7 @@
         "none"
       ],
       "id_hash": "portaldetailsmod-by-Whomiga",
-      "updatedAt": "2026-07-20T14:32:45.815Z"
+      "updatedAt": "2026-07-20T14:32:55.000Z"
     },
     {
       "author": "Xelminoe",

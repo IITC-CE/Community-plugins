@@ -785,7 +785,7 @@ Anchor Planner: scans Draw Tools plans, resolves portal names, lists plan portal
 *Recommends*: bookmarks@ZasoGD  |
 *[Homepage](https://github.com/emgeka/iitc-anchor-planner)* |
 *[Issue tracker](https://github.com/emgeka/iitc-anchor-planner/issues)* |
-*Version:* 0.1.45
+*Version:* 0.1.46
 
 
   

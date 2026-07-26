@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import {execFileSync} from 'child_process';
+import {applyPatch} from 'diff';
 import YAML from 'yaml';
 import {fetchData, checkMetaMatchPattern, parseMeta} from 'lib-iitc-manager';
 
@@ -89,6 +90,122 @@ export const ext = (filename, prefix) => {
  * @return {string}
  */
 export const normalize_eol = (plugin_js) => plugin_js.replace(/\r\n?/g, '\n');
+
+const PATCH_HEADER_RE = /^#\s*([A-Za-z][A-Za-z-]*)\s*:\s*(.*)$/;
+const PATCH_DATE_RE = /^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2}):(\d{2})Z?$/;
+const REQUIRED_PATCH_HEADERS = {reason: 'Reason', createdForVersion: 'Created-For-Version', patchDate: 'Patch-Date'};
+
+/**
+ * Warnings collected while applying patches, as {path, message} objects.
+ * Also printed as GitHub workflow annotations, see warn_patch().
+ *
+ * @type {Array.<Object<string, string>>}
+ */
+export const patch_warnings = [];
+
+/**
+ * Builds the version stamp appended to the version of a patched plugin.
+ *
+ * @param {Object<string, string>} headers - Parsed patch headers.
+ * @return {string} Stamp in the "YYYYMMDD.HHMMSS" form.
+ */
+export const patch_stamp = (headers) => {
+    const match = PATCH_DATE_RE.exec(headers.patchDate);
+    if (match === null) throw new Error(`invalid Patch-Date "${headers.patchDate}", expected "YYYY-MM-DD HH:MM:SS"`);
+
+    const [, year, month, day, hours, minutes, seconds] = match;
+    return `${year}${month}${day}.${hours}${minutes}${seconds}`;
+};
+
+/**
+ * Parses a patch file: a preamble of "# Key: value" comments followed by a unified diff.
+ *
+ * @param {string} text - Contents of the patch file.
+ * @return {{headers: Object<string, string>, diff: string}}
+ */
+export const parse_patch = (text) => {
+    const lines = text.split('\n');
+    const headers = {};
+
+    let diff_start = 0;
+    for (; diff_start < lines.length; diff_start++) {
+        const line = lines[diff_start];
+        if (line.trim() === '') continue;
+        if (!line.startsWith('#')) break;
+
+        const match = PATCH_HEADER_RE.exec(line);
+        if (match === null) throw new Error(`unparsable header line "${line}"`);
+        headers[match[1].toLowerCase().replace(/-(.)/g, (_, char) => char.toUpperCase())] = match[2].trim();
+    }
+
+    for (const [key, name] of Object.entries(REQUIRED_PATCH_HEADERS)) {
+        if (!headers[key]) throw new Error(`missing the required "${name}" header`);
+    }
+    patch_stamp(headers);
+
+    const diff = lines.slice(diff_start).join('\n');
+    if (!/^--- /m.test(diff)) throw new Error('no unified diff found (missing a "--- " line)');
+    if (!/^@@ /m.test(diff)) throw new Error('the diff is empty (no hunks)');
+
+    return {headers, diff};
+};
+
+/**
+ * Applies a patch to the plugin source code.
+ * The context has to match exactly (fuzzFactor: 0): once upstream touches the patched
+ * code the patch stops applying, which is how an obsolete patch is detected.
+ *
+ * @param {string} source - Plugin source code.
+ * @param {{diff: string}} patch - Patch as returned by parse_patch().
+ * @return {{code: string, applied: boolean}}
+ */
+export const apply_patch = (source, patch) => {
+    const code = applyPatch(source, patch.diff, {fuzzFactor: 0});
+    return code === false ? {code: source, applied: false} : {code: code, applied: true};
+};
+
+/**
+ * Builds the version a plugin is published under: the upstream version, stamped
+ * with the patch date when the plugin is patched.
+ *
+ * @param {string} source_version - Version from the upstream metablock.
+ * @param {?{headers: Object<string, string>}} patch - Patch as returned by read_patch(), or null.
+ * @return {string}
+ */
+export const patched_version = (source_version, patch) => {
+    if (patch === null || typeof source_version !== 'string' || source_version === '') return source_version;
+    return `${source_version}.${patch_stamp(patch.headers)}`;
+};
+
+/**
+ * Returns the path to the patch of a plugin, or null when the plugin is not patched.
+ *
+ * @param {string} author - Author name.
+ * @param {string} filename - Name of the metadata file.
+ * @return {?string}
+ */
+export const get_patch_path = (author, filename) => {
+    const patch_path = `../patches/${author}/${filename.replace(/\.yml$/, '.patch')}`;
+    return fs.existsSync(patch_path) ? patch_path : null;
+};
+
+/**
+ * Reads and parses the patch of a plugin.
+ *
+ * @param {string} author - Author name.
+ * @param {string} filename - Name of the metadata file.
+ * @return {?{headers: Object<string, string>, diff: string, path: string}}
+ */
+export const read_patch = (author, filename) => {
+    const patch_path = get_patch_path(author, filename);
+    if (patch_path === null) return null;
+
+    try {
+        return {...parse_patch(fs.readFileSync(patch_path, 'utf8')), path: patch_path};
+    } catch (e) {
+        throw new Error(`${patch_path}: ${e.message}`);
+    }
+};
 
 export const is_plugin_update_available = async (metadata, author, filename) => {
     const source_meta_js = await fetchData(metadata.updateURL);

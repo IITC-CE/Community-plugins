@@ -1,5 +1,6 @@
 /tools/node_modules/
 /tools/package-lock.json
+/patches/.work/
 /.idea/
 /.vscode/
 check_pr_output

@@ -1608,7 +1608,7 @@
       "id": "portaldetailsmod@Whomiga",
       "name": "Portal Detail Mods",
       "category": "Info",
-      "version": "1.9.0",
+      "version": "1.10.0",
       "description": "Show Mod Pictures in Portal Details",
       "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Whomiga/portaldetailsmod.user.js",
       "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Whomiga/portaldetailsmod.meta.js",
@@ -1620,7 +1620,7 @@
         "none"
       ],
       "id_hash": "portaldetailsmod-by-Whomiga",
-      "updatedAt": "2026-07-20T14:32:55.000Z"
+      "updatedAt": "2026-07-26T02:27:13.987Z"
     },
     {
       "author": "Xelminoe",
@@ -2437,7 +2437,7 @@
         "none"
       ],
       "id_hash": "anchor-planner-by-emgeka",
-      "updatedAt": "2026-07-23T02:25:52.244Z",
+      "updatedAt": "2026-07-23T02:25:56.000Z",
       "_depends_links": [
         {
           "id": "draw-tools@breunigs",

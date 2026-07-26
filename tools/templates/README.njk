@@ -25,6 +25,9 @@ See the [Contributing](CONTRIBUTING.md) documentation.
 {% if plugin.antiFeatures -%}
     **Anti-features:** {% for antiFeature in plugin.antiFeatures %}**[{{ antiFeature }}](/CONTRIBUTING.md#anti-features)** {% endfor %}
 {%- endif %}
+{%- if plugin.patch %}
+**[Patched](/CONTRIBUTING.md#patches) by IITC Community plugins:** {{ plugin.patch }} ([patch]({{ plugin.patchURL }}))
+{%- endif %}
 
 {% if plugin.preview -%}
     ![preview]({{ plugin.preview }})

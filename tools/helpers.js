@@ -95,6 +95,7 @@ export const normalize_eol = (plugin_js) => plugin_js.replace(/\r\n?/g, '\n');
 const PATCH_HEADER_RE = /^#\s*([A-Za-z][A-Za-z-]*)\s*:\s*(.*)$/;
 const PATCH_DATE_RE = /^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2}):(\d{2})Z?$/;
 const REQUIRED_PATCH_HEADERS = {reason: 'Reason', createdForVersion: 'Created-For-Version', patchDate: 'Patch-Date'};
+const PATCHES_BASE_URL = 'https://github.com/IITC-CE/Community-plugins/blob/master/patches/';
 
 /**
  * Warnings collected while applying patches, as {path, message} objects.
@@ -469,7 +470,7 @@ export const get_dist_plugins = async () => {
     const dirty_files = get_dirty_dist_files();
     const community_plugins_ids = [];
     const plugins = [];
-    for (const [filepath, ,] of files) {
+    for (const [filepath, author, dist_filename] of files) {
         const metajs = fs.readFileSync(filepath, 'utf8');
 
         const meta = parseMeta(metajs);
@@ -477,6 +478,9 @@ export const get_dist_plugins = async () => {
             if (meta[mergeKey] !== undefined) {
                 meta[mergeKey] = meta[mergeKey].split('|');
             }
+        }
+        if (meta.patch !== undefined) {
+            meta.patchURL = `${PATCHES_BASE_URL}${author}/${dist_filename.replace(/\.meta\.js$/, '.patch')}`;
         }
         meta.description = remove_brackets(meta.description || "");
         meta.id_hash = meta.id.replace("@", "-by-");

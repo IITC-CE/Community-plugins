@@ -81,6 +81,15 @@ export const ext = (filename, prefix) => {
     return filename.replace(/.yml$/, `.${prefix}.js`);
 };
 
+/**
+ * Converts the line endings of the plugin source code to LF, so that everything
+ * published uses the same ones no matter what the author writes with.
+ *
+ * @param {string} plugin_js - Plugin source code.
+ * @return {string}
+ */
+export const normalize_eol = (plugin_js) => plugin_js.replace(/\r\n?/g, '\n');
+
 export const is_plugin_update_available = async (metadata, author, filename) => {
     const source_meta_js = await fetchData(metadata.updateURL);
     if (source_meta_js === null) throw new Error(`${metadata.updateURL} is not a valid URL`);
@@ -150,9 +159,10 @@ const prepare_meta_js = (meta) => {
 };
 
 export const update_plugin = async (metadata, author, filename) => {
-    const source_plugin_js = await fetchData(metadata.downloadURL);
-    if (source_plugin_js === null) throw new Error(`${metadata.downloadURL} is not a valid URL`);
+    const downloaded_plugin_js = await fetchData(metadata.downloadURL);
+    if (downloaded_plugin_js === null) throw new Error(`${metadata.downloadURL} is not a valid URL`);
 
+    const source_plugin_js = normalize_eol(downloaded_plugin_js);
     const source_meta = parseMeta(source_plugin_js);
     if (source_meta === null) throw new Error(`${metadata.downloadURL} is not a valid metadata file`);
 

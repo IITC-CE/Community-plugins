@@ -1,0 +1,2 @@
+# Patches match the plugin source byte for byte, any line ending conversion breaks them
+patches/**/*.patch -text

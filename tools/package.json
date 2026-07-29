@@ -7,9 +7,13 @@
   "scripts": {
     "update-all": "node update-all.js",
     "check-pr": "node check-pr.js",
-    "check-updates": "node check-updates.js"
+    "check-updates": "node check-updates.js",
+    "patch:start": "node make-patch.js start",
+    "patch:save": "node make-patch.js save",
+    "test": "node --test"
   },
   "dependencies": {
+    "diff": "^9.0.0",
     "lib-iitc-manager": "^2.2.0",
     "node-fetch": "^3.3.2",
     "nunjucks": "^3.2.4",

@@ -2,7 +2,7 @@
 
 A collection of amazing plugins made by community.
 
-There are now 131 plugins from 44 authors in the collection.
+There are now 132 plugins from 44 authors in the collection.
 
 > Note: You must install IITC-CE on your [desktop](https://iitc.app/download_desktop)
 or [mobile device](https://iitc.app/download_mobile) to use IITC plugins.
@@ -1792,6 +1792,20 @@ Minify some Portal Details in sidebar: mod slots and resonators info
 *[Homepage](https://github.com/MysticJay/ZasoItems.CE)* |
 *[Issue tracker](https://github.com/MysticJay/ZasoItems.CE/issues)* |
 *Version:* 0.0.4.20200216.174030
+
+
+  
+### [Refresh](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/McBen/refresh.user.js) by McBen
+
+
+
+
+
+Refresh map without page reload
+
+*[Homepage](https://github.com/IITCPlugins/Refresh)* |
+*[Issue tracker](https://github.com/IITCPlugins/Refresh/issues)* |
+*Version:* 1.1.7
 
 
   

@@ -1,0 +1,5 @@
+updateURL: https://github.com/IITCPlugins/Refresh/raw/main/dist/iitc_plugin_Refresh.meta.js
+downloadURL: https://github.com/IITCPlugins/Refresh/raw/main/dist/iitc_plugin_Refresh.user.js
+homepageURL: https://github.com/IITCPlugins/Refresh
+issueTracker: https://github.com/IITCPlugins/Refresh/issues
+description: Refresh map without page reload

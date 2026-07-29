@@ -38,7 +38,7 @@ Conditional:
 
 Optional:
 
-- `preview` - A preview image for your plugin.
+- `preview` - A preview image for your plugin. It is only used by the catalog and is not copied into the published "==UserScript==" block.
 - `issueTracker` - Link to issue tracker of plugin. (automatically generated if `downloadURL` points to GitHub or GitLab)
 - `depends` - List of plugins required for your plugin to work. As values, specify the `id` of the required plugins.
 - `recommends` - List of plugins recommended for your plugin to work. As values, specify the `id` of the recommended plugins.

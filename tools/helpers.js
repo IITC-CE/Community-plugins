@@ -8,6 +8,15 @@ import {fetchData, checkMetaMatchPattern, parseMeta} from 'lib-iitc-manager';
 
 const REPO_DIR = '..';
 
+/**
+ * Metadata keys that describe a plugin for the catalog and are never published in its metablock,
+ * where they would be copied into every download of the plugin.
+ * update_plugin() strips them before publishing, catalog_only_meta() reads them back.
+ *
+ * @type {Array.<string>}
+ */
+const CATALOG_ONLY_KEYS = ['preview'];
+
 const METABLOCK_RE_HEADER = /==UserScript==\s*([\s\S]*)\/\/\s*==\/UserScript==/m;
 const fileExists = async path => !!(await fs.promises.stat(path).catch(() => false));
 const metaKeysAtBottom = ['include', 'match', 'grant'];
@@ -351,7 +360,8 @@ export const update_plugin = async (metadata, author, filename) => {
         meta.patch = patch.headers.reason;
     }
 
-    const meta_js = prepare_meta_js(meta);
+    const metablock = Object.entries(meta).filter(([key]) => !CATALOG_ONLY_KEYS.includes(key));
+    const meta_js = prepare_meta_js(Object.fromEntries(metablock));
     let plugin_js = (patched_plugin_js ?? source_plugin_js).replace(METABLOCK_RE_HEADER, () => '\n'+meta_js);
     plugin_js = remove_first_line(plugin_js);
 
@@ -464,6 +474,23 @@ const get_plugin_updated_at = (meta_path, commit_dates, dirty_files) => {
     return fs.statSync(meta_path).mtime.toISOString();
 };
 
+/**
+ * Reads the catalog-only keys of a published plugin, which the metablock does not carry,
+ * back from its metadata file.
+ *
+ * @param {string} author - Author name.
+ * @param {string} dist_filename - Name of the .meta.js file in dist.
+ * @return {Object<string, *>} The keys that are set, empty when the metadata file is gone.
+ */
+const catalog_only_meta = (author, dist_filename) => {
+    const metadata = read_metadata_file(`../metadata/${author}/${dist_filename.replace(/\.meta\.js$/, '.yml')}`);
+    if (metadata === null) return {};
+
+    return Object.fromEntries(
+        CATALOG_ONLY_KEYS.filter(key => metadata[key] !== undefined).map(key => [key, metadata[key]])
+    );
+};
+
 export const get_dist_plugins = async () => {
     const files = get_all_dist_files();
     const commit_dates = get_dist_commit_dates();
@@ -482,6 +509,9 @@ export const get_dist_plugins = async () => {
         if (meta.patch !== undefined) {
             meta.patchURL = `${PATCHES_BASE_URL}${author}/${dist_filename.replace(/\.meta\.js$/, '.patch')}`;
         }
+        for (const key of CATALOG_ONLY_KEYS) delete meta[key]; // published before they were excluded
+        Object.assign(meta, catalog_only_meta(author, dist_filename));
+
         meta.description = remove_brackets(meta.description || "");
         meta.id_hash = meta.id.replace("@", "-by-");
         community_plugins_ids.push(meta.id_hash);

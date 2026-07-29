@@ -1,0 +1,5 @@
+updateURL: https://github.com/IITCPlugins/pluscode/raw/main/dist/iitc_plugin_PlusCodes.meta.js
+downloadURL: https://github.com/IITCPlugins/pluscode/raw/main/dist/iitc_plugin_PlusCodes.user.js
+homepageURL: https://github.com/IITCPlugins/pluscode
+issueTracker: https://github.com/IITCPlugins/pluscode/issues
+description: support PlusCodes in Search

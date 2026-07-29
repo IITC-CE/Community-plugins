@@ -2,7 +2,7 @@
 
 A collection of amazing plugins made by community.
 
-There are now 132 plugins from 44 authors in the collection.
+There are now 133 plugins from 44 authors in the collection.
 
 > Note: You must install IITC-CE on your [desktop](https://iitc.app/download_desktop)
 or [mobile device](https://iitc.app/download_mobile) to use IITC plugins.
@@ -626,6 +626,20 @@ Show portal info about resonators and mods for the selected portal directly on t
 View inventory and highlight portals with keys at any zoom. Can be used with the official plugins Keys and Keys on map to show the number of keys on the map.
 
 *Version:* 0.4.6
+
+
+  
+### [PlusCodes](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/McBen/pluscode.user.js) by McBen
+
+
+
+
+
+support PlusCodes in Search
+
+*[Homepage](https://github.com/IITCPlugins/pluscode)* |
+*[Issue tracker](https://github.com/IITCPlugins/pluscode/issues)* |
+*Version:* 1.0.1
 
 
   

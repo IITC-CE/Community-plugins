@@ -1585,7 +1585,7 @@ Easily create mission banners (fan update of Ultimate Mission Maker)
 *Recommends*: draw-tools@breunigs  |
 *[Homepage](https://github.com/IITCPlugins/umm_ext)* |
 *[Issue tracker](https://github.com/IITCPlugins/umm_ext/issues)* |
-*Version:* 1.1.1
+*Version:* 1.1.2
 
 
   

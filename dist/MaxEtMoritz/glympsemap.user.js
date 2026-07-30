@@ -653,11 +653,11 @@ function wrapper(PluginInfo) {
         </div>
         <div>
           <label for="glympsePassword">password:</label>
-          <input type="text" id="glympsePassword" value="${password ?? ''}" required>
+          <input type="password" id="glympsePassword" value="${password ?? ''}" required>
         </div>
         <div>
           <label for="glympseApiToken">API token:</label>
-          <input type="text" id="glympseApiToken" value="${apiKey ?? ''}" required>
+          <input type="password" id="glympseApiToken" value="${apiKey ?? ''}" required>
           <p>Possibilities to get the API token:</p>
           <ul>
             <li>Get yourself a trial token at <a href="https://developer.glympse.com/account/apps" target="_blank">Glympse Developers</a></li>

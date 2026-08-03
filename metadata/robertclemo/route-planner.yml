@@ -1,0 +1,5 @@
+updateURL: https://raw.githubusercontent.com/robertclemo/route-planner-iitc/main/route-planner.user.js
+downloadURL: https://raw.githubusercontent.com/robertclemo/route-planner-iitc/main/route-planner.user.js
+homepageURL: https://github.com/robertclemo/route-planner-iitc
+depends:
+  - draw-tools@breunigs

@@ -2,7 +2,7 @@
 
 A collection of amazing plugins made by community.
 
-There are now 134 plugins from 45 authors in the collection.
+There are now 135 plugins from 46 authors in the collection.
 
 > Note: You must install IITC-CE on your [desktop](https://iitc.app/download_desktop)
 or [mobile device](https://iitc.app/download_mobile) to use IITC plugins.
@@ -1824,6 +1824,21 @@ Minify some Portal Details in sidebar: mod slots and resonators info
 *[Homepage](https://github.com/MysticJay/ZasoItems.CE)* |
 *[Issue tracker](https://github.com/MysticJay/ZasoItems.CE/issues)* |
 *Version:* 0.0.4.20200216.174030
+
+
+  
+### [Ops Route Planner](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/robertclemo/route-planner.user.js) by robertclemo
+
+
+
+
+
+Draw a shape with Draw Tools, then compute an optimized round-trip driving route through every portal inside it.
+
+*Depends*: draw-tools@breunigs  |
+*[Homepage](https://github.com/robertclemo/route-planner-iitc)* |
+*[Issue tracker](https://github.com/robertclemo/route-planner-iitc/issues)* |
+*Version:* 0.1.1
 
 
   

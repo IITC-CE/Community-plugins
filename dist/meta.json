@@ -1689,7 +1689,7 @@
       ],
       "preview": "https://www.missingpiece.com/ingress/IITC/iitc-plugin-portaldetailmods.preview.png",
       "id_hash": "portaldetailsmod-by-Whomiga",
-      "updatedAt": "2026-07-31T02:28:06.887Z"
+      "updatedAt": "2026-07-31T02:28:21.000Z"
     },
     {
       "author": "Xelminoe",
@@ -2914,6 +2914,40 @@
       ],
       "id_hash": "portals_gallery_script-by-nerotu",
       "updatedAt": "2026-04-28T17:35:48.000Z"
+    },
+    {
+      "author": "robertclemo",
+      "id": "route-planner@robertclemo",
+      "name": "Ops Route Planner",
+      "category": "Tweaks",
+      "version": "0.1.1",
+      "namespace": "https://github.com/robertclemo/route-planner-iitc",
+      "description": "Draw a shape with Draw Tools, then compute an optimized round-trip driving route through every portal inside it.",
+      "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/robertclemo/route-planner.meta.js",
+      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/robertclemo/route-planner.user.js",
+      "homepageURL": "https://github.com/robertclemo/route-planner-iitc",
+      "depends": [
+        "draw-tools@breunigs"
+      ],
+      "issueTracker": "https://github.com/robertclemo/route-planner-iitc/issues",
+      "include": [
+        "https://intel.ingress.com/*"
+      ],
+      "match": [
+        "https://intel.ingress.com/*"
+      ],
+      "grant": [
+        "none"
+      ],
+      "id_hash": "route-planner-by-robertclemo",
+      "updatedAt": "2026-08-03T17:55:05.547Z",
+      "_depends_links": [
+        {
+          "id": "draw-tools@breunigs",
+          "hash": "draw-tools-by-breunigs",
+          "source": "core"
+        }
+      ]
     },
     {
       "author": "Wintervorst",

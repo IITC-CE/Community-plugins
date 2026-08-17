@@ -305,7 +305,7 @@ Manage LocalStorage: import, export and delete.
 
 *[Homepage](https://github.com/MysticJay/ZasoItems.CE)* |
 *[Issue tracker](https://github.com/MysticJay/ZasoItems.CE/issues)* |
-*Version:* 0.1.1.20200216.174029
+*Version:* 0.1.2.20260816.105556
 
 
   
@@ -978,7 +978,7 @@ Add one or more player markers and his ranges (hack/deploy range and xmp ranges)
 
 *[Homepage](https://github.com/MysticJay/ZasoItems.CE)* |
 *[Issue tracker](https://github.com/MysticJay/ZasoItems.CE/issues)* |
-*Version:* 0.3.1.20210103.154230
+*Version:* 0.3.1.20260816.105557
 
 
   
@@ -1430,7 +1430,7 @@ Storage favorite logs.
 
 *[Homepage](https://github.com/MysticJay/ZasoItems.CE)* |
 *[Issue tracker](https://github.com/MysticJay/ZasoItems.CE/issues)* |
-*Version:* 0.0.2.20200216.174029
+*Version:* 0.0.3.20260816.105557
 
 
   

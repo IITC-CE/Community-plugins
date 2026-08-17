@@ -1690,7 +1690,7 @@
       ],
       "preview": "https://www.missingpiece.com/ingress/IITC/iitc-plugin-portaldetailmods.preview.png",
       "id_hash": "portaldetailsmod-by-Whomiga",
-      "updatedAt": "2026-08-13T01:40:26.452Z"
+      "updatedAt": "2026-08-13T01:40:34.000Z"
     },
     {
       "author": "Xelminoe",
@@ -2092,12 +2092,12 @@
       "author": "Zaso",
       "name": "LocalStorage Manager",
       "category": "Debug",
-      "version": "0.1.1.20200216.174029",
+      "version": "0.1.2.20260816.105556",
       "description": "Manage LocalStorage: import, export and delete.",
       "id": "localstorage-manager@Zaso",
       "namespace": "https://github.com/IITC-CE/ingress-intel-total-conversion",
-      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Zaso/localstorage-manager.user.js",
       "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Zaso/localstorage-manager.meta.js",
+      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Zaso/localstorage-manager.user.js",
       "homepageURL": "https://github.com/MysticJay/ZasoItems.CE",
       "issueTracker": "https://github.com/MysticJay/ZasoItems.CE/issues",
       "match": [
@@ -2107,18 +2107,18 @@
         "none"
       ],
       "id_hash": "localstorage-manager-by-Zaso",
-      "updatedAt": "2026-04-28T17:35:48.000Z"
+      "updatedAt": "2026-08-17T01:01:49.175Z"
     },
     {
       "author": "Zaso",
       "name": "Logs Diary",
       "category": "Misc",
-      "version": "0.0.2.20200216.174029",
+      "version": "0.0.3.20260816.105557",
       "description": "Storage favorite logs.",
       "id": "logs-diary@Zaso",
       "namespace": "https://github.com/IITC-CE/ingress-intel-total-conversion",
-      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Zaso/logs-diary.user.js",
       "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Zaso/logs-diary.meta.js",
+      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Zaso/logs-diary.user.js",
       "homepageURL": "https://github.com/MysticJay/ZasoItems.CE",
       "issueTracker": "https://github.com/MysticJay/ZasoItems.CE/issues",
       "match": [
@@ -2128,7 +2128,7 @@
         "none"
       ],
       "id_hash": "logs-diary-by-Zaso",
-      "updatedAt": "2026-04-28T17:35:48.000Z"
+      "updatedAt": "2026-08-17T01:01:49.535Z"
     },
     {
       "author": "Zaso",
@@ -2155,12 +2155,12 @@
       "author": "Zaso",
       "name": "Player Ranges",
       "category": "Layer",
-      "version": "0.3.1.20210103.154230",
+      "version": "0.3.1.20260816.105557",
       "description": "Add one or more player markers and his ranges (hack/deploy range and xmp ranges) on the map.",
       "id": "player-ranges@Zaso",
       "namespace": "https://github.com/IITC-CE/ingress-intel-total-conversion",
-      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Zaso/player-ranges.user.js",
       "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Zaso/player-ranges.meta.js",
+      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Zaso/player-ranges.user.js",
       "homepageURL": "https://github.com/MysticJay/ZasoItems.CE",
       "issueTracker": "https://github.com/MysticJay/ZasoItems.CE/issues",
       "match": [
@@ -2170,7 +2170,7 @@
         "none"
       ],
       "id_hash": "player-ranges-by-Zaso",
-      "updatedAt": "2026-04-28T17:35:48.000Z"
+      "updatedAt": "2026-08-17T01:01:50.159Z"
     },
     {
       "author": "Zaso",

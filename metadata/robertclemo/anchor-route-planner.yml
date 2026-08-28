@@ -1,0 +1,5 @@
+updateURL: https://raw.githubusercontent.com/robertclemo/ingress-plugins/main/anchor-route-planner/anchor-route-planner.user.js
+downloadURL: https://raw.githubusercontent.com/robertclemo/ingress-plugins/main/anchor-route-planner/anchor-route-planner.user.js
+homepageURL: https://github.com/robertclemo/ingress-plugins
+depends:
+  - draw-tools@breunigs

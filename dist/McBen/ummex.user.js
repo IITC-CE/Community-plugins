@@ -3,7 +3,7 @@
 // @name            Ultimate Mission Maker - Extended
 // @id              ummex@McBen
 // @category        Mission
-// @version         1.2
+// @version         1.3
 // @namespace       https://github.com/IITC-CE/ingress-intel-total-conversion
 // @updateURL       https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/McBen/ummex.meta.js
 // @downloadURL     https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/McBen/ummex.user.js
@@ -17,6 +17,16 @@
 // ==/UserScript==
 
 /**
+ * # v1.3
+ * 
+ * - Import all missions.
+ *   Create new missions or update existing unpublished missions.
+ *   Note: Changes to images are difficult to detect and may not always be recognized.
+ * - Warn when missions overlap, such as when one mission is simply the reverse of another.
+ * - Scale images if smaller as 256x256 or bigger as 512x512
+ * - Fixed an IMATTC interaction bug.
+ * - fixed two bugs of the origin page (they use outdated versions) to get a cleaner log
+ * 
  * # v1.2
  * 
  * - new Picture dialog - setup Banner images directly in UMM.
@@ -2161,6 +2171,13 @@ function wrapper_iitc(SCRIPT_INFO) {
                 const bitmap = await createImageBitmap(file);
                 return this.fromImageBitmap(bitmap);
             }
+            static async fromURL(url) {
+                const response = await fetch(url, {
+                    cache: "default"
+                });
+                if (!response.ok) throw new Error(`Failed to load image: ${response.status}`);
+                return Bimage.fromFile(await response.blob());
+            }
             static async loadImage(source) {
                 return new Promise((resolve, reject) => {
                     const image = new Image;
@@ -2230,6 +2247,30 @@ function wrapper_iitc(SCRIPT_INFO) {
                     return void context.clearRect(0, 0, this.width, this.height);
                 }
                 throw new Error("Unsupported render target: expected HTMLImageElement or HTMLCanvasElement");
+            }
+            scale(width, height) {
+                const canvas = document.createElement("canvas");
+                canvas.width = width, canvas.height = height;
+                const newimage = new Bimage(canvas), context = canvas.getContext("2d");
+                if (!context) throw new Error("Unable to get 2D rendering context for crop");
+                return context.drawImage(this.canvas, 0, 0, width, height), newimage;
+            }
+            getPixels(width, height) {
+                const canvas = document.createElement("canvas");
+                canvas.width = width, canvas.height = height;
+                const context = canvas.getContext("2d");
+                if (!context) throw new Error("Unable to get 2D rendering context for crop");
+                return context.drawImage(this.canvas, 0, 0, width, height), context.getImageData(0, 0, width, height).data;
+            }
+            difference(b) {
+                const aPixels = this.getPixels(64, 64), bPixels = b.getPixels(64, 64);
+                let score = 0, pixels = 0;
+                for (let i = 0; i < aPixels.length; i += 4) {
+                    const r1 = aPixels[i], g1 = aPixels[i + 1], b1 = aPixels[i + 2], r2 = bPixels[i], g2 = bPixels[i + 1], b2 = bPixels[i + 2], y1 = .299 * r1 + .587 * g1 + .114 * b1, y2 = .299 * r2 + .587 * g2 + .114 * b2, u1 = -.168736 * r1 - .331264 * g1 + .5 * b1 + 128, u2 = -.168736 * r2 - .331264 * g2 + .5 * b2 + 128, v1 = .5 * r1 - .418688 * g1 - .081312 * b1 + 128, v2 = .5 * r2 - .418688 * g2 - .081312 * b2 + 128;
+                    score += Math.abs(y1 - y2) / 255 * .7, score += Math.abs(u1 - u2) / 255 * .15, score += Math.abs(v1 - v2) / 255 * .15, 
+                    pixels += 1;
+                }
+                return score / pixels;
             }
         }
         const createFilename = (state, addition) => state.getBannerName().replace(/[\W_]+/g, " ") + addition, loadFile = async (state, inputFile) => {
@@ -2407,8 +2448,18 @@ function wrapper_iitc(SCRIPT_INFO) {
                 return this.data.reduce((count, mis) => count + mis.portals.length, 0);
             }
             validate() {
-                const errors = {}, notEnoughWaypoint = this.filter(m => m.portals.length < 6).map(m => m.id);
-                return notEnoughWaypoint.length > 0 && (errors["not enough waypoints"] = notEnoughWaypoint), 
+                const errors = {}, missions = this.getAll(), notEnoughWaypoint = missions.filter(m => m.portals.length < 6).map(m => m.id);
+                notEnoughWaypoint.length > 0 && (errors["not enough waypoints"] = notEnoughWaypoint);
+                const inside = new Set, overlaping = new Set;
+                return missions.forEach(mission => {
+                    const [overlap, index] = missions.reduce((result, current) => {
+                        const overlap = mission.id === current.id ? 0 : mission.portals.overlappingPath(current.portals);
+                        return overlap < result[0] ? result : [ overlap, current.id ];
+                    }, [ 0, 0 ]), count = mission.portals.length;
+                    count > 0 && (overlap === count ? (inside.add(mission.id), inside.add(index)) : overlap > 1 && overlap > .75 * count && (overlaping.add(mission.id), 
+                    overlaping.add(index)));
+                }), inside.size > 0 && (errors["Mission include other"] = [ ...inside ].sort()), 
+                overlaping.size > 0 && (errors["Mission include other"] = [ ...overlaping ].sort()), 
                 errors;
             }
             zoom() {
@@ -3130,12 +3181,12 @@ function wrapper_iitc(SCRIPT_INFO) {
             html += "</div>";
             const buttons = [ dialogButton("< Main Menu", showUmmOptions), dialogButton("Changelog", () => dialog({
                 title: "Changelog",
-                html: miniMarkdown('# v1.2\n\n- new Picture dialog - setup Banner images directly in UMM.\n- added "Sequential" flag\n- with IMATTC support\n- reduce map movements\n\nwith all this addition you can now import a mission in minimal Steps:\n\n1.  load banner json\n2.  select mission\n3.  click "import"\n4.  submit mission\n    (repeat 2-4 for all missions)\n\n# v1.1.2\n\n- fix: dialogs auto open on load - forgotten debug code\n  (nah, the truth: the build script should have removed it, but it failed)\n\n# v1.1.1\n\n- fix: "edit" button was covering banner length in main dialog\n- dependencies update\n\n# v1.1\n\n- new "Mission Generator" dialog  \n  This new dialog provides several tools to modify current mission:\n  1. "Reset"  \n     Discard all current changes.\n  2. Add portals  \n     Adds nearby portals to the current mission.\n     You can:\n     - Limit selection using a DrawTools polygon\n     - Exclude individual portals with DrawTool Markers\n     - Restrict selection to portals within path hack range\n  3. Sort portals  \n     Attempts to arrange portals for the shortest possible path.\n     (Note: This is a complex optimization problem—results may vary.\n     The “keep end portal” option may occasionally fail.)\n  4. Change start  \n     Set the selected Portal as new mission start.\n     If no portal is selected, the start point will cycle through all mission portals.\n\n  All changes are temporary until "applied" or be "dismissed".  \n  Note: Distance calculations are based on straight-line (“as-the-crow-flies”) distances; real-world paths are not considered.\n\n- Use static layers  \n  UMM is now fully hidden when inactive. Background processing is also disabled while inactive.\n- Added Multi-Reverse  \n  Using the reverse action in the main dialog, you can now reverse an entire banner or selected parts of it—not just a single mission.\n- Drag: allow swapping mission portals\n- Fixed merge in main dialog\n- Fixed “Should merge?” prompt in split option (main dialog)\n- Mission-Select dialog moved to the left\n\n# v1.0.2\n\n- fix IITC-Button load\n  in iitc-button load order is differnet and custom "if UUM is loaded then disable it" failed\n- fix variable if both plugins are active\n\n# v1.0.1\n\n- fix mission number (index started by 0 instead of 1)\n\n# v1.0\n\nThis is a complete rewrite of the Ultimate Mission Maker from a developer perspective.\nThe entire codebase has been redesigned while maintaining the familiar user experience of the original UMM.\nBelow are the visible improvements and changes you\'ll notice.\n\n## What\'s Changed:\n\n- UMM is now hidden by default. You need to hit the "UMM" button in the Portal details window to make it appear.\n\n- **Select Mission Dialog** (open it through the toolbar or the main dialog)\n  - Selecting a mission is no longer required; simply open another mission\n  - Navigation buttons (+/-) allow you to cycle through missions\n  - Added split, clear, merge, and reverse commands for mission manipulation\n  - New mission information display: portal count and distances\n\n- **Banner Settins** (start window)\n  - changed Title placeholders to $T $M $N\n- **Option Dialog** (main window)\n  - Banner information now displays as a compact table\n  - Removed warning for mission counts that are not multiples of 6\n  - Added warning when missions lack sufficient waypoints\n\n- **Drag & Drop** in the mission editor path\n  - Move existing markers to adjust waypoints\n  - Add new waypoints by positioning intermediate markers at new locations\n  - Remove waypoints by double-clicking a marker\n  - Merge missions by dragging start and end markers together\n\n- **Mission Numbers**\n  - Potential split points are previewed while creating missions\n\n- **Waypoint edit**\n  - current mission is preselected\n  - passphrases: add random default questions.\n    when question & answer is empty a simple question will be set.\n\n- **Miscellaneous**\n  - Custom confirmation dialogs clarify actions and improve readability\n  - Switch between any missions, even those without portals\n  - Option to split missions when starting on a portal that\'s already assigned to another mission\n  - on mobile dialogs are not at the top instead of centered\n  - flash buttonbar on activation to draw attention\n\n---\n\n# History:\n\n## v1.0.beta.2 - 15.02.26\n\n- fixed update-URL in script header\n\n## v1.0.beta - 15.02.26\n\n- first public release\n- automated build process on GitHub\n- fixed layer checkboxes in Option-Dialog\n- add "clear" mission to selection dialog\n- always color selected mission even when not in Edit-Mode\n- move "no" to left in custom confirm dialog\n- remove doubled "v" in version numbers\n- fix toggeling edit mode on mission detail window "save" button\n- close dialog on mission detail window "save"\n- fix linebreaks in changelog dialog\n- select mission: directly select mission on combo-box change\n- fix question text in portal details\n- on mobile dialogs are not at the top instead of centered\n'),
+                html: miniMarkdown('# v1.3\n\n- Import all missions.\n  Create new missions or update existing unpublished missions.\n  Note: Changes to images are difficult to detect and may not always be recognized.\n- Warn when missions overlap, such as when one mission is simply the reverse of another.\n- Scale images if smaller as 256x256 or bigger as 512x512\n- Fixed an IMATTC interaction bug.\n- fixed two bugs of the origin page (they use outdated versions) to get a cleaner log\n\n# v1.2\n\n- new Picture dialog - setup Banner images directly in UMM.\n- added "Sequential" flag\n- with IMATTC support\n- reduce map movements\n\nwith all this addition you can now import a mission in minimal Steps:\n\n1.  load banner json\n2.  select mission\n3.  click "import"\n4.  submit mission\n    (repeat 2-4 for all missions)\n\n# v1.1.2\n\n- fix: dialogs auto open on load - forgotten debug code\n  (nah, the truth: the build script should have removed it, but it failed)\n\n# v1.1.1\n\n- fix: "edit" button was covering banner length in main dialog\n- dependencies update\n\n# v1.1\n\n- new "Mission Generator" dialog  \n  This new dialog provides several tools to modify current mission:\n  1. "Reset"  \n     Discard all current changes.\n  2. Add portals  \n     Adds nearby portals to the current mission.\n     You can:\n     - Limit selection using a DrawTools polygon\n     - Exclude individual portals with DrawTool Markers\n     - Restrict selection to portals within path hack range\n  3. Sort portals  \n     Attempts to arrange portals for the shortest possible path.\n     (Note: This is a complex optimization problem—results may vary.\n     The “keep end portal” option may occasionally fail.)\n  4. Change start  \n     Set the selected Portal as new mission start.\n     If no portal is selected, the start point will cycle through all mission portals.\n\n  All changes are temporary until "applied" or be "dismissed".  \n  Note: Distance calculations are based on straight-line (“as-the-crow-flies”) distances; real-world paths are not considered.\n\n- Use static layers  \n  UMM is now fully hidden when inactive. Background processing is also disabled while inactive.\n- Added Multi-Reverse  \n  Using the reverse action in the main dialog, you can now reverse an entire banner or selected parts of it—not just a single mission.\n- Drag: allow swapping mission portals\n- Fixed merge in main dialog\n- Fixed “Should merge?” prompt in split option (main dialog)\n- Mission-Select dialog moved to the left\n\n# v1.0.2\n\n- fix IITC-Button load\n  in iitc-button load order is differnet and custom "if UUM is loaded then disable it" failed\n- fix variable if both plugins are active\n\n# v1.0.1\n\n- fix mission number (index started by 0 instead of 1)\n\n# v1.0\n\nThis is a complete rewrite of the Ultimate Mission Maker from a developer perspective.\nThe entire codebase has been redesigned while maintaining the familiar user experience of the original UMM.\nBelow are the visible improvements and changes you\'ll notice.\n\n## What\'s Changed:\n\n- UMM is now hidden by default. You need to hit the "UMM" button in the Portal details window to make it appear.\n\n- **Select Mission Dialog** (open it through the toolbar or the main dialog)\n  - Selecting a mission is no longer required; simply open another mission\n  - Navigation buttons (+/-) allow you to cycle through missions\n  - Added split, clear, merge, and reverse commands for mission manipulation\n  - New mission information display: portal count and distances\n\n- **Banner Settins** (start window)\n  - changed Title placeholders to $T $M $N\n- **Option Dialog** (main window)\n  - Banner information now displays as a compact table\n  - Removed warning for mission counts that are not multiples of 6\n  - Added warning when missions lack sufficient waypoints\n\n- **Drag & Drop** in the mission editor path\n  - Move existing markers to adjust waypoints\n  - Add new waypoints by positioning intermediate markers at new locations\n  - Remove waypoints by double-clicking a marker\n  - Merge missions by dragging start and end markers together\n\n- **Mission Numbers**\n  - Potential split points are previewed while creating missions\n\n- **Waypoint edit**\n  - current mission is preselected\n  - passphrases: add random default questions.\n    when question & answer is empty a simple question will be set.\n\n- **Miscellaneous**\n  - Custom confirmation dialogs clarify actions and improve readability\n  - Switch between any missions, even those without portals\n  - Option to split missions when starting on a portal that\'s already assigned to another mission\n  - on mobile dialogs are not at the top instead of centered\n  - flash buttonbar on activation to draw attention\n\n---\n\n# History:\n\n## v1.0.beta.2 - 15.02.26\n\n- fixed update-URL in script header\n\n## v1.0.beta - 15.02.26\n\n- first public release\n- automated build process on GitHub\n- fixed layer checkboxes in Option-Dialog\n- add "clear" mission to selection dialog\n- always color selected mission even when not in Edit-Mode\n- move "no" to left in custom confirm dialog\n- remove doubled "v" in version numbers\n- fix toggeling edit mode on mission detail window "save" button\n- close dialog on mission detail window "save"\n- fix linebreaks in changelog dialog\n- select mission: directly select mission on combo-box change\n- fix question text in portal details\n- on mobile dialogs are not at the top instead of centered\n'),
                 width: 500
             })), dialogButtonClose() ];
             window.dialog({
                 html,
-                title: `${title} v1.2 - About`,
+                title: `${title} v1.3 - About`,
                 id: "umm-options",
                 width: 350,
                 buttons
@@ -3364,7 +3415,7 @@ function wrapper_iitc(SCRIPT_INFO) {
             };
             Generator_dialog = window.dialog({
                 html,
-                title: `${title} v1.2`,
+                title: `${title} v1.3`,
                 id: "umm-options_generator",
                 width: 350,
                 position,
@@ -3865,7 +3916,7 @@ function wrapper_iitc(SCRIPT_INFO) {
             };
             window.dialog({
                 html,
-                title: `${title} v1.2`,
+                title: `${title} v1.3`,
                 id: "umm-options",
                 width: 350,
                 position,
@@ -4089,7 +4140,7 @@ function wrapper_iitc(SCRIPT_INFO) {
                 at: "center top"
             }), window.dialog({
                 html,
-                title: `${title} v1.2`,
+                title: `${title} v1.3`,
                 id: "umm-options",
                 width: 350,
                 position,
@@ -4147,7 +4198,7 @@ function wrapper_iitc(SCRIPT_INFO) {
             html += '<table>\n      <tr><td>$T = Mission title</td><td>additional flags:</td></tr>\n      <tr><td>$N = Current Missione number</td><td>$0n = with leading zeros</td></tr>\n      <tr><td>$M = Banner length</td><td>$3n = minimum length</td></tr>\n      </table>\n      <br><br>Examples: "$T $N / $M" or "$0n.$m $t"  or "$T $03N-$03M" </p> \n      </details>\n      <input id="umm-mission-title-format" name="umm-mission-title-format" type="text" placeholder="Enter a title format" style="margin-bottom: 5px;">\n      <b>Preview: </b><span id="umm-mission-title-preview"></span>', 
             html += "</div>", currentDialog = window.dialog({
                 html,
-                title: "Edit banner details - UMM v1.2",
+                title: "Edit banner details - UMM v1.3",
                 id: "umm-options",
                 width: 400,
                 buttons: [ dialogButton("< Main Menu", showUmmOptions), dialogButton("Save", () => successfulSave(toggleMissionModeAfterSave)), dialogButtonClose() ]
@@ -4458,7 +4509,9 @@ function wrapper_iitc(SCRIPT_INFO) {
                 })(), $("#toolbox").append($("<a>", {
                     text: "UMM",
                     title: "Ultimate Mission Maker",
-                    click: () => this.toggleUMM()
+                    on: {
+                        click: () => this.toggleUMM()
+                    }
                 })), $(".leaflet-umm.leaflet-bar").hide(), this.renderPath = new RenderPath, this.renderNumbers = new RenderNumbers, 
                 this.missionModeActive = !1;
             }
@@ -4518,6 +4571,16 @@ function wrapper_iitc(SCRIPT_INFO) {
 };
 
 /**
+ * # v1.3
+ * 
+ * - Import all missions.
+ *   Create new missions or update existing unpublished missions.
+ *   Note: Changes to images are difficult to detect and may not always be recognized.
+ * - Warn when missions overlap, such as when one mission is simply the reverse of another.
+ * - Scale images if smaller as 256x256 or bigger as 512x512
+ * - Fixed an IMATTC interaction bug.
+ * - fixed two bugs of the origin page (they use outdated versions) to get a cleaner log
+ * 
  * # v1.2
  * 
  * - new Picture dialog - setup Banner images directly in UMM.
@@ -4661,7 +4724,7 @@ function wrapper_editor(SCRIPT_INFO) {
         879(module, __webpack_exports__, __webpack_require__) {
             "use strict";
             var _node_modules_css_loader_dist_runtime_noSourceMaps_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(601), _node_modules_css_loader_dist_runtime_noSourceMaps_js__WEBPACK_IMPORTED_MODULE_0___default = __webpack_require__.n(_node_modules_css_loader_dist_runtime_noSourceMaps_js__WEBPACK_IMPORTED_MODULE_0__), _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(314), _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1___default = __webpack_require__.n(_node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1__), _node_modules_css_loader_dist_runtime_getUrl_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(417), _node_modules_css_loader_dist_runtime_getUrl_js__WEBPACK_IMPORTED_MODULE_2___default = __webpack_require__.n(_node_modules_css_loader_dist_runtime_getUrl_js__WEBPACK_IMPORTED_MODULE_2__), ___CSS_LOADER_URL_IMPORT_0___ = new URL(__webpack_require__(977), __webpack_require__.b), ___CSS_LOADER_EXPORT___ = _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1___default()(_node_modules_css_loader_dist_runtime_noSourceMaps_js__WEBPACK_IMPORTED_MODULE_0___default()), ___CSS_LOADER_URL_REPLACEMENT_0___ = _node_modules_css_loader_dist_runtime_getUrl_js__WEBPACK_IMPORTED_MODULE_2___default()(___CSS_LOADER_URL_IMPORT_0___);
-            ___CSS_LOADER_EXPORT___.push([ module.id, `#userscript-progress-overlay{align-items:center;background:rgba(0,0,0,.55);display:flex;inset:0;justify-content:center;position:fixed;z-index:2200}#userscript-progress-overlay .progress-dialog{align-items:center;background:#040915;border-radius:8px;box-shadow:0 4px 20px rgba(0,0,0,.3);box-shadow:0 0 40px 80px #040915;display:flex;flex-direction:column;font-family:Arial,sans-serif;font-size:16px;gap:16px;padding:24px 32px}#userscript-progress-overlay #progress-anim{border-radius:8px;display:flex;margin:auto;padding:24px 32px}#userscript-progress-overlay #progress-cancel{margin-left:auto;scale:.6}#umm-badge{background-color:crimson;margin:15px 0 0 10px;padding:0 5px}#umm-badge,#umm-mission-editor-bar{color:#fff;float:left;height:26px;line-height:28px;vertical-align:middle}#umm-mission-editor-bar{align-items:center;background-color:#08304e;display:flex;flex-wrap:nowrap;margin-top:15px;padding-left:5px}#umm-mission-title{display:inline-block;max-width:200px;min-width:4em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}#umm-mission-picker-wrapper{display:inline-block;margin-left:10px}.umm-upload-label{background-image:url(${___CSS_LOADER_URL_REPLACEMENT_0___});background-size:cover;box-sizing:border-box;cursor:pointer;display:inline-block;height:16px;margin:0 0 0 5px;padding:3px 0 7px;width:16px}#umm-import-file{border:none;border-radius:0;height:.1px;opacity:0;overflow:hidden;position:absolute;width:.1px;z-index:-1}.umm-mission-picker{margin-left:15px}.umm-mission-picker,.umm-mission-picker-btn{background-color:#08304e;height:26px;padding:0 10px}.umm-mission-picker-btn{margin-left:3px}.umm-notification{background-color:#383838;border-radius:2px;-webkit-box-shadow:0 0 24px -1px #383838;-moz-box-shadow:0 0 24px -1px #383838;box-shadow:0 0 24px -1px #383838;color:#f0f0f0;font-family:Calibri,sans-serif;font-size:20px;height:20px;height:auto;left:50%;margin-left:-100px;padding:10px;position:fixed;text-align:center;top:55px;width:300px;z-index:10000}.umm-options-list a{background:rgba(8,48,78,.9);border:1px solid #ffce00;color:#ffce00;display:block;margin:10px auto;padding:3px 0;text-align:center;width:80%}`, "" ]);
+            ___CSS_LOADER_EXPORT___.push([ module.id, `#userscript-progress-overlay{align-items:center;background:rgba(0,0,0,.55);display:flex;inset:0;justify-content:center;position:fixed;z-index:2200}#userscript-progress-overlay .progress-dialog{align-items:center;background:#040915;border-radius:8px;box-shadow:0 4px 20px rgba(0,0,0,.3);box-shadow:0 0 40px 80px #040915;display:flex;flex-direction:column;font-family:Arial,sans-serif;font-size:16px;gap:16px;padding:24px 32px}#userscript-progress-overlay #progress-anim{border-radius:8px;display:flex;margin:auto;padding:24px 32px}#userscript-progress-overlay #progress-cancel{margin-left:auto;scale:.6}#userscript-progress-overlay .progress-status{display:flex;flex-direction:row;gap:.5em}#userscript-progress-overlay .progress-status .progress-prefix{font-weight:700}#umm-badge{background-color:crimson;margin:15px 0 0 10px;padding:0 5px}#umm-badge,#umm-mission-editor-bar{color:#fff;float:left;height:26px;line-height:28px;vertical-align:middle}#umm-mission-editor-bar{align-items:center;background-color:#08304e;display:flex;flex-wrap:nowrap;margin-top:15px;padding-left:5px}#umm-mission-title{display:inline-block;max-width:200px;min-width:4em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}#umm-mission-picker-wrapper{display:inline-block;margin-left:10px}#umm-mission-picker-wrapper #umm-mission-picker{max-width:15em}#umm-mission-edit{padding-left:1em}.umm-upload-label{background-image:url(${___CSS_LOADER_URL_REPLACEMENT_0___});background-size:cover;box-sizing:border-box;cursor:pointer;display:inline-block;height:16px;margin:0 0 0 5px;padding:3px 0 7px;width:16px}#umm-import-file{border:none;border-radius:0;height:.1px;opacity:0;overflow:hidden;position:absolute;width:.1px;z-index:-1}.umm-mission-picker{margin-left:15px}.umm-mission-picker,.umm-mission-picker-btn{background-color:#08304e;height:26px;padding:0 10px}.umm-mission-picker-btn{margin-left:3px}.umm-notification{background-color:#383838;border-radius:2px;-webkit-box-shadow:0 0 24px -1px #383838;-moz-box-shadow:0 0 24px -1px #383838;box-shadow:0 0 24px -1px #383838;color:#f0f0f0;font-family:Calibri,sans-serif;font-size:20px;height:20px;height:auto;left:50%;margin-left:-100px;padding:10px;position:fixed;text-align:center;top:55px;width:300px;z-index:10000}.umm-options-list a{background:rgba(8,48,78,.9);border:1px solid #ffce00;color:#ffce00;display:block;margin:10px auto;padding:3px 0;text-align:center;width:80%}`, "" ]);
             const __WEBPACK_DEFAULT_EXPORT__ = ___CSS_LOADER_EXPORT___;
             __webpack_require__.d(__webpack_exports__, [ "A", 0, __WEBPACK_DEFAULT_EXPORT__ ]);
         },
@@ -6410,6 +6473,13 @@ function wrapper_editor(SCRIPT_INFO) {
                 const bitmap = await createImageBitmap(file);
                 return this.fromImageBitmap(bitmap);
             }
+            static async fromURL(url) {
+                const response = await fetch(url, {
+                    cache: "default"
+                });
+                if (!response.ok) throw new Error(`Failed to load image: ${response.status}`);
+                return Bimage.fromFile(await response.blob());
+            }
             static async loadImage(source) {
                 return new Promise((resolve, reject) => {
                     const image = new Image;
@@ -6479,6 +6549,30 @@ function wrapper_editor(SCRIPT_INFO) {
                     return void context.clearRect(0, 0, this.width, this.height);
                 }
                 throw new Error("Unsupported render target: expected HTMLImageElement or HTMLCanvasElement");
+            }
+            scale(width, height) {
+                const canvas = document.createElement("canvas");
+                canvas.width = width, canvas.height = height;
+                const newimage = new Bimage(canvas), context = canvas.getContext("2d");
+                if (!context) throw new Error("Unable to get 2D rendering context for crop");
+                return context.drawImage(this.canvas, 0, 0, width, height), newimage;
+            }
+            getPixels(width, height) {
+                const canvas = document.createElement("canvas");
+                canvas.width = width, canvas.height = height;
+                const context = canvas.getContext("2d");
+                if (!context) throw new Error("Unable to get 2D rendering context for crop");
+                return context.drawImage(this.canvas, 0, 0, width, height), context.getImageData(0, 0, width, height).data;
+            }
+            difference(b) {
+                const aPixels = this.getPixels(64, 64), bPixels = b.getPixels(64, 64);
+                let score = 0, pixels = 0;
+                for (let i = 0; i < aPixels.length; i += 4) {
+                    const r1 = aPixels[i], g1 = aPixels[i + 1], b1 = aPixels[i + 2], r2 = bPixels[i], g2 = bPixels[i + 1], b2 = bPixels[i + 2], y1 = .299 * r1 + .587 * g1 + .114 * b1, y2 = .299 * r2 + .587 * g2 + .114 * b2, u1 = -.168736 * r1 - .331264 * g1 + .5 * b1 + 128, u2 = -.168736 * r2 - .331264 * g2 + .5 * b2 + 128, v1 = .5 * r1 - .418688 * g1 - .081312 * b1 + 128, v2 = .5 * r2 - .418688 * g2 - .081312 * b2 + 128;
+                    score += Math.abs(y1 - y2) / 255 * .7, score += Math.abs(u1 - u2) / 255 * .15, score += Math.abs(v1 - v2) / 255 * .15, 
+                    pixels += 1;
+                }
+                return score / pixels;
             }
         }
         class Mission {
@@ -6646,8 +6740,18 @@ function wrapper_editor(SCRIPT_INFO) {
                 return this.data.reduce((count, mis) => count + mis.portals.length, 0);
             }
             validate() {
-                const errors = {}, notEnoughWaypoint = this.filter(m => m.portals.length < 6).map(m => m.id);
-                return notEnoughWaypoint.length > 0 && (errors["not enough waypoints"] = notEnoughWaypoint), 
+                const errors = {}, missions = this.getAll(), notEnoughWaypoint = missions.filter(m => m.portals.length < 6).map(m => m.id);
+                notEnoughWaypoint.length > 0 && (errors["not enough waypoints"] = notEnoughWaypoint);
+                const inside = new Set, overlaping = new Set;
+                return missions.forEach(mission => {
+                    const [overlap, index] = missions.reduce((result, current) => {
+                        const overlap = mission.id === current.id ? 0 : mission.portals.overlappingPath(current.portals);
+                        return overlap < result[0] ? result : [ overlap, current.id ];
+                    }, [ 0, 0 ]), count = mission.portals.length;
+                    count > 0 && (overlap === count ? (inside.add(mission.id), inside.add(index)) : overlap > 1 && overlap > .75 * count && (overlaping.add(mission.id), 
+                    overlaping.add(index)));
+                }), inside.size > 0 && (errors["Mission include other"] = [ ...inside ].sort()), 
+                overlaping.size > 0 && (errors["Mission include other"] = [ ...overlaping ].sort()), 
                 errors;
             }
             zoom() {
@@ -6974,10 +7078,29 @@ function wrapper_editor(SCRIPT_INFO) {
                 return this.images_changed;
             }
         }
-        const updateProgress = (message = "Please wait…") => {
+        const show = (message = "Please wait…", prefix) => {
+            if ($("#userscript-progress-overlay").length > 0) throw new Error("progress already visible");
+            const overlay = $("<div>", {
+                id: "userscript-progress-overlay"
+            }).append($("<div>", {
+                class: "progress-dialog"
+            }).append('<canvas id="progress-anim" width="250" height="250"></canvas>', $("<div>", {
+                class: "progress-prefix",
+                text: prefix ?? ""
+            }), $("<div>", {
+                class: "progress-message"
+            }), $("<button>", {
+                id: "progress-cancel",
+                text: "cancel",
+                click: () => hide()
+            })));
+            $("body").append(overlay), startAnim(), $(".progress-message").text(message);
+        }, update = (message = "Please wait…") => {
             if (0 === $("#userscript-progress-overlay").length) throw new Error("progress termiated");
             $(".progress-message").text(message);
-        }, hideProgress = () => {
+        }, setPrefix = text => {
+            $(".progress-prefix").text(text);
+        }, hide = () => {
             anim_context = void 0, $("#userscript-progress-overlay").remove();
         };
         let startTime, anim_context, points = [];
@@ -7046,6 +7169,13 @@ function wrapper_editor(SCRIPT_INFO) {
                 const key = `allCategories_${$(".navbar-login a").first().text().trim()}`;
                 localStorage.setItem(key, JSON.stringify(categories));
             }
+        }, catchCategoryControl = async category => {
+            try {
+                const element = await waitForControl($(".preview-buttons").get(0), ".category-dropdown", 800);
+                getEditorScope().selectedCategoryID = category, $(element).val(category);
+                const store = loadCategoryContent();
+                store[category].missions.pop(), storeCategoryContent(store);
+            } catch {}
         }, waitForControl = (parent, selector, timeoutMs = 1e5) => {
             const existing = document.querySelector(selector);
             return existing ? Promise.resolve(existing) : new Promise((resolve, reject) => {
@@ -7081,74 +7211,150 @@ function wrapper_editor(SCRIPT_INFO) {
         }, getEditorScope = () => {
             return element = $("div.editor"), element ??= document.body, angular.element(element).scope();
             var element;
-        }, doImport = async mission => {
+        }, getMissionsScope = async () => {
+            const container = await waitForElement(".container"), scope = angular.element(container).scope();
+            return new Promise((resolve, reject) => {
+                if (!scope) return void reject(new Error("Container scope not available"));
+                if (scope.missions) return void resolve(scope);
+                const unwatch = scope.$watch("mission", mission => {
+                    mission && (unwatch(), resolve(scope));
+                });
+            });
+        }, waitForElement = async selector => {
+            const existing = document.querySelector(selector);
+            return existing || new Promise(resolve => {
+                const observer = new MutationObserver(() => {
+                    const element = document.querySelector(selector);
+                    element && (observer.disconnect(), resolve(element));
+                });
+                observer.observe(document.body, {
+                    childList: !0,
+                    subtree: !0
+                });
+            });
+        }, getRemainingMissions = async () => {
             try {
-                ((message = "Please wait…") => {
-                    if ($("#userscript-progress-overlay").length > 0) throw new Error("progress already visible");
-                    const overlay = $("<div>", {
-                        id: "userscript-progress-overlay"
-                    }).append($("<div>", {
-                        class: "progress-dialog"
-                    }).append('<canvas id="progress-anim" width="250" height="250"></canvas>', $("<div>", {
-                        class: "progress-message"
-                    }), $("<button>", {
-                        id: "progress-cancel",
-                        text: "cancel",
-                        click: () => hideProgress()
-                    })));
-                    $("body").append(overlay), startAnim(), $(".progress-message").text(message);
-                })("Create mission"), void 0 === getEditorScope() && await createNewMission();
-                const editor = getEditorScope();
-                if (!checkEditorState(editor)) return;
-                editor.$apply(() => {
-                    const {sequential, hiddenLocation} = mission.getSequential();
-                    editor.mission.definition._sequential = sequential, editor.mission.definition._hidden = editor.mission.definition._sequential && hiddenLocation, 
-                    editor.mission.definition.name = mission.title, editor.mission.definition.description = mission.description;
-                }), updateProgress("set portals");
-                const missingImages = importMissionPorals(editor, mission);
-                if (mission.hasImage()) {
-                    if (void 0 === editor.mission.mission_guid && (updateProgress("get mission id"), 
-                    await editor.save(), void 0 === editor.mission.mission_guid)) throw new Error("still no id");
-                    updateProgress("upload image"), await uploadLogo(mission);
-                }
-                const nextPage = mission.hasImage() ? editor.EditorScreenViews.PREVIEW : editor.EditorScreenViews.NAME;
-                if (updateProgress("save"), await editor.save(nextPage), editor.savingFailed) throw new Error("Mission save failed");
-                if (missingImages > 0) {
-                    updateProgress("Refreshing"), notification("Refreshing mission...\n(Missing data detected)", !0);
-                    const scope = getEditorScope();
-                    await loadMission(scope.mission.mission_id);
-                }
-                if ((() => {
-                    if (localStorage.getItem("allCategories")) return !0;
-                    const key = `allCategories_${$(".navbar-login a").first().text().trim()}`;
-                    return void 0 !== localStorage.getItem(key);
-                })()) {
-                    updateProgress("create category"), editor.setView(editor.EditorScreenViews.PREVIEW);
-                    const category = mission.category;
-                    if (category && "" !== category) {
-                        const catID = (name => {
-                            const store = loadCategoryContent(), cat = findCategory(store, name);
-                            if (-1 !== cat) return cat;
-                            const index = createCategory(store, name);
-                            return storeCategoryContent(store), index;
-                        })(category);
-                        -1 !== catID && (category => {
-                            const editor = getEditorScope(), id = editor.mission.mission_guid, store = loadCategoryContent();
-                            store.forEach((cat, index) => {
-                                index !== category && -1 !== cat.missions.indexOf(id) && cat.missions.splice(index, 1);
-                            }), store[category].missions.includes(id) || store[category].missions.push(id), 
-                            storeCategoryContent(store), waitForControl($(".preview-buttons").get(0), ".category-dropdown").then(element => {
-                                editor.selectedCategoryID = category, $(element).val(category), store[category].missions.pop(), 
-                                storeCategoryContent(store);
-                            });
-                        })(catID);
-                    }
-                }
-            } finally {
-                hideProgress();
+                const scope = await getMissionsScope();
+                return scope.user.mission_limit - scope.missions.length;
+            } catch {
+                return -1;
             }
+        }, findMission = async name => {
+            const scope = await getMissionsScope();
+            return scope.missions?.find(m => m.definition.name === name);
+        }, fillMission = async (mission, submit) => {
+            let editor = getEditorScope();
+            if (editor && !checkEditorState(editor)) return;
+            const hasMission = await openMission(mission);
+            if (editor = getEditorScope(), !hasMission || !editor) return;
+            importMissionBasics(editor, mission);
+            const missingImages = importMissionPorals(editor, mission);
+            await uploadImage(mission, editor), await saveAndPreview(mission, editor), missingImages > 0 && await refreshMission(), 
+            (() => {
+                if (localStorage.getItem("allCategories")) return !0;
+                const key = `allCategories_${$(".navbar-login a").first().text().trim()}`;
+                return void 0 !== localStorage.getItem(key);
+            })() && setIMATTCCategory(mission), submit && mission.hasImage() ? (update("submit"), 
+            await (async editor => {
+                editor.submitMission(), await waitForRouteChange();
+            })(editor)) : editor.setView(editor.EditorScreenViews.PREVIEW);
+        }, openMission = async mission => {
+            if (void 0 === getEditorScope()) {
+                const existing = await findMission(mission.title);
+                if (existing) {
+                    if (update("Open mission"), await editMission(existing), await (async mission => {
+                        const editor = getEditorScope();
+                        if (editor.mission.definition.name !== mission.title || editor.mission.definition.description !== mission.description || editor.mission.definition.waypoints.length !== mission.portals.length) return !1;
+                        if (!editor.mission.definition.waypoints.every((waypoint, index) => {
+                            const portal = mission.portals.get(index);
+                            return !portal || portal.location.latitude === waypoint._poi?.location.latitude && portal.location.longitude === waypoint._poi.location.longitude && portal.guid === waypoint._poi?.guid && portal.type === waypoint._poi?.type && portal.description === waypoint.custom_description && portal.objective.type === waypoint.objective?.type && portal.objective.passphrase_params.question === waypoint.objective?.passphrase_params.question && portal.objective.passphrase_params._single_passphrase === waypoint.objective?.passphrase_params._single_passphrase;
+                        })) return !1;
+                        if (mission.hasImage()) {
+                            const mission_image = await Bimage.fromURL(editor.mission.definition.logo_url + "=s64-c");
+                            return mission.getImage().difference(mission_image) < .025;
+                        }
+                        return !0;
+                    })(mission)) return await openMissionOverview(), !1;
+                } else update("Create mission"), await editMission();
+            }
+            return !0;
+        }, editMission = async mission => {
+            const angularApp = getAngularApp(), $location = angularApp.injector().get("$location"), appScope = angularApp.scope();
+            return new Promise(resolve => {
+                const unwatch = appScope.$on("$routeChangeSuccess", () => {
+                    unwatch(), resolve();
+                });
+                appScope.$evalAsync(() => {
+                    $location.path("/edit").search(mission ? {
+                        id: mission.mission_id
+                    } : {});
+                });
+            });
+        }, openMissionOverview = () => {
+            const angularApp = getAngularApp(), $location = angularApp.injector().get("$location"), appScope = angularApp.scope();
+            return new Promise(resolve => {
+                const unwatch = appScope.$on("$routeChangeSuccess", () => {
+                    unwatch(), resolve();
+                });
+                appScope.$evalAsync(() => {
+                    $location.path("");
+                });
+            });
+        }, setIMATTCCategory = mission => {
+            update("create category");
+            const category = mission.category;
+            if (category && "" !== category) {
+                const catID = (name => {
+                    const store = loadCategoryContent(), cat = findCategory(store, name);
+                    if (-1 !== cat) return cat;
+                    const index = createCategory(store, name);
+                    return storeCategoryContent(store), index;
+                })(category);
+                -1 !== catID && (category => {
+                    const id = getEditorScope().mission.mission_guid, store = loadCategoryContent();
+                    store.forEach((cat, index) => {
+                        index !== category && -1 !== cat.missions.indexOf(id) && cat.missions.splice(index, 1);
+                    }), store[category].missions.includes(id) || store[category].missions.push(id), 
+                    storeCategoryContent(store), catchCategoryControl(category);
+                })(catID);
+            }
+        }, refreshMission = async () => {
+            update("Refreshing"), notification("Refreshing mission...\n(Missing data detected)", !0);
+            const scope = getEditorScope();
+            await loadMission(scope.mission.mission_id);
+        }, saveAndPreview = async (mission, editor) => {
+            const nextPage = mission.hasImage() ? editor.EditorScreenViews.PREVIEW : editor.EditorScreenViews.NAME;
+            if (update("save"), await editor.save(nextPage), editor.savingFailed) throw new Error("Mission save failed");
+        }, uploadImage = async (mission, editor) => {
+            if (mission.hasImage()) {
+                if (void 0 === editor.mission.mission_guid && (update("get mission id"), await editor.save(), 
+                void 0 === editor.mission.mission_guid)) throw new Error("still no id");
+                update("upload image"), await (async mission => {
+                    let image = mission.getImage();
+                    image.width < 256 && (image = image.scale(256, 256)), image.width > 512 && (image = image.scale(512, 512));
+                    const file = await image.toFile("banner.png", "image/png"), editorScope = getEditorScope(), $upload = getAngularApp().injector().get("$upload"), resultData = (await $upload.upload({
+                        url: "/logo_upload/",
+                        file,
+                        data: {
+                            missionGuid: editorScope.mission.mission_guid
+                        }
+                    })).data;
+                    await new Promise(resolve => {
+                        editorScope.$evalAsync(() => {
+                            editorScope.mission.definition.logo_url = resultData.logo_url, editorScope.mission.definition.badge_url = resultData.badge_url, 
+                            resolve();
+                        });
+                    });
+                })(mission);
+            }
+        }, importMissionBasics = (editor, mission) => {
+            editor.$apply(() => {
+                const {sequential, hiddenLocation} = mission.getSequential();
+                editor.mission.definition._sequential = sequential, editor.mission.definition._hidden = editor.mission.definition._sequential && hiddenLocation, 
+                editor.mission.definition.name = mission.title, editor.mission.definition.description = mission.description;
+            });
         }, importMissionPorals = (editorScope, mission) => {
-            resetWaypoints(editorScope);
+            update("set portals"), resetWaypoints(editorScope);
             let missingImagesCount = 0;
             const originalSetSelectedWaypoint = editorScope.setSelectedWaypoint;
             try {
@@ -7221,33 +7427,42 @@ function wrapper_editor(SCRIPT_INFO) {
                 console.error("Failed to refresh mission", error), window.alert("Failed to refresh mission, refreshing full page to fix this."), 
                 window.location.href = window.location.href;
             }
-        }, createNewMission = async () => {
-            const angularApp = getAngularApp(), $location = angularApp.injector().get("$location"), appScope = angularApp.scope();
+        }, waitForRouteChange = async () => {
+            const appScope = getAngularApp().scope();
             return new Promise(resolve => {
                 const unwatch = appScope.$on("$routeChangeSuccess", () => {
                     unwatch(), resolve();
                 });
-                appScope.$evalAsync(() => {
-                    $location.path("/edit");
-                });
-            });
-        }, uploadLogo = async mission => {
-            const image = mission.getImage(), file = await image.toFile("banner.png", "image/png"), editorScope = getEditorScope(), $upload = getAngularApp().injector().get("$upload"), resultData = (await $upload.upload({
-                url: "/logo_upload/",
-                file,
-                data: {
-                    missionGuid: editorScope.mission.mission_guid
-                }
-            })).data;
-            await new Promise(resolve => {
-                editorScope.$evalAsync(() => {
-                    editorScope.mission.definition.logo_url = resultData.logo_url, editorScope.mission.definition.badge_url = resultData.badge_url, 
-                    resolve();
-                });
             });
         };
+        let originalMap;
+        const PatchedMap = function(element, options) {
+            if (options?.bounds) {
+                const bounds = options.bounds;
+                0 === Object.keys(bounds).length && delete (options = Object.assign({}, options)).bounds;
+            }
+            return new originalMap(element, options);
+        }, patchPolylineClear = () => {
+            const injector = angular.element($(".container")).injector();
+            if (!injector) return !1;
+            const PolylineChildModel = injector.get("PolylineChildModel");
+            if (PolylineChildModel.__cleanPatched) return !0;
+            const originalClean = PolylineChildModel.prototype.clean;
+            return PolylineChildModel.prototype.clean = function() {
+                return this.polyline ? originalClean.apply(this, arguments) : (this.removeEvents(this.listeners), 
+                void (this.polyline = null));
+            }, PolylineChildModel.__cleanPatched = !0, !0;
+        };
+        $(() => {
+            window.google?.maps?.Map && google.maps.Map !== PatchedMap && (originalMap = window.google.maps.Map, 
+            PatchedMap.prototype = originalMap.prototype, window.google.maps.Map = PatchedMap);
+            const polylineTimer = setInterval(() => {
+                patchPolylineClear() && clearInterval(polylineTimer);
+            }, 100);
+        });
         const main = new class UMM_Editor {
             state;
+            last_mission=-1;
             init() {
                 __webpack_require__(344), null === document.querySelector(".landing-page") && ($(".navbar-header").append($("<div>", {
                     id: "umm-badge",
@@ -7270,14 +7485,17 @@ function wrapper_editor(SCRIPT_INFO) {
                     id: "umm-mission-picker-wrapper"
                 }).append($("<select>", {
                     id: "umm-mission-picker",
-                    class: "umm-mission-picker"
+                    class: "umm-mission-picker",
+                    click: () => this.onMissionSelect()
                 }), $("<button>", {
                     id: "umm-mission-picker-btn",
                     class: "umm-mission-picker-btn",
                     text: "Import",
                     click: () => this.importMission()
-                })))), this.state = new State, this.setActiveBannerTitle(), this.bindFileImport(), 
-                this.generateMissionSelect());
+                })), $("<span>", {
+                    id: "umm-mission-edit"
+                }))), this.state = new State, this.setActiveBannerTitle(), this.bindFileImport(), 
+                this.generateMissionSelect(), this.generateImportOptions());
             }
             setActiveBannerTitle() {
                 "" === this.state.getBannerName() ? $("#umm-mission-title").text("Please load a mission file...") : $("#umm-mission-title").text(this.state.getBannerName());
@@ -7291,23 +7509,77 @@ function wrapper_editor(SCRIPT_INFO) {
                         $("#umm-import-file").val(""), !1) : "application/json" != files[0].type ? ($("#umm-import-file").val(""), 
                         alert(files[0].name + " has not been recognized as JSON file. Make sure you've loaded the right file."), 
                         !1) : loadFile(state, files[0]);
-                    })(event, this.state), this.setActiveBannerTitle(), this.generateMissionSelect());
+                    })(event, this.state), this.setActiveBannerTitle(), this.generateMissionSelect(), 
+                    this.generateImportOptions());
                 });
             }
-            generateMissionSelect() {
-                const selectedMission = this.state.getCurrent(), container = $("#umm-mission-picker");
-                container.empty(), this.state.missions.forEach(mission => {
+            async generateMissionSelect() {
+                const container = $("#umm-mission-picker");
+                container.empty();
+                const remaining = await getRemainingMissions();
+                -1 !== remaining && remaining >= this.state.missions.count() ? container.append($("<option>", {
+                    value: -1,
+                    text: `-- ALL MISSIONS -- (${this.state.missions.count()})`
+                })) : (this.last_mission = 0, container.append($("<option>", {
+                    value: -1,
+                    text: "-- not enough remaining missions slots --",
+                    disable: !0
+                }))), this.state.missions.forEach(mission => {
                     container.append($("<option>", {
                         value: mission.id,
                         text: `${mission.id + 1}: ${mission.title}`
                     }));
-                }), $("#umm-mission-picker").val(selectedMission), this.state.missions.count() > 0 && $("#umm-mission-picker-btn").prop("disabled", !1);
+                }), $("#umm-mission-picker").val(this.last_mission), this.state.missions.count() > 0 && $("#umm-mission-picker-btn").prop("disabled", !1);
+            }
+            onMissionSelect() {
+                this.generateImportOptions();
+            }
+            async generateImportOptions() {
+                const selectedMission = parseInt($("#umm-mission-picker").val());
+                if (-1 === selectedMission) {
+                    let exists = 0, draft = 0;
+                    const allmissions = this.state.missions.getAll();
+                    for (const mission of allmissions) {
+                        const existing_mission = await findMission(mission.title);
+                        void 0 !== existing_mission && (exists++, existing_mission.state !== MissionStates.PUBLISHED && draft++);
+                    }
+                    const newMisison = allmissions.length - exists, text = [];
+                    newMisison > 0 && text.push(`${newMisison} will be created`), draft > 0 && text.push(`${draft} will be skipped`), 
+                    exists > 0 && text.push(`${exists} will be checked and update`), $("#umm-mission-edit").text(text.join(", "));
+                } else {
+                    const mission = this.state.missions.get(selectedMission);
+                    if (!mission) return void $("#umm-mission-edit").text("");
+                    const exists = await findMission(mission.title);
+                    exists ? exists.state === MissionStates.PUBLISHED ? $("#umm-mission-edit").text("must be ") : $("#umm-mission-edit").text("will be updated") : $("#umm-mission-edit").text("will be created");
+                }
             }
             importMission() {
                 const selectedMission = parseInt($("#umm-mission-picker").val());
-                main.state.setCurrent(selectedMission), main.state.save();
+                if (-1 === selectedMission) return void this.importAllMissions();
+                main.state.setCurrent(selectedMission), this.last_mission = selectedMission, main.state.save();
                 const mission = main.state.getEditMission();
-                mission && !mission.isEmpty() ? doImport(mission) : notification("Mission has no text or portals");
+                mission && !mission.isEmpty() ? (async mission => {
+                    try {
+                        show(`create ${mission.title}`), await fillMission(mission, !1);
+                    } finally {
+                        hide();
+                    }
+                })(mission) : notification("Mission has no text or portals");
+            }
+            async importAllMissions() {
+                if (await getRemainingMissions() < this.state.missions.count()) return void notification("No enough missions slots remaining");
+                const missions = main.state.missions.getAll();
+                missions.some(m => m.isEmpty() || !m.hasImage() || m.portals.length < 6) ? notification("Some Missions are missing data") : await (async missions => {
+                    if (!confirm(`Import all ${missions.length} missions?`)) try {
+                        show("creating banner");
+                        for (const mission of missions) setPrefix(`${mission.id + 1} / ${missions.length}: `), 
+                        await fillMission(mission, !0);
+                    } catch {
+                        console.error("end by exception"), hide();
+                    } finally {
+                        hide();
+                    }
+                })(missions);
             }
         };
         window.UMM = main, main.init();

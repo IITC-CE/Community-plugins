@@ -1006,6 +1006,30 @@
       "updatedAt": "2022-08-16T21:52:27.000Z"
     },
     {
+      "author": "Falenone, Codex",
+      "name": "GlobeView",
+      "category": "Map",
+      "version": "1.0",
+      "description": "A Cesium-based 3D globe view for IITC with portals, links, fields, visual effects, and configurable performance options.",
+      "id": "globe-view@Falenone",
+      "namespace": "https://github.com/IITC-CE/ingress-intel-total-conversion",
+      "homepageURL": "https://github.com/Falenone/IITC-Globeview",
+      "issueTracker": "https://github.com/Falenone/IITC-Globeview/issues",
+      "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Falenone/globe-view.meta.js",
+      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Falenone/globe-view.user.js",
+      "icon": "https://raw.githubusercontent.com/Falenone/IITC-Globeview/b3f346f0b708a24e6a905325523dc4ef9dcbf093/assets/globeicon.svg",
+      "match": [
+        "https://intel.ingress.com/*",
+        "https://intel-x.ingress.com/*"
+      ],
+      "grant": [
+        "none"
+      ],
+      "preview": "https://raw.githubusercontent.com/Falenone/IITC-Globeview/main/assets/Globeview1.png",
+      "id_hash": "globe-view-by-Falenone",
+      "updatedAt": "2026-09-09T05:57:18.298Z"
+    },
+    {
       "author": "GMOogway",
       "id": "basemap-gaode@GMOogway",
       "name": "Map layers from GAODE by GMOogway",
@@ -2941,7 +2965,7 @@
         "none"
       ],
       "id_hash": "anchor-route-planner-by-robertclemo",
-      "updatedAt": "2026-09-09T05:53:29.285Z",
+      "updatedAt": "2026-09-09T05:53:32.000Z",
       "_depends_links": [
         {
           "id": "draw-tools@breunigs",

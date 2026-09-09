@@ -2,7 +2,7 @@
 
 A collection of amazing plugins made by community.
 
-There are now 136 plugins from 46 authors in the collection.
+There are now 137 plugins from 47 authors in the collection.
 
 > Note: You must install IITC-CE on your [desktop](https://iitc.app/download_desktop)
 or [mobile device](https://iitc.app/download_mobile) to use IITC plugins.
@@ -1172,6 +1172,23 @@ Create link prolongations.
 *[Homepage](https://github.com/MysticJay/ZasoItems.CE)* |
 *[Issue tracker](https://github.com/MysticJay/ZasoItems.CE/issues)* |
 *Version:* 0.1.2
+
+
+  
+
+## Map
+  
+### [GlobeView](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Falenone/globe-view.user.js) by Falenone, Codex
+
+
+
+![preview](https://raw.githubusercontent.com/Falenone/IITC-Globeview/main/assets/Globeview1.png)
+
+A Cesium-based 3D globe view for IITC with portals, links, fields, visual effects, and configurable performance options.
+
+*[Homepage](https://github.com/Falenone/IITC-Globeview)* |
+*[Issue tracker](https://github.com/Falenone/IITC-Globeview/issues)* |
+*Version:* 1.0
 
 
   

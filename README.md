@@ -2,7 +2,7 @@
 
 A collection of amazing plugins made by community.
 
-There are now 135 plugins from 46 authors in the collection.
+There are now 136 plugins from 46 authors in the collection.
 
 > Note: You must install IITC-CE on your [desktop](https://iitc.app/download_desktop)
 or [mobile device](https://iitc.app/download_mobile) to use IITC plugins.
@@ -1756,6 +1756,21 @@ Display an Unfreeze button, to use in case of IITC app hang after using zoom on 
   
 
 ## Tweaks
+  
+### [Anchor Route Planner](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/robertclemo/anchor-route-planner.user.js) by robertclemo
+
+
+
+
+
+Mark anchor portals with Draw Tools (markers, or the corners of a polygon), then get the fastest real driving/walking route stitching them together, in the best order.
+
+*Depends*: draw-tools@breunigs  |
+*[Homepage](https://github.com/robertclemo/ingress-plugins)* |
+*[Issue tracker](https://github.com/robertclemo/ingress-plugins/issues)* |
+*Version:* 0.2.0
+
+
   
 ### [Bring Portals To Front](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Zaso/bring-portals-to-front.user.js) by Zaso
 

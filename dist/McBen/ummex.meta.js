@@ -3,7 +3,7 @@
 // @name            Ultimate Mission Maker - Extended
 // @id              ummex@McBen
 // @category        Mission
-// @version         1.3
+// @version         1.3.1
 // @namespace       https://github.com/IITC-CE/ingress-intel-total-conversion
 // @updateURL       https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/McBen/ummex.meta.js
 // @downloadURL     https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/McBen/ummex.user.js

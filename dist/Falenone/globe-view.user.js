@@ -2,7 +2,7 @@
 // @author          Falenone, Codex
 // @name            GlobeView
 // @category        Map
-// @version         1.0
+// @version         1.1
 // @description     A Cesium-based 3D globe view for IITC with portals, links, fields, visual effects, and configurable performance options.
 // @id              globe-view@Falenone
 // @namespace       https://github.com/IITC-CE/ingress-intel-total-conversion
@@ -36,7 +36,7 @@ var globeView = {};
 window.plugin.globeView = globeView;
 
 globeView.CESIUM_VERSION = '1.144';
-globeView.PROJECT_URL = 'https://github.com/';
+globeView.PROJECT_URL = 'https://github.com/Falenone/IITC-Globeview';
 globeView.CESIUM_URL = 'https://cesium.com/';
 globeView.CESIUM_FAVICON_DATA_URI = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MTIiIGhlaWdodD0iNTEyIiB2aWV3Qm94PSIwIDAgNTEyIDUxMiI+CiAgICA8Y2lyY2xlIGN4PSIyNTYiIGN5PSIyNTYiIHI9IjI1NiIgZmlsbD0iI2ZmZiIvPgogICAgPHBhdGggZD0iTTI1NiAzMkMxMzIuMjg4IDMyIDMyIDEzMi4yODYgMzIgMjU2YTIyNCAyMjQgMCAwIDAgNy40MSA1Ni41NjRjLjEyNy4xMTQuMjYuMjM3LjM3OS4zMzYgNC4xMjggMy40MSA4Ljk0IDUuMTYgMTMuOCA1LjE2IDcuNDMgMCAxNC41OTUtNC4wOTQgMjAuMi0xMS41bDcwLjYwMS05My4zMDFjMTEuNjgyLTE1LjQzOCAyOC4zLTI0LjI5OSA0NS41LTI0LjI5OXMzMy43NCA4Ljg5NSA0NS41IDI0LjI5OWMxMC40MjggMTMuNjU5IDQ1LjA3MyA1OS42NjUgNjcuNzk5IDg5LjcwMS45MzIgMS4yMzIgMS45NDcgMi40IDIuOTIgMy42IDYuMTYgNy41OTQgMTIuNyAxMS41IDIwIDExLjUgNy41OTEgMCAxMy41MDUtMy42NTYgMjAtMTEuNS45OTMtMS4yIDIuMDM4LTIuMzYgMi45OC0zLjYgMjIuOTIyLTMwLjE1OSA1Ny4zNTUtNzUuOTM1IDY3LjgwMS04OS43MDEgMTEuNzAzLTE1LjQyMiAyOC4zLTI0LjI5OSA0NS41LTI0LjI5OSAyLjQzNyAwIDQuODc4LjMgNy4yODcuNjJDNDQwLjYwOCA5NS45NTIgMzU0LjAzNCAzMi4xMDcgMjU2IDMyem03NS4wNSA5NS4wNWEyMy41MjUgMjMuNTI1IDAgMCAxIDIzLjUyNiAyMy41MjcgMjMuNTI1IDIzLjUyNSAwIDAgMS0yMy41MjYgMjMuNTI2IDIzLjUyNSAyMy41MjUgMCAwIDEtMjMuNTI1LTIzLjUyNiAyMy41MjUgMjMuNTI1IDAgMCAxIDIzLjUyNS0yMy41Mjd6IiBmaWxsPSIjNmRhYmU0Ii8+CiAgICA8cGF0aCBkPSJNNDc4LjAxMSAyMjguMzk4Yy00LjY2Ni00LjM5OS0xMC4wOS02LjUzOC0xNi4xNTgtNi41MzgtOS4xMTQgMC0xNS4wMjcgNC43OS0yMC45NTMgMTEuNjRsLTcwLjQgOTMuM2MtMTEuNjk4IDE1LjUwMi0yOC4yIDI0LjI5OS00NS40IDI0LjI5OWgtLjI2OGMtMTcuMiAwLTMzLjc2Mi04Ljg3Ny00NS4zOTktMjQuM2wtNzAuNC05My4zYy01LjU5Ni03LjQxNi0xMi43LTExLjUtMjAuMS0xMS41LTcuMzYgMC0xNC41NTMgNC4xNDYtMjAuMTAxIDExLjVsLTcwLjM5OSA5My4zYy0xMS41NiAxNS4zMi0yNy44ODUgMjQuMzI5LTQ0Ljk3NiAyNC4zQzkwLjMgNDI5LjY3MyAxNjkuMjE2IDQ3OS44OTUgMjU2IDQ3OS45OTljMTIzLjcxMSAwIDIyNC0xMDAuMjg4IDIyNC0yMjRhMjI0LjAwNyAyMjQuMDA3IDAgMCAwLTEuOTg5LTI3LjYwMXoiIGZpbGw9IiM3MDljNDkiLz4KPC9zdmc+Cg==';
 globeView.CESIUM_BASE_URL = 'https://cesium.com/downloads/cesiumjs/releases/' + globeView.CESIUM_VERSION + '/Build/Cesium/';
@@ -58,11 +58,15 @@ globeView.portalCompositionCache = null;
 globeView.compositionDataRevision = 0;
 globeView.selectedFieldGuid = null;
 globeView.linkEndpointPrimitives = null;
-globeView.syncTimer = null;
+globeView.pendingMapData = {};
+globeView.firstPendingMapDataTime = null;
+globeView.lastMapDataEventTime = 0;
+globeView.DATA_FLUSH_QUIET_MS = 200;
+globeView.DATA_FLUSH_MAX_WAIT_MS = 1000;
+globeView.safeAreaResizeObserver = null;
 globeView.linkGeometryTimer = null;
 globeView.lastLinkGeometryHeight = null;
 globeView.lastPortalDetailMode = null;
-globeView.fieldSyncTimer = null;
 globeView.mapSyncTimer = null;
 globeView.commPortalFollowTimer = null;
 globeView.cesiumPromise = null;
@@ -85,7 +89,7 @@ globeView.FIELD_HEIGHT = 15000;
 globeView.LINK_SURFACE_HEIGHT = globeView.FIELD_HEIGHT + 1000;
 globeView.LINK_HEIGHT_LOD_END = 6000000;
 globeView.GLOBE_RESONANCE_TRAVEL_MS = 10000;
-  globeView.GLOBE_RESONANCE_CYCLE_MS = 30000;
+globeView.GLOBE_RESONANCE_CYCLE_MS = 30000;
 globeView.GLOBE_RESONANCE_MIN_CAMERA_HEIGHT = 250000;
 // A full-degree ring keeps the sweep round even when the globe fills the viewport.
 globeView.GLOBE_RESONANCE_SEGMENTS = 360;
@@ -95,6 +99,7 @@ globeView.debugCoverageEntity = null;
 globeView.debugTileEntities = [];
 globeView.MAX_DEBUG_TILES = 200;
 globeView.portalPrimitives = null;
+globeView.renderedPortalGuids = {};
 globeView.polarAuroraCollection = null;
 globeView.portalBeaconCollection = null;
 globeView.portalBeaconMaterials = {};
@@ -105,7 +110,6 @@ globeView.globeResonanceStartedAt = 0;
 globeView.resonanceEntities = [];
 globeView.entryGlowTimer = null;
 globeView.portalRenderMode = null;
-globeView.portalSyncTimer = null;
 globeView.portalHeightTimer = null;
 globeView.portalPositionHeight = null;
 globeView.portalCount = 0;
@@ -126,10 +130,16 @@ globeView.fps = 0;
 globeView.fpsFrameCount = 0;
 globeView.fpsSampleTime = 0;
 globeView.normalMsaaSamples = null;
-globeView.activeMsaaSamples = 1;
 globeView.selectedPortalEntity = null;
 globeView.lastAutoRotateTime = 0;
 globeView.lastScreenshotPresentationTime = 0;
+// Touch devices render on demand; retain a slow refresh for day/night lighting.
+globeView.mobileRendering = false;
+globeView.KEEP_ALIVE_RENDER_INTERVAL_MS = 5000;
+globeView.lastKeepAliveRenderTime = 0;
+globeView.timeDrivenEffectsActive = false;
+globeView.fpsIdle = false;
+globeView.lastFpsFrameTime = 0;
 globeView.SETTINGS_KEY = 'plugin-globeview-settings';
 globeView.CAMERA_STATE_KEY = 'plugin-globeview-last-camera';
 globeView.restoreSavedView = false;
@@ -884,8 +894,10 @@ globeView.NEBULA_FRAGMENT_SHADER = [
   '}',
   'void main() {',
   '  vec4 sceneColor = texture(colorTexture, v_textureCoordinates);',
-  '  float depth = czm_readDepth(depthTexture, v_textureCoordinates);',
-  '  if (depth < 0.999999) {',
+  // Test the stored depth against the clear value. Reversing logarithmic
+  // depth rounds distant globe pixels towards 1 and misclassifies them as sky.
+  '  float depth = texture(depthTexture, v_textureCoordinates).r;',
+  '  if (depth < 1.0) {',
   '    out_FragColor = sceneColor;',
   '    return;',
   '  }',
@@ -1033,11 +1045,106 @@ globeView.updateAnimationTime = function () {
   if (globeView.nebulaStage && globeView.nebulaStage.enabled) globeView.nebulaStage.uniforms.animationTime = now;
 };
 
+// Shaders and time-based properties need explicit frames while animating.
+// Check existing geometry so enabled effects with no data can still sleep.
+globeView.hasActiveTimeDrivenEffects = function () {
+  var settings = globeView.settings;
+  if (globeView.cameraMoving || settings.autoRotate) return true;
+  if (settings.screenshotMode && settings.screenshotPresentation === 'orbit') return true;
+  if (globeView.isGpuNebulaActive()) return true;
+  if (globeView.globeResonanceStartedAt &&
+      globeView.viewer.camera.positionCartographic.height >= globeView.GLOBE_RESONANCE_MIN_CAMERA_HEIGHT &&
+      globeView.getGlobeResonanceProgress() !== null) return true;
+  if (settings.showLinks && settings.linkFlow && globeView.linkBaseCollection && globeView.linkBaseCollection.length) return true;
+  if (globeView.portalBeaconCollection && globeView.portalBeaconCollection.length) return true;
+  if (globeView.resonanceEntities.length || globeView.selectedPortalEntity) return true;
+  if (globeView.polarAuroraCollection && settings.polarAuroraMotion) return true;
+  if (settings.showFields && globeView.fieldCount && settings.fieldOpacity > 0 && settings.fieldStyle === 'canopy') return true;
+  if (settings.showFields && globeView.fieldCount && settings.screenshotMode &&
+      (settings.fieldCaustics || (settings.fieldStyle === 'shimmer' && settings.fieldMotion))) return true;
+  return false;
+};
+
+globeView.driveRequestRenderMode = function () {
+  if (!globeView.viewer || !globeView.viewer.scene.requestRenderMode) return;
+  var now = performance.now();
+  var animating = globeView.hasActiveTimeDrivenEffects();
+  // Render once when animation stops, too, to clear the final visible sweep.
+  if (animating || globeView.timeDrivenEffectsActive ||
+      now - globeView.lastKeepAliveRenderTime >= globeView.KEEP_ALIVE_RENDER_INTERVAL_MS) {
+    globeView.requestRender();
+    globeView.lastKeepAliveRenderTime = now;
+  }
+  globeView.timeDrivenEffectsActive = animating;
+  // Clock ticks continue while rendering sleeps. Update the DOM only on the
+  // transition to idle, without asking the globe to render for the FPS panel.
+  if (globeView.settings.debugPanel && !animating && !globeView.fpsIdle &&
+      now - globeView.lastFpsFrameTime >= 1000) {
+    globeView.fpsIdle = true;
+    globeView.fps = 0;
+    globeView.fpsFrameCount = 0;
+    globeView.fpsSampleTime = 0;
+    globeView.updateDebug();
+  }
+};
+
+// In-place geometry and settings changes need immediate redraws on mobile.
+globeView.requestRender = function () {
+  if (globeView.viewer && globeView.viewer.scene.requestRenderMode) globeView.viewer.scene.requestRender();
+};
+
+globeView.markMapDataDirty = function (kind) {
+  if (!globeView.active) return;
+  var now = performance.now();
+  globeView.pendingMapData[kind] = true;
+  if (globeView.firstPendingMapDataTime === null) globeView.firstPendingMapDataTime = now;
+  globeView.lastMapDataEventTime = now;
+};
+
+globeView.consumePendingMapData = function (kind) {
+  delete globeView.pendingMapData[kind];
+  if (!Object.keys(globeView.pendingMapData).length) globeView.firstPendingMapDataTime = null;
+};
+
+// Coalesce streaming data without rebuilding during a gesture or starving a
+// continuous stream. Camera movement intentionally takes priority over max wait.
+globeView.flushPendingMapData = function (force) {
+  if (!globeView.active || !globeView.viewer || globeView.firstPendingMapDataTime === null) return;
+  var continuousPresentation = globeView.settings.autoRotate ||
+    (globeView.settings.screenshotMode && globeView.settings.screenshotPresentation === 'orbit');
+  // A perpetual presentation orbit must not defer incoming data forever.
+  if (globeView.cameraMoving && !continuousPresentation) return;
+  var now = performance.now();
+  if (force !== true && now - globeView.lastMapDataEventTime < globeView.DATA_FLUSH_QUIET_MS &&
+      now - globeView.firstPendingMapDataTime < globeView.DATA_FLUSH_MAX_WAIT_MS) return;
+  var pending = globeView.pendingMapData;
+  globeView.pendingMapData = {};
+  globeView.firstPendingMapDataTime = null;
+  if (pending.portals) globeView.synchronizePortals();
+  if (pending.links) globeView.synchronizeLinks();
+  if (pending.fields) globeView.synchronizeFields();
+};
+
+globeView.updateSafeAreaOffsets = function () {
+  if (!globeView.container) return;
+  // Subtract spacing already provided by IITC's map container. Native inset
+  // updates remain live through the inherited --safe-area-inset-* variables.
+  var bounds = globeView.container.getBoundingClientRect();
+  var offsets = { top: bounds.top, left: bounds.left, right: window.innerWidth - bounds.right, bottom: window.innerHeight - bounds.bottom };
+  Object.keys(offsets).forEach(function (side) {
+    globeView.container.style.setProperty('--globe-viewport-' + side, offsets[side] + 'px');
+  });
+};
+
 globeView.addStyles = function () {
   $('<style>')
     .html(
       '#iitc-globe-view {' +
         'position: absolute; inset: 0; z-index: 1000; overflow: hidden; background: #05080b;' +
+        '--globe-safe-top: max(0px, calc(var(--safe-area-inset-top, env(safe-area-inset-top, 0px)) - var(--globe-viewport-top, 0px)));' +
+        '--globe-safe-left: max(0px, calc(var(--safe-area-inset-left, env(safe-area-inset-left, 0px)) - var(--globe-viewport-left, 0px)));' +
+        '--globe-safe-right: max(0px, calc(var(--safe-area-inset-right, env(safe-area-inset-right, 0px)) - var(--globe-viewport-right, 0px)));' +
+        '--globe-safe-bottom: max(0px, calc(var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px)) - var(--globe-viewport-bottom, 0px)));' +
       '}' +
       '#iitc-globe-view::before {' +
         'content: ""; position: absolute; z-index: 0; inset: -16%; pointer-events: none;' +
@@ -1086,7 +1193,7 @@ globeView.addStyles = function () {
         'display: block; width: 100%; height: 100%;' +
       '}' +
       '#iitc-globe-actions {' +
-        'position: absolute; z-index: 3; top: 10px; left: 10px; display: flex; gap: 6px;' +
+        'position: absolute; z-index: 3; top: calc(10px + var(--globe-safe-top)); left: calc(10px + var(--globe-safe-left)); right: calc(10px + var(--globe-safe-right)); display: flex; flex-wrap: wrap; gap: 6px;' +
       '}' +
       '#iitc-globe-actions button {' +
         'padding: 6px 10px;' +
@@ -1094,15 +1201,16 @@ globeView.addStyles = function () {
         'color: #d9e5ed; font: 12px/1.2 sans-serif; cursor: pointer;' +
       '}' +
       '#iitc-globe-status {' +
-        'position: absolute; z-index: 3; top: 48px; left: 10px; max-width: 280px;' +
+        'position: absolute; z-index: 3; top: calc(48px + var(--globe-safe-top)); left: calc(10px + var(--globe-safe-left)); right: calc(10px + var(--globe-safe-right)); max-width: 280px;' +
         'padding: 5px 8px; color: #d9e5ed; background: rgba(7, 12, 17, .78);' +
         'font: 12px/1.35 sans-serif; pointer-events: none;' +
       '}' +
+      '#iitc-globe-status .globe-portal-limit { color: #ff6060; font-weight: bold; }' +
       '#iitc-globe-view.globe-ui-hidden #iitc-globe-actions, #iitc-globe-view.globe-ui-hidden #iitc-globe-status { display: none; }' +
       '#iitc-globe-debug {' +
-        'position: absolute; z-index: 3; top: 110px; left: 10px; margin: 0; max-width: 360px;' +
+        'position: absolute; z-index: 3; top: calc(110px + var(--globe-safe-top)); left: calc(10px + var(--globe-safe-left)); margin: 0; max-width: min(360px, calc(100% - 36px - var(--globe-safe-left) - var(--globe-safe-right))); max-height: calc(100% - 136px - var(--globe-safe-top) - var(--globe-safe-bottom)); overflow: auto; overscroll-behavior: contain;' +
         'padding: 6px 8px; color: #d9e5ed; background: rgba(7, 12, 17, .78);' +
-        'font: 11px/1.35 monospace; white-space: pre-wrap; pointer-events: none;' +
+        'font: 11px/1.35 monospace; white-space: pre-wrap; overflow-wrap: anywhere;' +
       '}' +
       '#iitc-globe-view .cesium-viewer-bottom { bottom: 3px; right: 5px; }' +
       '#iitc-globe-view .cesium-credit-text, #iitc-globe-view .cesium-credit-logoContainer {' +
@@ -1152,10 +1260,20 @@ globeView.setStatus = function (message) {
 };
 
 globeView.updateStatus = function () {
+  if (!globeView.container) return;
   var links = globeView.settings.showLinks ? Object.keys(globeView.linkEntities).length + ' loaded links' : 'links hidden';
   var fields = globeView.settings.showFields ? globeView.fieldCount + ' fields' : 'fields hidden';
   var portals = globeView.portalCount + ' portals' + (globeView.portalRenderMode ? ' (' + (globeView.portalRenderMode === 'billboards' ? 'badges' : 'dots') + ')' : '');
-  globeView.setStatus(links + ' · ' + fields + ' · ' + portals + ' · drag to rotate · scroll to zoom');
+  globeView.setStatus(links + ' · ' + fields + ' · ');
+  var portalLabel = document.createElement('span');
+  portalLabel.textContent = portals;
+  if (globeView.settings.portals !== 'off' && globeView.portalCount >= globeView.settings.maxPortals && globeView.portalCount > 0) {
+    portalLabel.className = 'globe-portal-limit';
+    portalLabel.title = 'Configured globe portal display limit reached (' + globeView.settings.maxPortals + '). IITC may have more portals loaded.';
+  }
+  var status = globeView.container.querySelector('#iitc-globe-status');
+  status.appendChild(portalLabel);
+  status.appendChild(document.createTextNode(' · drag to rotate · scroll to zoom'));
 };
 
 globeView.setSettingFromInput = function (form, name, type) {
@@ -1422,6 +1540,12 @@ globeView.createContainer = function () {
   container.querySelector('#iitc-globe-north').addEventListener('click', globeView.resetNorth);
   document.getElementById('map').appendChild(container);
   globeView.container = container;
+  globeView.updateSafeAreaOffsets();
+  window.addEventListener('resize', globeView.updateSafeAreaOffsets);
+  if (window.ResizeObserver) {
+    globeView.safeAreaResizeObserver = new window.ResizeObserver(globeView.updateSafeAreaOffsets);
+    globeView.safeAreaResizeObserver.observe(container);
+  }
 };
 
 globeView.getGlobeFocus = function () {
@@ -1455,6 +1579,28 @@ globeView.getPickedFieldGuid = function (picked) {
   return id && id.id && id.id.globeFieldGuid;
 };
 
+globeView.isDebugPick = function (picked) {
+  return !!(picked && picked.id && picked.id.globeDebugOverlay);
+};
+
+globeView.pickMapObject = function (position) {
+  var scene = globeView.viewer.scene;
+  var picked = scene.pick(position);
+  if (!globeView.isDebugPick(picked)) return picked;
+  // Only drill through debug overlays, and stop at the first ordinary hit.
+  // Small batches avoid picking every layer of a dense stack of fields.
+  var limit = 2;
+  var maximum = globeView.MAX_DEBUG_TILES + 5;
+  while (true) {
+    var hits = scene.drillPick(position, limit);
+    for (var index = 0; index < hits.length; index++) {
+      if (!globeView.isDebugPick(hits[index])) return hits[index];
+    }
+    if (hits.length < limit || limit >= maximum) return undefined;
+    limit = Math.min(maximum, limit * 2);
+  }
+};
+
 globeView.rectangleFromBounds = function (bounds) {
   if (!bounds) return null;
   var west = bounds.getWest();
@@ -1479,7 +1625,7 @@ globeView.setDebugRectangle = function (entity, bounds, color, fillOpacity, heig
   if (!rectangle) return null;
 
   if (!entity) {
-    return globeView.viewer.entities.add({
+    entity = globeView.viewer.entities.add({
       rectangle: {
         coordinates: rectangle,
         height: height,
@@ -1488,9 +1634,10 @@ globeView.setDebugRectangle = function (entity, bounds, color, fillOpacity, heig
         outlineColor: color,
       },
     });
+  } else {
+    entity.rectangle.coordinates = rectangle;
   }
-
-  entity.rectangle.coordinates = rectangle;
+  entity.globeDebugOverlay = true;
   return entity;
 };
 
@@ -1534,6 +1681,7 @@ globeView.updateDebugGeometry = function () {
           text: 'IITC focus',
         },
       });
+      globeView.debugFocusEntity.globeDebugOverlay = true;
     } else {
       globeView.debugFocusEntity.position = focusPosition;
     }
@@ -1587,24 +1735,36 @@ globeView.updateDebug = function () {
   var mapZoom = map.getZoom();
   var dataZoom = window.getDataZoomForMapZoom(mapZoom);
   var tileParams = window.getMapZoomTileParameters(dataZoom);
+  var minimumLinkLength = tileParams.minLinkLength;
+  var detail = tileParams.hasPortals ? 'portals' : (minimumLinkLength > 0
+    ? 'links ≥ ' + (minimumLinkLength < 1000 ? minimumLinkLength + ' m' : minimumLinkLength / 1000 + ' km')
+    : 'all links');
   var focus = globeView.getGlobeFocus();
   var status = request && request.getStatus();
   var fetched = request && request.fetchedDataParams;
+  var scene = globeView.viewer && globeView.viewer.scene;
+  var canvas = scene && scene.canvas;
+  var msaa = scene && scene.msaaSupported && scene.msaaSamples > 1 ? scene.msaaSamples + '× scene MSAA' : 'scene MSAA off';
+  var fxaa = scene && scene.postProcessStages.fxaa.enabled;
   var lines = [
     'GLOBE FOCUS  ' + (focus ? globeView.formatPoint(Cesium.Math.toDegrees(focus.latitude), Cesium.Math.toDegrees(focus.longitude)) : 'space'),
     'IITC CENTER  ' + globeView.formatPoint(map.getCenter().lat, map.getCenter().lng) + '  z' + mapZoom + ' → data z' + dataZoom,
-    'DETAIL       ' + (tileParams.hasPortals ? 'portals' : 'links ≥ ' + Math.round(tileParams.minLinkLength / 1000) + ' km'),
+    'DETAIL       ' + detail,
     'BASE MAP     ' + (globeView.imagerySourceName || 'loading'),
     'VIEW BOUNDS  ' + globeView.formatBounds(map.getBounds()),
     'TILE BOUNDS  ' + globeView.formatBounds(fetched && fetched.bounds),
-    'CACHE        ' + Object.keys(window.portals).length + ' portals · ' + Object.keys(window.links).length + ' links',
+    'IITC LOADED  ' + Object.keys(window.portals).length + ' portals · ' + Object.keys(window.links).length + ' links · ' + Object.keys(window.fields || {}).length + ' fields',
+    'DRAWN        ' + globeView.portalCount + ' portals · ' + Object.keys(globeView.linkEntities).length + ' links · ' + globeView.fieldCount + ' fields (includes off-screen)',
     'REQUEST      ' + (status ? status.short : 'not started'),
-    'AA           ' + globeView.activeMsaaSamples + '× MSAA · ' + (globeView.settings.fxaa || globeView.settings.screenshotMode ? 'FXAA' : 'no FXAA'),
-    'RENDER       ' + (globeView.fps ? Math.round(globeView.fps) + ' FPS' : 'sampling FPS'),
+    'AA           ' + (scene ? msaa + ' · ' + (fxaa ? 'FXAA' : 'FXAA off') : 'loading'),
+    'RENDER       ' + (globeView.fpsIdle ? 'idle' : (globeView.fps ? Math.round(globeView.fps) + ' FPS' : 'sampling FPS')) + (scene && scene.requestRenderMode ? ' · on demand' : ' · continuous'),
+    'DEVICE       ' + (globeView.mobileRendering ? 'touch/coarse primary · mobile optimizations' : 'fine/no coarse primary · desktop path'),
+    'RESOLUTION   ' + (canvas ? scene.drawingBufferWidth + '×' + scene.drawingBufferHeight + ' buffer / ' + canvas.clientWidth + '×' + canvas.clientHeight + ' CSS px' : 'loading'),
+    'PIXEL SCALE  ' + (globeView.viewer ? 'DPR ' + (window.devicePixelRatio || 1) + ' · extra scale ' + globeView.viewer.resolutionScale + '×' : 'loading'),
   ];
   if (globeView.settings.linkFlow) {
     lines.push(
-      'FLOW         all ' + Object.keys(globeView.linkEntities).length + ' paths · ' +
+      'FLOW         ' + (globeView.settings.showLinks ? Object.keys(globeView.linkEntities).length : 0) + ' paths · ' +
       'faction colours @ ' + globeView.settings.linkFlowOpacity + ' · ' +
       globeView.settings.linkFlowPulse +
       ' · GPU clock · integrated'
@@ -1616,8 +1776,18 @@ globeView.updateDebug = function () {
 
 globeView.sampleFps = function () {
   if (!globeView.active || !globeView.settings.debugPanel) return;
-  var now = Date.now();
-  if (!globeView.fpsSampleTime) globeView.fpsSampleTime = now;
+  var now = performance.now();
+  var restart = globeView.fpsIdle || !globeView.fpsSampleTime;
+  globeView.lastFpsFrameTime = now;
+  if (restart) {
+    // Start with a baseline frame; idle time must not dilute active FPS.
+    globeView.fpsIdle = false;
+    globeView.fps = 0;
+    globeView.fpsSampleTime = now;
+    globeView.fpsFrameCount = 0;
+    globeView.updateDebug();
+    return;
+  }
   globeView.fpsFrameCount += 1;
   var elapsed = now - globeView.fpsSampleTime;
   if (elapsed < 750) return;
@@ -1784,6 +1954,7 @@ globeView.drawAreaSelection = function () {
       width: 3,
     } : undefined,
   });
+  globeView.requestRender();
 };
 
 globeView.addAreaSelectionPoint = function (position) {
@@ -1820,6 +1991,7 @@ globeView.clearAreaSelection = function () {
   globeView.areaSelectionEntity = null;
   globeView.saveSettings();
   globeView.refreshComposition(wasAreaFilter);
+  globeView.requestRender();
 };
 
 globeView.useSelectedPortalFilter = function () {
@@ -2116,6 +2288,7 @@ globeView.handleCameraMoveEnd = function () {
   globeView.cameraMoving = false;
   if (!globeView.viewer) return;
   globeView.viewer.canvas.style.cursor = globeView.areaSelectionActive ? 'crosshair' : 'grab';
+  globeView.flushPendingMapData(true);
 };
 
 globeView.scheduleHoverCursor = function (movement) {
@@ -2135,7 +2308,7 @@ globeView.scheduleHoverCursor = function (movement) {
   globeView.hoverCursorTimer = setTimeout(function () {
     globeView.hoverCursorTimer = null;
     if (!globeView.active || !globeView.viewer || globeView.areaSelectionActive || globeView.cameraMoving) return;
-    var picked = globeView.viewer.scene.pick(globeView.hoverCursorPosition);
+    var picked = globeView.pickMapObject(globeView.hoverCursorPosition);
     globeView.viewer.canvas.style.cursor = globeView.getPickedPortalGuid(picked) ? 'pointer' : 'grab';
   }, 70);
 };
@@ -2231,13 +2404,16 @@ globeView.createCloudVeilLayer = function () {
 };
 
 globeView.updateCloudVeilVisibility = function () {
-  if (!globeView.cloudVeilLayer || !globeView.viewer) return;
+  if (!globeView.viewer) return;
   var height = globeView.viewer.camera.positionCartographic.height;
   var visible = globeView.settings.cloudVeil && Number.isFinite(height) && height >= 45000;
+  if (visible && !globeView.cloudVeilLayer) globeView.createCloudVeilLayer();
+  if (!globeView.cloudVeilLayer) return;
   if (globeView.cloudVeilLayer.show !== visible) globeView.cloudVeilLayer.show = visible;
 };
 
 globeView.createViewer = function () {
+  globeView.mobileRendering = globeView.isCoarsePointerDevice();
   var imageryProvider = globeView.createIITCImageryProvider();
   var imageryLayer = new Cesium.ImageryLayer(imageryProvider);
   imageryLayer.brightness = 1;
@@ -2253,7 +2429,8 @@ globeView.createViewer = function () {
     contextOptions: {
       webgl: {
         alpha: true,
-        antialias: true,
+        // Mobile uses the existing Cesium MSAA/FXAA controls for antialiasing.
+        antialias: !globeView.mobileRendering,
       },
     },
     fullscreenButton: false,
@@ -2265,28 +2442,34 @@ globeView.createViewer = function () {
     selectionIndicator: false,
     timeline: false,
     useBrowserRecommendedResolution: false,
+    requestRenderMode: globeView.mobileRendering,
+    maximumRenderTimeChange: globeView.mobileRendering ? Number.POSITIVE_INFINITY : 0,
   });
 
   globeView.viewer.scene.backgroundColor = Cesium.Color.TRANSPARENT;
   globeView.normalMsaaSamples = globeView.viewer.scene.msaaSamples;
-  globeView.activeMsaaSamples = globeView.normalMsaaSamples || 1;
   globeView.viewer.scene.skyBox.show = false;
   globeView.viewer.scene.skyAtmosphere.show = false;
   if (globeView.viewer.scene.sun) globeView.viewer.scene.sun.show = false;
   globeView.viewer.scene.globe.depthTestAgainstTerrain = true;
   globeView.viewer.scene.screenSpaceCameraController.enableCollisionDetection = true;
-  globeView.createCloudVeilLayer();
   globeView.createNebulaStage();
   globeView.fps = 0;
   globeView.fpsFrameCount = 0;
   globeView.fpsSampleTime = 0;
+  globeView.lastFpsFrameTime = performance.now();
+  globeView.fpsIdle = false;
+  globeView.timeDrivenEffectsActive = false;
+  globeView.lastKeepAliveRenderTime = performance.now();
   globeView.viewer.clock.onTick.addEventListener(globeView.updateAutoRotate);
   globeView.viewer.clock.onTick.addEventListener(globeView.updateScreenshotPresentation);
   globeView.viewer.clock.onTick.addEventListener(globeView.updateAnimationTime);
   globeView.viewer.clock.onTick.addEventListener(globeView.scheduleSunUpdate);
+  globeView.viewer.clock.onTick.addEventListener(globeView.driveRequestRenderMode);
+  globeView.viewer.clock.onTick.addEventListener(globeView.flushPendingMapData);
   // camera.changed is deliberately throttled by Cesium.  The rim is a
   // screen-space mask, so update it just before every render while active.
-  globeView.viewer.scene.preRender.addEventListener(globeView.updateSolarRimGeometry);
+  globeView.viewer.scene.preRender.addEventListener(globeView.updateNebulaStage);
   globeView.viewer.scene.postRender.addEventListener(globeView.sampleFps);
   globeView.viewer.canvas.style.cursor = 'grab';
   globeView.viewer.screenSpaceEventHandler.setInputAction(function (movement) {
@@ -2294,7 +2477,7 @@ globeView.createViewer = function () {
       globeView.addAreaSelectionPoint(movement.position);
       return;
     }
-    var picked = globeView.viewer.scene.pick(movement.position);
+    var picked = globeView.pickMapObject(movement.position);
     var guid = globeView.getPickedPortalGuid(picked);
     if (guid) {
       globeView.openPortal(guid);
@@ -2310,7 +2493,6 @@ globeView.createViewer = function () {
   globeView.viewer.screenSpaceEventHandler.setInputAction(function (movement) {
     globeView.scheduleHoverCursor(movement);
   }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
-  globeView.viewer.camera.moveEnd.addEventListener(globeView.updateNebulaStage);
   globeView.viewer.camera.moveEnd.addEventListener(globeView.handleCameraMoveEnd);
   globeView.viewer.camera.moveEnd.addEventListener(globeView.updateSun);
   globeView.viewer.camera.moveEnd.addEventListener(globeView.updateAtmosphericEntryGlow);
@@ -2320,7 +2502,6 @@ globeView.createViewer = function () {
     globeView.scheduleLinkGeometryRefresh(false);
   });
   globeView.viewer.camera.moveEnd.addEventListener(globeView.saveCameraState);
-  globeView.viewer.camera.changed.addEventListener(globeView.updateNebulaStage);
   globeView.viewer.camera.moveStart.addEventListener(globeView.handleCameraMoveStart);
   globeView.viewer.camera.changed.addEventListener(globeView.scheduleSunUpdate);
   globeView.viewer.camera.changed.addEventListener(globeView.scheduleAtmosphericEntryGlow);
@@ -2331,19 +2512,14 @@ globeView.createViewer = function () {
   globeView.updateDebugGeometry();
 };
 
-globeView.getScreenshotMsaaSamples = function () {
-  var scene = globeView.viewer && globeView.viewer.scene;
-  if (!scene || !scene.msaaSupported) return globeView.normalMsaaSamples || 1;
-  // Cesium exposes whether MSAA is available but not its maximum sample count.
-  // Read the underlying WebGL limit so an 8× request safely becomes 4× (or 2×)
-  // on hardware with a smaller multisample render-target limit.
-  var gl = scene.context && scene.context._gl;
-  var maximum = gl && typeof gl.getParameter === 'function' && gl.MAX_SAMPLES
-    ? Number(gl.getParameter(gl.MAX_SAMPLES))
-    : globeView.SCREENSHOT_MSAA_SAMPLES;
-  var samples = globeView.SCREENSHOT_MSAA_SAMPLES;
-  while (samples > maximum && samples > 1) samples /= 2;
-  return samples;
+globeView.isCoarsePointerDevice = function () {
+  // Detect the primary input, not viewport width: small desktop windows
+  // retain desktop quality, while touch-primary phones/tablets use less GPU.
+  return !!(window.matchMedia && window.matchMedia('(pointer: coarse)').matches);
+};
+
+globeView.getMaxResolutionScale = function () {
+  return globeView.mobileRendering ? 1 : 2;
 };
 
 globeView.applySettings = function (changed, previous) {
@@ -2363,7 +2539,7 @@ globeView.applySettings = function (changed, previous) {
     return settings.screenshotMode && (settings.fieldFilterMode !== 'all' || !settings.showEnlightenedFields || !settings.showResistanceFields || Object.keys(globeView.excludedFieldGuids).length > 0);
   };
   var screenshotFieldEffectsActive = function (settings) {
-    return settings.screenshotMode && ((settings.fieldStyle === 'shimmer' && settings.fieldMotion) || settings.fieldCaustics || settings.fieldDepthHaze);
+    return settings.screenshotMode && (settings.fieldStyle === 'canopy' || (settings.fieldStyle === 'shimmer' && settings.fieldMotion) || settings.fieldCaustics || settings.fieldDepthHaze);
   };
   var mapCompositionChanged = mapCompositionActive(previous) !== mapCompositionActive(globeView.settings) ||
     (hasChanged(['fieldFilterMode']) && (mapCompositionActive(previous) || mapCompositionActive(globeView.settings)));
@@ -2398,19 +2574,16 @@ globeView.applySettings = function (changed, previous) {
   globeView.imageryLayer.contrast = globeView.settings.tileContrast;
   globeView.imageryLayer.saturation = globeView.settings.tileSaturation;
   globeView.imageryLayer.show = true;
-  // Keep normal and screenshot rendering on the display's native density,
-  // capped at 2× for sensible high-DPI GPU cost.
-  globeView.viewer.resolutionScale = Math.min(2, Math.max(1, window.devicePixelRatio || 1));
+  // Mobile caps normal and screenshot rendering at 1×; desktop retains 2×.
+  globeView.viewer.resolutionScale = Math.min(globeView.getMaxResolutionScale(), Math.max(1, window.devicePixelRatio || 1));
   globeView.viewer.scene.fog.enabled = globeView.settings.fog;
   globeView.viewer.scene.globe.enableLighting = globeView.settings.nightShading;
   globeView.viewer.scene.globe.showGroundAtmosphere = globeView.settings.atmosphere;
   if (globeView.viewer.scene.msaaSupported) {
-    globeView.activeMsaaSamples = globeView.settings.screenshotMode
-      ? globeView.getScreenshotMsaaSamples()
+    // Cesium's setter clamps the requested samples to the hardware limit.
+    globeView.viewer.scene.msaaSamples = globeView.settings.screenshotMode
+      ? globeView.SCREENSHOT_MSAA_SAMPLES
       : (globeView.normalMsaaSamples || 1);
-    globeView.viewer.scene.msaaSamples = globeView.activeMsaaSamples;
-  } else {
-    globeView.activeMsaaSamples = 1;
   }
   if (globeView.nebulaStage) {
     var palette = globeView.getNebulaPalette();
@@ -2455,10 +2628,15 @@ globeView.applySettings = function (changed, previous) {
   if (rebuildPortals) globeView.synchronizePortals();
   else if (refreshSelectedPortalEffects) globeView.updateSelectedPortal();
   if (refreshDebug) {
+    if (hasChanged(['debugPanel'])) {
+      globeView.fpsSampleTime = 0;
+      globeView.fps = 0;
+    }
     globeView.updateDebug();
     globeView.updateDebugGeometry();
   }
   globeView.updateStatus();
+  globeView.requestRender();
 };
 
 globeView.mapZoomForCameraHeight = function (height) {
@@ -2618,7 +2796,9 @@ globeView.clearPortals = function () {
   }
   globeView.clearSelectedPortal();
   globeView.clearPortalBeacons();
+  globeView.clearFactionResonance();
   globeView.portalPrimitives = null;
+  globeView.renderedPortalGuids = {};
   globeView.portalRenderMode = null;
   globeView.portalPositionHeight = null;
   globeView.portalCount = 0;
@@ -2659,10 +2839,10 @@ globeView.getPortalBeaconMaterial = function (color) {
 };
 
 globeView.getPortalBeaconGuids = function () {
-  var guids = window.selectedPortal && window.portals[window.selectedPortal] ? [window.selectedPortal] : [];
+  var guids = globeView.renderedPortalGuids[window.selectedPortal] && window.portals[window.selectedPortal] ? [window.selectedPortal] : [];
   if (globeView.settings.portalBeaconMode !== 'highLevel') return guids;
-  Object.keys(window.portals)
-    .filter(function (guid) { return Number(window.portals[guid].options.level) >= 7 && guids.indexOf(guid) === -1; })
+  Object.keys(globeView.renderedPortalGuids)
+    .filter(function (guid) { return window.portals[guid] && Number(window.portals[guid].options.level) >= 7 && guids.indexOf(guid) === -1; })
     .sort(function (first, second) { return Number(window.portals[second].options.level) - Number(window.portals[first].options.level); })
     .slice(0, 60)
     .forEach(function (guid) { guids.push(guid); });
@@ -2671,9 +2851,15 @@ globeView.getPortalBeaconGuids = function () {
 
 globeView.updatePortalBeacons = function () {
   globeView.clearPortalBeacons();
-  if (!globeView.active || !globeView.viewer || !globeView.settings.portalBeacons || globeView.settings.portals === 'off') return;
+  if (!globeView.active || !globeView.viewer || !globeView.settings.portalBeacons || globeView.settings.portals === 'off') {
+    globeView.requestRender();
+    return;
+  }
   var guids = globeView.getPortalBeaconGuids();
-  if (!guids.length) return;
+  if (!guids.length) {
+    globeView.requestRender();
+    return;
+  }
   var collection = globeView.viewer.scene.primitives.add(new Cesium.PolylineCollection());
   var baseHeight = globeView.getPortalHeight();
   var beaconHeight = Math.max(2500, Math.min(140000, globeView.viewer.camera.positionCartographic.height * 0.016));
@@ -2691,6 +2877,7 @@ globeView.updatePortalBeacons = function () {
     });
   });
   globeView.portalBeaconCollection = collection;
+  globeView.requestRender();
 };
 
 globeView.portalOutlineColor = function () {
@@ -2729,6 +2916,7 @@ globeView.refreshPortalHeight = function () {
   globeView.portalPositionHeight = height;
   if (window.selectedPortal) globeView.updateSelectedPortal();
   if (globeView.settings.portalBeacons) globeView.updatePortalBeacons();
+  globeView.requestRender();
 };
 
 globeView.schedulePortalHeightRefresh = function () {
@@ -2807,7 +2995,7 @@ globeView.clearFactionResonance = function () {
 
 globeView.updateFactionResonance = function () {
   globeView.clearFactionResonance();
-  if (!globeView.active || !globeView.viewer || !globeView.settings.factionResonance || !window.selectedPortal || !window.portals[window.selectedPortal]) return;
+  if (!globeView.active || !globeView.viewer || globeView.settings.portals === 'off' || !globeView.settings.factionResonance || !globeView.renderedPortalGuids[window.selectedPortal] || !window.portals[window.selectedPortal]) return;
   var portal = window.portals[window.selectedPortal];
   var latlng = portal.getLatLng();
   var color = globeView.portalColor(portal);
@@ -2840,7 +3028,8 @@ globeView.updateFactionResonance = function () {
 
 globeView.updateSelectedPortal = function () {
   globeView.clearSelectedPortal();
-  if (globeView.settings.selectedPulse && window.selectedPortal && window.portals[window.selectedPortal]) {
+  if (!globeView.active || !globeView.viewer) return;
+  if (globeView.settings.portals !== 'off' && globeView.settings.selectedPulse && globeView.renderedPortalGuids[window.selectedPortal] && window.portals[window.selectedPortal]) {
     var guid = window.selectedPortal;
     var portal = window.portals[guid];
     var latlng = portal.getLatLng();
@@ -2859,14 +3048,18 @@ globeView.updateSelectedPortal = function () {
     });
   }
   globeView.updateFactionResonance();
+  globeView.requestRender();
 };
 
 globeView.synchronizePortals = function () {
-  globeView.portalSyncTimer = null;
+  globeView.consumePendingMapData('portals');
   if (!globeView.active || !globeView.viewer) return;
 
   globeView.clearPortals();
-  if (globeView.settings.portals === 'off') return;
+  if (globeView.settings.portals === 'off') {
+    globeView.requestRender();
+    return;
+  }
 
   var composition = globeView.getPortalComposition();
   var portalGuids = Object.keys(window.portals)
@@ -2887,6 +3080,7 @@ globeView.synchronizePortals = function () {
   var outlineColor = globeView.portalOutlineColor();
 
   portalGuids.forEach(function (guid) {
+    globeView.renderedPortalGuids[guid] = true;
     var portal = window.portals[guid];
     var latlng = portal.getLatLng();
     var position = Cesium.Cartesian3.fromDegrees(latlng.lng, latlng.lat, portalHeight);
@@ -2921,9 +3115,7 @@ globeView.synchronizePortals = function () {
 };
 
 globeView.schedulePortalSynchronize = function () {
-  if (!globeView.active) return;
-  clearTimeout(globeView.portalSyncTimer);
-  globeView.portalSyncTimer = setTimeout(globeView.synchronizePortals, 750);
+  globeView.markMapDataDirty('portals');
 };
 
 globeView.addLink = function (guid, link) {
@@ -3139,8 +3331,7 @@ globeView.ensureFieldCanopyMaterial = function () {
   globeView.fieldCanopyMaterialRegistered = true;
 };
 
-globeView.getFieldCanopySegments = function () {
-  var count = Object.keys(window.fields || {}).length;
+globeView.getFieldCanopySegments = function (count) {
   if (globeView.settings.screenshotMode) return 10;
   if (count > 400) return 4;
   if (count > 150) return 5;
@@ -3160,10 +3351,9 @@ globeView.getFieldCanopyLift = function (positions) {
   return lift;
 };
 
-globeView.createFieldCanopyPrimitive = function (guid, positions, fieldHeight, color, opacity) {
+globeView.createFieldCanopyPrimitive = function (guid, positions, fieldHeight, color, opacity, segments) {
   globeView.ensureFieldCanopyMaterial();
   var ellipsoid = Cesium.Ellipsoid.WGS84;
-  var segments = globeView.getFieldCanopySegments();
   var lift = globeView.getFieldCanopyLift(positions);
   var indicesByRow = [];
   var positionValues = [];
@@ -3221,7 +3411,7 @@ globeView.createFieldCanopyPrimitive = function (guid, positions, fieldHeight, c
   var material = Cesium.Material.fromType(globeView.FIELD_CANOPY_MATERIAL_TYPE, {
     color: color,
     rimColor: rimColor,
-    opacity: Math.min(0.36, 0.2 + opacity * 0.16),
+    opacity: opacity * 0.36,
   });
   var primitive = new Cesium.Primitive({
     geometryInstances: new Cesium.GeometryInstance({ geometry: geometry, id: { globeFieldGuid: guid } }),
@@ -3451,10 +3641,13 @@ globeView.fieldMatchesFilter = function (guid, field) {
   var selected = globeView.selectedFieldGuid && window.fields[globeView.selectedFieldGuid];
   if (!selected) return false;
   if (mode === 'selectedField') return guid === globeView.selectedFieldGuid;
-  var candidateContainsSelected = globeView.fieldLatLngs(selected).every(function (point) {
+  var selectedVertices = globeView.fieldLatLngs(selected);
+  var candidateVertices = globeView.fieldLatLngs(field);
+  if (!selectedVertices || !candidateVertices) return guid === globeView.selectedFieldGuid;
+  var candidateContainsSelected = selectedVertices.every(function (point) {
     return globeView.pointInField(point, field);
   });
-  var selectedContainsCandidate = globeView.fieldLatLngs(field).every(function (point) {
+  var selectedContainsCandidate = candidateVertices.every(function (point) {
     return globeView.pointInField(point, selected);
   });
   if (mode === 'nested') return guid === globeView.selectedFieldGuid || selectedContainsCandidate;
@@ -3497,7 +3690,7 @@ globeView.rebuildFields = function () {
   globeView.synchronizeFields();
 };
 
-globeView.addField = function (guid, field) {
+globeView.addField = function (guid, field, canopySegments) {
   var positions;
   try {
     positions = globeView.fieldPositions(field);
@@ -3517,7 +3710,7 @@ globeView.addField = function (guid, field) {
   var depthHaze = globeView.settings.screenshotMode && globeView.settings.fieldDepthHaze;
   var caustics = globeView.settings.screenshotMode && globeView.settings.fieldCaustics;
   if (style === 'canopy') {
-    var canopy = globeView.createFieldCanopyPrimitive(guid, positions, fieldHeight, color, opacity);
+    var canopy = globeView.createFieldCanopyPrimitive(guid, positions, fieldHeight, color, opacity, canopySegments);
     globeView.fieldEntities[guid] = {
       primitives: [canopy],
       timestamp: field.options.timestamp,
@@ -3581,24 +3774,32 @@ globeView.removeFieldEntityRecord = function (record) {
 };
 
 globeView.synchronizeFields = function () {
-  globeView.fieldSyncTimer = null;
+  globeView.consumePendingMapData('fields');
   if (!globeView.active || !globeView.viewer) return;
 
   var fields = window.fields || {};
-  if (!globeView.settings.showFields) {
+  if (!globeView.settings.showFields || globeView.settings.fieldOpacity <= 0) {
     globeView.clearFields();
+    globeView.updateStatus();
+    globeView.updateDebug();
+    globeView.requestRender();
     return;
   }
 
   var visible = {};
-  Object.keys(fields).forEach(function (guid) {
+  var fieldGuids = Object.keys(fields);
+  var canopySegments = globeView.getFieldCanopySegments(fieldGuids.length);
+  fieldGuids.forEach(function (guid) {
     var field = fields[guid];
     if (!globeView.fieldMatchesFilter(guid, field)) return;
     visible[guid] = true;
     var existing = globeView.fieldEntities[guid];
     if (existing && existing.timestamp === field.options.timestamp) return;
-    if (existing) globeView.removeFieldEntityRecord(existing);
-    globeView.addField(guid, field);
+    if (existing) {
+      globeView.removeFieldEntityRecord(existing);
+      delete globeView.fieldEntities[guid];
+    }
+    globeView.addField(guid, field, canopySegments);
   });
 
   Object.keys(globeView.fieldEntities).forEach(function (guid) {
@@ -3607,12 +3808,13 @@ globeView.synchronizeFields = function () {
     delete globeView.fieldEntities[guid];
   });
   globeView.fieldCount = Object.keys(globeView.fieldEntities).length;
+  globeView.updateStatus();
+  globeView.updateDebug();
+  globeView.requestRender();
 };
 
 globeView.scheduleFieldSynchronize = function () {
-  if (!globeView.active) return;
-  clearTimeout(globeView.fieldSyncTimer);
-  globeView.fieldSyncTimer = setTimeout(globeView.synchronizeFields, 750);
+  globeView.markMapDataDirty('fields');
 };
 
 globeView.clearLinkEndpoints = function () {
@@ -3624,7 +3826,10 @@ globeView.clearLinkEndpoints = function () {
 
 globeView.synchronizeLinkEndpoints = function () {
   globeView.clearLinkEndpoints();
-  if (!globeView.settings.linkEndpoints) return;
+  if (!globeView.settings.showLinks || !globeView.settings.linkEndpoints) {
+    globeView.requestRender();
+    return;
+  }
   var collection = new Cesium.PointPrimitiveCollection();
   globeView.linkEndpointPrimitives = globeView.viewer.scene.primitives.add(collection);
   var height = Math.max(globeView.getPortalHeight(), globeView.getLinkSurfaceHeight());
@@ -3645,6 +3850,7 @@ globeView.synchronizeLinkEndpoints = function () {
       });
     });
   });
+  globeView.requestRender();
 };
 
 globeView.rebuildLinks = function () {
@@ -3654,12 +3860,13 @@ globeView.rebuildLinks = function () {
 };
 
 globeView.synchronizeLinks = function () {
-  globeView.syncTimer = null;
+  globeView.consumePendingMapData('links');
   if (!globeView.active || !globeView.viewer) return;
 
   if (!globeView.settings.showLinks) {
     globeView.clearLinks();
     globeView.updateStatus();
+    globeView.requestRender();
     return;
   }
 
@@ -3677,7 +3884,10 @@ globeView.synchronizeLinks = function () {
     var link = item.link;
     var existing = globeView.linkEntities[guid];
     if (existing && existing.timestamp === link.options.timestamp) return;
-    if (existing) globeView.removeLinkEntityRecord(existing);
+    if (existing) {
+      globeView.removeLinkEntityRecord(existing);
+      delete globeView.linkEntities[guid];
+    }
     globeView.addLink(guid, link);
   });
 
@@ -3690,12 +3900,11 @@ globeView.synchronizeLinks = function () {
   globeView.updateStatus();
   globeView.synchronizeLinkEndpoints();
   globeView.updateDebug();
+  globeView.requestRender();
 };
 
 globeView.scheduleSynchronize = function () {
-  if (!globeView.active) return;
-  clearTimeout(globeView.syncTimer);
-  globeView.syncTimer = setTimeout(globeView.synchronizeLinks, 750);
+  globeView.markMapDataDirty('links');
 };
 
 globeView.scheduleAutoStart = function (delay) {
@@ -3758,22 +3967,23 @@ globeView.deactivate = function () {
   clearTimeout(globeView.autoStartTimer);
   globeView.autoStartTimer = null;
   globeView.autoStartPending = false;
-  clearTimeout(globeView.syncTimer);
   clearTimeout(globeView.linkGeometryTimer);
-  clearTimeout(globeView.fieldSyncTimer);
   clearTimeout(globeView.mapSyncTimer);
-  clearTimeout(globeView.portalSyncTimer);
+  clearTimeout(globeView.commPortalFollowTimer);
   clearTimeout(globeView.portalHeightTimer);
   clearTimeout(globeView.hoverCursorTimer);
   clearTimeout(globeView.entryGlowTimer);
-  globeView.syncTimer = null;
+  globeView.pendingMapData = {};
+  globeView.firstPendingMapDataTime = null;
+  globeView.lastMapDataEventTime = 0;
+  window.removeEventListener('resize', globeView.updateSafeAreaOffsets);
+  if (globeView.safeAreaResizeObserver) globeView.safeAreaResizeObserver.disconnect();
+  globeView.safeAreaResizeObserver = null;
   globeView.linkGeometryTimer = null;
   globeView.lastLinkGeometryHeight = null;
   globeView.lastPortalDetailMode = null;
-  globeView.fieldSyncTimer = null;
   globeView.mapSyncTimer = null;
   globeView.commPortalFollowTimer = null;
-  globeView.portalSyncTimer = null;
   globeView.portalHeightTimer = null;
   globeView.portalPositionHeight = null;
   globeView.hoverCursorTimer = null;
@@ -3876,10 +4086,9 @@ function setup() {
   window.addHook('mapDataRefreshEnd', function () {
     globeView.invalidatePortalComposition();
     globeView.scheduleSynchronize();
-  });
-  window.addHook('mapDataRefreshEnd', globeView.scheduleFieldSynchronize);
-  window.addHook('mapDataRefreshEnd', globeView.schedulePortalSynchronize);
-  window.addHook('mapDataRefreshEnd', function () {
+    globeView.scheduleFieldSynchronize();
+    globeView.schedulePortalSynchronize();
+    globeView.flushPendingMapData(true);
     globeView.updateDebug();
     globeView.updateDebugGeometry();
     if (globeView.autoStartPending) globeView.scheduleAutoStart(350);

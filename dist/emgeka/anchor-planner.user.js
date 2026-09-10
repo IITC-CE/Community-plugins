@@ -3,7 +3,7 @@
 // @id              anchor-planner@emgeka
 // @name            Anchor Planner
 // @category        Layer
-// @version         0.1.46
+// @version         0.1.47
 // @namespace       https://example.local/iitc
 // @description     Anchor Planner: scans Draw Tools plans, resolves portal names, lists plan portals and key counts.
 // @updateURL       https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/emgeka/anchor-planner.meta.js
@@ -28,17 +28,18 @@ function wrapper(plugin_info) {
   if (typeof window.plugin !== 'function') window.plugin = function () {};
 
   plugin_info.buildName = 'local';
-  plugin_info.dateTimeVersion = '20260716144721';
+  plugin_info.dateTimeVersion = '20260909123224';
   plugin_info.pluginId = 'anchor-planner';
 
   window.plugin.anchorPlanner = function () {};
   var ap = window.plugin.anchorPlanner;
 
-  ap.VERSION = '0.1.46';
+  ap.VERSION = '0.1.47';
   ap.STORAGE_KEY = 'plugin-anchor-planner-v1';
   ap.DEFAULT_TOLERANCE_M = 25;
   ap.MIN_ANCHOR_LINKS = 3;
   ap.PANE_NAME = 'anchorPlannerPane';
+  ap.PANEL_MARGIN_PX = 5;
   ap.FALLBACK_LANGUAGE = 'en';
   ap.MISSING_TITLE = '';
 
@@ -1587,7 +1588,8 @@ function wrapper(plugin_info) {
     listFilter: 'all',
     endpointAssignments: {},
     blockerRoutePortals: {},
-    language: 'auto'
+    language: 'auto',
+    panelPosition: null
   };
 
   ap.runtime = {
@@ -1605,7 +1607,9 @@ function wrapper(plugin_info) {
     nextTargetKey: null,
     overlayCount: 0,
     htmlOverlay: null,
-    mapDataPanelRefreshTimer: null
+    mapDataPanelRefreshTimer: null,
+    panelDrag: null,
+    panelResizeTimer: null
   };
 
   ap.escapeHtml = function (value) {
@@ -1759,6 +1763,14 @@ function wrapper(plugin_info) {
         ap.state.anchors = ap.state.anchors || {};
         ap.state.endpointAssignments = ap.state.endpointAssignments || {};
         ap.state.blockerRoutePortals = ap.state.blockerRoutePortals || {};
+        if (!ap.state.panelPosition || !isFinite(Number(ap.state.panelPosition.left)) || !isFinite(Number(ap.state.panelPosition.top))) {
+          ap.state.panelPosition = null;
+        } else {
+          ap.state.panelPosition = {
+            left: Number(ap.state.panelPosition.left),
+            top: Number(ap.state.panelPosition.top)
+          };
+        }
         if (ap.state.language !== 'auto') {
           ap.state.language = ap.findAvailableLanguage(ap.state.language) || 'auto';
         }
@@ -1773,6 +1785,156 @@ function wrapper(plugin_info) {
   ap.save = function () {
     try { localStorage.setItem(ap.STORAGE_KEY, JSON.stringify(ap.state)); }
     catch (e) { console.warn('[Anchor Planner] Could not save state', e); }
+  };
+
+  ap.clampPanelPosition = function (left, top, panelWidth, panelHeight, viewportWidth, viewportHeight) {
+    var margin = ap.PANEL_MARGIN_PX;
+    var maxLeft = Math.max(margin, Number(viewportWidth) - Number(panelWidth) - margin);
+    var maxTop = Math.max(margin, Number(viewportHeight) - Number(panelHeight) - margin);
+    return {
+      left: Math.min(Math.max(margin, Number(left) || 0), maxLeft),
+      top: Math.min(Math.max(margin, Number(top) || 0), maxTop)
+    };
+  };
+
+  ap.getViewportSize = function () {
+    var root = document.documentElement || {};
+    return {
+      width: window.innerWidth || root.clientWidth || 0,
+      height: window.innerHeight || root.clientHeight || 0
+    };
+  };
+
+  ap.setPanelPosition = function (left, top, persist) {
+    var panel = ap.runtime.panel;
+    if (!panel) return null;
+    var rect = panel.getBoundingClientRect();
+    var viewport = ap.getViewportSize();
+    var position = ap.clampPanelPosition(left, top, rect.width, rect.height, viewport.width, viewport.height);
+    panel.style.left = position.left + 'px';
+    panel.style.top = position.top + 'px';
+    panel.style.right = 'auto';
+    panel.style.bottom = 'auto';
+    panel.classList.add('ap-positioned');
+    var previous = ap.state.panelPosition;
+    ap.state.panelPosition = position;
+    if (persist && (!previous || previous.left !== position.left || previous.top !== position.top)) ap.save();
+    return position;
+  };
+
+  ap.correctPanelPosition = function (persist) {
+    if (!ap.state.panelPosition) return;
+    ap.setPanelPosition(ap.state.panelPosition.left, ap.state.panelPosition.top, persist);
+  };
+
+  ap.startPanelDrag = function (clientX, clientY, pointerId) {
+    var panel = ap.runtime.panel;
+    if (!panel) return;
+    var rect = panel.getBoundingClientRect();
+    ap.runtime.panelDrag = {
+      pointerId: pointerId,
+      startX: clientX,
+      startY: clientY,
+      startLeft: rect.left,
+      startTop: rect.top
+    };
+    ap.setPanelPosition(rect.left, rect.top, false);
+    panel.classList.add('ap-dragging');
+  };
+
+  ap.movePanelDrag = function (clientX, clientY, pointerId) {
+    var drag = ap.runtime.panelDrag;
+    if (!drag || (pointerId != null && drag.pointerId != null && pointerId !== drag.pointerId)) return false;
+    ap.setPanelPosition(drag.startLeft + clientX - drag.startX, drag.startTop + clientY - drag.startY, false);
+    return true;
+  };
+
+  ap.endPanelDrag = function (pointerId) {
+    var drag = ap.runtime.panelDrag;
+    if (!drag || (pointerId != null && drag.pointerId != null && pointerId !== drag.pointerId)) return false;
+    ap.runtime.panelDrag = null;
+    if (ap.runtime.panel) ap.runtime.panel.classList.remove('ap-dragging');
+    ap.save();
+    return true;
+  };
+
+  ap.isPanelDragHandle = function (target) {
+    var panel = ap.runtime.panel;
+    var node = target;
+    while (node && node !== panel) {
+      if (node.tagName && String(node.tagName).toLowerCase() === 'button') return false;
+      if (node.classList && node.classList.contains('ap-head')) return true;
+      node = node.parentNode;
+    }
+    return false;
+  };
+
+  ap.setupPanelDragging = function () {
+    var panel = ap.runtime.panel;
+    if (!panel || typeof panel.addEventListener !== 'function') return;
+
+    var preventDragEvent = function (event) {
+      if (event.cancelable) event.preventDefault();
+      event.stopPropagation();
+    };
+
+    if (window.PointerEvent) {
+      panel.addEventListener('pointerdown', function (event) {
+        if (!ap.isPanelDragHandle(event.target) || (event.pointerType === 'mouse' && event.button !== 0)) return;
+        ap.startPanelDrag(event.clientX, event.clientY, event.pointerId);
+        try { panel.setPointerCapture(event.pointerId); } catch (e) {}
+        preventDragEvent(event);
+      });
+      window.addEventListener('pointermove', function (event) {
+        if (ap.movePanelDrag(event.clientX, event.clientY, event.pointerId)) preventDragEvent(event);
+      });
+      window.addEventListener('pointerup', function (event) { ap.endPanelDrag(event.pointerId); });
+      window.addEventListener('pointercancel', function (event) { ap.endPanelDrag(event.pointerId); });
+    } else {
+      panel.addEventListener('mousedown', function (event) {
+        if (!ap.isPanelDragHandle(event.target) || event.button !== 0) return;
+        ap.startPanelDrag(event.clientX, event.clientY, 'mouse');
+        preventDragEvent(event);
+      });
+      window.addEventListener('mousemove', function (event) {
+        if (ap.movePanelDrag(event.clientX, event.clientY, 'mouse')) preventDragEvent(event);
+      });
+      window.addEventListener('mouseup', function () { ap.endPanelDrag('mouse'); });
+      panel.addEventListener('touchstart', function (event) {
+        if (!ap.isPanelDragHandle(event.target) || !event.changedTouches || !event.changedTouches.length) return;
+        var touch = event.changedTouches[0];
+        ap.startPanelDrag(touch.clientX, touch.clientY, touch.identifier);
+        preventDragEvent(event);
+      }, false);
+      window.addEventListener('touchmove', function (event) {
+        var drag = ap.runtime.panelDrag;
+        if (!drag || !event.changedTouches) return;
+        for (var i = 0; i < event.changedTouches.length; i++) {
+          var touch = event.changedTouches[i];
+          if (touch.identifier === drag.pointerId && ap.movePanelDrag(touch.clientX, touch.clientY, touch.identifier)) {
+            preventDragEvent(event);
+            break;
+          }
+        }
+      }, false);
+      var endTouch = function (event) {
+        if (!event.changedTouches) return;
+        for (var i = 0; i < event.changedTouches.length; i++) ap.endPanelDrag(event.changedTouches[i].identifier);
+      };
+      window.addEventListener('touchend', endTouch);
+      window.addEventListener('touchcancel', endTouch);
+    }
+    window.addEventListener('blur', function () { ap.endPanelDrag(); });
+
+    var scheduleCorrection = function () {
+      if (ap.runtime.panelResizeTimer) clearTimeout(ap.runtime.panelResizeTimer);
+      ap.runtime.panelResizeTimer = setTimeout(function () {
+        ap.runtime.panelResizeTimer = null;
+        ap.correctPanelPosition(true);
+      }, 100);
+    };
+    window.addEventListener('resize', scheduleCorrection);
+    window.addEventListener('orientationchange', scheduleCorrection);
   };
 
   ap.toLatLng = function (obj) {
@@ -3768,6 +3930,7 @@ function wrapper(plugin_info) {
     if (ap.state.panelCollapsed) {
       html += '<div class="ap-mini">' + ap.escapeHtml(ap.tp('panel.planPortal', planPortalCount)) + '</div>';
       panel.innerHTML = html;
+      ap.correctPanelPosition(true);
       document.getElementById('ap-collapse').onclick = function () { ap.state.panelCollapsed = false; ap.save(); ap.renderPanel(); };
       return;
     }
@@ -3880,6 +4043,7 @@ function wrapper(plugin_info) {
 
     panel.innerHTML = html;
     panel.classList.toggle('ap-show-more', moreOpen);
+    ap.correctPanelPosition(true);
 
     document.getElementById('ap-collapse').onclick = function () { ap.state.panelCollapsed = true; ap.save(); ap.renderPanel(); };
     document.getElementById('ap-scan').onclick = ap.scan;
@@ -3940,8 +4104,8 @@ function wrapper(plugin_info) {
 
   ap.injectCss = function () {
     $('<style>').prop('type', 'text/css').html('\
-#iitc-anchor-planner{position:absolute;right:10px;bottom:28px;z-index:3000;width:360px;max-height:70vh;overflow:auto;background:rgba(8,12,18,.94);color:#eee;border:1px solid #777;border-radius:6px;font:12px/1.35 Arial,sans-serif;box-shadow:0 2px 12px rgba(0,0,0,.6);-webkit-overflow-scrolling:touch}\
-#iitc-anchor-planner .ap-head{display:flex;align-items:center;gap:6px;padding:6px 8px;background:#222;border-bottom:1px solid #555}#iitc-anchor-planner .ap-head b{flex:1;color:#fff}#iitc-anchor-planner .ap-head span{color:#aaa}\
+#iitc-anchor-planner{position:fixed;right:10px;bottom:28px;z-index:3000;width:360px;max-width:calc(100vw - 10px);max-height:70vh;overflow:auto;box-sizing:border-box;background:rgba(8,12,18,.94);color:#eee;border:1px solid #777;border-radius:6px;font:12px/1.35 Arial,sans-serif;box-shadow:0 2px 12px rgba(0,0,0,.6);-webkit-overflow-scrolling:touch}\
+#iitc-anchor-planner .ap-head{display:flex;align-items:center;gap:6px;padding:6px 8px;background:#222;border-bottom:1px solid #555;cursor:grab;touch-action:none;-webkit-user-select:none;user-select:none}#iitc-anchor-planner.ap-dragging .ap-head{cursor:grabbing}#iitc-anchor-planner .ap-head b{flex:1;color:#fff}#iitc-anchor-planner .ap-head span{color:#aaa}\
 #iitc-anchor-planner button{margin:2px;padding:3px 6px;background:#333;color:#eee;border:1px solid #777;border-radius:3px}#iitc-anchor-planner button:hover{background:#444}\
 #iitc-anchor-planner input,#iitc-anchor-planner select{background:#111;color:#fff;border:1px solid #666;border-radius:2px}#iitc-anchor-planner .ap-settings{display:flex;flex-wrap:wrap;gap:4px 10px}#iitc-anchor-planner .ap-settings label{white-space:nowrap}#iitc-anchor-planner .ap-settings input,#iitc-anchor-planner .ap-owned{width:42px}\
 #iitc-anchor-planner .ap-primary-actions{display:flex;gap:4px;padding:4px 8px;border-bottom:1px solid #333}#iitc-anchor-planner .ap-primary-actions button{flex:1;margin:0;padding:5px 7px}#iitc-anchor-planner .ap-secondary{display:none}#iitc-anchor-planner.ap-show-more .ap-secondary{display:block}#iitc-anchor-planner.ap-show-more .ap-actions,#iitc-anchor-planner.ap-show-more .ap-settings{display:flex;flex-wrap:wrap}\
@@ -3958,7 +4122,7 @@ function wrapper(plugin_info) {
 .ap-action-label{margin-top:10px;font-weight:bold;color:#ddd}.ap-share-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:6px}.ap-share-grid-single{grid-template-columns:1fr}.ap-share-grid a,.ap-share-grid button{display:block;padding:6px;background:#222;color:#f0d16b;border:1px solid #666;border-radius:4px;text-align:center;text-decoration:none}.ap-share-grid .ap-share-main{color:#fff;font-weight:bold;border-color:#aaa}\
 .ap-export-tabs{display:flex;gap:6px;margin-bottom:8px}.ap-export-tab{padding:6px 10px!important}.ap-export-tab-active{background:#555!important;color:#fff!important}.ap-export-text,.ap-export-json{width:100%;height:320px;box-sizing:border-box;font-family:monospace;font-size:12px;background:#111;color:#eee;border:1px solid #666}.ap-export-actions{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}.ap-export-actions button{padding:6px 10px;background:#222;color:#f0d16b;border:1px solid #666;border-radius:4px}\
 .ap-map-html-overlay{position:absolute!important;left:0!important;top:0!important;right:0!important;bottom:0!important;z-index:2500!important;pointer-events:none!important;overflow:visible!important}.ap-map-badge{position:absolute!important;transform:translate(-50%,-50%)!important;min-width:24px!important;height:24px!important;padding:0 3px!important;border-radius:13px!important;border:3px solid #ff9f43!important;background:rgba(0,0,0,.88)!important;color:#fff!important;font:bold 10px/24px Arial,sans-serif!important;text-align:center!important;white-space:nowrap!important;box-sizing:border-box!important;text-shadow:0 1px 2px #000!important;z-index:2501!important}.ap-map-badge-done{font-size:9px!important}.ap-map-badge-ready{font-size:14px!important}.ap-map-badge-partial{font-size:13px!important}\
-@media(max-width:600px){#iitc-anchor-planner{right:5px;left:5px;bottom:76px;width:auto;max-height:calc(100vh - 170px);font-size:12px}}\
+@media(max-width:600px){#iitc-anchor-planner{right:5px;left:5px;bottom:76px;width:auto;max-height:calc(100vh - 170px);font-size:12px}#iitc-anchor-planner.ap-positioned{right:auto;width:calc(100vw - 10px)}}\
 ').appendTo('head');
   };
 
@@ -4019,6 +4183,7 @@ function wrapper(plugin_info) {
 
   ap.setupPanel = function () {
     ap.runtime.panel = $('<div id="iitc-anchor-planner"></div>').appendTo('body')[0];
+    ap.setupPanelDragging();
     ap.renderPanel();
   };
 

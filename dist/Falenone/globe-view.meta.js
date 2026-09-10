@@ -2,7 +2,7 @@
 // @author          Falenone, Codex
 // @name            GlobeView
 // @category        Map
-// @version         1.0
+// @version         1.1
 // @description     A Cesium-based 3D globe view for IITC with portals, links, fields, visual effects, and configurable performance options.
 // @id              globe-view@Falenone
 // @namespace       https://github.com/IITC-CE/ingress-intel-total-conversion

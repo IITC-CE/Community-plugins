@@ -799,7 +799,7 @@ Anchor Planner: scans Draw Tools plans, resolves portal names, lists plan portal
 *Recommends*: bookmarks@ZasoGD  |
 *[Homepage](https://github.com/emgeka/iitc-anchor-planner)* |
 *[Issue tracker](https://github.com/emgeka/iitc-anchor-planner/issues)* |
-*Version:* 0.1.46
+*Version:* 0.1.47
 
 
   
@@ -1188,7 +1188,7 @@ A Cesium-based 3D globe view for IITC with portals, links, fields, visual effect
 
 *[Homepage](https://github.com/Falenone/IITC-Globeview)* |
 *[Issue tracker](https://github.com/Falenone/IITC-Globeview/issues)* |
-*Version:* 1.0
+*Version:* 1.1
 
 
   
@@ -1602,7 +1602,7 @@ Easily create mission banners (fan update of Ultimate Mission Maker)
 *Recommends*: draw-tools@breunigs  |
 *[Homepage](https://github.com/IITCPlugins/umm_ext)* |
 *[Issue tracker](https://github.com/IITCPlugins/umm_ext/issues)* |
-*Version:* 1.3
+*Version:* 1.3.1
 
 
   

@@ -3,7 +3,7 @@
 // @name            Ultimate Mission Maker - Extended
 // @id              ummex@McBen
 // @category        Mission
-// @version         1.3
+// @version         1.3.1
 // @namespace       https://github.com/IITC-CE/ingress-intel-total-conversion
 // @updateURL       https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/McBen/ummex.meta.js
 // @downloadURL     https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/McBen/ummex.user.js
@@ -17,6 +17,11 @@
 // ==/UserScript==
 
 /**
+ * # v1.3.1
+ * 
+ * - fix confirm dialog for import all missions ("ok" and "cancle" were inverted)
+ * - fix status text for import
+ * 
  * # v1.3
  * 
  * - Import all missions.
@@ -3181,12 +3186,12 @@ function wrapper_iitc(SCRIPT_INFO) {
             html += "</div>";
             const buttons = [ dialogButton("< Main Menu", showUmmOptions), dialogButton("Changelog", () => dialog({
                 title: "Changelog",
-                html: miniMarkdown('# v1.3\n\n- Import all missions.\n  Create new missions or update existing unpublished missions.\n  Note: Changes to images are difficult to detect and may not always be recognized.\n- Warn when missions overlap, such as when one mission is simply the reverse of another.\n- Scale images if smaller as 256x256 or bigger as 512x512\n- Fixed an IMATTC interaction bug.\n- fixed two bugs of the origin page (they use outdated versions) to get a cleaner log\n\n# v1.2\n\n- new Picture dialog - setup Banner images directly in UMM.\n- added "Sequential" flag\n- with IMATTC support\n- reduce map movements\n\nwith all this addition you can now import a mission in minimal Steps:\n\n1.  load banner json\n2.  select mission\n3.  click "import"\n4.  submit mission\n    (repeat 2-4 for all missions)\n\n# v1.1.2\n\n- fix: dialogs auto open on load - forgotten debug code\n  (nah, the truth: the build script should have removed it, but it failed)\n\n# v1.1.1\n\n- fix: "edit" button was covering banner length in main dialog\n- dependencies update\n\n# v1.1\n\n- new "Mission Generator" dialog  \n  This new dialog provides several tools to modify current mission:\n  1. "Reset"  \n     Discard all current changes.\n  2. Add portals  \n     Adds nearby portals to the current mission.\n     You can:\n     - Limit selection using a DrawTools polygon\n     - Exclude individual portals with DrawTool Markers\n     - Restrict selection to portals within path hack range\n  3. Sort portals  \n     Attempts to arrange portals for the shortest possible path.\n     (Note: This is a complex optimization problem—results may vary.\n     The “keep end portal” option may occasionally fail.)\n  4. Change start  \n     Set the selected Portal as new mission start.\n     If no portal is selected, the start point will cycle through all mission portals.\n\n  All changes are temporary until "applied" or be "dismissed".  \n  Note: Distance calculations are based on straight-line (“as-the-crow-flies”) distances; real-world paths are not considered.\n\n- Use static layers  \n  UMM is now fully hidden when inactive. Background processing is also disabled while inactive.\n- Added Multi-Reverse  \n  Using the reverse action in the main dialog, you can now reverse an entire banner or selected parts of it—not just a single mission.\n- Drag: allow swapping mission portals\n- Fixed merge in main dialog\n- Fixed “Should merge?” prompt in split option (main dialog)\n- Mission-Select dialog moved to the left\n\n# v1.0.2\n\n- fix IITC-Button load\n  in iitc-button load order is differnet and custom "if UUM is loaded then disable it" failed\n- fix variable if both plugins are active\n\n# v1.0.1\n\n- fix mission number (index started by 0 instead of 1)\n\n# v1.0\n\nThis is a complete rewrite of the Ultimate Mission Maker from a developer perspective.\nThe entire codebase has been redesigned while maintaining the familiar user experience of the original UMM.\nBelow are the visible improvements and changes you\'ll notice.\n\n## What\'s Changed:\n\n- UMM is now hidden by default. You need to hit the "UMM" button in the Portal details window to make it appear.\n\n- **Select Mission Dialog** (open it through the toolbar or the main dialog)\n  - Selecting a mission is no longer required; simply open another mission\n  - Navigation buttons (+/-) allow you to cycle through missions\n  - Added split, clear, merge, and reverse commands for mission manipulation\n  - New mission information display: portal count and distances\n\n- **Banner Settins** (start window)\n  - changed Title placeholders to $T $M $N\n- **Option Dialog** (main window)\n  - Banner information now displays as a compact table\n  - Removed warning for mission counts that are not multiples of 6\n  - Added warning when missions lack sufficient waypoints\n\n- **Drag & Drop** in the mission editor path\n  - Move existing markers to adjust waypoints\n  - Add new waypoints by positioning intermediate markers at new locations\n  - Remove waypoints by double-clicking a marker\n  - Merge missions by dragging start and end markers together\n\n- **Mission Numbers**\n  - Potential split points are previewed while creating missions\n\n- **Waypoint edit**\n  - current mission is preselected\n  - passphrases: add random default questions.\n    when question & answer is empty a simple question will be set.\n\n- **Miscellaneous**\n  - Custom confirmation dialogs clarify actions and improve readability\n  - Switch between any missions, even those without portals\n  - Option to split missions when starting on a portal that\'s already assigned to another mission\n  - on mobile dialogs are not at the top instead of centered\n  - flash buttonbar on activation to draw attention\n\n---\n\n# History:\n\n## v1.0.beta.2 - 15.02.26\n\n- fixed update-URL in script header\n\n## v1.0.beta - 15.02.26\n\n- first public release\n- automated build process on GitHub\n- fixed layer checkboxes in Option-Dialog\n- add "clear" mission to selection dialog\n- always color selected mission even when not in Edit-Mode\n- move "no" to left in custom confirm dialog\n- remove doubled "v" in version numbers\n- fix toggeling edit mode on mission detail window "save" button\n- close dialog on mission detail window "save"\n- fix linebreaks in changelog dialog\n- select mission: directly select mission on combo-box change\n- fix question text in portal details\n- on mobile dialogs are not at the top instead of centered\n'),
+                html: miniMarkdown('# v1.3.1\n\n- fix confirm dialog for import all missions ("ok" and "cancle" were inverted)\n- fix status text for import\n\n# v1.3\n\n- Import all missions.\n  Create new missions or update existing unpublished missions.\n  Note: Changes to images are difficult to detect and may not always be recognized.\n- Warn when missions overlap, such as when one mission is simply the reverse of another.\n- Scale images if smaller as 256x256 or bigger as 512x512\n- Fixed an IMATTC interaction bug.\n- fixed two bugs of the origin page (they use outdated versions) to get a cleaner log\n\n# v1.2\n\n- new Picture dialog - setup Banner images directly in UMM.\n- added "Sequential" flag\n- with IMATTC support\n- reduce map movements\n\nwith all this addition you can now import a mission in minimal Steps:\n\n1.  load banner json\n2.  select mission\n3.  click "import"\n4.  submit mission\n    (repeat 2-4 for all missions)\n\n# v1.1.2\n\n- fix: dialogs auto open on load - forgotten debug code\n  (nah, the truth: the build script should have removed it, but it failed)\n\n# v1.1.1\n\n- fix: "edit" button was covering banner length in main dialog\n- dependencies update\n\n# v1.1\n\n- new "Mission Generator" dialog  \n  This new dialog provides several tools to modify current mission:\n  1. "Reset"  \n     Discard all current changes.\n  2. Add portals  \n     Adds nearby portals to the current mission.\n     You can:\n     - Limit selection using a DrawTools polygon\n     - Exclude individual portals with DrawTool Markers\n     - Restrict selection to portals within path hack range\n  3. Sort portals  \n     Attempts to arrange portals for the shortest possible path.\n     (Note: This is a complex optimization problem—results may vary.\n     The “keep end portal” option may occasionally fail.)\n  4. Change start  \n     Set the selected Portal as new mission start.\n     If no portal is selected, the start point will cycle through all mission portals.\n\n  All changes are temporary until "applied" or be "dismissed".  \n  Note: Distance calculations are based on straight-line (“as-the-crow-flies”) distances; real-world paths are not considered.\n\n- Use static layers  \n  UMM is now fully hidden when inactive. Background processing is also disabled while inactive.\n- Added Multi-Reverse  \n  Using the reverse action in the main dialog, you can now reverse an entire banner or selected parts of it—not just a single mission.\n- Drag: allow swapping mission portals\n- Fixed merge in main dialog\n- Fixed “Should merge?” prompt in split option (main dialog)\n- Mission-Select dialog moved to the left\n\n# v1.0.2\n\n- fix IITC-Button load\n  in iitc-button load order is differnet and custom "if UUM is loaded then disable it" failed\n- fix variable if both plugins are active\n\n# v1.0.1\n\n- fix mission number (index started by 0 instead of 1)\n\n# v1.0\n\nThis is a complete rewrite of the Ultimate Mission Maker from a developer perspective.\nThe entire codebase has been redesigned while maintaining the familiar user experience of the original UMM.\nBelow are the visible improvements and changes you\'ll notice.\n\n## What\'s Changed:\n\n- UMM is now hidden by default. You need to hit the "UMM" button in the Portal details window to make it appear.\n\n- **Select Mission Dialog** (open it through the toolbar or the main dialog)\n  - Selecting a mission is no longer required; simply open another mission\n  - Navigation buttons (+/-) allow you to cycle through missions\n  - Added split, clear, merge, and reverse commands for mission manipulation\n  - New mission information display: portal count and distances\n\n- **Banner Settins** (start window)\n  - changed Title placeholders to $T $M $N\n- **Option Dialog** (main window)\n  - Banner information now displays as a compact table\n  - Removed warning for mission counts that are not multiples of 6\n  - Added warning when missions lack sufficient waypoints\n\n- **Drag & Drop** in the mission editor path\n  - Move existing markers to adjust waypoints\n  - Add new waypoints by positioning intermediate markers at new locations\n  - Remove waypoints by double-clicking a marker\n  - Merge missions by dragging start and end markers together\n\n- **Mission Numbers**\n  - Potential split points are previewed while creating missions\n\n- **Waypoint edit**\n  - current mission is preselected\n  - passphrases: add random default questions.\n    when question & answer is empty a simple question will be set.\n\n- **Miscellaneous**\n  - Custom confirmation dialogs clarify actions and improve readability\n  - Switch between any missions, even those without portals\n  - Option to split missions when starting on a portal that\'s already assigned to another mission\n  - on mobile dialogs are not at the top instead of centered\n  - flash buttonbar on activation to draw attention\n\n---\n\n# History:\n\n## v1.0.beta.2 - 15.02.26\n\n- fixed update-URL in script header\n\n## v1.0.beta - 15.02.26\n\n- first public release\n- automated build process on GitHub\n- fixed layer checkboxes in Option-Dialog\n- add "clear" mission to selection dialog\n- always color selected mission even when not in Edit-Mode\n- move "no" to left in custom confirm dialog\n- remove doubled "v" in version numbers\n- fix toggeling edit mode on mission detail window "save" button\n- close dialog on mission detail window "save"\n- fix linebreaks in changelog dialog\n- select mission: directly select mission on combo-box change\n- fix question text in portal details\n- on mobile dialogs are not at the top instead of centered\n'),
                 width: 500
             })), dialogButtonClose() ];
             window.dialog({
                 html,
-                title: `${title} v1.3 - About`,
+                title: `${title} v1.3.1 - About`,
                 id: "umm-options",
                 width: 350,
                 buttons
@@ -3415,7 +3420,7 @@ function wrapper_iitc(SCRIPT_INFO) {
             };
             Generator_dialog = window.dialog({
                 html,
-                title: `${title} v1.3`,
+                title: `${title} v1.3.1`,
                 id: "umm-options_generator",
                 width: 350,
                 position,
@@ -3916,7 +3921,7 @@ function wrapper_iitc(SCRIPT_INFO) {
             };
             window.dialog({
                 html,
-                title: `${title} v1.3`,
+                title: `${title} v1.3.1`,
                 id: "umm-options",
                 width: 350,
                 position,
@@ -4140,7 +4145,7 @@ function wrapper_iitc(SCRIPT_INFO) {
                 at: "center top"
             }), window.dialog({
                 html,
-                title: `${title} v1.3`,
+                title: `${title} v1.3.1`,
                 id: "umm-options",
                 width: 350,
                 position,
@@ -4198,7 +4203,7 @@ function wrapper_iitc(SCRIPT_INFO) {
             html += '<table>\n      <tr><td>$T = Mission title</td><td>additional flags:</td></tr>\n      <tr><td>$N = Current Missione number</td><td>$0n = with leading zeros</td></tr>\n      <tr><td>$M = Banner length</td><td>$3n = minimum length</td></tr>\n      </table>\n      <br><br>Examples: "$T $N / $M" or "$0n.$m $t"  or "$T $03N-$03M" </p> \n      </details>\n      <input id="umm-mission-title-format" name="umm-mission-title-format" type="text" placeholder="Enter a title format" style="margin-bottom: 5px;">\n      <b>Preview: </b><span id="umm-mission-title-preview"></span>', 
             html += "</div>", currentDialog = window.dialog({
                 html,
-                title: "Edit banner details - UMM v1.3",
+                title: "Edit banner details - UMM v1.3.1",
                 id: "umm-options",
                 width: 400,
                 buttons: [ dialogButton("< Main Menu", showUmmOptions), dialogButton("Save", () => successfulSave(toggleMissionModeAfterSave)), dialogButtonClose() ]
@@ -4571,6 +4576,11 @@ function wrapper_iitc(SCRIPT_INFO) {
 };
 
 /**
+ * # v1.3.1
+ * 
+ * - fix confirm dialog for import all missions ("ok" and "cancle" were inverted)
+ * - fix status text for import
+ * 
  * # v1.3
  * 
  * - Import all missions.
@@ -7544,8 +7554,8 @@ function wrapper_editor(SCRIPT_INFO) {
                         void 0 !== existing_mission && (exists++, existing_mission.state !== MissionStates.PUBLISHED && draft++);
                     }
                     const newMisison = allmissions.length - exists, text = [];
-                    newMisison > 0 && text.push(`${newMisison} will be created`), draft > 0 && text.push(`${draft} will be skipped`), 
-                    exists > 0 && text.push(`${exists} will be checked and update`), $("#umm-mission-edit").text(text.join(", "));
+                    newMisison > 0 && text.push(`${newMisison} will be created`), exists - draft > 0 && text.push(exists - draft + " will be skipped"), 
+                    draft > 0 && text.push(`${draft} will be checked and update`), $("#umm-mission-edit").text(text.join(", "));
                 } else {
                     const mission = this.state.missions.get(selectedMission);
                     if (!mission) return void $("#umm-mission-edit").text("");
@@ -7570,7 +7580,7 @@ function wrapper_editor(SCRIPT_INFO) {
                 if (await getRemainingMissions() < this.state.missions.count()) return void notification("No enough missions slots remaining");
                 const missions = main.state.missions.getAll();
                 missions.some(m => m.isEmpty() || !m.hasImage() || m.portals.length < 6) ? notification("Some Missions are missing data") : await (async missions => {
-                    if (!confirm(`Import all ${missions.length} missions?`)) try {
+                    if (confirm(`Import all ${missions.length} missions?`)) try {
                         show("creating banner");
                         for (const mission of missions) setPrefix(`${mission.id + 1} / ${missions.length}: `), 
                         await fillMission(mission, !0);

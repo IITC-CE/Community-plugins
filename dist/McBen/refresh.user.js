@@ -3,7 +3,7 @@
 // @name            Refresh
 // @id              refresh@McBen
 // @category        Tweaks
-// @version         1.1.7
+// @version         1.1.8
 // @namespace       https://github.com/IITC-CE/ingress-intel-total-conversion
 // @updateURL       https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/McBen/refresh.meta.js
 // @downloadURL     https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/McBen/refresh.user.js
@@ -16,20 +16,30 @@
 
 
 /**
+ * v1.1.8
+ * 
+ * - (minor) deprecated style update
+ * - (minor) update dependencies
+ * 
  * v1.1.7
+ * 
  * - refresh artifacts
  * - refresh current portal
  * 
  * v1.1.6
+ * 
  * - docs, github and dependencies updates
  * 
  * v1.1
+ * 
  * - refresh Chat
  * - refresh Portal-Details
  * - Fix icon in minimap
  * 
  * v1.0
+ * 
  * - init
+ * 
  */
 function wrapper(SCRIPT_INFO) {
 (() => {
@@ -47,13 +57,13 @@ function wrapper(SCRIPT_INFO) {
             module.exports = function(cssWithMappingToString) {
                 var list = [];
                 return list.toString = function toString() {
-                    return this.map((function(item) {
+                    return this.map(function(item) {
                         var content = "", needLayer = void 0 !== item[5];
                         return item[4] && (content += "@supports (".concat(item[4], ") {")), item[2] && (content += "@media ".concat(item[2], " {")), 
                         needLayer && (content += "@layer".concat(item[5].length > 0 ? " ".concat(item[5]) : "", " {")), 
                         content += cssWithMappingToString(item), needLayer && (content += "}"), item[2] && (content += "}"), 
                         item[4] && (content += "}"), content;
-                    })).join("");
+                    }).join("");
                 }, list.i = function i(modules, media, dedupe, supports, layer) {
                     "string" == typeof modules && (modules = [ [ null, modules, void 0 ] ]);
                     var alreadyImportedModules = {};
@@ -252,12 +262,10 @@ function wrapper(SCRIPT_INFO) {
         setup.info = SCRIPT_INFO, window.bootPlugins || (window.bootPlugins = []), window.bootPlugins.push(setup), 
         window.iitcLoaded && setup();
     }(new class Refresh {
-        constructor() {
-            this.CACHE_TIME = 10;
-        }
+        CACHE_TIME=5;
         init() {
-            __webpack_require__(398), this.createButton(), window.addHook("mapDataRefreshStart", (() => this.refreshStart())), 
-            window.addHook("mapDataRefreshEnd", (() => this.refreshEnd()));
+            __webpack_require__(398), this.createButton(), window.addHook("mapDataRefreshStart", () => this.refreshStart()), 
+            window.addHook("mapDataRefreshEnd", () => this.refreshEnd());
         }
         createButton() {
             const toolbarGroup = $("<div>", {
@@ -265,7 +273,9 @@ function wrapper(SCRIPT_INFO) {
             }).append($("<a>", {
                 id: "refreshMapButton",
                 class: "leaflet-bar-part",
-                click: () => this.refresh()
+                on: {
+                    click: () => this.refresh()
+                }
             }).append($("<img>", {
                 src: "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xml:space='preserve' viewBox='0 0 341.333 341.333'%3e%3cpath d='M341.227 149.333V0l-50.133 50.133C260.267 19.2 217.707 0 170.56 0 76.267 0 .107 76.373.107 170.667s76.16 170.667 170.453 170.667c79.467 0 146.027-54.4 164.907-128h-44.373c-17.6 49.707-64.747 85.333-120.533 85.333-70.72 0-128-57.28-128-128s57.28-128 128-128c35.307 0 66.987 14.72 90.133 37.867l-68.8 68.8h149.333z'/%3e%3c/svg%3e",
                 width: 16,
@@ -276,12 +286,7 @@ function wrapper(SCRIPT_INFO) {
         refresh() {
             $("#refreshMapButton").hasClass("running") || (window.idleReset(), this.clearCache(), 
             window.mapDataRequest.clearTimeout(), window.mapDataRequest.refresh(), window.chat.request(), 
-            this.updateArtifacts(), window.portalDetail.setup ? window.portalDetail.setup() : window.portalDetail.clearCache && window.portalDetail.clearCache(), 
-            null !== window.selectedPortal && window.portalDetail.request(window.selectedPortal));
-        }
-        updateArtifacts() {
-            const arti = window.artifact;
-            window.postAjax("getArtifactPortals", {}, arti.processData, arti.handleError);
+            window.artifact.requestData(), window.portalDetail.setup ? window.portalDetail.setup() : window.portalDetail.clearCache && window.portalDetail.clearCache());
         }
         refreshStart() {
             $("#refreshMapButton").addClass("running");

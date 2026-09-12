@@ -3,7 +3,7 @@
 // @name            Refresh
 // @id              refresh@McBen
 // @category        Tweaks
-// @version         1.1.7
+// @version         1.1.8
 // @namespace       https://github.com/IITC-CE/ingress-intel-total-conversion
 // @updateURL       https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/McBen/refresh.meta.js
 // @downloadURL     https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/McBen/refresh.user.js

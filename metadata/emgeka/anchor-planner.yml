@@ -2,6 +2,8 @@ updateURL: https://raw.githubusercontent.com/emgeka/iitc-anchor-planner/main/rel
 downloadURL: https://raw.githubusercontent.com/emgeka/iitc-anchor-planner/main/releases/iitc-anchor-planner.user.js
 homepageURL: https://github.com/emgeka/iitc-anchor-planner
 issueTracker: https://github.com/emgeka/iitc-anchor-planner/issues
+icon: https://raw.githubusercontent.com/emgeka/iitc-anchor-planner/main/docs/media/anchor-planner-icon.svg
+icon64: https://raw.githubusercontent.com/emgeka/iitc-anchor-planner/main/docs/media/anchor-planner-icon.svg
 depends:
   - draw-tools@breunigs
 recommends:

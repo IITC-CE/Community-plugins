@@ -3,7 +3,7 @@
 // @id              anchor-planner@emgeka
 // @name            Anchor Planner
 // @category        Layer
-// @version         0.1.48
+// @version         0.1.50
 // @namespace       https://example.local/iitc
 // @description     Anchor Planner: scans Draw Tools plans, resolves portal names, lists plan portals and key counts.
 // @updateURL       https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/emgeka/anchor-planner.meta.js
@@ -30,18 +30,21 @@ function wrapper(plugin_info) {
   if (typeof window.plugin !== 'function') window.plugin = function () {};
 
   plugin_info.buildName = 'local';
-  plugin_info.dateTimeVersion = '20260917094417';
+  plugin_info.dateTimeVersion = '20260922110610';
   plugin_info.pluginId = 'anchor-planner';
 
   window.plugin.anchorPlanner = function () {};
   var ap = window.plugin.anchorPlanner;
 
-  ap.VERSION = '0.1.48';
+  ap.VERSION = '0.1.50';
   ap.STORAGE_KEY = 'plugin-anchor-planner-v1';
   ap.DEFAULT_TOLERANCE_M = 25;
   ap.MIN_ANCHOR_LINKS = 3;
   ap.PANE_NAME = 'anchorPlannerPane';
   ap.PANEL_MARGIN_PX = 5;
+  ap.FINAL_SCAN_MAX_VIEWS = 12;
+  ap.FINAL_SCAN_VIEW_SPACING = 0.75;
+  ap.FINAL_SCAN_FALLBACK_MS = 8000;
   ap.FALLBACK_LANGUAGE = 'en';
   ap.MISSING_TITLE = '';
 
@@ -70,6 +73,9 @@ function wrapper(plugin_info) {
       "route.target.other": "{count} Ziele",
       "route.aerial": "Luftlinie",
       "scan.drawToolsMissing": "Draw Tools nicht gefunden. Bitte Draw Tools aktivieren.",
+      "scan.finalPending": "finaler Blockercheck ausstehend",
+      "scan.finalComplete": "finaler Blockercheck abgeschlossen",
+      "scan.finalPaused": "finaler Blockercheck pausiert",
       "status.done": "abgearbeitet",
       "status.blocked": "blockiert",
       "status.existing": "keine Keys nötig",
@@ -100,6 +106,8 @@ function wrapper(plugin_info) {
       "readiness.loadedLink.one": "{count} vorhandener Link geladen",
       "readiness.loadedLink.other": "{count} vorhandene Links geladen",
       "readiness.unusableLoaded": "{count} davon nicht auswertbar",
+      "readiness.finalScanPending": "finaler Blockercheck ausstehend",
+      "readiness.finalScanComplete": "finaler Blockercheck abgeschlossen",
       "message.intersectionUnknown": "Kreuzungspunkt konnte nicht bestimmt werden.",
       "message.namesNoneMissing": "Keine fehlenden Portalnamen im aktuellen Scan.",
       "message.namesLoadingAuto": "Lade Portalnamen automatisch nach: {current}/{total} …",
@@ -107,7 +115,14 @@ function wrapper(plugin_info) {
       "message.namesLoadedAuto": "Portalnamen automatisch nachgeladen.",
       "message.namesLoaded": "Portalnamen nachgeladen.",
       "message.namesUnavailable": "Falls noch Namen fehlen, sind die Details nicht verfügbar.",
+      "message.portalDetailsUnavailable": "Für dieses Portal sind in IITC keine Portaldetails verfügbar.",
       "message.copied": "In die Zwischenablage kopiert.",
+      "message.finalScanNoUnconfirmed": "Für keinen unbestätigten Planlink ist ein Finalcheck nötig.",
+      "message.finalScanUnsupported": "Der finale Blockercheck ist in dieser IITC-Version nicht verfügbar.",
+      "message.finalScanProgress": "Finaler Blockercheck: Ansicht {current}/{total} …",
+      "message.finalScanComplete": "Finaler Blockercheck über {count} Ansichten abgeschlossen.",
+      "message.finalScanIncomplete": "Finaler Blockercheck unvollständig: {checked} von {total} nötigen Ansichten geprüft. Fehlende Blocker sind keine Entwarnung.",
+      "message.finalScanPaused": "Finaler Blockercheck nach {checked} von {total} Ansichten pausiert. Der gespeicherte Check kann fortgesetzt werden.",
       "share.section": "Teilen",
       "share.copyText": "Text kopieren",
       "share.locate": "Lokalisieren",
@@ -130,6 +145,9 @@ function wrapper(plugin_info) {
       "panel.planPortal.one": "{count} Planportal",
       "panel.planPortal.other": "{count} Planportale",
       "action.scan": "Scannen",
+      "action.finalScan": "Finalcheck",
+      "action.finalScanPause": "Check pausieren",
+      "action.finalScanResume": "Check fortsetzen",
       "action.more": "Mehr",
       "action.loadNames": "Namen laden",
       "action.exportShare": "Export / Teilen",
@@ -181,6 +199,7 @@ function wrapper(plugin_info) {
       "row.moveDown": "In der Reihenfolge nach unten",
       "row.done": "erledigt",
       "row.actions": "Aktionen",
+      "row.showDetails": "Details anzeigen",
       "row.emptyFilter": "Keine Planportale für diesen Filter.",
       "overlay.keysNeeded": "Keys benötigt {owned}/{required}",
       "text.plan": "Plan: {links}, {portals}",
@@ -223,6 +242,9 @@ function wrapper(plugin_info) {
       "route.target.other": "{count} targets",
       "route.aerial": "straight line",
       "scan.drawToolsMissing": "Draw Tools not found. Please enable Draw Tools.",
+      "scan.finalPending": "final blocker check pending",
+      "scan.finalComplete": "final blocker check complete",
+      "scan.finalPaused": "final blocker check paused",
       "status.done": "completed",
       "status.blocked": "blocked",
       "status.existing": "no keys needed",
@@ -253,6 +275,8 @@ function wrapper(plugin_info) {
       "readiness.loadedLink.one": "{count} existing link loaded",
       "readiness.loadedLink.other": "{count} existing links loaded",
       "readiness.unusableLoaded": "{count} of them cannot be evaluated",
+      "readiness.finalScanPending": "final blocker check pending",
+      "readiness.finalScanComplete": "final blocker check complete",
       "message.intersectionUnknown": "The intersection point could not be determined.",
       "message.namesNoneMissing": "No portal names are missing from the current scan.",
       "message.namesLoadingAuto": "Loading portal names automatically: {current}/{total} …",
@@ -260,7 +284,14 @@ function wrapper(plugin_info) {
       "message.namesLoadedAuto": "Portal names loaded automatically.",
       "message.namesLoaded": "Portal names loaded.",
       "message.namesUnavailable": "If names are still missing, their details are unavailable.",
+      "message.portalDetailsUnavailable": "IITC portal details are unavailable for this portal.",
       "message.copied": "Copied to the clipboard.",
+      "message.finalScanNoUnconfirmed": "No unconfirmed plan links require a final check.",
+      "message.finalScanUnsupported": "The final blocker check is unavailable in this IITC version.",
+      "message.finalScanProgress": "Final blocker check: view {current}/{total} …",
+      "message.finalScanComplete": "Final blocker check completed across {count} views.",
+      "message.finalScanIncomplete": "Final blocker check incomplete: checked {checked} of {total} required views. Do not treat missing blockers as an all-clear.",
+      "message.finalScanPaused": "Final blocker check paused after {checked} of {total} views. The saved check can be continued.",
       "share.section": "Share",
       "share.copyText": "Copy text",
       "share.locate": "Locate",
@@ -283,6 +314,9 @@ function wrapper(plugin_info) {
       "panel.planPortal.one": "{count} plan portal",
       "panel.planPortal.other": "{count} plan portals",
       "action.scan": "Scan",
+      "action.finalScan": "Final check",
+      "action.finalScanPause": "Pause check",
+      "action.finalScanResume": "Continue check",
       "action.more": "More",
       "action.loadNames": "Load names",
       "action.exportShare": "Export / Share",
@@ -334,6 +368,7 @@ function wrapper(plugin_info) {
       "row.moveDown": "Move down in the order",
       "row.done": "completed",
       "row.actions": "Actions",
+      "row.showDetails": "Show details",
       "row.emptyFilter": "No plan portals match this filter.",
       "overlay.keysNeeded": "Keys needed {owned}/{required}",
       "text.plan": "Plan: {links}, {portals}",
@@ -376,6 +411,9 @@ function wrapper(plugin_info) {
       "route.target.other": "{count} destinos",
       "route.aerial": "línea recta",
       "scan.drawToolsMissing": "No se encontró Draw Tools. Actívalo.",
+      "scan.finalPending": "comprobación final de bloqueos pendiente",
+      "scan.finalComplete": "comprobación final de bloqueos completa",
+      "scan.finalPaused": "comprobación final de bloqueos pausada",
       "status.done": "completado",
       "status.blocked": "bloqueado",
       "status.existing": "sin llaves",
@@ -406,6 +444,8 @@ function wrapper(plugin_info) {
       "readiness.loadedLink.one": "{count} enlace existente cargado",
       "readiness.loadedLink.other": "{count} enlaces existentes cargados",
       "readiness.unusableLoaded": "{count} no evaluables",
+      "readiness.finalScanPending": "comprobación final de bloqueos pendiente",
+      "readiness.finalScanComplete": "comprobación final de bloqueos completa",
       "message.intersectionUnknown": "No se pudo determinar la intersección.",
       "message.namesNoneMissing": "No faltan nombres en el escaneo actual.",
       "message.namesLoadingAuto": "Cargando nombres: {current}/{total}…",
@@ -413,7 +453,14 @@ function wrapper(plugin_info) {
       "message.namesLoadedAuto": "Nombres cargados automáticamente.",
       "message.namesLoaded": "Nombres cargados.",
       "message.namesUnavailable": "Si aún faltan nombres, sus detalles no están disponibles.",
+      "message.portalDetailsUnavailable": "Los detalles del portal no están disponibles en IITC.",
       "message.copied": "Copiado al portapapeles.",
+      "message.finalScanNoUnconfirmed": "Ningún enlace del plan sin confirmar requiere una comprobación final.",
+      "message.finalScanUnsupported": "La comprobación final de bloqueos no está disponible en esta versión de IITC.",
+      "message.finalScanProgress": "Comprobación final de bloqueos: vista {current}/{total}…",
+      "message.finalScanComplete": "Comprobación final de bloqueos completada en {count} vistas.",
+      "message.finalScanIncomplete": "Comprobación final incompleta: se revisaron {checked} de {total} vistas necesarias. La ausencia de bloqueos no es una confirmación.",
+      "message.finalScanPaused": "Comprobación final pausada tras {checked} de {total} vistas. La comprobación guardada puede continuar.",
       "share.section": "Compartir",
       "share.copyText": "Copiar texto",
       "share.locate": "Localizar",
@@ -436,6 +483,9 @@ function wrapper(plugin_info) {
       "panel.planPortal.one": "{count} portal del plan",
       "panel.planPortal.other": "{count} portales del plan",
       "action.scan": "Escanear",
+      "action.finalScan": "Comprobación final",
+      "action.finalScanPause": "Pausar comprobación",
+      "action.finalScanResume": "Continuar comprobación",
       "action.more": "Más",
       "action.loadNames": "Cargar nombres",
       "action.exportShare": "Exportar / compartir",
@@ -487,6 +537,7 @@ function wrapper(plugin_info) {
       "row.moveDown": "Bajar en el orden",
       "row.done": "hecho",
       "row.actions": "Acciones",
+      "row.showDetails": "Mostrar detalles",
       "row.emptyFilter": "No hay portales para este filtro.",
       "overlay.keysNeeded": "Llaves {owned}/{required}",
       "text.plan": "Plan: {links}, {portals}",
@@ -529,6 +580,9 @@ function wrapper(plugin_info) {
       "route.target.other": "{count} objectifs",
       "route.aerial": "à vol d’oiseau",
       "scan.drawToolsMissing": "Draw Tools introuvable. Activez-le.",
+      "scan.finalPending": "contrôle final des bloqueurs en attente",
+      "scan.finalComplete": "contrôle final des bloqueurs terminé",
+      "scan.finalPaused": "contrôle final des bloqueurs en pause",
       "status.done": "terminé",
       "status.blocked": "bloqué",
       "status.existing": "aucune clé requise",
@@ -559,6 +613,8 @@ function wrapper(plugin_info) {
       "readiness.loadedLink.one": "{count} lien existant chargé",
       "readiness.loadedLink.other": "{count} liens existants chargés",
       "readiness.unusableLoaded": "{count} non analysables",
+      "readiness.finalScanPending": "contrôle final des bloqueurs en attente",
+      "readiness.finalScanComplete": "contrôle final des bloqueurs terminé",
       "message.intersectionUnknown": "Impossible de déterminer l’intersection.",
       "message.namesNoneMissing": "Aucun nom ne manque dans l’analyse actuelle.",
       "message.namesLoadingAuto": "Chargement des noms : {current}/{total}…",
@@ -566,7 +622,14 @@ function wrapper(plugin_info) {
       "message.namesLoadedAuto": "Noms chargés automatiquement.",
       "message.namesLoaded": "Noms chargés.",
       "message.namesUnavailable": "Si des noms manquent encore, leurs détails sont indisponibles.",
+      "message.portalDetailsUnavailable": "Les détails de ce portail sont indisponibles dans IITC.",
       "message.copied": "Copié dans le presse-papiers.",
+      "message.finalScanNoUnconfirmed": "Aucun lien du plan non confirmé ne nécessite de contrôle final.",
+      "message.finalScanUnsupported": "Le contrôle final des bloqueurs n’est pas disponible dans cette version d’IITC.",
+      "message.finalScanProgress": "Contrôle final des bloqueurs : vue {current}/{total}…",
+      "message.finalScanComplete": "Contrôle final des bloqueurs terminé sur {count} vues.",
+      "message.finalScanIncomplete": "Contrôle final incomplet : {checked} vues vérifiées sur {total}. L’absence de bloqueur détecté ne vaut pas confirmation.",
+      "message.finalScanPaused": "Contrôle final en pause après {checked} vues sur {total}. Le contrôle enregistré peut reprendre.",
       "share.section": "Partager",
       "share.copyText": "Copier le texte",
       "share.locate": "Localiser",
@@ -589,6 +652,9 @@ function wrapper(plugin_info) {
       "panel.planPortal.one": "{count} portail du plan",
       "panel.planPortal.other": "{count} portails du plan",
       "action.scan": "Analyser",
+      "action.finalScan": "Contrôle final",
+      "action.finalScanPause": "Suspendre",
+      "action.finalScanResume": "Reprendre",
       "action.more": "Plus",
       "action.loadNames": "Charger les noms",
       "action.exportShare": "Exporter / partager",
@@ -640,6 +706,7 @@ function wrapper(plugin_info) {
       "row.moveDown": "Descendre dans l’ordre",
       "row.done": "terminé",
       "row.actions": "Actions",
+      "row.showDetails": "Afficher les détails",
       "row.emptyFilter": "Aucun portail pour ce filtre.",
       "overlay.keysNeeded": "Clés requises {owned}/{required}",
       "text.plan": "Plan : {links}, {portals}",
@@ -682,6 +749,9 @@ function wrapper(plugin_info) {
       "route.target.other": "{count} obiettivi",
       "route.aerial": "linea d’aria",
       "scan.drawToolsMissing": "Draw Tools non trovato. Attivalo.",
+      "scan.finalPending": "controllo finale dei blocchi in sospeso",
+      "scan.finalComplete": "controllo finale dei blocchi completato",
+      "scan.finalPaused": "controllo finale dei blocchi in pausa",
       "status.done": "completato",
       "status.blocked": "bloccato",
       "status.existing": "nessuna chiave",
@@ -712,6 +782,8 @@ function wrapper(plugin_info) {
       "readiness.loadedLink.one": "{count} link esistente caricato",
       "readiness.loadedLink.other": "{count} link esistenti caricati",
       "readiness.unusableLoaded": "{count} non valutabili",
+      "readiness.finalScanPending": "controllo finale dei blocchi in sospeso",
+      "readiness.finalScanComplete": "controllo finale dei blocchi completato",
       "message.intersectionUnknown": "Impossibile determinare l’incrocio.",
       "message.namesNoneMissing": "Nessun nome mancante nella scansione attuale.",
       "message.namesLoadingAuto": "Caricamento nomi: {current}/{total}…",
@@ -719,7 +791,14 @@ function wrapper(plugin_info) {
       "message.namesLoadedAuto": "Nomi caricati automaticamente.",
       "message.namesLoaded": "Nomi caricati.",
       "message.namesUnavailable": "Se mancano ancora nomi, i dettagli non sono disponibili.",
+      "message.portalDetailsUnavailable": "I dettagli di questo portale non sono disponibili in IITC.",
       "message.copied": "Copiato negli appunti.",
+      "message.finalScanNoUnconfirmed": "Nessun link del piano non confermato richiede un controllo finale.",
+      "message.finalScanUnsupported": "Il controllo finale dei blocchi non è disponibile in questa versione di IITC.",
+      "message.finalScanProgress": "Controllo finale dei blocchi: vista {current}/{total}…",
+      "message.finalScanComplete": "Controllo finale dei blocchi completato su {count} viste.",
+      "message.finalScanIncomplete": "Controllo finale incompleto: verificate {checked} di {total} viste necessarie. L’assenza di blocchi rilevati non è una conferma.",
+      "message.finalScanPaused": "Controllo finale in pausa dopo {checked} di {total} viste. Il controllo salvato può riprendere.",
       "share.section": "Condividi",
       "share.copyText": "Copia testo",
       "share.locate": "Localizza",
@@ -742,6 +821,9 @@ function wrapper(plugin_info) {
       "panel.planPortal.one": "{count} portale del piano",
       "panel.planPortal.other": "{count} portali del piano",
       "action.scan": "Scansiona",
+      "action.finalScan": "Controllo finale",
+      "action.finalScanPause": "Metti in pausa",
+      "action.finalScanResume": "Continua controllo",
       "action.more": "Altro",
       "action.loadNames": "Carica nomi",
       "action.exportShare": "Esporta / condividi",
@@ -793,6 +875,7 @@ function wrapper(plugin_info) {
       "row.moveDown": "Sposta in basso",
       "row.done": "completato",
       "row.actions": "Azioni",
+      "row.showDetails": "Mostra dettagli",
       "row.emptyFilter": "Nessun portale per questo filtro.",
       "overlay.keysNeeded": "Chiavi {owned}/{required}",
       "text.plan": "Piano: {links}, {portals}",
@@ -835,6 +918,9 @@ function wrapper(plugin_info) {
       "route.target.other": "{count}件",
       "route.aerial": "直線",
       "scan.drawToolsMissing": "Draw Toolsが見つかりません。有効にしてください。",
+      "scan.finalPending": "最終ブロッカー確認待ち",
+      "scan.finalComplete": "最終ブロッカー確認完了",
+      "scan.finalPaused": "最終ブロッカー確認を一時停止",
       "status.done": "完了",
       "status.blocked": "ブロック中",
       "status.existing": "キー不要",
@@ -865,6 +951,8 @@ function wrapper(plugin_info) {
       "readiness.loadedLink.one": "読込済み既存リンク {count}本",
       "readiness.loadedLink.other": "読込済み既存リンク {count}本",
       "readiness.unusableLoaded": "うち判定不能 {count}本",
+      "readiness.finalScanPending": "最終ブロッカー確認待ち",
+      "readiness.finalScanComplete": "最終ブロッカー確認完了",
       "message.intersectionUnknown": "交点を特定できませんでした。",
       "message.namesNoneMissing": "現在のスキャンに名前不足はありません。",
       "message.namesLoadingAuto": "名前を読込中: {current}/{total}…",
@@ -872,7 +960,14 @@ function wrapper(plugin_info) {
       "message.namesLoadedAuto": "名前を自動読込しました。",
       "message.namesLoaded": "名前を読込しました。",
       "message.namesUnavailable": "まだ名前がない場合、詳細は取得できません。",
+      "message.portalDetailsUnavailable": "このポータルの詳細は IITC で利用できません。",
       "message.copied": "クリップボードにコピーしました。",
+      "message.finalScanNoUnconfirmed": "最終確認が必要な未確認の計画リンクはありません。",
+      "message.finalScanUnsupported": "このIITCバージョンでは最終ブロッカー確認を利用できません。",
+      "message.finalScanProgress": "最終ブロッカー確認：ビュー {current}/{total}…",
+      "message.finalScanComplete": "{count}ビューの最終ブロッカー確認が完了しました。",
+      "message.finalScanIncomplete": "最終確認は未完了です：必要な{total}ビュー中{checked}ビューを確認しました。ブロッカーが見つからないことを安全確認とはみなさないでください。",
+      "message.finalScanPaused": "{total}ビュー中{checked}ビューで最終確認を一時停止しました。保存した確認を再開できます。",
       "share.section": "共有",
       "share.copyText": "テキストをコピー",
       "share.locate": "場所を開く",
@@ -895,6 +990,9 @@ function wrapper(plugin_info) {
       "panel.planPortal.one": "計画ポータル {count}件",
       "panel.planPortal.other": "計画ポータル {count}件",
       "action.scan": "スキャン",
+      "action.finalScan": "最終確認",
+      "action.finalScanPause": "確認を一時停止",
+      "action.finalScanResume": "確認を再開",
       "action.more": "その他",
       "action.loadNames": "名前を読込",
       "action.exportShare": "出力 / 共有",
@@ -946,6 +1044,7 @@ function wrapper(plugin_info) {
       "row.moveDown": "順番を下へ",
       "row.done": "完了",
       "row.actions": "操作",
+      "row.showDetails": "詳細を表示",
       "row.emptyFilter": "該当する計画ポータルはありません。",
       "overlay.keysNeeded": "必要キー {owned}/{required}",
       "text.plan": "計画: {links}、{portals}",
@@ -988,6 +1087,9 @@ function wrapper(plugin_info) {
       "route.target.other": "{count} cele",
       "route.aerial": "w linii prostej",
       "scan.drawToolsMissing": "Nie znaleziono Draw Tools. Włącz wtyczkę.",
+      "scan.finalPending": "końcowa kontrola blokad oczekuje",
+      "scan.finalComplete": "końcowa kontrola blokad zakończona",
+      "scan.finalPaused": "końcowa kontrola blokad wstrzymana",
       "status.done": "ukończono",
       "status.blocked": "zablokowany",
       "status.existing": "bez kluczy",
@@ -1018,6 +1120,8 @@ function wrapper(plugin_info) {
       "readiness.loadedLink.one": "Wczytano {count} istniejący link",
       "readiness.loadedLink.other": "Wczytano {count} istniejące linki",
       "readiness.unusableLoaded": "{count} bez oceny",
+      "readiness.finalScanPending": "końcowa kontrola blokad oczekuje",
+      "readiness.finalScanComplete": "końcowa kontrola blokad zakończona",
       "message.intersectionUnknown": "Nie udało się wyznaczyć przecięcia.",
       "message.namesNoneMissing": "W bieżącym skanie nie brakuje nazw.",
       "message.namesLoadingAuto": "Wczytywanie nazw: {current}/{total}…",
@@ -1025,7 +1129,14 @@ function wrapper(plugin_info) {
       "message.namesLoadedAuto": "Nazwy wczytano automatycznie.",
       "message.namesLoaded": "Nazwy wczytane.",
       "message.namesUnavailable": "Jeśli nadal brakuje nazw, ich szczegóły są niedostępne.",
+      "message.portalDetailsUnavailable": "Szczegóły tego portalu są niedostępne w IITC.",
       "message.copied": "Skopiowano do schowka.",
+      "message.finalScanNoUnconfirmed": "Żaden niepotwierdzony link planu nie wymaga kontroli końcowej.",
+      "message.finalScanUnsupported": "Końcowa kontrola blokad jest niedostępna w tej wersji IITC.",
+      "message.finalScanProgress": "Końcowa kontrola blokad: widok {current}/{total}…",
+      "message.finalScanComplete": "Końcowa kontrola blokad zakończona w {count} widokach.",
+      "message.finalScanIncomplete": "Kontrola końcowa niepełna: sprawdzono {checked} z {total} wymaganych widoków. Brak wykrytych blokad nie oznacza potwierdzenia.",
+      "message.finalScanPaused": "Końcowa kontrola wstrzymana po {checked} z {total} widoków. Zapisaną kontrolę można kontynuować.",
       "share.section": "Udostępnij",
       "share.copyText": "Kopiuj tekst",
       "share.locate": "Lokalizuj",
@@ -1048,6 +1159,9 @@ function wrapper(plugin_info) {
       "panel.planPortal.one": "{count} portal planu",
       "panel.planPortal.other": "{count} portale planu",
       "action.scan": "Skanuj",
+      "action.finalScan": "Kontrola końcowa",
+      "action.finalScanPause": "Wstrzymaj kontrolę",
+      "action.finalScanResume": "Kontynuuj kontrolę",
       "action.more": "Więcej",
       "action.loadNames": "Wczytaj nazwy",
       "action.exportShare": "Eksport / wyślij",
@@ -1099,6 +1213,7 @@ function wrapper(plugin_info) {
       "row.moveDown": "Przesuń niżej",
       "row.done": "ukończono",
       "row.actions": "Akcje",
+      "row.showDetails": "Pokaż szczegóły",
       "row.emptyFilter": "Brak portali dla tego filtra.",
       "overlay.keysNeeded": "Klucze {owned}/{required}",
       "text.plan": "Plan: {links}, {portals}",
@@ -1141,6 +1256,9 @@ function wrapper(plugin_info) {
       "route.target.other": "{count} destinos",
       "route.aerial": "linha reta",
       "scan.drawToolsMissing": "Draw Tools não encontrado. Ative-o.",
+      "scan.finalPending": "verificação final de bloqueios pendente",
+      "scan.finalComplete": "verificação final de bloqueios concluída",
+      "scan.finalPaused": "verificação final de bloqueios pausada",
       "status.done": "concluído",
       "status.blocked": "bloqueado",
       "status.existing": "sem chaves",
@@ -1171,6 +1289,8 @@ function wrapper(plugin_info) {
       "readiness.loadedLink.one": "{count} link existente carregado",
       "readiness.loadedLink.other": "{count} links existentes carregados",
       "readiness.unusableLoaded": "{count} não avaliáveis",
+      "readiness.finalScanPending": "verificação final de bloqueios pendente",
+      "readiness.finalScanComplete": "verificação final de bloqueios concluída",
       "message.intersectionUnknown": "Não foi possível determinar o cruzamento.",
       "message.namesNoneMissing": "Nenhum nome ausente no escaneamento atual.",
       "message.namesLoadingAuto": "Carregando nomes: {current}/{total}…",
@@ -1178,7 +1298,14 @@ function wrapper(plugin_info) {
       "message.namesLoadedAuto": "Nomes carregados automaticamente.",
       "message.namesLoaded": "Nomes carregados.",
       "message.namesUnavailable": "Se ainda faltarem nomes, os detalhes estão indisponíveis.",
+      "message.portalDetailsUnavailable": "Os detalhes deste portal não estão disponíveis no IITC.",
       "message.copied": "Copiado para a área de transferência.",
+      "message.finalScanNoUnconfirmed": "Nenhum link do plano não confirmado requer verificação final.",
+      "message.finalScanUnsupported": "A verificação final de bloqueios não está disponível nesta versão do IITC.",
+      "message.finalScanProgress": "Verificação final de bloqueios: vista {current}/{total}…",
+      "message.finalScanComplete": "Verificação final de bloqueios concluída em {count} vistas.",
+      "message.finalScanIncomplete": "Verificação final incompleta: {checked} de {total} vistas necessárias verificadas. A ausência de bloqueios detectados não é uma confirmação.",
+      "message.finalScanPaused": "Verificação final pausada após {checked} de {total} vistas. A verificação salva pode continuar.",
       "share.section": "Compartilhar",
       "share.copyText": "Copiar texto",
       "share.locate": "Localizar",
@@ -1201,6 +1328,9 @@ function wrapper(plugin_info) {
       "panel.planPortal.one": "{count} portal do plano",
       "panel.planPortal.other": "{count} portais do plano",
       "action.scan": "Escanear",
+      "action.finalScan": "Verificação final",
+      "action.finalScanPause": "Pausar verificação",
+      "action.finalScanResume": "Continuar verificação",
       "action.more": "Mais",
       "action.loadNames": "Carregar nomes",
       "action.exportShare": "Exportar / enviar",
@@ -1252,6 +1382,7 @@ function wrapper(plugin_info) {
       "row.moveDown": "Mover para baixo",
       "row.done": "concluído",
       "row.actions": "Ações",
+      "row.showDetails": "Mostrar detalhes",
       "row.emptyFilter": "Nenhum portal para este filtro.",
       "overlay.keysNeeded": "Chaves {owned}/{required}",
       "text.plan": "Plano: {links}, {portals}",
@@ -1294,6 +1425,9 @@ function wrapper(plugin_info) {
       "route.target.other": "{count} целей",
       "route.aerial": "по прямой",
       "scan.drawToolsMissing": "Draw Tools не найден. Включите плагин.",
+      "scan.finalPending": "финальная проверка блокеров ожидается",
+      "scan.finalComplete": "финальная проверка блокеров завершена",
+      "scan.finalPaused": "финальная проверка блокеров приостановлена",
       "status.done": "выполнено",
       "status.blocked": "заблокировано",
       "status.existing": "ключи не нужны",
@@ -1324,6 +1458,8 @@ function wrapper(plugin_info) {
       "readiness.loadedLink.one": "Загружен {count} существующий линк",
       "readiness.loadedLink.other": "Загружено {count} существующих линков",
       "readiness.unusableLoaded": "{count} нельзя проверить",
+      "readiness.finalScanPending": "финальная проверка блокеров ожидается",
+      "readiness.finalScanComplete": "финальная проверка блокеров завершена",
       "message.intersectionUnknown": "Не удалось определить пересечение.",
       "message.namesNoneMissing": "В текущем скане все названия загружены.",
       "message.namesLoadingAuto": "Загрузка названий: {current}/{total}…",
@@ -1331,7 +1467,14 @@ function wrapper(plugin_info) {
       "message.namesLoadedAuto": "Названия загружены автоматически.",
       "message.namesLoaded": "Названия загружены.",
       "message.namesUnavailable": "Если названий всё ещё нет, данные недоступны.",
+      "message.portalDetailsUnavailable": "Данные этого портала недоступны в IITC.",
       "message.copied": "Скопировано в буфер обмена.",
+      "message.finalScanNoUnconfirmed": "Нет неподтверждённых линков плана, требующих финальной проверки.",
+      "message.finalScanUnsupported": "Финальная проверка блокеров недоступна в этой версии IITC.",
+      "message.finalScanProgress": "Финальная проверка блокеров: обзор {current}/{total}…",
+      "message.finalScanComplete": "Финальная проверка блокеров завершена для {count} обзоров.",
+      "message.finalScanIncomplete": "Финальная проверка неполная: проверено {checked} из {total} нужных обзоров. Отсутствие найденных блокеров не означает подтверждение.",
+      "message.finalScanPaused": "Финальная проверка приостановлена после {checked} из {total} обзоров. Сохранённую проверку можно продолжить.",
       "share.section": "Поделиться",
       "share.copyText": "Копировать текст",
       "share.locate": "Найти",
@@ -1354,6 +1497,9 @@ function wrapper(plugin_info) {
       "panel.planPortal.one": "{count} портал плана",
       "panel.planPortal.other": "{count} порталов плана",
       "action.scan": "Сканировать",
+      "action.finalScan": "Финальная проверка",
+      "action.finalScanPause": "Приостановить",
+      "action.finalScanResume": "Продолжить проверку",
       "action.more": "Ещё",
       "action.loadNames": "Загрузить имена",
       "action.exportShare": "Экспорт / отправка",
@@ -1405,6 +1551,7 @@ function wrapper(plugin_info) {
       "row.moveDown": "Переместить ниже",
       "row.done": "готово",
       "row.actions": "Действия",
+      "row.showDetails": "Показать подробности",
       "row.emptyFilter": "Нет порталов для этого фильтра.",
       "overlay.keysNeeded": "Ключи {owned}/{required}",
       "text.plan": "План: {links}, {portals}",
@@ -1447,6 +1594,9 @@ function wrapper(plugin_info) {
       "route.target.other": "{count} 个目标",
       "route.aerial": "直线",
       "scan.drawToolsMissing": "未找到 Draw Tools，请启用。",
+      "scan.finalPending": "最终阻挡检查待执行",
+      "scan.finalComplete": "最终阻挡检查已完成",
+      "scan.finalPaused": "最终阻挡检查已暂停",
       "status.done": "已完成",
       "status.blocked": "受阻",
       "status.existing": "无需钥匙",
@@ -1477,6 +1627,8 @@ function wrapper(plugin_info) {
       "readiness.loadedLink.one": "已加载 {count} 条现有 Link",
       "readiness.loadedLink.other": "已加载 {count} 条现有 Link",
       "readiness.unusableLoaded": "其中 {count} 条无法判断",
+      "readiness.finalScanPending": "最终阻挡检查待执行",
+      "readiness.finalScanComplete": "最终阻挡检查已完成",
       "message.intersectionUnknown": "无法确定交点。",
       "message.namesNoneMissing": "当前扫描没有缺失名称。",
       "message.namesLoadingAuto": "正在加载名称：{current}/{total}…",
@@ -1484,7 +1636,14 @@ function wrapper(plugin_info) {
       "message.namesLoadedAuto": "名称已自动加载。",
       "message.namesLoaded": "名称已加载。",
       "message.namesUnavailable": "若仍缺名称，则详情不可用。",
+      "message.portalDetailsUnavailable": "此传送门的详情在 IITC 中不可用。",
       "message.copied": "已复制到剪贴板。",
+      "message.finalScanNoUnconfirmed": "没有需要最终检查的未确认计划 Link。",
+      "message.finalScanUnsupported": "此 IITC 版本不支持最终阻挡检查。",
+      "message.finalScanProgress": "最终阻挡检查：视图 {current}/{total}…",
+      "message.finalScanComplete": "已完成 {count} 个视图的最终阻挡检查。",
+      "message.finalScanIncomplete": "最终检查未完成：已检查所需 {total} 个视图中的 {checked} 个。未发现阻挡不代表可以确认安全。",
+      "message.finalScanPaused": "最终检查已在 {total} 个视图中的第 {checked} 个后暂停。可继续已保存的检查。",
       "share.section": "分享",
       "share.copyText": "复制文本",
       "share.locate": "定位",
@@ -1507,6 +1666,9 @@ function wrapper(plugin_info) {
       "panel.planPortal.one": "{count} 个计划 Portal",
       "panel.planPortal.other": "{count} 个计划 Portal",
       "action.scan": "扫描",
+      "action.finalScan": "最终检查",
+      "action.finalScanPause": "暂停检查",
+      "action.finalScanResume": "继续检查",
       "action.more": "更多",
       "action.loadNames": "加载名称",
       "action.exportShare": "导出 / 分享",
@@ -1558,6 +1720,7 @@ function wrapper(plugin_info) {
       "row.moveDown": "下移",
       "row.done": "完成",
       "row.actions": "操作",
+      "row.showDetails": "显示详情",
       "row.emptyFilter": "此筛选条件下无计划 Portal。",
       "overlay.keysNeeded": "所需钥匙 {owned}/{required}",
       "text.plan": "计划：{links}，{portals}",
@@ -1585,6 +1748,7 @@ function wrapper(plugin_info) {
     minAnchorLinks: ap.MIN_ANCHOR_LINKS,
     anchors: {},
     lastScan: null,
+    finalScanProgress: null,
     panelCollapsed: false,
     showDebug: false,
     listFilter: 'all',
@@ -1611,7 +1775,9 @@ function wrapper(plugin_info) {
     htmlOverlay: null,
     mapDataPanelRefreshTimer: null,
     panelDrag: null,
-    panelResizeTimer: null
+    panelResizeTimer: null,
+    panelContentResizeTimer: null,
+    finalScan: null
   };
 
   ap.escapeHtml = function (value) {
@@ -1827,6 +1993,14 @@ function wrapper(plugin_info) {
   ap.correctPanelPosition = function (persist) {
     if (!ap.state.panelPosition) return;
     ap.setPanelPosition(ap.state.panelPosition.left, ap.state.panelPosition.top, persist);
+  };
+
+  ap.schedulePanelPositionCorrection = function (delay) {
+    if (ap.runtime.panelContentResizeTimer) clearTimeout(ap.runtime.panelContentResizeTimer);
+    ap.runtime.panelContentResizeTimer = setTimeout(function () {
+      ap.runtime.panelContentResizeTimer = null;
+      ap.correctPanelPosition(true);
+    }, delay == null ? 100 : delay);
   };
 
   ap.startPanelDrag = function (clientX, clientY, pointerId) {
@@ -2608,6 +2782,333 @@ function wrapper(plugin_info) {
     return { map: map, list: list, count: count, unresolved: unresolved };
   };
 
+  ap.createExistingLinkAccumulator = function () {
+    return { map: {}, list: [], count: 0, unresolved: 0, seen: {} };
+  };
+
+  ap.mergeExistingLinkInfo = function (target, source) {
+    target = target || ap.createExistingLinkAccumulator();
+    source = source || { map: {}, list: [], count: 0, unresolved: 0 };
+    (source.list || []).forEach(function (link) {
+      if (!link || !link.a || !link.b) return;
+      var id = ap.normalizedLinkId(link.a, link.b);
+      var seenKey = link.guid || id;
+      if (!seenKey || target.seen[seenKey]) return;
+      target.seen[seenKey] = true;
+      target.list.push(link);
+      if (!target.map[id]) {
+        target.map[id] = link;
+        target.count++;
+      }
+    });
+    // collectExistingLinkIds does not expose the GUIDs it could not parse, so
+    // overlapping views cannot deduplicate that subset reliably. Keep the
+    // highest per-view count instead of inflating it on every checkpoint.
+    target.unresolved = Math.max(target.unresolved, Number(source.unresolved) || 0);
+    return target;
+  };
+
+  ap.getFinalScanZoom = function () {
+    var zoom = 13;
+    try {
+      var lengths = window.IITC && window.IITC.map && window.IITC.map.tiles &&
+        window.IITC.map.tiles.params && window.IITC.map.tiles.params.ZOOM_TO_LINK_LENGTH;
+      if (lengths && lengths.length) {
+        for (var i = 0; i < lengths.length; i++) {
+          if (Number(lengths[i]) <= 0) { zoom = i; break; }
+        }
+      }
+    } catch (e) {}
+    try {
+      if (window.map && typeof window.map.getMinZoom === 'function') zoom = Math.max(zoom, Number(window.map.getMinZoom()) || zoom);
+      if (window.map && typeof window.map.getMaxZoom === 'function') zoom = Math.min(zoom, Number(window.map.getMaxZoom()) || zoom);
+    } catch (e2) {}
+    return zoom;
+  };
+
+  ap.buildFinalScanCheckpoints = function (links, zoom, viewport, maxViews) {
+    var points = [];
+    var seen = {};
+    var width = Math.max(160, Number(viewport && viewport.width) || 0);
+    var height = Math.max(160, Number(viewport && viewport.height) || 0);
+    var spacing = Math.max(120, Math.min(width, height) * ap.FINAL_SCAN_VIEW_SPACING);
+    var bucketSize = Math.max(60, spacing / 2);
+
+    function addPoint(point) {
+      var key = Math.round(Number(point.x) / bucketSize) + ':' + Math.round(Number(point.y) / bucketSize);
+      if (seen[key]) return;
+      seen[key] = true;
+      points.push(window.map.unproject(point, zoom));
+    }
+
+    (links || []).filter(function (link) { return link && !link.existing; }).forEach(function (link) {
+      if (!link.latlngA || !link.latlngB) return;
+      var a = window.map.project(link.latlngA, zoom);
+      var b = window.map.project(link.latlngB, zoom);
+      var dx = Number(b.x) - Number(a.x);
+      var dy = Number(b.y) - Number(a.y);
+      var distance = Math.sqrt(dx * dx + dy * dy);
+      var steps = Math.max(1, Math.ceil(distance / spacing));
+      for (var step = 0; step <= steps; step++) {
+        var ratio = step / steps;
+        addPoint({ x: Number(a.x) + dx * ratio, y: Number(a.y) + dy * ratio });
+      }
+    });
+
+    maxViews = Math.max(1, Number(maxViews) || ap.FINAL_SCAN_MAX_VIEWS);
+    return {
+      points: points.slice(0, maxViews),
+      total: points.length,
+      truncated: points.length > maxViews,
+      spacing: spacing
+    };
+  };
+
+  ap.finalScanPlanSignature = function (links) {
+    return (links || []).filter(function (link) { return link && !link.existing && link.id; })
+      .map(function (link) { return link.id; }).sort().join('|');
+  };
+
+  ap.persistFinalScanProgress = function () {
+    var scan = ap.runtime.finalScan;
+    if (!scan) return;
+    ap.state.finalScanProgress = {
+      planSignature: scan.planSignature,
+      points: scan.points.map(function (point) { return { lat: Number(point.lat), lng: Number(point.lng) }; }),
+      total: scan.total,
+      truncated: scan.truncated,
+      index: scan.index,
+      targetZoom: scan.targetZoom,
+      timedOut: scan.timedOut,
+      links: (scan.accumulator.list || []).map(function (link) {
+        return {
+          guid: link.guid,
+          a: link.a,
+          b: link.b,
+          source: link.source,
+          titleA: link.titleA || '',
+          titleB: link.titleB || '',
+          latlngA: link.latlngA ? { lat: Number(link.latlngA.lat), lng: Number(link.latlngA.lng) } : null,
+          latlngB: link.latlngB ? { lat: Number(link.latlngB.lat), lng: Number(link.latlngB.lng) } : null
+        };
+      }),
+      unresolved: scan.accumulator.unresolved || 0
+    };
+    ap.save();
+  };
+
+  ap.canResumeFinalScan = function () {
+    var progress = ap.state.finalScanProgress;
+    if (!progress || !Array.isArray(progress.points) || !progress.points.length) return false;
+    return progress.planSignature === ap.finalScanPlanSignature(ap.runtime.links) &&
+      Number(progress.index) < progress.points.length;
+  };
+
+  ap.applyExistingLinkCoverage = function (existingInfo, coverage) {
+    existingInfo = existingInfo || ap.createExistingLinkAccumulator();
+    var stats = ap.runtime.stats || {};
+    var links = ap.runtime.links || [];
+    Object.keys(stats).forEach(function (guid) {
+      stats[guid].existingLinks = 0;
+      stats[guid].blockedLinks = 0;
+      stats[guid].openLinks = 0;
+      stats[guid].requiredKeys = 0;
+    });
+
+    var existingPlannedLinks = 0;
+    var blockedPlannedLinks = 0;
+    links.forEach(function (link) {
+      var existing = !!existingInfo.map[link.id];
+      link.existing = existing;
+      link.existingGuid = existing ? existingInfo.map[link.id].guid : '';
+      link.blockers = ap.findBlockersForPlannedLink(link, existingInfo.list || []);
+      link.blocked = link.blockers.length > 0;
+      if (existing) existingPlannedLinks++;
+      if (link.blocked) blockedPlannedLinks++;
+      [link.a, link.b].forEach(function (guid) {
+        var stat = stats[guid];
+        if (!stat) return;
+        if (existing) stat.existingLinks++;
+        else {
+          stat.openLinks++;
+          stat.requiredKeys++;
+          if (link.blocked) stat.blockedLinks++;
+        }
+      });
+    });
+
+    ap.runtime.existingLinkIds = existingInfo.map;
+    ap.runtime.existingLinks = existingInfo.list || [];
+    var last = ap.state.lastScan || {};
+    last.existingPlannedLinks = existingPlannedLinks;
+    last.unconfirmedLinks = Math.max(0, links.length - existingPlannedLinks);
+    last.blockedPlannedLinks = blockedPlannedLinks;
+    last.openUnblockedLinks = Math.max(0, links.length - existingPlannedLinks - blockedPlannedLinks);
+    last.loadedExistingLinks = existingInfo.count || 0;
+    last.unresolvedExistingLinks = existingInfo.unresolved || 0;
+    if (coverage) {
+      last.finalScanComplete = !!coverage.complete;
+      last.finalScanAt = new Date().toISOString();
+      last.finalScanViews = Number(coverage.checked) || 0;
+      last.finalScanTotalViews = Number(coverage.total) || 0;
+      last.finalScanZoom = Number(coverage.zoom);
+      last.finalScanTimedOut = !!coverage.timedOut;
+    }
+    ap.state.lastScan = last;
+    ap.save();
+    ap.renderOverlays();
+    ap.renderPanel();
+  };
+
+  ap.captureFinalScanLinks = function () {
+    var scan = ap.runtime.finalScan;
+    if (!scan) return;
+    var portals = ap.mergePortalSources(ap.getLoadedPortals(), ap.collectPortalBookmarks(ap.getLoadedPortals()));
+    ap.mergeExistingLinkInfo(scan.accumulator, ap.collectExistingLinkIds(portals));
+  };
+
+  ap.completeFinalScanStep = function (token, timedOut) {
+    var scan = ap.runtime.finalScan;
+    if (!scan || !scan.running || scan.stepToken !== token || scan.stepComplete) return;
+    scan.stepComplete = true;
+    if (scan.stepTimer) clearTimeout(scan.stepTimer);
+    if (timedOut && scan.refreshStarted) scan.timedOut = true;
+    ap.captureFinalScanLinks();
+    scan.index++;
+    ap.persistFinalScanProgress();
+    setTimeout(ap.visitFinalScanCheckpoint, 50);
+  };
+
+  ap.onFinalScanMapDataRefreshStart = function () {
+    var scan = ap.runtime.finalScan;
+    if (scan && scan.running) scan.refreshStarted = true;
+  };
+
+  ap.onFinalScanMapDataRefreshEnd = function () {
+    var scan = ap.runtime.finalScan;
+    if (!scan || !scan.running || !scan.refreshStarted) return;
+    ap.completeFinalScanStep(scan.stepToken, false);
+  };
+
+  ap.finishFinalScan = function () {
+    var scan = ap.runtime.finalScan;
+    if (!scan || !scan.running) return;
+    scan.running = false;
+    if (scan.stepTimer) clearTimeout(scan.stepTimer);
+    ap.captureFinalScanLinks();
+    var complete = !scan.truncated && !scan.timedOut;
+    var checked = Math.min(scan.index, scan.points.length);
+    var total = scan.total;
+    var originalCenter = scan.originalCenter;
+    var originalZoom = scan.originalZoom;
+    ap.state.finalScanProgress = null;
+    ap.applyExistingLinkCoverage(scan.accumulator, {
+      complete: complete,
+      checked: checked,
+      total: total,
+      zoom: scan.targetZoom,
+      timedOut: scan.timedOut
+    });
+    try { window.map.setView(originalCenter, originalZoom, { animate: false }); } catch (e) {}
+    ap.setMessage(complete ? ap.t('message.finalScanComplete', { count: checked }) : ap.t('message.finalScanIncomplete', { checked: checked, total: total }));
+    ap.runtime.finalScan = null;
+  };
+
+  ap.pauseFinalScan = function () {
+    var scan = ap.runtime.finalScan;
+    if (!scan || !scan.running) return false;
+    scan.running = false;
+    if (scan.stepTimer) clearTimeout(scan.stepTimer);
+    ap.captureFinalScanLinks();
+    ap.persistFinalScanProgress();
+    try { window.map.setView(scan.originalCenter, scan.originalZoom, { animate: false }); } catch (e) {}
+    ap.runtime.finalScan = null;
+    ap.renderPanel();
+    ap.setMessage(ap.t('message.finalScanPaused', { checked: scan.index, total: scan.total }));
+    return true;
+  };
+
+  ap.visitFinalScanCheckpoint = function () {
+    var scan = ap.runtime.finalScan;
+    if (!scan || !scan.running) return;
+    if (scan.index >= scan.points.length) { ap.finishFinalScan(); return; }
+    scan.refreshStarted = false;
+    scan.stepComplete = false;
+    scan.stepToken++;
+    var token = scan.stepToken;
+    ap.setMessage(ap.t('message.finalScanProgress', { current: scan.index + 1, total: scan.points.length }));
+    try {
+      window.map.setView(scan.points[scan.index], scan.targetZoom, { animate: false });
+    } catch (e) {
+      scan.timedOut = true;
+      ap.completeFinalScanStep(token, true);
+      return;
+    }
+    scan.stepTimer = setTimeout(function () { ap.completeFinalScanStep(token, true); }, ap.FINAL_SCAN_FALLBACK_MS);
+  };
+
+  ap.startFinalScan = function () {
+    if (ap.runtime.finalScan && ap.runtime.finalScan.running) return false;
+    var links = ap.runtime.links || [];
+    var unconfirmed = links.filter(function (link) { return link && !link.existing; });
+    if (!unconfirmed.length) {
+      ap.setMessage(ap.t('message.finalScanNoUnconfirmed'));
+      return false;
+    }
+    if (!window.map || typeof window.map.project !== 'function' || typeof window.map.unproject !== 'function' ||
+        typeof window.map.setView !== 'function' || typeof window.map.getCenter !== 'function' || typeof window.map.getZoom !== 'function') {
+      ap.setMessage(ap.t('message.finalScanUnsupported'));
+      return false;
+    }
+    var container = typeof window.map.getContainer === 'function' ? window.map.getContainer() : null;
+    var viewport = {
+      width: container && container.clientWidth || window.innerWidth || 800,
+      height: container && container.clientHeight || window.innerHeight || 600
+    };
+    var targetZoom = ap.getFinalScanZoom();
+    var planSignature = ap.finalScanPlanSignature(links);
+    var saved = ap.canResumeFinalScan() ? ap.state.finalScanProgress : null;
+    var checkpoints = saved ? {
+      points: saved.points,
+      total: Number(saved.total) || saved.points.length,
+      truncated: !!saved.truncated
+    } : ap.buildFinalScanCheckpoints(unconfirmed, targetZoom, viewport, ap.FINAL_SCAN_MAX_VIEWS);
+    if (!checkpoints.points.length) {
+      ap.setMessage(ap.t('message.finalScanUnsupported'));
+      return false;
+    }
+    var accumulator = ap.createExistingLinkAccumulator();
+    ap.mergeExistingLinkInfo(accumulator, {
+      map: ap.runtime.existingLinkIds || {},
+      list: ap.runtime.existingLinks || [],
+      count: (ap.runtime.existingLinks || []).length,
+      unresolved: 0
+    });
+    if (saved) ap.mergeExistingLinkInfo(accumulator, { list: saved.links || [], unresolved: saved.unresolved || 0 });
+    ap.runtime.finalScan = {
+      running: true,
+      planSignature: planSignature,
+      accumulator: accumulator,
+      points: checkpoints.points,
+      total: checkpoints.total,
+      truncated: checkpoints.truncated,
+      index: saved ? Math.max(0, Number(saved.index) || 0) : 0,
+      targetZoom: saved ? Number(saved.targetZoom) || targetZoom : targetZoom,
+      originalCenter: window.map.getCenter(),
+      originalZoom: window.map.getZoom(),
+      timedOut: saved ? !!saved.timedOut : false,
+      refreshStarted: false,
+      stepToken: 0,
+      stepComplete: false,
+      stepTimer: null
+    };
+    ap.captureFinalScanLinks();
+    ap.persistFinalScanProgress();
+    ap.renderPanel();
+    ap.visitFinalScanCheckpoint();
+    return true;
+  };
+
   ap.orientation = function (a, b, c) {
     return (Number(b.lng) - Number(a.lng)) * (Number(c.lat) - Number(a.lat)) -
       (Number(b.lat) - Number(a.lat)) * (Number(c.lng) - Number(a.lng));
@@ -3173,6 +3674,9 @@ function wrapper(plugin_info) {
     ap.runtime.existingLinkIds = existingLinkIds;
     ap.runtime.existingLinks = existingLinks;
     ap.runtime.unresolvedEndpoints = unresolved;
+    if (ap.state.finalScanProgress && ap.state.finalScanProgress.planSignature !== ap.finalScanPlanSignature(links)) {
+      ap.state.finalScanProgress = null;
+    }
     ap.normalizeRouteOrder();
     ap.state.lastScan = {
       at: new Date().toISOString(),
@@ -3194,6 +3698,12 @@ function wrapper(plugin_info) {
       bookmarkMatchedEndpoints: bookmarkMatchedEndpoints,
       duplicateLinks: duplicateLinks,
       samePortalSegments: samePortalSegments,
+      finalScanComplete: false,
+      finalScanAt: null,
+      finalScanViews: 0,
+      finalScanTotalViews: 0,
+      finalScanZoom: null,
+      finalScanTimedOut: false,
       unresolvedSample: unresolved.slice(0, 6)
     };
     ap.save();
@@ -3252,6 +3762,7 @@ function wrapper(plugin_info) {
       missingKeys: 0,
       missingNames: 0,
       unconfirmedLinks: Number(last.unconfirmedLinks) || 0,
+      finalScanComplete: !!last.finalScanComplete,
       loadedExistingLinks: Number(last.loadedExistingLinks) || 0,
       unresolvedExistingLinks: Number(last.unresolvedExistingLinks) || 0
     };
@@ -3270,6 +3781,7 @@ function wrapper(plugin_info) {
 
     var unresolvedEndpoints = Number(last.unresolvedEndpoints) || 0;
     var blockedPlannedLinks = Number(last.blockedPlannedLinks) || 0;
+    var finalScanPending = result.unconfirmedLinks > 0 && !result.finalScanComplete;
     var needsScan = !(stats || []).length && ((Number(last.resolvedPortals) || 0) > 0 || (Number(last.plannedLinks) || 0) > 0);
     var noPlan = !needsScan && !(Number(last.plannedLinks) || 0) && !unresolvedEndpoints;
 
@@ -3283,12 +3795,14 @@ function wrapper(plugin_info) {
       if (result.missingKeys) result.summary.push(ap.tp('readiness.missingKey', result.missingKeys));
       if (result.missingNames) result.summary.push(ap.tp('readiness.missingName', result.missingNames));
       if (result.unresolvedExistingLinks) result.summary.push(ap.tp('readiness.unusableLink', result.unresolvedExistingLinks));
+      if (finalScanPending) result.summary.push(ap.t('readiness.finalScanPending'));
+      else if (result.unconfirmedLinks > 0 && result.finalScanComplete) result.summary.push(ap.t('readiness.finalScanComplete'));
       if (noPlan) result.summary.push(ap.t('readiness.noPlan'));
 
       if (unresolvedEndpoints || blockedPlannedLinks || result.missingKeys) {
         result.key = 'blocked';
         result.label = ap.t('readiness.notReady');
-      } else if (result.missingNames || result.unresolvedExistingLinks || noPlan) {
+      } else if (result.missingNames || result.unresolvedExistingLinks || finalScanPending || noPlan) {
         result.key = 'check';
         result.label = ap.t('readiness.check');
       }
@@ -3381,9 +3895,9 @@ function wrapper(plugin_info) {
 
   ap.statusText = function (status) {
     if (!status) return '!';
-    if (status.key === 'done') return 'OK';
+    if (status.key === 'done') return '✓';
     if (status.key === 'blocked') return 'X';
-    if (status.key === 'existing') return '0K';
+    if (status.key === 'existing') return 'K0';
     if (status.key === 'ready') return 'A';
     if (status.key === 'partial') return '½';
     return 'KEY';
@@ -3549,8 +4063,48 @@ function wrapper(plugin_info) {
     return /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent || '') || (window.isSmartphone && window.isSmartphone());
   };
 
-  ap.showPortalActions = function (guid) {
-    var stat = ap.runtime.stats[guid];
+  ap.showPortalDetails = function (guid) {
+    var marker = window.portals && window.portals[guid];
+    var details = null;
+    try {
+      if (marker && typeof marker.getDetails === 'function') details = marker.getDetails();
+    } catch (e) {}
+
+    var display = window.IITC && window.IITC.portal && window.IITC.portal.display;
+    var renderToSidebar = display && typeof display.renderToSidebar === 'function'
+      ? function () { display.renderToSidebar(marker); }
+      : (typeof window.renderPortalToSideBar === 'function' ? function () { window.renderPortalToSideBar(marker); } : null);
+    var selectPortal = display && typeof display.select === 'function'
+      ? function () { display.select(guid, 'anchorPlanner'); }
+      : (typeof window.selectPortal === 'function' ? function () { window.selectPortal(guid, 'anchorPlanner'); } : null);
+
+    if (!marker || !details || !renderToSidebar) {
+      ap.setMessage(ap.t('message.portalDetailsUnavailable'));
+      return false;
+    }
+
+    try {
+      if (selectPortal) selectPortal();
+      renderToSidebar();
+      if (ap.isMobile() && typeof window.show === 'function') {
+        window.show('info');
+      } else {
+        var scrollWrapper = document.getElementById('scrollwrapper');
+        var sidebarToggle = document.getElementById('sidebartoggle');
+        var sidebarVisible = !scrollWrapper || scrollWrapper.offsetWidth > 0 || scrollWrapper.offsetHeight > 0 ||
+          (typeof scrollWrapper.getClientRects === 'function' && scrollWrapper.getClientRects().length > 0);
+        if (!sidebarVisible && sidebarToggle && typeof sidebarToggle.click === 'function') sidebarToggle.click();
+      }
+      return true;
+    } catch (e2) {
+      ap.setMessage(ap.t('message.portalDetailsUnavailable'));
+      return false;
+    }
+  };
+
+  ap.showPortalActions = function (portal) {
+    var guid = typeof portal === 'string' ? portal : portal && portal.guid;
+    var stat = guid && ap.runtime.stats[guid] || (portal && typeof portal === 'object' ? portal : null);
     if (!stat) return;
     var nav = ap.navigationLinks(stat);
     var html = '';
@@ -3850,9 +4404,17 @@ function wrapper(plugin_info) {
 
   ap.clearData = function () {
     if (!confirm(ap.t('confirm.clearData'))) return;
+    var activeFinalScan = ap.runtime.finalScan;
+    if (activeFinalScan && activeFinalScan.running) {
+      activeFinalScan.running = false;
+      if (activeFinalScan.stepTimer) clearTimeout(activeFinalScan.stepTimer);
+      try { window.map.setView(activeFinalScan.originalCenter, activeFinalScan.originalZoom, { animate: false }); } catch (e) {}
+      ap.runtime.finalScan = null;
+    }
     ap.state.anchors = {};
     ap.state.blockerRoutePortals = {};
     ap.state.lastScan = null;
+    ap.state.finalScanProgress = null;
     ap.runtime.stats = {};
     ap.runtime.links = [];
     ap.runtime.existingLinkIds = {};
@@ -3906,6 +4468,9 @@ function wrapper(plugin_info) {
     var planPortalCount = stats.length;
     var last = ap.state.lastScan;
     var readiness = ap.getReadiness(stats);
+    var finalScanRunning = !!(ap.runtime.finalScan && ap.runtime.finalScan.running);
+    var finalScanNeeded = (ap.runtime.links || []).some(function (link) { return link && !link.existing; });
+    var finalScanResumable = !finalScanRunning && ap.canResumeFinalScan();
     var blockedLinks = (ap.runtime.links || []).filter(function (link) {
       return link && !link.existing && link.blocked && link.blockers && link.blockers.length;
     });
@@ -3937,7 +4502,7 @@ function wrapper(plugin_info) {
       return;
     }
 
-    html += '<div class="ap-primary-actions"><button id="ap-scan">' + ap.escapeHtml(ap.t('action.scan')) + '</button><button id="ap-more" aria-expanded="' + (moreOpen ? 'true' : 'false') + '">' + ap.escapeHtml(ap.t('action.more')) + '</button></div>';
+    html += '<div class="ap-primary-actions"><button id="ap-scan"' + (finalScanRunning ? ' disabled' : '') + '>' + ap.escapeHtml(ap.t('action.scan')) + '</button><button id="ap-final-scan"' + ((!finalScanNeeded && !finalScanRunning) ? ' disabled' : '') + '>' + ap.escapeHtml(ap.t(finalScanRunning ? 'action.finalScanPause' : (finalScanResumable ? 'action.finalScanResume' : 'action.finalScan'))) + '</button><button id="ap-more" aria-expanded="' + (moreOpen ? 'true' : 'false') + '">' + ap.escapeHtml(ap.t('action.more')) + '</button></div>';
     html += '<div class="ap-actions ap-secondary"><button id="ap-loadnames">' + ap.escapeHtml(ap.t('action.loadNames')) + '</button><button id="ap-export">' + ap.escapeHtml(ap.t('action.exportShare')) + '</button><button id="ap-sort-location" title="' + ap.escapeHtml(ap.t('action.sortLocationTitle')) + '">' + ap.escapeHtml(ap.t('action.sortLocation')) + '</button><button id="ap-clear">' + ap.escapeHtml(ap.t('action.clearData')) + '</button></div>';
     html += '<div class="ap-settings ap-secondary"><label>' + ap.escapeHtml(ap.t('settings.tolerance')) + ' <input id="ap-tolerance" type="number" min="1" max="100" value="' + ap.escapeHtml(ap.state.tolerance) + '"> m' + (Number(ap.state.tolerance) === ap.DEFAULT_TOLERANCE_M ? ' · ' + ap.escapeHtml(ap.t('settings.standard')) : '') + '</label><label>' + ap.escapeHtml(ap.t('language.label')) + ' <select id="ap-language">' + ap.languageOptionsHtml() + '</select></label></div>';
     if (readiness) {
@@ -3973,6 +4538,7 @@ function wrapper(plugin_info) {
       var scanOpenEndpoints = Number(last.unresolvedEndpoints) || 0;
       html += 'Scan: ' + ap.escapeHtml(ap.tp('scan.summaryLink', scanLinks)) + ' · ' + ap.escapeHtml(ap.tp('scan.summaryPortal', scanPortals));
       if (scanOpenEndpoints) html += ' · ' + ap.escapeHtml(ap.tp('scan.summaryEndpoint', scanOpenEndpoints));
+      if ((Number(last.unconfirmedLinks) || 0) > 0) html += ' · ' + ap.escapeHtml(ap.t(last.finalScanComplete ? 'scan.finalComplete' : (finalScanResumable ? 'scan.finalPaused' : 'scan.finalPending')));
       if (last.unresolvedSample && last.unresolvedSample.length) {
         html += '<div class="ap-unresolved"><b>' + ap.escapeHtml(ap.t('diagnostics.openEndpoints')) + '</b>';
         html += '<div class="ap-hint">' + ap.escapeHtml(ap.t('diagnostics.help')) + '</div>';
@@ -4012,7 +4578,6 @@ function wrapper(plugin_info) {
       html += '<details class="ap-blocker-section"' + (blockerSectionOpen ? ' open' : '') + '><summary>' + ap.escapeHtml(ap.t('blocker.title')) + ' (' + ap.escapeHtml(ap.tp('blocker.blockLink', blockingLinkCount)) + (blockerWorklist.length ? ' · ' + ap.escapeHtml(ap.tp('blocker.endPortal', blockerWorklist.length)) : '') + (selectedBlockerPortals ? ' · ' + ap.escapeHtml(ap.t('blocker.selected', { count: selectedBlockerPortals })) : '') + ')</summary>';
       if (blockerWorklist.length) {
         blockerWorklist.forEach(function (candidate) {
-          var blockerNav = ap.navigationLinks(candidate);
           var blockerDistance = ap.formatDistance(candidate.distance);
           html += '<div class="ap-blocker-work-row" data-guid="' + ap.escapeHtml(candidate.guid) + '" data-lat="' + ap.escapeHtml(candidate.lat) + '" data-lng="' + ap.escapeHtml(candidate.lng) + '">';
           html += '<div class="ap-blocker-work-main">';
@@ -4020,7 +4585,7 @@ function wrapper(plugin_info) {
           else html += '<label class="ap-blocker-work-select"><input type="checkbox" class="ap-blocker-route-check" data-guid="' + ap.escapeHtml(candidate.guid) + '"' + (candidate.selected ? ' checked' : '') + '> <b>' + ap.escapeHtml(candidate.title) + '</b></label>';
           html += '</div>';
           html += '<div class="ap-blocker-work-meta">' + ap.escapeHtml(ap.tp('blocker.endpointOf', candidate.blockerCount)) + (candidate.isOpenPlanPortal ? ' · ' + ap.escapeHtml(ap.t('blocker.openPlanPortal')) : (candidate.isPlanPortal ? ' · ' + ap.escapeHtml(ap.t('blocker.donePlanPortal')) : '')) + '<span class="ap-blocker-work-distance">' + (blockerDistance ? ' · ' + ap.escapeHtml(blockerDistance) + ' ' + ap.escapeHtml(ap.t('route.aerial')) : '') + '</span></div>';
-          html += '<a class="ap-blocker-work-nav" target="_blank" rel="noopener" href="' + ap.escapeHtml(blockerNav.waze) + '">Waze</a></div>';
+          html += '<div class="ap-blocker-work-actions"><button class="ap-blocker-show-details">' + ap.escapeHtml(ap.t('row.showDetails')) + '</button><button class="ap-blocker-actions">' + ap.escapeHtml(ap.t('row.actions')) + '</button></div></div>';
         });
       }
       html += '<div class="ap-blocker-hint">' + ap.escapeHtml(ap.t('blocker.mapLegend')) + '</div>';
@@ -4036,7 +4601,7 @@ function wrapper(plugin_info) {
       html += '<summary class="ap-row-title"><span class="ap-route-number">' + ap.escapeHtml((local.routeOrder == null ? 0 : local.routeOrder) + 1) + '.</span> <span class="ap-status ' + status.cls + '">' + status.symbol + '</span> <b>' + ap.escapeHtml(ap.displayPortalTitle(stat.title)) + '</b><span class="ap-row-keys">' + ap.escapeHtml(ap.t('row.keys', { owned: local.ownedKeys || 0, required: stat.requiredKeys })) + '</span></summary>';
       if (stat.address) html += '<div class="ap-address">' + ap.escapeHtml(stat.address) + '</div>';
       html += '<div class="ap-meta">' + (stat.source ? ap.escapeHtml(stat.source) + ' · ' : '') + ap.escapeHtml(ap.t('row.links', { count: stat.linkCount })) + ' · ' + ap.escapeHtml(ap.t('row.existing', { count: stat.existingLinks || 0 })) + ' · ' + ap.escapeHtml(ap.t('row.open', { count: stat.openLinks || stat.requiredKeys || 0 })) + ' · ' + ap.escapeHtml(ap.t('row.blocked', { count: stat.blockedLinks || 0 })) + ' · ' + ap.escapeHtml(ap.t('row.keysNeeded')) + ' <input class="ap-owned" type="number" min="0" value="' + ap.escapeHtml(local.ownedKeys || 0) + '"> / ' + ap.escapeHtml(stat.requiredKeys) + ' · ' + ap.escapeHtml(status.label) + '</div>';
-      html += '<div class="ap-controls"><button class="ap-move-up" title="' + ap.escapeHtml(ap.t('row.moveUp')) + '">↑</button><button class="ap-move-down" title="' + ap.escapeHtml(ap.t('row.moveDown')) + '">↓</button> <label><input class="ap-done-check" type="checkbox" ' + (local.done ? 'checked' : '') + '> ' + ap.escapeHtml(ap.t('row.done')) + '</label> <button class="ap-share">' + ap.escapeHtml(ap.t('row.actions')) + '</button></div>';
+      html += '<div class="ap-controls"><button class="ap-move-up" title="' + ap.escapeHtml(ap.t('row.moveUp')) + '">↑</button><button class="ap-move-down" title="' + ap.escapeHtml(ap.t('row.moveDown')) + '">↓</button> <label><input class="ap-done-check" type="checkbox" ' + (local.done ? 'checked' : '') + '> ' + ap.escapeHtml(ap.t('row.done')) + '</label> <button class="ap-show-details">' + ap.escapeHtml(ap.t('row.showDetails')) + '</button> <button class="ap-share">' + ap.escapeHtml(ap.t('row.actions')) + '</button></div>';
       html += '<input class="ap-note" type="hidden" value="' + ap.escapeHtml(local.note || '') + '">';
       html += '</details>';
     });
@@ -4049,10 +4614,15 @@ function wrapper(plugin_info) {
 
     document.getElementById('ap-collapse').onclick = function () { ap.state.panelCollapsed = true; ap.save(); ap.renderPanel(); };
     document.getElementById('ap-scan').onclick = ap.scan;
+    document.getElementById('ap-final-scan').onclick = function () {
+      if (ap.runtime.finalScan && ap.runtime.finalScan.running) ap.pauseFinalScan();
+      else ap.startFinalScan();
+    };
     document.getElementById('ap-more').onclick = function () {
       var show = !panel.classList.contains('ap-show-more');
       panel.classList.toggle('ap-show-more', show);
       this.setAttribute('aria-expanded', show ? 'true' : 'false');
+      ap.schedulePanelPositionCorrection();
     };
     document.getElementById('ap-loadnames').onclick = ap.refreshMissingNames;
     document.getElementById('ap-export').onclick = ap.showExport;
@@ -4084,6 +4654,17 @@ function wrapper(plugin_info) {
         ap.renderPanel();
       };
     });
+    Array.prototype.forEach.call(panel.querySelectorAll('.ap-blocker-work-row'), function (row) {
+      var guid = row.getAttribute('data-guid');
+      var candidate = null;
+      for (var i = 0; i < blockerWorklist.length; i++) {
+        if (blockerWorklist[i].guid === guid) { candidate = blockerWorklist[i]; break; }
+      }
+      var detailsButton = row.querySelector('.ap-blocker-show-details');
+      var actionsButton = row.querySelector('.ap-blocker-actions');
+      if (detailsButton) detailsButton.onclick = function () { ap.showPortalDetails(guid); };
+      if (actionsButton && candidate) actionsButton.onclick = function () { ap.showPortalActions(candidate); };
+    });
     Array.prototype.forEach.call(panel.querySelectorAll('.ap-row'), function (row) {
       var guid = row.getAttribute('data-guid');
       var local = ap.ensureAnchorState(guid);
@@ -4098,7 +4679,11 @@ function wrapper(plugin_info) {
       row.querySelector('.ap-note').onchange = function () { local.note = this.value; ap.save(); };
       row.querySelector('.ap-move-up').onclick = function () { ap.movePortal(guid, -1); };
       row.querySelector('.ap-move-down').onclick = function () { ap.movePortal(guid, 1); };
+      row.querySelector('.ap-show-details').onclick = function () { ap.showPortalDetails(guid); };
       row.querySelector('.ap-share').onclick = function () { ap.showPortalActions(guid); };
+    });
+    Array.prototype.forEach.call(panel.querySelectorAll('.ap-readiness, .ap-blocker-section, .ap-row'), function (details) {
+      details.addEventListener('toggle', function () { ap.schedulePanelPositionCorrection(); });
     });
 
     // v0.1.23: keine eigene Endpunkt-Zuordnung per UI; Draw-Tools-Rohdaten werden nur diagnostiziert.
@@ -4115,7 +4700,7 @@ function wrapper(plugin_info) {
 #iitc-anchor-planner .ap-readiness{padding:5px 8px;border-bottom:1px solid #333}#iitc-anchor-planner .ap-readiness summary{cursor:pointer;overflow-wrap:anywhere}#iitc-anchor-planner .ap-readiness-ready summary{color:#8ee68e}#iitc-anchor-planner .ap-readiness-check summary{color:#f5d76e}#iitc-anchor-planner .ap-readiness-blocked summary{color:#ff8b80}#iitc-anchor-planner .ap-readiness-detail{margin-top:5px;color:#ddd;font-size:11px;line-height:1.35}\
 #iitc-anchor-planner .ap-actions,.ap-settings,.ap-message,.ap-mini{padding:5px 8px;border-bottom:1px solid #333}.ap-message{color:#ccc}.ap-unresolved-item{margin-top:4px;border-top:1px solid #554;padding-top:3px}.ap-mini{color:#ddd}.ap-unresolved{margin-top:4px;color:#f5d76e;font-size:11px;line-height:1.3}\
 #iitc-anchor-planner .ap-blocker-section{padding:5px 8px;border-bottom:1px solid #443;color:#ddd}#iitc-anchor-planner .ap-blocker-section>summary{cursor:pointer;color:#f5d76e;font-weight:bold}#iitc-anchor-planner .ap-blocker-hint{margin-top:5px;color:#aaa;font-size:11px}\
-#iitc-anchor-planner .ap-blocker-work-row{position:relative;margin-top:4px;padding:5px 50px 5px 0;border-top:1px solid #443;overflow-wrap:anywhere}#iitc-anchor-planner .ap-blocker-work-main{color:#fff}#iitc-anchor-planner .ap-blocker-work-main input{vertical-align:middle}#iitc-anchor-planner .ap-blocker-work-select{display:inline-block;cursor:pointer;padding:2px 0}#iitc-anchor-planner .ap-blocker-work-plan{color:#8ee68e;font-weight:bold}#iitc-anchor-planner .ap-blocker-work-meta{margin-top:2px;color:#ccc;font-size:11px}#iitc-anchor-planner .ap-blocker-work-distance{color:#9fd0ff}#iitc-anchor-planner .ap-blocker-work-nav{position:absolute;right:0;top:5px;padding:3px 6px;background:#333;color:#f0d16b;border:1px solid #777;border-radius:3px;text-decoration:none}\
+#iitc-anchor-planner .ap-blocker-work-row{margin-top:4px;padding:5px 0;border-top:1px solid #443;overflow-wrap:anywhere}#iitc-anchor-planner .ap-blocker-work-main{color:#fff}#iitc-anchor-planner .ap-blocker-work-main input{vertical-align:middle}#iitc-anchor-planner .ap-blocker-work-select{display:inline-block;cursor:pointer;padding:2px 0}#iitc-anchor-planner .ap-blocker-work-plan{color:#8ee68e;font-weight:bold}#iitc-anchor-planner .ap-blocker-work-meta{margin-top:2px;color:#ccc;font-size:11px}#iitc-anchor-planner .ap-blocker-work-distance{color:#9fd0ff}#iitc-anchor-planner .ap-blocker-work-actions{margin-top:3px}\
 #iitc-anchor-planner .ap-list{overflow:visible}\
 #iitc-anchor-planner .ap-row{padding:5px 8px;border-bottom:1px solid #333;background:rgba(255,255,255,.02)}#iitc-anchor-planner .ap-row.ap-candidate{background:rgba(255,255,255,.055)}\
 #iitc-anchor-planner .ap-row-title{display:flex;align-items:center;gap:3px;cursor:pointer;font-size:13px}.ap-row-title b{flex:1;min-width:0;overflow-wrap:anywhere}.ap-row-keys{flex:none;color:#9fd0ff;font-size:11px;white-space:nowrap}.ap-address{color:#bbb;margin:4px 0 2px}.ap-meta{margin:4px 0;color:#ddd}.ap-controls{margin:3px 0}.ap-controls a{color:#f0d16b;text-decoration:none;margin-right:5px}.ap-note{width:98%;box-sizing:border-box;margin-top:3px}\
@@ -4123,12 +4708,13 @@ function wrapper(plugin_info) {
 .ap-missing{color:#ff9f43}.ap-partial{color:#f5d76e}.ap-ready{color:#ff6ad5}.ap-existing{color:#bdbdbd}.ap-done{color:#eee}.ap-badge.ap-missing{border-color:#ff9f43}.ap-badge.ap-partial{border-color:#f5d76e}.ap-badge.ap-ready{border-color:#ff6ad5}.ap-badge.ap-existing{border-color:#bdbdbd}.ap-badge.ap-done{border-color:#eee}.ap-next-target{display:flex;align-items:center;gap:8px;padding:6px 8px;border-bottom:1px solid #444;background:#1c2530;color:#fff}.ap-next-target span{flex:1}.ap-next-target .ap-next-distance,.ap-next-target .ap-route-remaining{color:#9fd0ff}.ap-next-target .ap-route-remaining{font-size:11px}.ap-next-target a{padding:4px 7px;background:#333;color:#f0d16b;border:1px solid #777;border-radius:3px;text-decoration:none}.ap-next-complete{color:#ddd}.ap-route-number{display:inline-block;min-width:22px;color:#aaa}.ap-map-badge-next{box-shadow:0 0 0 3px #fff,0 0 0 6px rgba(0,0,0,.95),0 0 12px rgba(255,255,255,.9)!important}.ap-move-up,.ap-move-down{min-width:28px}\
 .ap-action-label{margin-top:10px;font-weight:bold;color:#ddd}.ap-share-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:6px}.ap-share-grid-single{grid-template-columns:1fr}.ap-share-grid a,.ap-share-grid button{display:block;padding:6px;background:#222;color:#f0d16b;border:1px solid #666;border-radius:4px;text-align:center;text-decoration:none}.ap-share-grid .ap-share-main{color:#fff;font-weight:bold;border-color:#aaa}\
 .ap-export-tabs{display:flex;gap:6px;margin-bottom:8px}.ap-export-tab{padding:6px 10px!important}.ap-export-tab-active{background:#555!important;color:#fff!important}.ap-export-text,.ap-export-json{width:100%;height:320px;box-sizing:border-box;font-family:monospace;font-size:12px;background:#111;color:#eee;border:1px solid #666}.ap-export-actions{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}.ap-export-actions button{padding:6px 10px;background:#222;color:#f0d16b;border:1px solid #666;border-radius:4px}\
-.ap-map-html-overlay{position:absolute!important;left:0!important;top:0!important;right:0!important;bottom:0!important;z-index:2500!important;pointer-events:none!important;overflow:visible!important}.ap-map-badge{position:absolute!important;transform:translate(-50%,-50%)!important;min-width:24px!important;height:24px!important;padding:0 3px!important;border-radius:13px!important;border:3px solid #ff9f43!important;background:rgba(0,0,0,.88)!important;color:#fff!important;font:bold 10px/24px Arial,sans-serif!important;text-align:center!important;white-space:nowrap!important;box-sizing:border-box!important;text-shadow:0 1px 2px #000!important;z-index:2501!important}.ap-map-badge-done{font-size:9px!important}.ap-map-badge-ready{font-size:14px!important}.ap-map-badge-partial{font-size:13px!important}\
+.ap-map-html-overlay{position:absolute!important;left:0!important;top:0!important;right:0!important;bottom:0!important;z-index:2500!important;pointer-events:none!important;overflow:visible!important}.ap-map-badge{position:absolute!important;transform:translate(-50%,-50%)!important;min-width:24px!important;height:24px!important;padding:0 3px!important;border-radius:13px!important;border:3px solid #ff9f43!important;background:rgba(0,0,0,.88)!important;color:#fff!important;font:bold 10px/24px Arial,sans-serif!important;text-align:center!important;white-space:nowrap!important;box-sizing:border-box!important;text-shadow:0 1px 2px #000!important;z-index:2501!important}.ap-map-badge-done{font-size:14px!important}.ap-map-badge-ready{font-size:14px!important}.ap-map-badge-partial{font-size:13px!important}\
 @media(max-width:600px){#iitc-anchor-planner{right:5px;left:5px;bottom:76px;width:auto;max-height:calc(100vh - 170px);font-size:12px}#iitc-anchor-planner.ap-positioned{right:auto;width:calc(100vw - 10px)}}\
 ').appendTo('head');
   };
 
   ap.scheduleMapDataPanelRefresh = function (delay) {
+    if (ap.runtime.finalScan && ap.runtime.finalScan.running) return;
     if (ap.runtime.mapDataPanelRefreshTimer) clearTimeout(ap.runtime.mapDataPanelRefreshTimer);
     ap.runtime.mapDataPanelRefreshTimer = setTimeout(function () {
       ap.runtime.mapDataPanelRefreshTimer = null;
@@ -4148,11 +4734,8 @@ function wrapper(plugin_info) {
     }
     ap.runtime.layerGroup = new L.LayerGroup();
     if (typeof window.addLayerGroup === 'function') window.addLayerGroup('Anchor Planner', ap.runtime.layerGroup, true);
-    if (window.map && typeof window.map.hasLayer === 'function' && !window.map.hasLayer(ap.runtime.layerGroup)) {
-      try { ap.runtime.layerGroup.addTo(window.map); } catch (e) {}
-    } else if (window.map && typeof window.map.hasLayer !== 'function') {
-      try { ap.runtime.layerGroup.addTo(window.map); } catch (e) {}
-    }
+    if (window.map && typeof window.map.hasLayer === 'function') ap.runtime.enabled = window.map.hasLayer(ap.runtime.layerGroup);
+    else ap.runtime.enabled = !!ap.runtime.layerGroup._map;
 
     if (window.map && typeof window.map.on === 'function') {
       window.map.on('overlayadd', function (e) {
@@ -4179,7 +4762,8 @@ function wrapper(plugin_info) {
       });
     }
     if (typeof window.addHook === 'function') {
-      try { window.addHook('mapDataRefreshEnd', function () { ap.scheduleMapDataPanelRefresh(100); }); } catch (e) {}
+      try { window.addHook('mapDataRefreshStart', ap.onFinalScanMapDataRefreshStart); } catch (e) {}
+      try { window.addHook('mapDataRefreshEnd', function () { ap.onFinalScanMapDataRefreshEnd(); ap.scheduleMapDataPanelRefresh(100); }); } catch (e2) {}
     }
   };
 

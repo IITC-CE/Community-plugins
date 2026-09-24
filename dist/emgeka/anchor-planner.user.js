@@ -3,7 +3,7 @@
 // @id              anchor-planner@emgeka
 // @name            Anchor Planner
 // @category        Layer
-// @version         0.1.50
+// @version         0.1.54
 // @namespace       https://example.local/iitc
 // @description     Anchor Planner: scans Draw Tools plans, resolves portal names, lists plan portals and key counts.
 // @updateURL       https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/emgeka/anchor-planner.meta.js
@@ -30,13 +30,13 @@ function wrapper(plugin_info) {
   if (typeof window.plugin !== 'function') window.plugin = function () {};
 
   plugin_info.buildName = 'local';
-  plugin_info.dateTimeVersion = '20260922110610';
+  plugin_info.dateTimeVersion = '20260923124024';
   plugin_info.pluginId = 'anchor-planner';
 
   window.plugin.anchorPlanner = function () {};
   var ap = window.plugin.anchorPlanner;
 
-  ap.VERSION = '0.1.50';
+  ap.VERSION = '0.1.54';
   ap.STORAGE_KEY = 'plugin-anchor-planner-v1';
   ap.DEFAULT_TOLERANCE_M = 25;
   ap.MIN_ANCHOR_LINKS = 3;
@@ -45,6 +45,7 @@ function wrapper(plugin_info) {
   ap.FINAL_SCAN_MAX_VIEWS = 12;
   ap.FINAL_SCAN_VIEW_SPACING = 0.75;
   ap.FINAL_SCAN_FALLBACK_MS = 8000;
+  ap.FINAL_SCAN_SETTLE_MS = 1000;
   ap.FALLBACK_LANGUAGE = 'en';
   ap.MISSING_TITLE = '';
 
@@ -2956,6 +2957,7 @@ function wrapper(plugin_info) {
     }
     ap.state.lastScan = last;
     ap.save();
+    ap.queueMissingNameRefresh();
     ap.renderOverlays();
     ap.renderPanel();
   };
@@ -2972,6 +2974,7 @@ function wrapper(plugin_info) {
     if (!scan || !scan.running || scan.stepToken !== token || scan.stepComplete) return;
     scan.stepComplete = true;
     if (scan.stepTimer) clearTimeout(scan.stepTimer);
+    if (scan.settleTimer) clearTimeout(scan.settleTimer);
     if (timedOut && scan.refreshStarted) scan.timedOut = true;
     ap.captureFinalScanLinks();
     scan.index++;
@@ -2981,13 +2984,42 @@ function wrapper(plugin_info) {
 
   ap.onFinalScanMapDataRefreshStart = function () {
     var scan = ap.runtime.finalScan;
-    if (scan && scan.running) scan.refreshStarted = true;
+    if (scan && scan.running) {
+      scan.refreshStarted = true;
+      scan.refreshEnded = false;
+      if (scan.settleTimer) {
+        clearTimeout(scan.settleTimer);
+        scan.settleTimer = null;
+      }
+    }
+  };
+
+  ap.scheduleFinalScanStepCompletion = function () {
+    var scan = ap.runtime.finalScan;
+    if (!scan || !scan.running || !scan.refreshEnded || scan.stepComplete) return;
+    var token = scan.stepToken;
+    if (scan.settleTimer) clearTimeout(scan.settleTimer);
+    scan.settleTimer = setTimeout(function () {
+      ap.completeFinalScanStep(token, false);
+    }, ap.FINAL_SCAN_SETTLE_MS);
   };
 
   ap.onFinalScanMapDataRefreshEnd = function () {
     var scan = ap.runtime.finalScan;
     if (!scan || !scan.running || !scan.refreshStarted) return;
-    ap.completeFinalScanStep(scan.stepToken, false);
+    scan.refreshEnded = true;
+    if (scan.stepTimer) {
+      clearTimeout(scan.stepTimer);
+      scan.stepTimer = null;
+    }
+    ap.scheduleFinalScanStepCompletion();
+  };
+
+  ap.onFinalScanLinkAdded = function () {
+    var scan = ap.runtime.finalScan;
+    if (!scan || !scan.running || !scan.refreshEnded || scan.stepComplete) return;
+    // Wait for a quiet period after IITC's last late link-layer update.
+    ap.scheduleFinalScanStepCompletion();
   };
 
   ap.finishFinalScan = function () {
@@ -2995,6 +3027,7 @@ function wrapper(plugin_info) {
     if (!scan || !scan.running) return;
     scan.running = false;
     if (scan.stepTimer) clearTimeout(scan.stepTimer);
+    if (scan.settleTimer) clearTimeout(scan.settleTimer);
     ap.captureFinalScanLinks();
     var complete = !scan.truncated && !scan.timedOut;
     var checked = Math.min(scan.index, scan.points.length);
@@ -3019,6 +3052,7 @@ function wrapper(plugin_info) {
     if (!scan || !scan.running) return false;
     scan.running = false;
     if (scan.stepTimer) clearTimeout(scan.stepTimer);
+    if (scan.settleTimer) clearTimeout(scan.settleTimer);
     ap.captureFinalScanLinks();
     ap.persistFinalScanProgress();
     try { window.map.setView(scan.originalCenter, scan.originalZoom, { animate: false }); } catch (e) {}
@@ -3033,7 +3067,9 @@ function wrapper(plugin_info) {
     if (!scan || !scan.running) return;
     if (scan.index >= scan.points.length) { ap.finishFinalScan(); return; }
     scan.refreshStarted = false;
+    scan.refreshEnded = false;
     scan.stepComplete = false;
+    if (scan.settleTimer) clearTimeout(scan.settleTimer);
     scan.stepToken++;
     var token = scan.stepToken;
     ap.setMessage(ap.t('message.finalScanProgress', { current: scan.index + 1, total: scan.points.length }));
@@ -3098,9 +3134,11 @@ function wrapper(plugin_info) {
       originalZoom: window.map.getZoom(),
       timedOut: saved ? !!saved.timedOut : false,
       refreshStarted: false,
+      refreshEnded: false,
       stepToken: 0,
       stepComplete: false,
-      stepTimer: null
+      stepTimer: null,
+      settleTimer: null
     };
     ap.captureFinalScanLinks();
     ap.persistFinalScanProgress();
@@ -3322,7 +3360,7 @@ function wrapper(plugin_info) {
 
   ap.getNextPortal = function (location) {
     var open = ap.sortedStats(false).filter(function (stat) {
-      return !ap.ensureAnchorState(stat.guid).done;
+      return ap.isOpenPlanPortal(stat);
     });
     if (!open.length) return null;
 
@@ -3375,7 +3413,7 @@ function wrapper(plugin_info) {
           lng: Number(latlng.lng),
           blockerIds: {},
           isPlanPortal: !!(ap.runtime.stats && ap.runtime.stats[guid]),
-          isOpenPlanPortal: !!(ap.runtime.stats && ap.runtime.stats[guid] && !ap.ensureAnchorState(guid).done),
+          isOpenPlanPortal: ap.isOpenPlanPortal(ap.runtime.stats && ap.runtime.stats[guid]),
           selected: false,
           distance: null
         };
@@ -3415,7 +3453,7 @@ function wrapper(plugin_info) {
     var tasks = [];
     var included = {};
     ap.sortedStats(false).forEach(function (stat) {
-      if (ap.ensureAnchorState(stat.guid).done || included[stat.guid]) return;
+      if (!ap.isOpenPlanPortal(stat) || included[stat.guid]) return;
       var task = Object.assign({}, stat, { routeTargetType: 'plan' });
       tasks.push(task);
       included[stat.guid] = true;
@@ -3678,6 +3716,7 @@ function wrapper(plugin_info) {
       ap.state.finalScanProgress = null;
     }
     ap.normalizeRouteOrder();
+    ap.resetListFilterAfterScan();
     ap.state.lastScan = {
       at: new Date().toISOString(),
       drawLayers: layers.length,
@@ -3707,14 +3746,9 @@ function wrapper(plugin_info) {
       unresolvedSample: unresolved.slice(0, 6)
     };
     ap.save();
+    ap.queueMissingNameRefresh();
     ap.renderOverlays();
     ap.renderPanel();
-
-    // If the scan only found placeholder names, use the same proven logic as the "Namen laden" button automatically.
-    // This is intentionally delayed so the scan UI renders first and does not block the map.
-    if (Object.keys(stats).some(function (guid) { return stats[guid] && ap.isMissingPortalTitle(stats[guid].title); })) {
-      setTimeout(function () { ap.refreshMissingNames(true); }, 250);
-    }
   };
 
   ap.getStatus = function (guid, stat) {
@@ -3731,10 +3765,20 @@ function wrapper(plugin_info) {
     var filter = ap.state.listFilter || 'all';
     var local = ap.ensureAnchorState(stat.guid);
     if (filter === 'all') return true;
-    if (filter === 'open') return !local.done;
+    if (filter === 'open') return ap.isOpenPlanPortal(stat);
     if (filter === 'done') return !!local.done;
     if (filter === 'blocked') return !local.done && (stat.blockedLinks || 0) > 0;
     if (filter === 'keys') return !local.done && (stat.requiredKeys || 0) > (local.ownedKeys || 0);
+    return true;
+  };
+
+  ap.isOpenPlanPortal = function (stat) {
+    return !!(stat && !ap.ensureAnchorState(stat.guid).done && (Number(stat.openLinks) || 0) > 0);
+  };
+
+  ap.resetListFilterAfterScan = function () {
+    if ((ap.state.listFilter || 'all') === 'all') return false;
+    ap.state.listFilter = 'all';
     return true;
   };
 
@@ -3743,7 +3787,7 @@ function wrapper(plugin_info) {
     stats.forEach(function (stat) {
       var local = ap.ensureAnchorState(stat.guid);
       if (local.done) counts.done++;
-      else counts.open++;
+      else if (ap.isOpenPlanPortal(stat)) counts.open++;
       if (!local.done && (stat.blockedLinks || 0) > 0) counts.blocked++;
       if (!local.done && (stat.requiredKeys || 0) > (local.ownedKeys || 0)) counts.keys++;
     });
@@ -4167,10 +4211,81 @@ function wrapper(plugin_info) {
     finish(null);
   };
 
-  ap.refreshMissingNames = function (auto) {
-    var missing = Object.keys(ap.runtime.stats).filter(function (guid) {
-      return ap.runtime.stats[guid] && ap.isMissingPortalTitle(ap.runtime.stats[guid].title);
+  ap.updatePortalTitle = function (guid, title) {
+    title = ap.cleanTitle(title);
+    if (!guid || ap.isMissingPortalTitle(title)) return false;
+    var changed = false;
+    var persistentProgressChanged = false;
+    if (ap.runtime.stats[guid] && ap.runtime.stats[guid].title !== title) {
+      ap.runtime.stats[guid].title = title;
+      changed = true;
+    }
+    function updateLinkTitles(links, persistent) {
+      (links || []).forEach(function (link) {
+        if (link.a === guid && link.titleA !== title) {
+          link.titleA = title;
+          changed = true;
+          if (persistent) persistentProgressChanged = true;
+        }
+        if (link.b === guid && link.titleB !== title) {
+          link.titleB = title;
+          changed = true;
+          if (persistent) persistentProgressChanged = true;
+        }
+      });
+    }
+    (ap.runtime.links || []).forEach(function (plannedLink) {
+      updateLinkTitles(plannedLink && plannedLink.blockers);
     });
+    updateLinkTitles(ap.runtime.existingLinks);
+    if (ap.runtime.finalScan && ap.runtime.finalScan.accumulator) updateLinkTitles(ap.runtime.finalScan.accumulator.list);
+    var progressLinks = ap.state.finalScanProgress && ap.state.finalScanProgress.links;
+    updateLinkTitles(progressLinks, true);
+    if (persistentProgressChanged) ap.save();
+    return changed;
+  };
+
+  ap.collectMissingPortalNameGuids = function () {
+    var missing = {};
+
+    function consider(guid, fallbackTitle) {
+      if (!guid) return;
+      var marker = window.portals && window.portals[guid];
+      var loadedTitle = ap.getPortalTitleFromMarker(guid, marker);
+      if (!ap.isMissingPortalTitle(loadedTitle)) {
+        ap.updatePortalTitle(guid, loadedTitle);
+        delete missing[guid];
+        return;
+      }
+      if (!ap.isMissingPortalTitle(fallbackTitle)) {
+        ap.updatePortalTitle(guid, fallbackTitle);
+        delete missing[guid];
+        return;
+      }
+      missing[guid] = true;
+    }
+
+    Object.keys(ap.runtime.stats || {}).forEach(function (guid) {
+      consider(guid, ap.runtime.stats[guid] && ap.runtime.stats[guid].title);
+    });
+    (ap.runtime.links || []).forEach(function (plannedLink) {
+      (plannedLink && plannedLink.blockers || []).forEach(function (blocker) {
+        consider(blocker.a, blocker.titleA);
+        consider(blocker.b, blocker.titleB);
+      });
+    });
+    return Object.keys(missing);
+  };
+
+  ap.queueMissingNameRefresh = function () {
+    if (!ap.collectMissingPortalNameGuids().length) return false;
+    // Let the scan UI render before the same sequential loader used by the manual retry starts.
+    setTimeout(function () { ap.refreshMissingNames(true); }, 250);
+    return true;
+  };
+
+  ap.refreshMissingNames = function (auto) {
+    var missing = ap.collectMissingPortalNameGuids();
     if (!missing.length) {
       ap.setMessage(ap.t('message.namesNoneMissing'));
       return;
@@ -4191,7 +4306,7 @@ function wrapper(plugin_info) {
         var marker = window.portals && window.portals[guid];
         var title = ap.getPortalTitleFromMarker(guid, marker);
         if (ap.isMissingPortalTitle(title)) title = ap.extractTitleFromObject(data, 0) || title;
-        if (ap.runtime.stats[guid] && title && !ap.isMissingPortalTitle(title)) ap.runtime.stats[guid].title = title;
+        ap.updatePortalTitle(guid, title);
         ap.setMessage(ap.t(auto ? 'message.namesLoadingAuto' : 'message.namesLoading', { current: idx, total: missing.length }));
         setTimeout(next, 900);
       });
@@ -4764,6 +4879,7 @@ function wrapper(plugin_info) {
     if (typeof window.addHook === 'function') {
       try { window.addHook('mapDataRefreshStart', ap.onFinalScanMapDataRefreshStart); } catch (e) {}
       try { window.addHook('mapDataRefreshEnd', function () { ap.onFinalScanMapDataRefreshEnd(); ap.scheduleMapDataPanelRefresh(100); }); } catch (e2) {}
+      try { window.addHook('linkAdded', ap.onFinalScanLinkAdded); } catch (e3) {}
     }
   };
 

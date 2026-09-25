@@ -2,7 +2,7 @@
 
 A collection of amazing plugins made by community.
 
-There are now 137 plugins from 47 authors in the collection.
+There are now 138 plugins from 48 authors in the collection.
 
 > Note: You must install IITC-CE on your [desktop](https://iitc.app/download_desktop)
 or [mobile device](https://iitc.app/download_mobile) to use IITC plugins.
@@ -883,6 +883,22 @@ Calculate how to link the portals to create the largest tidy set of nested field
 *[Homepage](https://github.com/Heistergand/fanfields2/)* |
 *[Issue tracker](https://github.com/Heistergand/fanfields2/issues)* |
 *Version:* 2.8.3.20260910
+
+
+  
+### [Fan Fields 3](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Avataar120/fanfields3.user.js) by Avataar120
+
+
+
+![preview](https://raw.githubusercontent.com/Avataar120/fanfields3/master/FanFields3.png)
+
+Fork of Heistergand&#39;s Fan Fields 2 (thanks Heistergand for the original work!). Plans the largest tidy set of nested fields, and adds: walking optimization (less backtracking between portals, Destroy stops placed where they add the least walking), automatic best anchor/direction search that reuses your faction&#39;s existing links, Blockers handling in the Task List, plan locking, Pick anchor on the map, and route export to Google Maps / Portal Route. Enable from the layer chooser.
+
+*Depends*: draw-tools@breunigs  |
+*Recommends*: bookmarks@ZasoGD draw-tools-plus@zaso liveInventory@DanielOnDiordna keys@xelio  |
+*[Homepage](https://github.com/Avataar120/fanfields3/)* |
+*[Issue tracker](https://github.com/Avataar120/fanfields3/issues)* |
+*Version:* 3.1.1.20260925
 
 
   

@@ -164,6 +164,72 @@
       "updatedAt": "2026-04-28T17:35:48.000Z"
     },
     {
+      "author": "Avataar120",
+      "id": "fanfields3@Avataar120",
+      "name": "Fan Fields 3",
+      "category": "Layer",
+      "version": "3.1.1.20260925",
+      "description": "Fork of Heistergand's Fan Fields 2 (thanks Heistergand for the original work!). Plans the largest tidy set of nested fields, and adds: walking optimization (less backtracking between portals, Destroy stops placed where they add the least walking), automatic best anchor/direction search that reuses your faction's existing links, Blockers handling in the Task List, plan locking, Pick anchor on the map, and route export to Google Maps / Portal Route. Enable from the layer chooser.",
+      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Avataar120/fanfields3.user.js",
+      "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Avataar120/fanfields3.meta.js",
+      "icon": "https://raw.githubusercontent.com/Avataar120/fanfields3/master/fanfields3-32.png",
+      "icon64": "https://raw.githubusercontent.com/Avataar120/fanfields3/master/fanfields3-64.png",
+      "supportURL": "https://github.com/Avataar120/fanfields3/issues",
+      "namespace": "https://github.com/Avataar120/fanfields3",
+      "issueTracker": "https://github.com/Avataar120/fanfields3/issues",
+      "homepageURL": "https://github.com/Avataar120/fanfields3/",
+      "depends": [
+        "draw-tools@breunigs"
+      ],
+      "recommends": [
+        "bookmarks@ZasoGD",
+        "draw-tools-plus@zaso",
+        "liveInventory@DanielOnDiordna",
+        "keys@xelio"
+      ],
+      "match": [
+        "https://intel.ingress.com/*"
+      ],
+      "include": [
+        "https://intel.ingress.com/*"
+      ],
+      "grant": [
+        "none"
+      ],
+      "preview": "https://raw.githubusercontent.com/Avataar120/fanfields3/master/FanFields3.png",
+      "id_hash": "fanfields3-by-Avataar120",
+      "updatedAt": "2026-09-25T12:38:28.724Z",
+      "_depends_links": [
+        {
+          "id": "draw-tools@breunigs",
+          "hash": "draw-tools-by-breunigs",
+          "source": "core"
+        }
+      ],
+      "_recommends_links": [
+        {
+          "id": "bookmarks@ZasoGD",
+          "hash": "bookmarks-by-ZasoGD",
+          "source": "core"
+        },
+        {
+          "id": "draw-tools-plus@zaso",
+          "hash": null,
+          "source": null
+        },
+        {
+          "id": "liveInventory@DanielOnDiordna",
+          "hash": "liveInventory-by-DanielOnDiordna",
+          "source": "community"
+        },
+        {
+          "id": "keys@xelio",
+          "hash": "keys-by-xelio",
+          "source": "core"
+        }
+      ]
+    },
+    {
       "author": "BlancLapin",
       "id": "advanced_player_tracker@BlancLapin",
       "name": "Advanced Tracker Player",
@@ -2533,7 +2599,7 @@
         "none"
       ],
       "id_hash": "anchor-planner-by-emgeka",
-      "updatedAt": "2026-09-24T02:58:44.080Z",
+      "updatedAt": "2026-09-24T02:58:49.000Z",
       "_depends_links": [
         {
           "id": "draw-tools@breunigs",

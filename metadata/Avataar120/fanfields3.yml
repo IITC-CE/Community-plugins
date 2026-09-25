@@ -1,0 +1,13 @@
+updateURL: https://github.com/Avataar120/fanfields3/raw/master/iitc_plugin_fanfields3.meta.js
+downloadURL: https://github.com/Avataar120/fanfields3/raw/master/iitc_plugin_fanfields3.user.js
+issueTracker: https://github.com/Avataar120/fanfields3/issues
+homepageURL: https://github.com/Avataar120/fanfields3/
+depends: draw-tools@breunigs
+name: Fan Fields 3
+recommends:
+  - bookmarks@ZasoGD
+  - draw-tools-plus@zaso
+  - liveInventory@DanielOnDiordna
+  - keys@xelio
+author: Avataar120
+preview: https://raw.githubusercontent.com/Avataar120/fanfields3/master/FanFields3.png

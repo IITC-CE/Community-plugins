@@ -1,0 +1,8 @@
+updateURL: https://github.com/Avataar120/IITC-Synchro/raw/main/iitc-simple-cloud-sync.meta.js
+downloadURL: https://github.com/Avataar120/IITC-Synchro/raw/main/iitc-simple-cloud-sync.user.js
+issueTracker: https://github.com/Avataar120/IITC-Synchro/issues
+homepageURL: https://github.com/Avataar120/IITC-Synchro/
+name: Simple Cloud Sync
+author: Avataar120
+antiFeatures:
+  - export

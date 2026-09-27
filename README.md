@@ -2,7 +2,7 @@
 
 A collection of amazing plugins made by community.
 
-There are now 138 plugins from 48 authors in the collection.
+There are now 139 plugins from 48 authors in the collection.
 
 > Note: You must install IITC-CE on your [desktop](https://iitc.app/download_desktop)
 or [mobile device](https://iitc.app/download_mobile) to use IITC plugins.
@@ -898,7 +898,7 @@ Fork of Heistergand&#39;s Fan Fields 2 (thanks Heistergand for the original work
 *Recommends*: bookmarks@ZasoGD draw-tools-plus@zaso liveInventory@DanielOnDiordna keys@xelio  |
 *[Homepage](https://github.com/Avataar120/fanfields3/)* |
 *[Issue tracker](https://github.com/Avataar120/fanfields3/issues)* |
-*Version:* 3.1.2.20260926
+*Version:* 3.2.1.20260927
 
 
   
@@ -1544,6 +1544,20 @@ Show uniques visit/captures based on GDPR game_log
 *[Homepage](https://github.com/xificurk/iitc-plugins)* |
 *[Issue tracker](https://github.com/xificurk/iitc-plugins/issues)* |
 *Version:* 0.1.0.20201122.121942
+
+
+  
+### [Simple Cloud Sync](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Avataar120/simple-cloud-sync.user.js) by Avataar120
+
+**Anti-features:** **[export](/CONTRIBUTING.md#anti-features)** 
+
+
+
+Syncs the localStorage data of your IITC plugins (bookmarks, draw tools, settings…) across all your devices. Each agent has a private, password-protected space on the sync server, keyed by the logged-in agent name. Per-key merge, most recent change wins; the server is only contacted when something changed.
+
+*[Homepage](https://github.com/Avataar120/IITC-Synchro/)* |
+*[Issue tracker](https://github.com/Avataar120/IITC-Synchro/issues)* |
+*Version:* 1.2.0.20260927
 
 
   

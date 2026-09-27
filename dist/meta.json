@@ -168,7 +168,7 @@
       "id": "fanfields3@Avataar120",
       "name": "Fan Fields 3",
       "category": "Layer",
-      "version": "3.1.2.20260926",
+      "version": "3.2.1.20260927",
       "description": "Fork of Heistergand's Fan Fields 2 (thanks Heistergand for the original work!). Plans the largest tidy set of nested fields, and adds: walking optimization (less backtracking between portals, Destroy stops placed where they add the least walking), automatic best anchor/direction search that reuses your faction's existing links, Blockers handling in the Task List, plan locking, Pick anchor on the map, and route export to Google Maps / Portal Route. Enable from the layer chooser.",
       "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Avataar120/fanfields3.user.js",
       "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Avataar120/fanfields3.meta.js",
@@ -198,7 +198,7 @@
       ],
       "preview": "https://raw.githubusercontent.com/Avataar120/fanfields3/master/FanFields3.png",
       "id_hash": "fanfields3-by-Avataar120",
-      "updatedAt": "2026-09-27T03:27:29.721Z",
+      "updatedAt": "2026-09-27T13:52:49.271Z",
       "_depends_links": [
         {
           "id": "draw-tools@breunigs",
@@ -228,6 +228,36 @@
           "source": "core"
         }
       ]
+    },
+    {
+      "author": "Avataar120",
+      "id": "simple-cloud-sync@Avataar120",
+      "name": "Simple Cloud Sync",
+      "category": "Misc",
+      "version": "1.2.0.20260927",
+      "description": "Syncs the localStorage data of your IITC plugins (bookmarks, draw tools, settings…) across all your devices. Each agent has a private, password-protected space on the sync server, keyed by the logged-in agent name. Per-key merge, most recent change wins; the server is only contacted when something changed.",
+      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Avataar120/simple-cloud-sync.user.js",
+      "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Avataar120/simple-cloud-sync.meta.js",
+      "icon": "https://raw.githubusercontent.com/Avataar120/IITC-Synchro/main/simplecloudsync-32.png",
+      "icon64": "https://raw.githubusercontent.com/Avataar120/IITC-Synchro/main/simplecloudsync-64.png",
+      "supportURL": "https://github.com/Avataar120/IITC-Synchro/issues",
+      "namespace": "https://github.com/Avataar120/IITC-Synchro",
+      "issueTracker": "https://github.com/Avataar120/IITC-Synchro/issues",
+      "homepageURL": "https://github.com/Avataar120/IITC-Synchro/",
+      "antiFeatures": [
+        "export"
+      ],
+      "match": [
+        "https://intel.ingress.com/*"
+      ],
+      "include": [
+        "https://intel.ingress.com/*"
+      ],
+      "grant": [
+        "none"
+      ],
+      "id_hash": "simple-cloud-sync-by-Avataar120",
+      "updatedAt": "2026-09-27T13:52:50.175Z"
     },
     {
       "author": "BlancLapin",

@@ -3,7 +3,7 @@
 // @id              fanfields3@Avataar120
 // @name            Fan Fields 3
 // @category        Layer
-// @version         3.1.2.20260926
+// @version         3.2.1.20260927
 // @description     Fork of Heistergand's Fan Fields 2 (thanks Heistergand for the original work!). Plans the largest tidy set of nested fields, and adds: walking optimization (less backtracking between portals, Destroy stops placed where they add the least walking), automatic best anchor/direction search that reuses your faction's existing links, Blockers handling in the Task List, plan locking, Pick anchor on the map, and route export to Google Maps / Portal Route. Enable from the layer chooser.
 // @downloadURL     https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Avataar120/fanfields3.user.js
 // @updateURL       https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Avataar120/fanfields3.meta.js
@@ -25,7 +25,7 @@ function wrapper(plugin_info) {
   // ensure plugin framework is there, even if iitc is not yet loaded
   if (typeof window.plugin !== 'function') window.plugin = function () {};
   plugin_info.buildName = 'main';
-  plugin_info.dateTimeVersion = '2026-09-26-074135';
+  plugin_info.dateTimeVersion = '2026-09-27-145757';
   plugin_info.pluginId = 'fanfields';
 
   /* global L, $, dialog, map, portals, links, plugin  -- eslint*/
@@ -33,6 +33,22 @@ function wrapper(plugin_info) {
 
   var arcname = (window.PLAYER && window.PLAYER.team === 'ENLIGHTENED') ? 'Arc' : '***';
   var changelog = [{
+      version: '3.2.1',
+      changes: [
+        'FIX: A finished portal (Action "Nothing") now always shows pale yellow and struck through in the Task List, like every other finished portal, even when it was green (moved earlier by Less walking) or carried the red cross of a blocking link it frees. The printed Task List follows the same rule.',
+      ],
+    },{
+      version: '3.2.0',
+      changes: [
+        'NEW: Reroute button next to Refresh in the Task List: reorders the steps still to do so that, from your current position (GPS, else IITC\'s own location, else the map center), you walk as little as possible. Steps already done stay at the top, each portal is still captured and its keys gathered before anyone links to it (unless it is already yours with enough keys), and no field is lost. Links and fields stay the same, the map numbers, Destroy stops, Google Maps and Portal Route follow the new order, and it works while the plan is locked too. The new order holds until the plan changes or Reset link orders is used.',
+        'FIX: A field closed by a different link than planned, when the walk order was changed (Less walking), is now counted and drawn instead of being left out.',
+      ],
+    },{
+      version: '3.1.3',
+      changes: [
+        'IMPROVE: The Task List now opens scrolled to the first step still to do, with the step just before it kept in view, instead of always starting at the top.',
+      ],
+    },{
       version: '3.1.2',
       changes: [
         'IMPROVE: New, more modern plugin icon: a white hand fan on a violet-to-pink tile with a big 3 in its center.',
@@ -670,6 +686,17 @@ function wrapper(plugin_info) {
   // order. null when no portal is currently relocated.
   thisplugin.displayOrderGuids = null;
 
+  // Task List "Reroute" button: the walk order it computed from the player's position (see
+  // thisplugin.rerouteFromPlayerPosition) — steps already done first, then the remaining ones in
+  // the order that walks the least. Like displayOrderGuids it's a PURE DISPLAY order, and it takes
+  // precedence over it. It only holds for the exact plan it was computed on
+  // (routeOrderPlanKey, see getPlanShapeKey): as soon as the plan changes (anchor, options,
+  // polygon, link directions, ...) it's dropped for good and the normal walk order comes back.
+  // routeOrderInfo keeps what the Task List reports about it: { source, before, after }.
+  thisplugin.routeOrderGuids = null;
+  thisplugin.routeOrderPlanKey = null;
+  thisplugin.routeOrderInfo = null;
+
   // Link order optimization (menu button "Link order"). This never touches the algorithm
   // itself (which links exist, which fields form) — it only pre-fills / edits
   // thisplugin.manualLinkFlips, the very same map the Task List's per-link ↔ button edits by
@@ -735,8 +762,13 @@ function wrapper(plugin_info) {
   // player actually walks: Task List rows/positions, on-map position numbers, the "Path"
   // preview, Google Maps navigation, Portal Route stops, bookmark order. The core algorithm
   // itself, and anything about which links/fields exist, must keep using thisplugin.sortedFanpoints.
+  // A "Reroute" order (routeOrderGuids) computed on this very plan wins over both.
   thisplugin.getDisplayOrder = function () {
     var sorted = thisplugin.sortedFanpoints || [];
+
+    var routeOrder = thisplugin.getRouteOrder();
+    if (routeOrder) return routeOrder;
+
     var guids = thisplugin.displayOrderGuids;
     if (!guids || guids.length !== sorted.length) return sorted;
 
@@ -752,6 +784,41 @@ function wrapper(plugin_info) {
     if (reordered[0].guid !== thisplugin.startingpointGUID) return sorted; // anchor must stay first
 
     return reordered;
+  };
+
+  // Identifies the plan's shape: its portals in build order, each with the portals it throws to.
+  // Two plans with the same key have exactly the same links in the same directions.
+  thisplugin.getPlanShapeKey = function () {
+    return (thisplugin.sortedFanpoints || []).map(function (fp) {
+      return fp.guid + '>' + (fp.outgoing || []).map(function (target) { return target.guid; }).join(',');
+    }).join('|');
+  };
+
+  // The "Reroute" walk order as fanpoints, or null when there is none or the plan it was computed
+  // on has changed since (in which case it's dropped for good).
+  thisplugin.getRouteOrder = function () {
+    var guids = thisplugin.routeOrderGuids;
+    if (!guids) return null;
+
+    var sorted = thisplugin.sortedFanpoints || [];
+    var byGuid = {};
+    sorted.forEach(function (fp) { byGuid[fp.guid] = fp; });
+    var order = guids.map(function (guid) { return byGuid[guid]; });
+
+    var stillValid = guids.length === sorted.length &&
+      order.every(function (fp) { return !!fp; }) &&
+      thisplugin.getPlanShapeKey() === thisplugin.routeOrderPlanKey;
+    if (!stillValid) {
+      thisplugin.clearRouteOrder();
+      return null;
+    }
+    return order;
+  };
+
+  thisplugin.clearRouteOrder = function () {
+    thisplugin.routeOrderGuids = null;
+    thisplugin.routeOrderPlanKey = null;
+    thisplugin.routeOrderInfo = null;
   };
 
   thisplugin.saveBookmarks = function () {
@@ -983,6 +1050,8 @@ function wrapper(plugin_info) {
         'Open <i>Task List</i> to get a step-by-step plan including per-portal key requirements, outgoing link counts, and (optional) link details. ' +
         'If you use a Keys/LiveInventory plugin, the task list can also show your available key counts. ' +
         'The task list includes a navigation link for Google Maps and a print-friendly view. ' +
+        'Its <i>Reroute</i> button reorders the steps still to do, starting from your current position (GPS, else IITC\'s own location, else the map center), so you walk as little as possible — while still capturing each portal, and getting its keys, before anyone links to it, and without losing a field. ' +
+        'The links and fields stay the same, it works while the plan is locked too, and the new order holds until the plan itself changes (or <i>Reset&nbsp;link&nbsp;orders</i>). ' +
         'You can also export the plan to Drawtools/Bookmarks to share or continue working with it.</p>' +
 
         '<hr noshade>' +
@@ -1306,6 +1375,22 @@ function wrapper(plugin_info) {
     return text;
   };
 
+  // Keys held for a portal, per the LiveInventory plugin, or else the Keys plugin; 0 without either.
+  thisplugin.getAvailableKeys = function (guid) {
+    if (window.plugin.LiveInventory) {
+      if (window.plugin.LiveInventory.keyGuidCount) {
+        return window.plugin.LiveInventory.keyGuidCount[guid] || 0;
+      }
+      if (window.plugin.LiveInventory.keyCount) {
+        return window.plugin.LiveInventory.keyCount.find(obj => obj.portalCoupler.portalGuid === guid)
+          ?.count || 0;
+      }
+      return 0;
+    }
+    if (window.plugin.keys) return window.plugin.keys.keys[guid] || 0;
+    return 0;
+  };
+
   // Task List: build the HTML for the current plan. Used both to open the dialog and to
   // refresh it live (see thisplugin.refreshTaskListIfOpen) as the background plan changes.
   thisplugin.buildTaskListHTML = function () {
@@ -1412,19 +1497,7 @@ function wrapper(plugin_info) {
       let hasEnoughKeys = false;
       let keyColorAttribute = '';
       if (hasKeysPluginData) {
-
-        if (window.plugin.LiveInventory) {
-          if (window.plugin.LiveInventory.keyGuidCount) {
-            availableKeys = window.plugin.LiveInventory.keyGuidCount[portal.guid] || 0;
-          } else if (window.plugin.LiveInventory.keyCount) {
-            availableKeys = window.plugin.LiveInventory.keyCount.find(obj => obj.portalCoupler.portalGuid === portal.guid)
-              ?.count || 0;
-          }
-        } else {
-          availableKeys = window.plugin.keys.keys[portal.guid] || 0;
-        }
-        // Beware of bugs in the above code; I have only proved it correct, not tried it! (Donald Knuth)
-
+        availableKeys = thisplugin.getAvailableKeys(portal.guid);
         hasEnoughKeys = availableKeys >= keysNeeded;
         keyColorAttribute = hasEnoughKeys ? 'plugin_fanfields3_enoughKeys' : 'plugin_fanfields3_notEnoughKeys';
       };
@@ -1467,12 +1540,14 @@ function wrapper(plugin_info) {
       var keysCellDone = keysNeeded === 0 || (hasKeysPluginData && hasEnoughKeys);
 
       // "Less walking" relocated this portal earlier in the walk (see computeDistanceOrderFlips):
-      // flag it so it's captured, with enough of its own keys gathered, ahead of schedule.
-      let isRelocatedForLessWalking = !!(thisplugin.relocatedForLessWalkingGuids && thisplugin.relocatedForLessWalkingGuids[portal.guid]);
+      // flag it so it's captured, with enough of its own keys gathered, ahead of schedule. Not
+      // while a "Reroute" order is shown: that order already places every portal early enough.
+      let isRelocatedForLessWalking = !thisplugin.routeOrderInfo &&
+        !!(thisplugin.relocatedForLessWalkingGuids && thisplugin.relocatedForLessWalkingGuids[portal.guid]);
 
       // Both classes can apply at once (a portal with nothing left to do that was also
-      // relocated): "relocated" is declared after "done" in the stylesheet, so its green color
-      // wins over "done"'s faded yellow, while "done"'s strikethrough still applies.
+      // relocated): "done" wins in the stylesheet, so a finished portal always shows faded
+      // yellow and struck through, like every other finished portal.
       var portalRowClasses = [];
       if (action === 'Nothing') portalRowClasses.push('plugin_fanfields3_portal_done');
       if (isRelocatedForLessWalking) portalRowClasses.push('plugin_fanfields3_portal_relocated');
@@ -1635,6 +1710,16 @@ function wrapper(plugin_info) {
       }
       text += '</div>';
     }
+
+    var routeInfo = thisplugin.routeOrderInfo;
+    if (routeInfo) {
+      text += '<div class="plugin_fanfields3_route_summary">&#128694; Steps still to do reordered from your position (' +
+        routeInfo.source + '): about ' + thisplugin.formatDistance(routeInfo.after) + ' of walking' +
+        (routeInfo.after < routeInfo.before - 1
+          ? ' instead of ' + thisplugin.formatDistance(routeInfo.before) + '.'
+          : ' — the current order was already the shortest found.') +
+        '</div>';
+    }
     text += '<hr noshade>';
 
     // On mobile, only the next stops still to do are sent (see GOOGLE_MAPS_MAX_STOPS_MOBILE);
@@ -1647,8 +1732,9 @@ function wrapper(plugin_info) {
 
     let flipCount = Object.keys(thisplugin.manualLinkFlips || {}).length;
     text += '<div style="margin-top:10px; text-align:right;">' +
-      '  <button id="plugin_fanfields3_reset_link_flips_btn"' + (flipCount === 0 ? ' disabled' : '') +
-      '    title="Revert all manually flipped links (' + flipCount + ') back to automatic calculation">Reset link orders</button> ' +
+      '  <button id="plugin_fanfields3_reset_link_flips_btn"' + (flipCount === 0 && !routeInfo ? ' disabled' : '') +
+      '    title="Revert all manually flipped links (' + flipCount + ') back to automatic calculation' +
+      (routeInfo ? ', and drop the Reroute order' : '') + '">Reset link orders</button> ' +
       '  <button id="plugin_fanfields3_export_pdf_btn">Print</button>' +
       '</div>';
 
@@ -1826,7 +1912,30 @@ function wrapper(plugin_info) {
 
     thisplugin.wireTaskListHandlers();
     thisplugin.addTaskListShiftButtons();
+    thisplugin.scrollTaskListToFirstPending();
 
+  };
+
+  // Scroll the open Task List so its first row with something still left to do (any row not
+  // marked done, Destroy stops included) sits at the top of the visible area, with the
+  // previous row kept just above it for context. Stays at the top when that's the very first
+  // row, or when every row is already done.
+  thisplugin.scrollTaskListToFirstPending = function () {
+    var $content = $('#dialog-plugin_fanfields3_alert_textExport');
+    if (!$content.length) return;
+
+    var $rows = $content.find('.plugin_fanfields3_exportText_Portal > tr');
+    var pendingIndex = -1;
+    $rows.each(function (i) {
+      if (!$(this).hasClass('plugin_fanfields3_portal_done')) {
+        pendingIndex = i;
+        return false;
+      }
+    });
+    if (pendingIndex <= 0) return;
+
+    var $target = $rows.eq(pendingIndex - 1);
+    $content.scrollTop($content.scrollTop() + $target.offset().top - $content.offset().top);
   };
 
   // Task List dialog: add the same anchor shift (rotation) controls as the map's own
@@ -1874,7 +1983,8 @@ function wrapper(plugin_info) {
       symbol_counterclockwise + '</button>' +
       '<button type="button" id="plugin_fanfields3_tasklist_shift_right" class="plugin_fanfields3_tasklist_shift_btn" title="FanFields shift right">' +
       symbol_clockwise + '</button>' +
-      '<button type="button" id="plugin_fanfields3_tasklist_refresh" class="plugin_fanfields3_tasklist_shift_btn" title="Force an IITC map data refresh">Refresh</button>';
+      '<button type="button" id="plugin_fanfields3_tasklist_refresh" class="plugin_fanfields3_tasklist_shift_btn" title="Force an IITC map data refresh">Refresh</button>' +
+      '<button type="button" id="plugin_fanfields3_tasklist_reroute" class="plugin_fanfields3_tasklist_shift_btn" title="Reorder the steps still to do, starting from your current position, to walk as little as possible">Reroute</button>';
 
     var $buttonset = $buttonpane.find('.ui-dialog-buttonset');
     if ($buttonset.length) {
@@ -1898,6 +2008,259 @@ function wrapper(plugin_info) {
       .on('click', function () {
         thisplugin.forceMapDataRefresh();
       });
+    $buttonpane.find('#plugin_fanfields3_tasklist_reroute')
+      .off('click')
+      .on('click', function () {
+        var $btn = $(this);
+        if ($btn.prop('disabled')) return;
+        $btn.prop('disabled', true).text('Locating…');
+        thisplugin.rerouteFromPlayerPosition(function () {
+          $btn.prop('disabled', false).text('Reroute');
+        });
+      });
+  };
+
+  // ---------------------------------------------------------------------
+  // Task List "Reroute" button: reorders the steps still to do so that, starting from where the
+  // player stands, they walk as little as possible. Only the walk/display order changes
+  // (thisplugin.routeOrderGuids) — never which links exist, their direction or which fields
+  // form. The order must stay playable:
+  //  - a portal that still has to be captured, or whose keys are still missing, is visited
+  //    before any portal that throws a link at it. A portal that's already ours with enough of
+  //    its keys held (per a Keys/LiveInventory plugin) can receive links before its own visit;
+  //  - it may not make more links impossible to throw from under a field, nor lose a field,
+  //    compared with the current order (see thisplugin.simulateWalk).
+  // ---------------------------------------------------------------------
+
+  thisplugin.ROUTE_SEARCH_BUDGET_MS = 1500;
+  thisplugin.ROUTE_GEOLOCATION_TIMEOUT_MS = 10000;
+
+  // Calls back with the player's position { latlng, source }: the device's own location first,
+  // else the last position known to IITC's user-location plugin, else the center of the map.
+  thisplugin.getPlayerPosition = function (callback) {
+    var answered = false;
+    function answer(position) {
+      if (answered) return;
+      answered = true;
+      callback(position);
+    }
+    function fallback() {
+      var user = window.plugin.userLocation && window.plugin.userLocation.user;
+      var ll = user && user.latlng;
+      if (ll && (ll.lat || ll.lng)) {
+        answer({ latlng: L.latLng(ll.lat, ll.lng), source: 'IITC location' });
+      } else {
+        answer({ latlng: map.getCenter(), source: 'map center, as your location was not available' });
+      }
+    }
+
+    if (!navigator.geolocation) {
+      fallback();
+      return;
+    }
+    // A permission prompt left unanswered never calls back at all.
+    setTimeout(fallback, thisplugin.ROUTE_GEOLOCATION_TIMEOUT_MS + 2000);
+    navigator.geolocation.getCurrentPosition(function (pos) {
+      answer({ latlng: L.latLng(pos.coords.latitude, pos.coords.longitude), source: 'GPS' });
+    }, fallback, {
+      enableHighAccuracy: true,
+      timeout: thisplugin.ROUTE_GEOLOCATION_TIMEOUT_MS,
+      maximumAge: 30000
+    });
+  };
+
+  // Where each portal of the walk stands, from the live game state:
+  //  - pending: something is still left to do there (capture, links to throw, keys to get);
+  //  - ready: it can already receive links (ours, with enough of its keys held);
+  //  - targets: the portals it still has links to throw at.
+  // Links that can't be thrown from under a field are left out, as in the Task List.
+  thisplugin.getRouteStepStates = function (walk) {
+    var ownTeam = thisplugin.getOwnFactionTeam();
+    var hasKeysPlugin = !!(window.plugin.keys || window.plugin.LiveInventory);
+
+    function isThrowable(srcFp, dstGuid) {
+      var meta = srcFp.outgoingMeta && srcFp.outgoingMeta[dstGuid];
+      return !(meta && meta.invalidUnderField) && !thisplugin.isLinkInGame(srcFp.guid, dstGuid);
+    }
+
+    var states = {};
+    walk.forEach(function (fp) {
+      var marker = window.portals[fp.guid] || fp.portal;
+      var data = marker && marker.options && marker.options.data;
+      var owned = ownTeam !== undefined && thisplugin.getPortalTeam(marker) === ownTeam;
+      var needsCapture = !owned || !(data && data.resCount >= 8);
+
+      var targets = (fp.outgoing || []).filter(function (target) { return isThrowable(fp, target.guid); });
+      var keysNeeded = (fp.incoming || []).filter(function (src) { return isThrowable(src, fp.guid); }).length;
+      var enoughKeys = hasKeysPlugin ? thisplugin.getAvailableKeys(fp.guid) >= keysNeeded : keysNeeded === 0;
+
+      states[fp.guid] = {
+        pending: needsCapture || targets.length > 0 || !enoughKeys,
+        ready: owned && enoughKeys,
+        targets: targets
+      };
+    });
+    return states;
+  };
+
+  // Computes the "Reroute" walk order from startLatLng. Returns null when no step is left to do,
+  // else { order: guids (steps done first, in their current order, then the remaining ones),
+  // before, after: meters walked through the remaining steps in the current / new order }.
+  thisplugin.computeRouteOrder = function (startLatLng) {
+    var walk = thisplugin.getDisplayOrder();
+    var states = thisplugin.getRouteStepStates(walk);
+    var done = walk.filter(function (fp) { return !states[fp.guid].pending; });
+    var pending = walk.filter(function (fp) { return states[fp.guid].pending; });
+    var m = pending.length;
+    if (m === 0) return null;
+
+    var indexByGuid = {};
+    pending.forEach(function (fp, i) { indexByGuid[fp.guid] = i; });
+
+    // Pairs [before, after]: a portal not ready yet comes before whoever throws a link at it.
+    var precedences = [];
+    pending.forEach(function (fp, i) {
+      states[fp.guid].targets.forEach(function (target) {
+        var ti = indexByGuid[target.guid];
+        if (ti !== undefined && !states[target.guid].ready) precedences.push([ti, i]);
+      });
+    });
+
+    // Walking distances between pending portals, the start being index m.
+    var latLngs = pending.map(function (fp) { return map.unproject(fp.point, thisplugin.PROJECT_ZOOM); });
+    latLngs.push(startLatLng);
+    var dist = latLngs.map(function (a) { return latLngs.map(function (b) { return a.distanceTo(b); }); });
+
+    function lengthOf(seq) {
+      var total = dist[m][seq[0]];
+      for (var i = 1; i < seq.length; i++) total += dist[seq[i - 1]][seq[i]];
+      return total;
+    }
+    function violationsOf(seq) {
+      var pos = [];
+      seq.forEach(function (idx, p) { pos[idx] = p; });
+      return precedences.filter(function (pair) { return pos[pair[0]] > pos[pair[1]]; }).length;
+    }
+    function evaluate(seq) {
+      var sim = thisplugin.simulateWalk(done.concat(seq.map(function (idx) { return pending[idx]; })));
+      return {
+        seq: seq,
+        length: lengthOf(seq),
+        violations: violationsOf(seq),
+        invalid: Object.keys(sim.invalid).length,
+        fields: sim.triangles.length
+      };
+    }
+    // Playability first (steps in a possible order, links throwable, fields kept), then walking.
+    function isBetter(a, b) {
+      if (a.violations !== b.violations) return a.violations < b.violations;
+      if (a.invalid !== b.invalid) return a.invalid < b.invalid;
+      if (a.fields !== b.fields) return a.fields > b.fields;
+      return a.length < b.length - 1;
+    }
+
+    var deadline = Date.now() + thisplugin.ROUTE_SEARCH_BUDGET_MS;
+
+    // Local search: move a run of 1 to 3 steps elsewhere, or walk a stretch backwards, keeping
+    // any change that makes the order better, until none does (or time is up).
+    function improve(best) {
+      function tryCandidate(seq) {
+        if (Date.now() >= deadline) return false;
+        var violations = violationsOf(seq);
+        if (violations > best.violations) return false;
+        if (violations === best.violations && lengthOf(seq) >= best.length - 1) return false;
+        var candidate = evaluate(seq);
+        if (!isBetter(candidate, best)) return false;
+        best = candidate;
+        return true;
+      }
+
+      var improved = true;
+      while (improved && Date.now() < deadline) {
+        improved = false;
+        for (var len = 1; len <= 3 && !improved; len++) {
+          for (var i = 0; i + len <= m && !improved; i++) {
+            var run = best.seq.slice(i, i + len);
+            var rest = best.seq.slice(0, i).concat(best.seq.slice(i + len));
+            for (var j = 0; j <= rest.length && !improved; j++) {
+              if (j === i) continue;
+              improved = tryCandidate(rest.slice(0, j).concat(run, rest.slice(j)));
+            }
+          }
+        }
+        for (var a = 0; a < m - 1 && !improved; a++) {
+          for (var b = a + 1; b < m && !improved; b++) {
+            improved = tryCandidate(best.seq.slice(0, a)
+              .concat(best.seq.slice(a, b + 1).reverse(), best.seq.slice(b + 1)));
+          }
+        }
+      }
+      return best;
+    }
+
+    // Nearest next step whose prerequisites are already visited (the earliest remaining step of
+    // the current order when none is, which only a loop in the prerequisites can cause).
+    function nearestNeighbour() {
+      var seq = [];
+      var placed = [];
+      var current = m;
+      while (seq.length < m) {
+        var choice = -1;
+        for (var i = 0; i < m; i++) {
+          if (placed[i]) continue;
+          var blocked = precedences.some(function (pair) { return pair[1] === i && !placed[pair[0]]; });
+          if (!blocked && (choice === -1 || dist[current][i] < dist[current][choice])) choice = i;
+        }
+        if (choice === -1) {
+          for (choice = 0; placed[choice]; choice++);
+        }
+        seq.push(choice);
+        placed[choice] = true;
+        current = choice;
+      }
+      return seq;
+    }
+
+    var currentOrder = pending.map(function (fp, i) { return i; });
+    var fromCurrent = evaluate(currentOrder);
+    var best = improve(fromCurrent);
+    var fromNearest = improve(evaluate(nearestNeighbour()));
+    if (isBetter(fromNearest, best)) best = fromNearest;
+
+    return {
+      order: done.map(function (fp) { return fp.guid; })
+        .concat(best.seq.map(function (idx) { return pending[idx].guid; })),
+      before: fromCurrent.length,
+      after: best.length
+    };
+  };
+
+  // "Reroute" button: locates the player, reorders the steps still to do from there, and shows
+  // the new order everywhere the walk order is used, without recalculating the plan itself — so
+  // it works the same whether the plan is Locked or not. Calls onDone once finished.
+  thisplugin.rerouteFromPlayerPosition = function (onDone) {
+    thisplugin.getPlayerPosition(function (position) {
+      thisplugin.clearRouteOrder();
+      thisplugin.validateUnderFieldLinks();
+      var result = thisplugin.computeRouteOrder(position.latlng);
+      if (!result) {
+        dialog({
+          html: '<p>Every step of the plan is already done: nothing left to reorder.</p>',
+          id: 'plugin_fanfields3_alert_reroute',
+          title: 'Fan Fields 3 - Reroute'
+        });
+        thisplugin.redrawWalkOrder();
+        onDone();
+        return;
+      }
+
+      thisplugin.routeOrderGuids = result.order;
+      thisplugin.routeOrderPlanKey = thisplugin.getPlanShapeKey();
+      thisplugin.routeOrderInfo = { source: position.source, before: result.before, after: result.after };
+      thisplugin.redrawWalkOrder();
+      thisplugin.scrollTaskListToFirstPending();
+      onDone();
+    });
   };
 
   thisplugin.exportTaskListToPDF = function () {
@@ -1995,6 +2358,14 @@ function wrapper(plugin_info) {
           tr td span.plugin_fanfields3_blocker_tag {
             color: #C62828 !important;
             text-decoration: none !important;
+          }
+
+          tr.plugin_fanfields3_portal_done,
+          tr.plugin_fanfields3_portal_done td,
+          tr.plugin_fanfields3_portal_done td a,
+          tr.plugin_fanfields3_portal_done td span {
+            color: #828284 !important;
+            text-decoration: line-through !important;
           }
         `;
 
@@ -3320,12 +3691,22 @@ function wrapper(plugin_info) {
       'tr.plugin_fanfields3_blocker_row span {\n' +
       '  color: #FF6B6B !important;\n' +
       '}\n' +
-      // Always red, even on a row whose own text is green (relocated) or faded (done).
+      // Red, even on a row whose own text is green (relocated) — except on a finished portal (below).
       '#plugin_fanfields3_exportText_inner tr td span.plugin_fanfields3_blocker_tag {\n' +
       '  color: #FF4444 !important;\n' +
       '  text-decoration: none !important;\n' +
       '}\n' +
-      '.plugin_fanfields3_blocker_summary {\n' +
+      // A finished portal (Action "Nothing") always reads as done: pale yellow and struck
+      // through, even when it's also relocated (green) or carries a blocker cross (red).
+      '#plugin_fanfields3_exportText_inner tr.plugin_fanfields3_portal_done,\n' +
+      '#plugin_fanfields3_exportText_inner tr.plugin_fanfields3_portal_done td,\n' +
+      '#plugin_fanfields3_exportText_inner tr.plugin_fanfields3_portal_done td a,\n' +
+      '#plugin_fanfields3_exportText_inner tr.plugin_fanfields3_portal_done td span {\n' +
+      '  color: rgba(255, 206, 0, 0.35) !important;\n' +
+      '  text-decoration: line-through !important;\n' +
+      '}\n' +
+      '.plugin_fanfields3_blocker_summary,\n' +
+      '.plugin_fanfields3_route_summary {\n' +
       '  margin-top: 8px;\n' +
       '  text-align: left;\n' +
       '}\n' +
@@ -3984,9 +4365,10 @@ function wrapper(plugin_info) {
   // Drop all manual link-direction overrides at once (Task List "Reset link orders" button).
   // Also drops back to the plain algorithm mode, since a leftover "Fewer keys"/"Less walking"
   // label next to zero overrides would be misleading, and reverts any portal relocated by
-  // "Less walking" back to its natural spot in the walk.
+  // "Less walking" back to its natural spot in the walk, as well as any "Reroute" order.
   thisplugin.resetLinkFlips = function () {
     thisplugin.manualLinkFlips = {};
+    thisplugin.clearRouteOrder();
     thisplugin.relocatedForLessWalkingGuids = {};
     thisplugin.displayOrderGuids = null; // never the user's own Manage Portal Order (manualOrderGuids)
     thisplugin.linkOrderMode = thisplugin.linkOrderModeENUM.ALGO;
@@ -4094,6 +4476,80 @@ function wrapper(plugin_info) {
     return false;
   };
 
+  // Walks the plan's portals in the given visit order, each throwing all its outgoing links on
+  // arrival, and works out what really happens — without touching any plan state:
+  //  - a portal that is under a field already formed when it's reached can't throw a link longer
+  //    than maxLinkUnderFieldDistance (Issue #96): such links are invalid, never built;
+  //  - each planned field (every triangle listed in the links' creatingFieldsWith) forms as soon
+  //    as its third link is built, credited to that link — whichever of its three links it is.
+  // Returns { invalid: directed link key -> { srcGuid, dstGuid, distance }, underAtVisit:
+  // guid -> bool, triangles: formed fields { a, b, c }, fieldsByDirectedLink: directed link key
+  // -> fields it forms }.
+  thisplugin.simulateWalk = function (order) {
+    var pointToGuid = {};
+    order.forEach(function (fp) { pointToGuid[thisplugin.pointKey(fp.point)] = fp.guid; });
+
+    // Planned fields, each listed under its three links (undirected keys).
+    var fieldsByLink = {};
+    var seenFields = {};
+    order.forEach(function (fp) {
+      (fp.outgoing || []).forEach(function (target) {
+        var meta = fp.outgoingMeta ? fp.outgoingMeta[target.guid] : null;
+        ((meta && meta.creatingFieldsWith) || []).forEach(function (thirdPoint) {
+          var thirdGuid = pointToGuid[thisplugin.pointKey(thirdPoint)];
+          if (!thirdGuid) return;
+          var id = [fp.guid, target.guid, thirdGuid].sort().join('|');
+          if (seenFields[id]) return;
+          var field = seenFields[id] = {
+            id: id,
+            points: [thirdPoint, fp.point, target.point],
+            links: [
+              thisplugin.getUndirectedLinkKey(fp.guid, target.guid),
+              thisplugin.getUndirectedLinkKey(fp.guid, thirdGuid),
+              thisplugin.getUndirectedLinkKey(target.guid, thirdGuid)
+            ]
+          };
+          field.links.forEach(function (linkKey) {
+            (fieldsByLink[linkKey] = fieldsByLink[linkKey] || []).push(field);
+          });
+        });
+      });
+    });
+
+    var result = { invalid: {}, underAtVisit: {}, triangles: [], fieldsByDirectedLink: {} };
+    var builtLinks = {};
+    var formedFields = {};
+
+    order.forEach(function (srcFp) {
+      var srcUnder = thisplugin.isPointUnderAnyTriangle(srcFp.point, result.triangles);
+      result.underAtVisit[srcFp.guid] = srcUnder;
+
+      (srcFp.outgoing || []).forEach(function (dstFp) {
+        var dkey = thisplugin.getDirectedLinkKey(srcFp.guid, dstFp.guid);
+        var distance = thisplugin.distanceTo(srcFp.point, dstFp.point);
+        if (srcUnder && distance > thisplugin.maxLinkUnderFieldDistance) {
+          result.invalid[dkey] = { srcGuid: srcFp.guid, dstGuid: dstFp.guid, distance: distance };
+          return;
+        }
+
+        var linkKey = thisplugin.getUndirectedLinkKey(srcFp.guid, dstFp.guid);
+        builtLinks[linkKey] = true;
+
+        var formedHere = 0;
+        (fieldsByLink[linkKey] || []).forEach(function (field) {
+          if (formedFields[field.id]) return;
+          if (!field.links.every(function (k) { return builtLinks[k]; })) return;
+          formedFields[field.id] = true;
+          result.triangles.push({ a: field.points[0], b: field.points[1], c: field.points[2] });
+          formedHere++;
+        });
+        result.fieldsByDirectedLink[dkey] = formedHere;
+      });
+    });
+
+    return result;
+  };
+
   // Validate the current plan against the "link from underneath a field" distance rule (Issue #96).
   // Marks impossible links, computes a "valid" triangle list (fields that can actually be created),
   // and provides per-portal counts that ignore invalid links.
@@ -4109,123 +4565,66 @@ function wrapper(plugin_info) {
       return;
     }
 
-    // Reset per-run state
+    var walk = thisplugin.simulateWalk(sorted);
+    var portalUnderFieldAtVisit = walk.underAtVisit;
+
     thisplugin.invalidUnderFieldLinks = {};
-    thisplugin.validTriangles = [];
+    thisplugin.validTriangles = walk.triangles;
     thisplugin.validLinkCount = 0;
     thisplugin.validTriangleCount = 0;
 
-    var pointToGuid = {};
-    for (var i = 0; i < sorted.length; i++) {
-      pointToGuid[thisplugin.pointKey(sorted[i].point)] = sorted[i].guid;
-    }
+    sorted.forEach(function (fp) {
+      fp.incomingValidCount = 0;
+      fp.outgoingValidCount = 0;
+      fp.fieldsCreatedValidAtPortal = 0;
+    });
 
-    // Track successful links (undirected) so we can decide which triangles can actually be formed.
-    var builtLinks = {};
-
-    // Track whether a portal is under a field at the moment we arrive there.
-    var portalUnderFieldAtVisit = {};
-
-    // Per-link (directed) valid field creation count.
-    var validFieldsByDirectedLink = {};
-
-    // Init per-portal "valid" stats
-    for (var pi = 0; pi < sorted.length; pi++) {
-      sorted[pi].incomingValidCount = 0;
-      sorted[pi].outgoingValidCount = 0;
-      sorted[pi].fieldsCreatedValidAtPortal = 0;
-    }
-
-    function addInvalid(srcGuid, dstGuid, distance, flippedOk) {
-      var dkey = thisplugin.getDirectedLinkKey(srcGuid, dstGuid);
-      thisplugin.invalidUnderFieldLinks[dkey] = {
-        srcGuid: srcGuid,
-        dstGuid: dstGuid,
-        distance: distance,
-        flippedOk: flippedOk
-      };
-    }
-
-    // First pass: walk portals in visit order, validate each outgoing link against fields built so far.
-    // We only add triangles for links that are valid AND whose prerequisite links exist.
-    for (var vi = 0; vi < sorted.length; vi++) {
-      var srcFp = sorted[vi];
+    // First pass: record each link's outcome of the simulated walk on the plan's own portals.
+    sorted.forEach(function (srcFp, vi) {
       var srcGuid = srcFp.guid;
 
-      portalUnderFieldAtVisit[srcGuid] = thisplugin.isPointUnderAnyTriangle(srcFp.point, thisplugin.validTriangles);
-
-      if (!srcFp.outgoing || srcFp.outgoing.length === 0) continue;
-
-      for (var oi = 0; oi < srcFp.outgoing.length; oi++) {
-        var dstFp = srcFp.outgoing[oi];
+      (srcFp.outgoing || []).forEach(function (dstFp) {
         var dstGuid = dstFp.guid;
-
-        var distance = thisplugin.distanceTo(srcFp.point, dstFp.point);
-        var srcUnder = portalUnderFieldAtVisit[srcGuid];
-        var invalid = srcUnder && distance > thisplugin.maxLinkUnderFieldDistance;
-
+        var dkey = thisplugin.getDirectedLinkKey(srcGuid, dstGuid);
         var meta = (srcFp.outgoingMeta && srcFp.outgoingMeta[dstGuid]) ? srcFp.outgoingMeta[dstGuid] : null;
-
-        // Precompute whether flipping the link direction could avoid the under-field restriction in THIS visit order.
-        // This ignores key logistics and assumes you can throw from the other end when you visit it.
-        var dstUnderAtVisit = portalUnderFieldAtVisit[dstGuid];
-        if (dstUnderAtVisit === undefined) {
-          // Destination might be later in the route. We'll fill it in when we reach it.
-          // For now, treat it as "unknown" => compute later in a second pass.
-          dstUnderAtVisit = null;
-        }
-        var flippedOk = (dstUnderAtVisit === null) ? null : (!(dstUnderAtVisit && distance > thisplugin.maxLinkUnderFieldDistance));
+        var invalid = walk.invalid[dkey];
 
         if (invalid) {
-          addInvalid(srcGuid, dstGuid, distance, flippedOk);
+          // Whether flipping the link direction could avoid the under-field restriction in THIS
+          // visit order (ignoring key logistics: thrown from the other end when it's visited).
+          // Unknown (null) for now when the other end comes later in the walk — see second pass.
+          var dstVisitedBefore = sorted.slice(0, vi).some(function (fp) { return fp.guid === dstGuid; });
+          var flippedOk = dstVisitedBefore
+            ? !(portalUnderFieldAtVisit[dstGuid] && invalid.distance > thisplugin.maxLinkUnderFieldDistance)
+            : null;
+
+          thisplugin.invalidUnderFieldLinks[dkey] = {
+            srcGuid: srcGuid,
+            dstGuid: dstGuid,
+            distance: invalid.distance,
+            flippedOk: flippedOk
+          };
           if (meta) {
             meta.invalidUnderField = true;
             meta.canFlipUnderField = flippedOk;
             meta.fieldsCreatedValid = 0;
           }
-          continue;
+          return;
         }
 
-        // Link is valid in this direction.
         thisplugin.validLinkCount++;
         srcFp.outgoingValidCount++;
         dstFp.incomingValidCount++;
 
-        builtLinks[thisplugin.getUndirectedLinkKey(srcGuid, dstGuid)] = true;
-
-        // Determine how many fields this link can REALLY create (only if prerequisites exist).
-        var fieldsCreatedByThisLink = 0;
-
-        if (meta && meta.creatingFieldsWith && meta.creatingFieldsWith.length) {
-          for (var ti = 0; ti < meta.creatingFieldsWith.length; ti++) {
-            var thirdPoint = meta.creatingFieldsWith[ti];
-            var thirdGuid = pointToGuid[thisplugin.pointKey(thirdPoint)];
-            if (!thirdGuid) continue;
-
-            var e1 = thisplugin.getUndirectedLinkKey(srcGuid, thirdGuid);
-            var e2 = thisplugin.getUndirectedLinkKey(dstGuid, thirdGuid);
-
-            if (!builtLinks[e1] || !builtLinks[e2]) {
-              // If any prerequisite link is invalid/missing, the field won't exist.
-              continue;
-            }
-
-            // Field exists.
-            thisplugin.validTriangles.push({
-              a: thirdPoint,
-              b: srcFp.point,
-              c: dstFp.point
-            });
-            fieldsCreatedByThisLink++;
-          }
+        var fieldsCreatedByThisLink = walk.fieldsByDirectedLink[dkey] || 0;
+        if (meta) {
+          meta.invalidUnderField = false;
+          meta.canFlipUnderField = undefined;
+          meta.fieldsCreatedValid = fieldsCreatedByThisLink;
         }
-
-        validFieldsByDirectedLink[thisplugin.getDirectedLinkKey(srcGuid, dstGuid)] = fieldsCreatedByThisLink;
-        if (meta) meta.fieldsCreatedValid = fieldsCreatedByThisLink;
-
         srcFp.fieldsCreatedValidAtPortal += fieldsCreatedByThisLink;
-      }
-    }
+      });
+    });
 
     // Second pass: fill "flip ok" for destinations that were visited later.
     // Now that portalUnderFieldAtVisit is complete, update any null values.
@@ -4890,49 +5289,6 @@ function wrapper(plugin_info) {
       }
     }
 
-    function drawStartLabel(a) {
-      if (n < 2) return;
-      var alatlng = map.unproject(a.point, thisplugin.PROJECT_ZOOM);
-      var labelText = "";
-      var keysNeeded = (a.incomingValidCount !== undefined) ? a.incomingValidCount : a.incoming.length;
-      var totalFields = (thisplugin.validTriangleCount !== undefined) ? thisplugin.validTriangleCount : triangles.length;
-      if (thisplugin.stardirection === thisplugin.starDirENUM.CENTRALIZING) {
-        labelText = "START PORTAL<BR>Keys: " + keysNeeded + "<br>Total Fields: " + totalFields.toString();
-      } else {
-        labelText = "START PORTAL<BR>Keys: " + keysNeeded + ", SBUL: " + (centerSbul) + "<br>out: " + centerOutgoings + "<br>Total Fields: " +
-          totalFields.toString();
-      }
-      thisplugin.addLabel(thisplugin.startingpointGUID, alatlng, labelText);
-    }
-
-    function drawNumber(a, number) {
-      if (n < 2) return;
-      var alatlng = map.unproject(a.point, thisplugin.PROJECT_ZOOM);
-      var labelText = "";
-      labelText = number + "<br>Keys: " + ((a.incomingValidCount !== undefined) ? a.incomingValidCount : a.incoming.length) + "<br>out: " + ((a.outgoingValidCount !== undefined) ? a.outgoingValidCount : a.outgoing.length);
-      thisplugin.addLabel(a.guid, alatlng, labelText);
-    }
-
-    function drawLink(a, b, style) {
-      var alatlng = map.unproject(a, thisplugin.PROJECT_ZOOM);
-      var blatlng = map.unproject(b, thisplugin.PROJECT_ZOOM);
-
-      var poly = L.polyline([alatlng, blatlng], style);
-      poly.addTo(thisplugin.linksLayerGroup);
-
-
-    }
-
-    function drawField(a, b, c, style) {
-      var alatlng = map.unproject(a, thisplugin.PROJECT_ZOOM);
-      var blatlng = map.unproject(b, thisplugin.PROJECT_ZOOM);
-      var clatlng = map.unproject(c, thisplugin.PROJECT_ZOOM);
-
-      var poly = L.polygon([alatlng, blatlng, clatlng], style);
-      poly.addTo(thisplugin.fieldsLayerGroup);
-
-    }
-
     // Get portal locations
     $.each(window.portals, function (guid, portal) {
       var ll = portal.getLatLng();
@@ -5568,6 +5924,63 @@ function wrapper(plugin_info) {
       return;
     }
 
+    thisplugin.drawContext = { n: n, triangles: triangles, centerOutgoings: centerOutgoings, centerSbul: centerSbul };
+    thisplugin.drawPlan();
+
+    thisplugin.lockIfPlanComplete();
+  };
+
+  // Draws the current plan on the map (links, fields, blockers, position numbers following the
+  // walk order) and refreshes an open Task List/Statistics dialog, from the plan updateLayer()
+  // last calculated (thisplugin.drawContext) — without recalculating it.
+  thisplugin.drawPlan = function () {
+    var ctx = thisplugin.drawContext;
+    if (!ctx) return;
+    var n = ctx.n;
+    var triangles = ctx.triangles;
+    var centerOutgoings = ctx.centerOutgoings;
+    var centerSbul = ctx.centerSbul;
+
+    function drawStartLabel(a) {
+      if (n < 2) return;
+      var alatlng = map.unproject(a.point, thisplugin.PROJECT_ZOOM);
+      var labelText = "";
+      var keysNeeded = (a.incomingValidCount !== undefined) ? a.incomingValidCount : a.incoming.length;
+      var totalFields = (thisplugin.validTriangleCount !== undefined) ? thisplugin.validTriangleCount : triangles.length;
+      if (thisplugin.stardirection === thisplugin.starDirENUM.CENTRALIZING) {
+        labelText = "START PORTAL<BR>Keys: " + keysNeeded + "<br>Total Fields: " + totalFields.toString();
+      } else {
+        labelText = "START PORTAL<BR>Keys: " + keysNeeded + ", SBUL: " + (centerSbul) + "<br>out: " + centerOutgoings + "<br>Total Fields: " +
+          totalFields.toString();
+      }
+      thisplugin.addLabel(thisplugin.startingpointGUID, alatlng, labelText);
+    }
+
+    function drawNumber(a, number) {
+      if (n < 2) return;
+      var alatlng = map.unproject(a.point, thisplugin.PROJECT_ZOOM);
+      var labelText = "";
+      labelText = number + "<br>Keys: " + ((a.incomingValidCount !== undefined) ? a.incomingValidCount : a.incoming.length) + "<br>out: " + ((a.outgoingValidCount !== undefined) ? a.outgoingValidCount : a.outgoing.length);
+      thisplugin.addLabel(a.guid, alatlng, labelText);
+    }
+
+    function drawLink(a, b, style) {
+      var alatlng = map.unproject(a, thisplugin.PROJECT_ZOOM);
+      var blatlng = map.unproject(b, thisplugin.PROJECT_ZOOM);
+
+      var poly = L.polyline([alatlng, blatlng], style);
+      poly.addTo(thisplugin.linksLayerGroup);
+    }
+
+    function drawField(a, b, c, style) {
+      var alatlng = map.unproject(a, thisplugin.PROJECT_ZOOM);
+      var blatlng = map.unproject(b, thisplugin.PROJECT_ZOOM);
+      var clatlng = map.unproject(c, thisplugin.PROJECT_ZOOM);
+
+      var poly = L.polygon([alatlng, blatlng, clatlng], style);
+      poly.addTo(thisplugin.fieldsLayerGroup);
+    }
+
     // remove any not wanted
     thisplugin.clearAllPortalLabels();
 
@@ -5693,8 +6106,24 @@ function wrapper(plugin_info) {
     // links appearing in-game, fan field rotation, etc.) without requiring them to be reopened.
     thisplugin.refreshTaskListIfOpen();
     thisplugin.refreshStatisticsIfOpen();
+  };
 
-    thisplugin.lockIfPlanComplete();
+  // Shows a new walk order (a "Reroute" order) everywhere it's used, keeping the plan itself as
+  // it is — which also works while the plan is Locked.
+  thisplugin.redrawWalkOrder = function () {
+    thisplugin.validateUnderFieldLinks();
+
+    if (window.map.hasLayer(thisplugin.linksLayerGroup) ||
+      window.map.hasLayer(thisplugin.fieldsLayerGroup) ||
+      window.map.hasLayer(thisplugin.numbersLayerGroup)) {
+      thisplugin.linksLayerGroup.clearLayers();
+      thisplugin.fieldsLayerGroup.clearLayers();
+      thisplugin.numbersLayerGroup.clearLayers();
+      thisplugin.drawPlan();
+    } else {
+      thisplugin.refreshTaskListIfOpen();
+      thisplugin.refreshStatisticsIfOpen();
+    }
   };
 
 

@@ -898,7 +898,7 @@ Fork of Heistergand&#39;s Fan Fields 2 (thanks Heistergand for the original work
 *Recommends*: bookmarks@ZasoGD draw-tools-plus@zaso liveInventory@DanielOnDiordna keys@xelio  |
 *[Homepage](https://github.com/Avataar120/fanfields3/)* |
 *[Issue tracker](https://github.com/Avataar120/fanfields3/issues)* |
-*Version:* 3.1.1.20260925
+*Version:* 3.1.2.20260926
 
 
   

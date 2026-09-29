@@ -799,7 +799,7 @@ Anchor Planner: scans Draw Tools plans, resolves portal names, lists plan portal
 *Recommends*: bookmarks@ZasoGD  |
 *[Homepage](https://github.com/emgeka/iitc-anchor-planner)* |
 *[Issue tracker](https://github.com/emgeka/iitc-anchor-planner/issues)* |
-*Version:* 0.1.54
+*Version:* 0.1.55
 
 
   
@@ -1553,11 +1553,11 @@ Show uniques visit/captures based on GDPR game_log
 
 
 
-Syncs the localStorage data of your IITC plugins (bookmarks, draw tools, settings…) across all your devices. Each agent has a private, password-protected space on the sync server, keyed by the logged-in agent name. Per-key merge, most recent change wins; the server is only contacted when something changed.
+Syncs the localStorage data of your IITC plugins (bookmarks, draw tools, settings…) across all your devices. Each agent has a private, password-protected, end-to-end encrypted space on the sync server, keyed by the logged-in agent name. Per-key merge, most recent change wins; the server is only contacted when something changed.
 
 *[Homepage](https://github.com/Avataar120/IITC-Synchro/)* |
 *[Issue tracker](https://github.com/Avataar120/IITC-Synchro/issues)* |
-*Version:* 1.2.0.20260927
+*Version:* 2.1.3.20260928
 
 
   

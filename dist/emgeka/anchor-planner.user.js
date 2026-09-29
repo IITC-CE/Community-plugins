@@ -3,7 +3,7 @@
 // @id              anchor-planner@emgeka
 // @name            Anchor Planner
 // @category        Layer
-// @version         0.1.54
+// @version         0.1.55
 // @namespace       https://example.local/iitc
 // @description     Anchor Planner: scans Draw Tools plans, resolves portal names, lists plan portals and key counts.
 // @updateURL       https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/emgeka/anchor-planner.meta.js
@@ -30,13 +30,13 @@ function wrapper(plugin_info) {
   if (typeof window.plugin !== 'function') window.plugin = function () {};
 
   plugin_info.buildName = 'local';
-  plugin_info.dateTimeVersion = '20260923124024';
+  plugin_info.dateTimeVersion = '20260928091701';
   plugin_info.pluginId = 'anchor-planner';
 
   window.plugin.anchorPlanner = function () {};
   var ap = window.plugin.anchorPlanner;
 
-  ap.VERSION = '0.1.54';
+  ap.VERSION = '0.1.55';
   ap.STORAGE_KEY = 'plugin-anchor-planner-v1';
   ap.DEFAULT_TOLERANCE_M = 25;
   ap.MIN_ANCHOR_LINKS = 3;
@@ -75,6 +75,7 @@ function wrapper(plugin_info) {
       "route.aerial": "Luftlinie",
       "scan.drawToolsMissing": "Draw Tools nicht gefunden. Bitte Draw Tools aktivieren.",
       "scan.finalPending": "finaler Blockercheck ausstehend",
+      "scan.finalIncomplete": "finaler Blockercheck unvollständig",
       "scan.finalComplete": "finaler Blockercheck abgeschlossen",
       "scan.finalPaused": "finaler Blockercheck pausiert",
       "status.done": "abgearbeitet",
@@ -108,6 +109,7 @@ function wrapper(plugin_info) {
       "readiness.loadedLink.other": "{count} vorhandene Links geladen",
       "readiness.unusableLoaded": "{count} davon nicht auswertbar",
       "readiness.finalScanPending": "finaler Blockercheck ausstehend",
+      "readiness.finalScanIncomplete": "finaler Blockercheck unvollständig",
       "readiness.finalScanComplete": "finaler Blockercheck abgeschlossen",
       "message.intersectionUnknown": "Kreuzungspunkt konnte nicht bestimmt werden.",
       "message.namesNoneMissing": "Keine fehlenden Portalnamen im aktuellen Scan.",
@@ -244,6 +246,7 @@ function wrapper(plugin_info) {
       "route.aerial": "straight line",
       "scan.drawToolsMissing": "Draw Tools not found. Please enable Draw Tools.",
       "scan.finalPending": "final blocker check pending",
+      "scan.finalIncomplete": "final blocker check incomplete",
       "scan.finalComplete": "final blocker check complete",
       "scan.finalPaused": "final blocker check paused",
       "status.done": "completed",
@@ -277,6 +280,7 @@ function wrapper(plugin_info) {
       "readiness.loadedLink.other": "{count} existing links loaded",
       "readiness.unusableLoaded": "{count} of them cannot be evaluated",
       "readiness.finalScanPending": "final blocker check pending",
+      "readiness.finalScanIncomplete": "final blocker check incomplete",
       "readiness.finalScanComplete": "final blocker check complete",
       "message.intersectionUnknown": "The intersection point could not be determined.",
       "message.namesNoneMissing": "No portal names are missing from the current scan.",
@@ -413,6 +417,7 @@ function wrapper(plugin_info) {
       "route.aerial": "línea recta",
       "scan.drawToolsMissing": "No se encontró Draw Tools. Actívalo.",
       "scan.finalPending": "comprobación final de bloqueos pendiente",
+      "scan.finalIncomplete": "comprobación final de bloqueos incompleta",
       "scan.finalComplete": "comprobación final de bloqueos completa",
       "scan.finalPaused": "comprobación final de bloqueos pausada",
       "status.done": "completado",
@@ -446,6 +451,7 @@ function wrapper(plugin_info) {
       "readiness.loadedLink.other": "{count} enlaces existentes cargados",
       "readiness.unusableLoaded": "{count} no evaluables",
       "readiness.finalScanPending": "comprobación final de bloqueos pendiente",
+      "readiness.finalScanIncomplete": "comprobación final de bloqueos incompleta",
       "readiness.finalScanComplete": "comprobación final de bloqueos completa",
       "message.intersectionUnknown": "No se pudo determinar la intersección.",
       "message.namesNoneMissing": "No faltan nombres en el escaneo actual.",
@@ -582,6 +588,7 @@ function wrapper(plugin_info) {
       "route.aerial": "à vol d’oiseau",
       "scan.drawToolsMissing": "Draw Tools introuvable. Activez-le.",
       "scan.finalPending": "contrôle final des bloqueurs en attente",
+      "scan.finalIncomplete": "contrôle final des bloqueurs incomplet",
       "scan.finalComplete": "contrôle final des bloqueurs terminé",
       "scan.finalPaused": "contrôle final des bloqueurs en pause",
       "status.done": "terminé",
@@ -615,6 +622,7 @@ function wrapper(plugin_info) {
       "readiness.loadedLink.other": "{count} liens existants chargés",
       "readiness.unusableLoaded": "{count} non analysables",
       "readiness.finalScanPending": "contrôle final des bloqueurs en attente",
+      "readiness.finalScanIncomplete": "contrôle final des bloqueurs incomplet",
       "readiness.finalScanComplete": "contrôle final des bloqueurs terminé",
       "message.intersectionUnknown": "Impossible de déterminer l’intersection.",
       "message.namesNoneMissing": "Aucun nom ne manque dans l’analyse actuelle.",
@@ -751,6 +759,7 @@ function wrapper(plugin_info) {
       "route.aerial": "linea d’aria",
       "scan.drawToolsMissing": "Draw Tools non trovato. Attivalo.",
       "scan.finalPending": "controllo finale dei blocchi in sospeso",
+      "scan.finalIncomplete": "controllo finale dei blocchi incompleto",
       "scan.finalComplete": "controllo finale dei blocchi completato",
       "scan.finalPaused": "controllo finale dei blocchi in pausa",
       "status.done": "completato",
@@ -784,6 +793,7 @@ function wrapper(plugin_info) {
       "readiness.loadedLink.other": "{count} link esistenti caricati",
       "readiness.unusableLoaded": "{count} non valutabili",
       "readiness.finalScanPending": "controllo finale dei blocchi in sospeso",
+      "readiness.finalScanIncomplete": "controllo finale dei blocchi incompleto",
       "readiness.finalScanComplete": "controllo finale dei blocchi completato",
       "message.intersectionUnknown": "Impossibile determinare l’incrocio.",
       "message.namesNoneMissing": "Nessun nome mancante nella scansione attuale.",
@@ -920,6 +930,7 @@ function wrapper(plugin_info) {
       "route.aerial": "直線",
       "scan.drawToolsMissing": "Draw Toolsが見つかりません。有効にしてください。",
       "scan.finalPending": "最終ブロッカー確認待ち",
+      "scan.finalIncomplete": "最終ブロッカー確認未完了",
       "scan.finalComplete": "最終ブロッカー確認完了",
       "scan.finalPaused": "最終ブロッカー確認を一時停止",
       "status.done": "完了",
@@ -953,6 +964,7 @@ function wrapper(plugin_info) {
       "readiness.loadedLink.other": "読込済み既存リンク {count}本",
       "readiness.unusableLoaded": "うち判定不能 {count}本",
       "readiness.finalScanPending": "最終ブロッカー確認待ち",
+      "readiness.finalScanIncomplete": "最終ブロッカー確認未完了",
       "readiness.finalScanComplete": "最終ブロッカー確認完了",
       "message.intersectionUnknown": "交点を特定できませんでした。",
       "message.namesNoneMissing": "現在のスキャンに名前不足はありません。",
@@ -1089,6 +1101,7 @@ function wrapper(plugin_info) {
       "route.aerial": "w linii prostej",
       "scan.drawToolsMissing": "Nie znaleziono Draw Tools. Włącz wtyczkę.",
       "scan.finalPending": "końcowa kontrola blokad oczekuje",
+      "scan.finalIncomplete": "końcowa kontrola blokad niepełna",
       "scan.finalComplete": "końcowa kontrola blokad zakończona",
       "scan.finalPaused": "końcowa kontrola blokad wstrzymana",
       "status.done": "ukończono",
@@ -1122,6 +1135,7 @@ function wrapper(plugin_info) {
       "readiness.loadedLink.other": "Wczytano {count} istniejące linki",
       "readiness.unusableLoaded": "{count} bez oceny",
       "readiness.finalScanPending": "końcowa kontrola blokad oczekuje",
+      "readiness.finalScanIncomplete": "końcowa kontrola blokad niepełna",
       "readiness.finalScanComplete": "końcowa kontrola blokad zakończona",
       "message.intersectionUnknown": "Nie udało się wyznaczyć przecięcia.",
       "message.namesNoneMissing": "W bieżącym skanie nie brakuje nazw.",
@@ -1258,6 +1272,7 @@ function wrapper(plugin_info) {
       "route.aerial": "linha reta",
       "scan.drawToolsMissing": "Draw Tools não encontrado. Ative-o.",
       "scan.finalPending": "verificação final de bloqueios pendente",
+      "scan.finalIncomplete": "verificação final de bloqueios incompleta",
       "scan.finalComplete": "verificação final de bloqueios concluída",
       "scan.finalPaused": "verificação final de bloqueios pausada",
       "status.done": "concluído",
@@ -1291,6 +1306,7 @@ function wrapper(plugin_info) {
       "readiness.loadedLink.other": "{count} links existentes carregados",
       "readiness.unusableLoaded": "{count} não avaliáveis",
       "readiness.finalScanPending": "verificação final de bloqueios pendente",
+      "readiness.finalScanIncomplete": "verificação final de bloqueios incompleta",
       "readiness.finalScanComplete": "verificação final de bloqueios concluída",
       "message.intersectionUnknown": "Não foi possível determinar o cruzamento.",
       "message.namesNoneMissing": "Nenhum nome ausente no escaneamento atual.",
@@ -1427,6 +1443,7 @@ function wrapper(plugin_info) {
       "route.aerial": "по прямой",
       "scan.drawToolsMissing": "Draw Tools не найден. Включите плагин.",
       "scan.finalPending": "финальная проверка блокеров ожидается",
+      "scan.finalIncomplete": "финальная проверка блокеров не завершена",
       "scan.finalComplete": "финальная проверка блокеров завершена",
       "scan.finalPaused": "финальная проверка блокеров приостановлена",
       "status.done": "выполнено",
@@ -1460,6 +1477,7 @@ function wrapper(plugin_info) {
       "readiness.loadedLink.other": "Загружено {count} существующих линков",
       "readiness.unusableLoaded": "{count} нельзя проверить",
       "readiness.finalScanPending": "финальная проверка блокеров ожидается",
+      "readiness.finalScanIncomplete": "финальная проверка блокеров не завершена",
       "readiness.finalScanComplete": "финальная проверка блокеров завершена",
       "message.intersectionUnknown": "Не удалось определить пересечение.",
       "message.namesNoneMissing": "В текущем скане все названия загружены.",
@@ -1596,6 +1614,7 @@ function wrapper(plugin_info) {
       "route.aerial": "直线",
       "scan.drawToolsMissing": "未找到 Draw Tools，请启用。",
       "scan.finalPending": "最终阻挡检查待执行",
+      "scan.finalIncomplete": "最终阻挡检查未完成",
       "scan.finalComplete": "最终阻挡检查已完成",
       "scan.finalPaused": "最终阻挡检查已暂停",
       "status.done": "已完成",
@@ -1629,6 +1648,7 @@ function wrapper(plugin_info) {
       "readiness.loadedLink.other": "已加载 {count} 条现有 Link",
       "readiness.unusableLoaded": "其中 {count} 条无法判断",
       "readiness.finalScanPending": "最终阻挡检查待执行",
+      "readiness.finalScanIncomplete": "最终阻挡检查未完成",
       "readiness.finalScanComplete": "最终阻挡检查已完成",
       "message.intersectionUnknown": "无法确定交点。",
       "message.namesNoneMissing": "当前扫描没有缺失名称。",
@@ -3825,7 +3845,9 @@ function wrapper(plugin_info) {
 
     var unresolvedEndpoints = Number(last.unresolvedEndpoints) || 0;
     var blockedPlannedLinks = Number(last.blockedPlannedLinks) || 0;
-    var finalScanPending = result.unconfirmedLinks > 0 && !result.finalScanComplete;
+    var finalScanAttempted = !!last.finalScanAt;
+    var finalScanIncomplete = result.unconfirmedLinks > 0 && !result.finalScanComplete && finalScanAttempted;
+    var finalScanPending = result.unconfirmedLinks > 0 && !result.finalScanComplete && !finalScanAttempted;
     var needsScan = !(stats || []).length && ((Number(last.resolvedPortals) || 0) > 0 || (Number(last.plannedLinks) || 0) > 0);
     var noPlan = !needsScan && !(Number(last.plannedLinks) || 0) && !unresolvedEndpoints;
 
@@ -3840,13 +3862,14 @@ function wrapper(plugin_info) {
       if (result.missingNames) result.summary.push(ap.tp('readiness.missingName', result.missingNames));
       if (result.unresolvedExistingLinks) result.summary.push(ap.tp('readiness.unusableLink', result.unresolvedExistingLinks));
       if (finalScanPending) result.summary.push(ap.t('readiness.finalScanPending'));
+      else if (finalScanIncomplete) result.summary.push(ap.t('readiness.finalScanIncomplete'));
       else if (result.unconfirmedLinks > 0 && result.finalScanComplete) result.summary.push(ap.t('readiness.finalScanComplete'));
       if (noPlan) result.summary.push(ap.t('readiness.noPlan'));
 
       if (unresolvedEndpoints || blockedPlannedLinks || result.missingKeys) {
         result.key = 'blocked';
         result.label = ap.t('readiness.notReady');
-      } else if (result.missingNames || result.unresolvedExistingLinks || finalScanPending || noPlan) {
+      } else if (result.missingNames || result.unresolvedExistingLinks || finalScanPending || finalScanIncomplete || noPlan) {
         result.key = 'check';
         result.label = ap.t('readiness.check');
       }
@@ -4586,6 +4609,7 @@ function wrapper(plugin_info) {
     var finalScanRunning = !!(ap.runtime.finalScan && ap.runtime.finalScan.running);
     var finalScanNeeded = (ap.runtime.links || []).some(function (link) { return link && !link.existing; });
     var finalScanResumable = !finalScanRunning && ap.canResumeFinalScan();
+    var finalScanIncomplete = !!(last && last.finalScanAt && !last.finalScanComplete);
     var blockedLinks = (ap.runtime.links || []).filter(function (link) {
       return link && !link.existing && link.blocked && link.blockers && link.blockers.length;
     });
@@ -4653,7 +4677,7 @@ function wrapper(plugin_info) {
       var scanOpenEndpoints = Number(last.unresolvedEndpoints) || 0;
       html += 'Scan: ' + ap.escapeHtml(ap.tp('scan.summaryLink', scanLinks)) + ' · ' + ap.escapeHtml(ap.tp('scan.summaryPortal', scanPortals));
       if (scanOpenEndpoints) html += ' · ' + ap.escapeHtml(ap.tp('scan.summaryEndpoint', scanOpenEndpoints));
-      if ((Number(last.unconfirmedLinks) || 0) > 0) html += ' · ' + ap.escapeHtml(ap.t(last.finalScanComplete ? 'scan.finalComplete' : (finalScanResumable ? 'scan.finalPaused' : 'scan.finalPending')));
+      if ((Number(last.unconfirmedLinks) || 0) > 0) html += ' · ' + ap.escapeHtml(ap.t(last.finalScanComplete ? 'scan.finalComplete' : (finalScanResumable ? 'scan.finalPaused' : (finalScanIncomplete ? 'scan.finalIncomplete' : 'scan.finalPending'))));
       if (last.unresolvedSample && last.unresolvedSample.length) {
         html += '<div class="ap-unresolved"><b>' + ap.escapeHtml(ap.t('diagnostics.openEndpoints')) + '</b>';
         html += '<div class="ap-hint">' + ap.escapeHtml(ap.t('diagnostics.help')) + '</div>';

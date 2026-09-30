@@ -3,7 +3,7 @@
 // @id              simple-cloud-sync@Avataar120
 // @name            Simple Cloud Sync
 // @category        Misc
-// @version         2.1.3.20260928
+// @version         2.2.0.20260929
 // @description     Syncs the localStorage data of your IITC plugins (bookmarks, draw tools, settings…) across all your devices. Each agent has a private, password-protected, end-to-end encrypted space on the sync server, keyed by the logged-in agent name. Per-key merge, most recent change wins; the server is only contacted when something changed.
 // @downloadURL     https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Avataar120/simple-cloud-sync.user.js
 // @updateURL       https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Avataar120/simple-cloud-sync.meta.js
@@ -23,10 +23,15 @@
 function wrapper(plugin_info) {
   if (typeof window.plugin !== 'function') window.plugin = function () {};
   plugin_info.buildName = 'main';
-  plugin_info.dateTimeVersion = '2026-09-28-203000';
+  plugin_info.dateTimeVersion = '2026-09-29-090000';
   plugin_info.pluginId = 'simpleCloudSync';
 
   const changelog = [{
+    version: '2.2.0',
+    changes: [
+      'NEW: Drawn items and key counts synced from another device now show up instantly, without any page reload.',
+    ],
+  }, {
     version: '2.1.3',
     changes: [
       'FIX: No more need to reload twice to see data synced from another device -- the page now reloads itself once when needed, right after opening it.',
@@ -502,6 +507,47 @@ function wrapper(plugin_info) {
       });
   };
 
+  // Plugins that expose a public API to reload their own data from
+  // localStorage: called right after new data is applied, instead of asking
+  // for a full page reload. Each entry's `refresh` runs once, at most, per
+  // sync, only if one of its keys actually changed. Add more entries here as
+  // needed; an unmatched key still falls back to "reload the page".
+  self.PLUGIN_REFRESH = [
+    {
+      // Draw Tools: reloads window.plugin.drawTools.KEY_STORAGE and redraws.
+      match: function (k) { return k === 'plugin-draw-tools-layer'; },
+      refresh: function () {
+        if (window.plugin.drawTools) window.plugin.drawTools.clearAndDraw();
+      }
+    },
+    {
+      // Keys: reloads the key counts and tells the portal list/sidebar to
+      // redraw them (the same sequence the plugin's own sync code runs for
+      // a full update from another device).
+      match: function (k) { return k.indexOf('plugin-keys-data') === 0; },
+      refresh: function () {
+        if (!window.plugin.keys) return;
+        window.plugin.keys.loadKeys();
+        window.plugin.keys.updateDisplayCount();
+        window.runHooks('pluginKeysRefreshAll');
+      }
+    }
+  ];
+
+  // Best-effort: a missing plugin, an API that changed, or any other error
+  // here must never break the sync itself -- worst case, the affected keys
+  // just fall back to needing a manual reload.
+  self.refreshChangedPlugins = function (changedKeys) {
+    self.PLUGIN_REFRESH.forEach(function (entry) {
+      if (!changedKeys.some(entry.match)) return;
+      try {
+        entry.refresh();
+      } catch (e) {
+        console.warn('[SimpleCloudSync] could not refresh a plugin in place: ' + e.message);
+      }
+    });
+  };
+
   self.applySyncResult = function (keys, user, meta, sentPlain, res) {
     // Other IITC plugins read localStorage synchronously at their own boot,
     // before this plugin's network round trip can possibly have finished --
@@ -524,13 +570,13 @@ function wrapper(plugin_info) {
     const decryptKeys = Object.keys(res.entries);
     return Promise.all(decryptKeys.map(function (k) { return self.decryptValue(keys.dataKey, res.entries[k].value); }))
       .then(function (decryptedValues) {
-        let appliedCount = 0;
+        const appliedKeys = [];
         decryptKeys.forEach(function (k, i) {
           if (self.OBSOLETE_KEYS.indexOf(k) !== -1) return;
           const value = decryptedValues[i];
           if (localStorage.getItem(k) !== value) {
             localStorage.setItem(k, value);
-            appliedCount++;
+            appliedKeys.push(k);
           }
           meta[k] = { value: value, ts: res.entries[k].ts };
         });
@@ -542,15 +588,19 @@ function wrapper(plugin_info) {
 
         self.showStatus(
           'OK: ' + Object.keys(sentPlain).length + ' key(s) sent, ' +
-          appliedCount + ' received from the cloud.'
+          appliedKeys.length + ' received from the cloud.'
         );
-        if (appliedCount > 0) {
+        if (appliedKeys.length > 0) {
           if (isInitialSync) {
             self.showStatus('New data received, reloading the page...');
             location.reload();
             return;
           }
-          self.showStatus('Reload the page to apply everything.');
+          self.refreshChangedPlugins(appliedKeys);
+          const stillNeedsReload = appliedKeys.some(function (k) {
+            return !self.PLUGIN_REFRESH.some(function (entry) { return entry.match(k); });
+          });
+          self.showStatus(stillNeedsReload ? 'Reload the page to apply everything.' : 'Applied automatically.');
         }
 
         // Set after an admin reset: the agent is in with the temporary

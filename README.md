@@ -1557,7 +1557,7 @@ Syncs the localStorage data of your IITC plugins (bookmarks, draw tools, setting
 
 *[Homepage](https://github.com/Avataar120/IITC-Synchro/)* |
 *[Issue tracker](https://github.com/Avataar120/IITC-Synchro/issues)* |
-*Version:* 2.1.3.20260928
+*Version:* 2.2.0.20260929
 
 
   

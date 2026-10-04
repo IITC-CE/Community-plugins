@@ -3,8 +3,8 @@
 // @id              fanfields3@Avataar120
 // @name            Fan Fields 3
 // @category        Layer
-// @version         5.1.0.20261002
-// @description     Fork of Heistergand's Fan Fields 2 (thanks Heistergand for the original work!). Plans the largest tidy set of nested fields, and adds: walking optimization (less backtracking between portals, Destroy stops placed where they add the least walking), automatic best anchor/direction search that reuses your faction's existing links, Blockers handling in the Task List, plan locking, Pick anchor on the map, a Task List that follows your progress and can Reroute the steps left from where you stand, key counts read from a screen recording of your keys in Ingress (Keys plugin), and route export to Google Maps / Portal Route. Enable from the layer chooser.
+// @version         6.0.0.20261004
+// @description     Fork of Heistergand's Fan Fields 2 (thanks Heistergand for the original work!). Plans the largest tidy set of nested fields, and adds: walking optimization (less backtracking between portals, Destroy stops placed where they add the least walking), automatic best anchor/direction search that reuses your faction's existing links, Blockers handling in the Task List, plan locking, Pick anchor and Exclude portals on the map, a Task List that follows your progress — correctly sequencing outbound plans and rebalancing links when one gets thrown the wrong way — and can Reroute the steps left from where you stand or preview the whole walk with Walk sim, key counts read from a screen recording of your keys in Ingress (Keys plugin) or spent automatically as you throw links, and route export to Google Maps / Portal Route. Enable from the layer chooser.
 // @downloadURL     https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Avataar120/fanfields3.user.js
 // @updateURL       https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Avataar120/fanfields3.meta.js
 // @icon            https://raw.githubusercontent.com/Avataar120/fanfields3/master/fanfields3-32.png
@@ -25,7 +25,7 @@ function wrapper(plugin_info) {
   // ensure plugin framework is there, even if iitc is not yet loaded
   if (typeof window.plugin !== 'function') window.plugin = function () {};
   plugin_info.buildName = 'main';
-  plugin_info.dateTimeVersion = '2026-10-02-202543';
+  plugin_info.dateTimeVersion = '2026-10-04-000915';
   plugin_info.pluginId = 'fanfields';
 
   /* global L, $, dialog, map, portals, links, plugin  -- eslint*/
@@ -33,6 +33,31 @@ function wrapper(plugin_info) {
 
   var arcname = (window.PLAYER && window.PLAYER.team === 'ENLIGHTENED') ? 'Arc' : '***';
   var changelog = [{
+      version: '6.0.0',
+      changes: [
+        'NEW: Added an "Exclude portals" shortcut on the map (no-entry icon): click it, then click plan portals to leave them out of the plan (or bring them back in), and click it again when done. Excluded portals show a no-entry sign and are remembered when an op is saved, so they come back when that op is reloaded. The hamburger menu moved to the top of the map buttons, and "Pick anchor" is now an entry in that menu instead of its own icon.',
+        'NEW: In outbound mode, if a link planned to come INTO the anchor ends up thrown OUT of it instead (the only way possible once you\'re standing at the anchor), the plan now automatically swaps another not-yet-thrown outbound link to inbound to compensate, keeping the total outbound links matched to your SBUL count — kept up to date even while the plan is Locked.',
+        'NEW: In outbound mode, the anchor now shows up in the Task List right after the last portal it links to, instead of first, since throwing those links needs keys you only get by visiting those portals first. The walk leading up to the anchor is also ordered to minimize your walking from your current position (GPS, else IITC\'s own location, else the map center).',
+        'NEW: "Less walking" now also keeps as many double fields (jet links) intact when choosing the walk order ahead of the anchor in outbound mode, not just the shortest walk, so shifting the anchor no longer risks losing fields the plan could otherwise form.',
+        'NEW: Throwing a link now automatically spends one key for its destination portal from the Keys plugin (toggle in Options: "Spend keys on throw").',
+        'NEW: Walk sim now also draws each portal\'s own links and completed fields (thin cyan) as the simulation reaches them, with a small running counter of links, fields and distance walked so far; the drawing stays on the map once the simulation finishes, until you tap the screen.',
+        'NEW: The Statistics window now also shows the plan\'s total walking distance.',
+        'IMPROVE: Destroying a portal that was a Destroy stop now clears its red cross on the map right away, even while the plan is Locked, and its Task List row turns pale yellow and struck through like any other finished portal instead of just disappearing.',
+        'IMPROVE: Target portal names in the Task List\'s link details are now clickable like every other portal name: flies to and selects that portal on the map, and links to Google Maps when printed.',
+        'IMPROVE: Shifting the anchor and other plan changes are noticeably faster now, since the walk order no longer gets recalculated several times over for the same redraw.',
+        'IMPROVE: Plan links are now drawn purple instead of red, so they stand out better from Blockers and other red markers.',
+        'FIX: "Less walking" now correctly spots a portal that isn\'t really on the way and reroutes around it, including the very last portal of the walk, which it used to skip entirely — some clear shortcuts were being missed because it compared the wrong distances.',
+        'FIX: The Fields column in the Task List could grow so wide, next to a portal with many fields, that other portals\' smaller field counts ended up centered outside the visible area, making them look empty.',
+      ],
+    },{
+      version: '5.2.0',
+      changes: [
+        'NEW: A saved op now also remembers the plugin options and the anchor it was saved with, and reloading it restores all three together — not just the drawing.',
+        'NEW: The plan\'s options and anchor are now kept up to date on their own, the same way the drawing already was, so they survive closing and reopening IITC even without using Manage Ops.',
+        'NEW: Shifting the anchor or changing an option now also counts as an unsaved change, so Manage Ops warns before it would be lost.',
+        'IMPROVE: Opening Manage Ops now puts the cursor straight into the new op\'s name field, so a name can be typed right away.',
+      ],
+    },{
       version: '5.1.0',
       changes: [
         'NEW: Manage Ops menu item lets you save your current drawing under a name, and reload, rename, update or delete it later. Loading a saved op replaces everything currently drawn and moves the map to it; a warning appears before any of these actions would discard unsaved changes. A Clear drawing button is also added there to wipe the current drawing.',
@@ -673,7 +698,7 @@ function wrapper(plugin_info) {
   // from it, so an anchor OFF the hull sticks around across recalculations exactly like a hull
   // one. null means "no pin" — the algorithm's own hull-based choice (or the marker, if any)
   // applies as usual. Set two ways:
-  //  - thisplugin.setAnchorByGuid (the "Pick anchor" button): an explicit user choice —
+  //  - thisplugin.setAnchorByGuid (the "Pick anchor" menu entry): an explicit user choice —
   //    thisplugin.forcedAnchorIsManual is set alongside it, so the auto-orientation search
   //    below never silently overrides it on a later polygon edit.
   //  - the auto-orientation search itself, for its own best pick when that pick isn't a hull
@@ -685,8 +710,23 @@ function wrapper(plugin_info) {
   thisplugin.forcedAnchorIsManual = false;
 
   // Whether the next portal click on the map should set that portal as the anchor (see the
-  // Pick anchor sidebar button and the portalSelected hook in setup()).
+  // Pick anchor menu entry and the portalSelected hook in setup()).
   thisplugin.isPickingAnchor = false;
+
+  // "No entry" shortcut: while armed, clicking a plan portal on the map marks it to be left out
+  // of the plan (or, clicked again, puts it back in) — see thisplugin.toggleExcludedPortal and
+  // the portalSelected hook in setup(). Nothing is recalculated while armed; the plan itself is
+  // only rebuilt once the shortcut is clicked again to disarm it (thisplugin.togglePortalExclusionMode).
+  thisplugin.isExcludingPortals = false;
+  // guid -> true for every portal manually excluded this way. Applied in updateLayer() right
+  // after the plan's own candidate portal set is computed, and dropped whenever that candidate
+  // set itself actually changes (a new/edited polygon, Bookmarks-only, …) — see the
+  // lastPlanSignature check there.
+  thisplugin.excludedPortalGuids = {};
+  // guid -> the no-entry marker currently shown for it, so a single click can add/remove just
+  // that one marker without touching the rest of the plan's own drawing.
+  thisplugin.excludedPortalMarkers = {};
+  thisplugin.excludedPortalMarkersLayerGroup = null;
 
 
 
@@ -701,6 +741,13 @@ function wrapper(plugin_info) {
   thisplugin.showOrderPath = false;
   thisplugin.manualOrderGuids = null;
   thisplugin.lastPlanSignature = null;
+
+  // Task List "Walk sim" button: see thisplugin.startWalkSim below.
+  thisplugin.walkSimLayerGroup = null;
+  thisplugin._walkSimState = null;
+  // The small "Links: N · Fields: N" counter shown while the sim runs — see
+  // thisplugin.walkSimShowLinks below (same option gates both).
+  thisplugin.walkSimCounterEl = null;
 
   // Manual per-link direction overrides (Task List "flip" button, and the "Fewer keys"
   // optimizer below).
@@ -799,6 +846,17 @@ function wrapper(plugin_info) {
   // preview, Google Maps navigation, Portal Route stops, bookmark order. The core algorithm
   // itself, and anything about which links/fields exist, must keep using thisplugin.sortedFanpoints.
   // A "Reroute" order (routeOrderGuids) computed on this very plan wins over both.
+  // Caches the result below (in particular the RADIATING prefix ordering, which runs a
+  // budgeted — up to OUTBOUND_PREFIX_ORDER_BUDGET_MS — local search): getDisplayOrder() is
+  // itself called many times per single redraw (Task List, map drawing, Stats, Blockers,
+  // Walk sim, ...), and without this cache each of those calls would redo that search from
+  // scratch, which is what made shift left/right (and any other anchor change) feel slow in
+  // RADIATING mode. Keyed by reference on everything the computation actually depends on:
+  // sortedFanpoints, displayOrderGuids and outboundPlayerPosition are always replaced
+  // wholesale when they change (never mutated in place — see their assignments throughout
+  // this file), so comparing references is enough to know the cached result is still valid.
+  thisplugin._displayOrderCache = null;
+
   thisplugin.getDisplayOrder = function () {
     var sorted = thisplugin.sortedFanpoints || [];
 
@@ -806,20 +864,243 @@ function wrapper(plugin_info) {
     if (routeOrder) return routeOrder;
 
     var guids = thisplugin.displayOrderGuids;
-    if (!guids || guids.length !== sorted.length) return sorted;
 
-    var byGuid = {};
-    sorted.forEach(function (fp) { byGuid[fp.guid] = fp; });
-
-    var reordered = [];
-    for (var i = 0; i < guids.length; i++) {
-      var fp = byGuid[guids[i]];
-      if (!fp) return sorted; // stale guid set (plan changed since) — ignore it
-      reordered.push(fp);
+    var cache = thisplugin._displayOrderCache;
+    if (cache && cache.sorted === sorted && cache.guids === guids &&
+      cache.playerPosition === thisplugin.outboundPlayerPosition) {
+      return cache.result;
     }
-    if (reordered[0].guid !== thisplugin.startingpointGUID) return sorted; // anchor must stay first
 
-    return reordered;
+    var order = sorted;
+    if (guids && guids.length === sorted.length) {
+      var byGuid = {};
+      sorted.forEach(function (fp) { byGuid[fp.guid] = fp; });
+
+      var reordered = [];
+      for (var i = 0; i < guids.length; i++) {
+        var fp = byGuid[guids[i]];
+        if (!fp) { reordered = null; break; } // stale guid set (plan changed since) — ignore it
+        reordered.push(fp);
+      }
+      if (reordered && reordered[0].guid === thisplugin.startingpointGUID) order = reordered; // anchor must stay first
+    }
+
+    var result = thisplugin.moveAnchorAfterItsTargetsIfOutbound(order);
+    thisplugin._displayOrderCache = { sorted: sorted, guids: guids, playerPosition: thisplugin.outboundPlayerPosition, result: result };
+    return result;
+  };
+
+  // Outbound (RADIATING) mode: throwing one of the anchor's own links needs a key to that
+  // destination, which only comes from having visited (and resonated) it already. So the anchor
+  // has to come right after the last of its own direct outbound targets in the walk — not first,
+  // like in inbound (CENTRALIZING) mode, where its keys are farmed before walking out — but also
+  // not necessarily last overall: a portal the anchor never links to directly can still come
+  // after it. Walk/display order only; sortedFanpoints (build order) is untouched, and an active
+  // Route order already models this via its own precedences.
+  //
+  // None of the portals ahead of the anchor need a particular order relative to each other —
+  // each only needs to be captured and keyed sometime before the anchor is reached — so that
+  // segment is reordered (never the segment after the anchor, which this doesn't touch) to walk
+  // as little as possible, starting from the player's own position and ending at the anchor. See
+  // thisplugin.outboundPlayerPosition below for where that position comes from.
+  thisplugin.moveAnchorAfterItsTargetsIfOutbound = function (order) {
+    if (thisplugin.stardirection !== thisplugin.starDirENUM.RADIATING) return order;
+    if (!order || order.length <= 1) return order;
+
+    var anchor = order[0];
+    if (anchor.guid !== thisplugin.startingpointGUID) return order; // already not anchor-first
+
+    var targetGuids = {};
+    (anchor.outgoing || []).forEach(function (target) { targetGuids[target.guid] = true; });
+    if (Object.keys(targetGuids).length === 0) return order; // nothing to link from the anchor
+
+    var rest = order.slice(1);
+    var lastTargetIdx = -1;
+    rest.forEach(function (fp, idx) { if (targetGuids[fp.guid]) lastTargetIdx = idx; });
+    if (lastTargetIdx === -1) return order; // targets not found in this order — leave as is
+
+    var before = rest.slice(0, lastTargetIdx + 1);
+    var after = rest.slice(lastTargetIdx + 1);
+
+    thisplugin.ensureOutboundPositionTracking();
+    if (thisplugin.outboundPlayerPosition) {
+      before = thisplugin.orderPrefixForOutbound(before, anchor, after, thisplugin.outboundPlayerPosition.latlng);
+    }
+    // No cached position yet: ensureOutboundPositionTracking() above has a fetch under way and
+    // redraws once it resolves — leave this segment in its natural order meanwhile.
+
+    return before.concat([anchor]).concat(after);
+  };
+
+  // RADIATING (OUTBOUND) mode: the player's position, cached for ordering the walk ahead of the
+  // anchor above. Never fetched synchronously from there (geolocation is async) — refreshed
+  // periodically here instead while RADIATING is active, and used stale between refreshes rather
+  // than blocking the draw. { latlng, source }, same shape thisplugin.getPlayerPosition returns.
+  thisplugin.outboundPlayerPosition = null;
+  thisplugin.OUTBOUND_POSITION_REFRESH_MS = 60000;
+  thisplugin._outboundPositionTimer = null;
+  thisplugin._outboundPositionFetchInFlight = false;
+
+  thisplugin.refreshOutboundPlayerPosition = function () {
+    if (thisplugin._outboundPositionFetchInFlight) return;
+    thisplugin._outboundPositionFetchInFlight = true;
+    thisplugin.getPlayerPosition(function (position) {
+      thisplugin._outboundPositionFetchInFlight = false;
+      thisplugin.outboundPlayerPosition = position;
+      if (thisplugin.stardirection === thisplugin.starDirENUM.RADIATING) {
+        thisplugin.redrawWalkOrder();
+      }
+    });
+  };
+
+  // Starts (or keeps alive) the periodic refresh above while RADIATING is active, and stops it
+  // the moment it isn't — this must never poll GPS for an inbound plan. Called from
+  // moveAnchorAfterItsTargetsIfOutbound (so it starts as soon as a RADIATING plan is first drawn)
+  // and from toggleStarDirection (so switching away stops it right away, not on the next draw).
+  thisplugin.ensureOutboundPositionTracking = function () {
+    if (thisplugin.stardirection !== thisplugin.starDirENUM.RADIATING) {
+      clearInterval(thisplugin._outboundPositionTimer);
+      thisplugin._outboundPositionTimer = null;
+      return;
+    }
+    if (thisplugin._outboundPositionTimer) return;
+    thisplugin.refreshOutboundPlayerPosition();
+    thisplugin._outboundPositionTimer = setInterval(thisplugin.refreshOutboundPlayerPosition, thisplugin.OUTBOUND_POSITION_REFRESH_MS);
+  };
+
+  // Orders prefixFps (the portals ahead of the anchor in RADIATING mode) to walk as little as
+  // possible from startLatLng (the player) through all of them and on to anchorFp, while
+  // preserving as many fields as the plan can actually form. Jet-linking (one link closing two
+  // triangles at once, by reusing two links already thrown elsewhere) only pays off when its
+  // three sides are thrown in an order that lets them all actually complete — thrown too late
+  // from under a field already closed by the other two sides, a side can become impossible
+  // (the "under field" distance limit), silently losing fields that pure distance minimization
+  // would never notice. So, same as computeRouteOrder, every candidate ordering of this segment
+  // is scored against the FULL walk it would produce (prefix + anchorFp + afterFps, exactly
+  // what thisplugin.simulateWalk expects) and judged in this order:
+  //  1. precedence violations (a portal linking to another one of this very segment before that
+  //     one has been visited — same idea as computeRouteOrder's own precedences, scoped here);
+  //  2. links the walk order makes impossible to throw from under a field;
+  //  3. fields actually formed;
+  //  4. total distance walked.
+  // Nearest-neighbour construction (skipping any portal whose prerequisites within this segment
+  // aren't placed yet) for a first candidate, then a bounded local-search pass (same moves as
+  // computeRouteOrder's: move a short run elsewhere, or reverse a stretch), each judged by the
+  // same four criteria. This runs synchronously on every redraw, not from a one-off button
+  // click, so it's bounded by a short time budget rather than running to exhaustion.
+  thisplugin.OUTBOUND_PREFIX_ORDER_BUDGET_MS = 300;
+
+  thisplugin.orderPrefixForOutbound = function (prefixFps, anchorFp, afterFps, startLatLng) {
+    var m = prefixFps.length;
+    if (m <= 1) return prefixFps;
+
+    var indexByGuid = {};
+    prefixFps.forEach(function (fp, i) { indexByGuid[fp.guid] = i; });
+
+    // Pairs [target index, source index]: the target must be visited before the source, since
+    // the source still has to throw it a link. A link already thrown in-game is no longer a
+    // constraint; a link to anything outside this segment (the anchor included) isn't either —
+    // see the comment above.
+    var precedences = [];
+    prefixFps.forEach(function (fp, i) {
+      (fp.outgoing || []).forEach(function (target) {
+        var j = indexByGuid[target.guid];
+        if (j === undefined) return;
+        if (thisplugin.isLinkInGame(fp.guid, target.guid)) return;
+        precedences.push([j, i]);
+      });
+    });
+
+    var latLngs = prefixFps.map(function (fp) { return map.unproject(fp.point, thisplugin.PROJECT_ZOOM); });
+    var anchorLatLng = map.unproject(anchorFp.point, thisplugin.PROJECT_ZOOM);
+    var allPoints = latLngs.concat([startLatLng, anchorLatLng]);
+    var START = m, END = m + 1;
+    var dist = allPoints.map(function (a) { return allPoints.map(function (b) { return a.distanceTo(b); }); });
+
+    function lengthOf(seq) {
+      var total = dist[START][seq[0]];
+      for (var i = 1; i < seq.length; i++) total += dist[seq[i - 1]][seq[i]];
+      total += dist[seq[seq.length - 1]][END];
+      return total;
+    }
+    function violationsOf(seq) {
+      var pos = [];
+      seq.forEach(function (idx, p) { pos[idx] = p; });
+      return precedences.filter(function (pair) { return pos[pair[0]] > pos[pair[1]]; }).length;
+    }
+    function evaluate(seq) {
+      var fullWalk = seq.map(function (idx) { return prefixFps[idx]; }).concat([anchorFp]).concat(afterFps);
+      var sim = thisplugin.simulateWalk(fullWalk);
+      return {
+        seq: seq,
+        length: lengthOf(seq),
+        violations: violationsOf(seq),
+        invalid: Object.keys(sim.invalid).length,
+        fields: sim.triangles.length
+      };
+    }
+    function isBetter(a, b) {
+      if (a.violations !== b.violations) return a.violations < b.violations;
+      if (a.invalid !== b.invalid) return a.invalid < b.invalid;
+      if (a.fields !== b.fields) return a.fields > b.fields;
+      return a.length < b.length - 1e-6;
+    }
+
+    // Nearest-neighbour from the player's position, skipping anything still blocked by a
+    // not-yet-placed prerequisite of this segment.
+    var seq = [];
+    var placed = [];
+    var current = START;
+    while (seq.length < m) {
+      var choice = -1;
+      for (var i = 0; i < m; i++) {
+        if (placed[i]) continue;
+        var blocked = precedences.some(function (pair) { return pair[1] === i && !placed[pair[0]]; });
+        if (blocked) continue;
+        if (choice === -1 || dist[current][i] < dist[current][choice]) choice = i;
+      }
+      if (choice === -1) {
+        // A cycle among the precedences (shouldn't normally happen) — fall back to any
+        // unplaced portal rather than stall forever.
+        for (choice = 0; placed[choice]; choice++);
+      }
+      seq.push(choice);
+      placed[choice] = true;
+      current = choice;
+    }
+
+    var deadline = Date.now() + thisplugin.OUTBOUND_PREFIX_ORDER_BUDGET_MS;
+    var best = evaluate(seq);
+    var maxPasses = 6;
+    for (var pass = 0; pass < maxPasses && Date.now() < deadline; pass++) {
+      var improved = false;
+      for (var len = 1; len <= 3 && !improved && Date.now() < deadline; len++) {
+        for (var a = 0; a + len <= m && !improved && Date.now() < deadline; a++) {
+          var run = best.seq.slice(a, a + len);
+          var rest = best.seq.slice(0, a).concat(best.seq.slice(a + len));
+          for (var j = 0; j <= rest.length && !improved; j++) {
+            if (j === a) continue;
+            var candidate = evaluate(rest.slice(0, j).concat(run, rest.slice(j)));
+            if (isBetter(candidate, best)) {
+              best = candidate;
+              improved = true;
+            }
+          }
+        }
+      }
+      for (var x = 0; x < m - 1 && !improved && Date.now() < deadline; x++) {
+        for (var y = x + 1; y < m && !improved; y++) {
+          var reversed = evaluate(best.seq.slice(0, x).concat(best.seq.slice(x, y + 1).reverse(), best.seq.slice(y + 1)));
+          if (isBetter(reversed, best)) {
+            best = reversed;
+            improved = true;
+          }
+        }
+      }
+      if (!improved) break;
+    }
+
+    return best.seq.map(function (idx) { return prefixFps[idx]; });
   };
 
   // Identifies the plan's shape: its portals in build order, each with the portals it throws to.
@@ -872,6 +1153,7 @@ function wrapper(plugin_info) {
     // Reset manual order and link flips because the start/anchor changed (ghi#23)
     thisplugin.manualOrderGuids = null;
     thisplugin.manualLinkFlips = {};
+    thisplugin.reconciledFanLinkKeys = {};
     thisplugin.relocatedForLessWalkingGuids = {};
     thisplugin.displayOrderGuids = null;
     thisplugin.requestLinkOrderRecompute();
@@ -914,6 +1196,7 @@ function wrapper(plugin_info) {
     // cycling via updateStartingPoint.
     thisplugin.manualOrderGuids = null;
     thisplugin.manualLinkFlips = {};
+    thisplugin.reconciledFanLinkKeys = {};
     thisplugin.relocatedForLessWalkingGuids = {};
     thisplugin.displayOrderGuids = null;
     thisplugin.requestLinkOrderRecompute();
@@ -922,7 +1205,7 @@ function wrapper(plugin_info) {
     return true;
   };
 
-  // "Pick anchor" sidebar button: toggles whether the next portal click on the map sets that
+  // "Pick anchor" menu entry: toggles whether the next portal click on the map sets that
   // portal as the anchor (see the portalSelected hook in setup()).
   thisplugin.toggleAnchorPicking = function () {
     thisplugin.isPickingAnchor = !thisplugin.isPickingAnchor;
@@ -930,8 +1213,122 @@ function wrapper(plugin_info) {
   };
 
   thisplugin.updateAnchorPickingButton = function () {
-    $('#plugin_fanfields3_pickanchor_btn, #fanfieldPickAnchorButton')
+    $('#plugin_fanfields3_pickanchor_btn')
       .toggleClass('plugin_fanfields3_active', thisplugin.isPickingAnchor);
+  };
+
+  // "No entry" shortcut: arms/disarms portal-exclusion picking. Disarming applies whatever was
+  // toggled while armed (thisplugin.excludedPortalGuids) to the actual plan — the same
+  // unlock-then-recalculate-then-relock cycle used by the other option toggles (toggleclockwise,
+  // toggleStarDirection, …) — via thisplugin.delayedUpdateLayer(..., true).
+  thisplugin.togglePortalExclusionMode = function () {
+    thisplugin.isExcludingPortals = !thisplugin.isExcludingPortals;
+    thisplugin.updateExcludePortalButton();
+
+    if (!thisplugin.isExcludingPortals) {
+      thisplugin.manualOrderGuids = null;
+      thisplugin.manualLinkFlips = {};
+      thisplugin.reconciledFanLinkKeys = {};
+      thisplugin.relocatedForLessWalkingGuids = {};
+      thisplugin.displayOrderGuids = null;
+      thisplugin.requestLinkOrderRecompute();
+      thisplugin.delayedUpdateLayer(0.2, true);
+    }
+  };
+
+  thisplugin.updateExcludePortalButton = function () {
+    $('#fanfieldExcludePortalButton')
+      .toggleClass('plugin_fanfields3_active', thisplugin.isExcludingPortals)
+      .attr('title', thisplugin.isExcludingPortals
+        ? 'Exclude portals: click plan portals to mark them out (or back in), click here again when done'
+        : 'Exclude portals: click, then click plan portals to leave them out of the plan');
+  };
+
+  // A single portal click can fire IITC's own 'portalSelected' hook twice in a row (observed on
+  // the very first click of a session: once right away, once again once the portal's full data
+  // arrives and renderPortalDetails re-runs for the same guid) — without this guard, that second
+  // call immediately undid the first click's toggle, making the marker flash and vanish. Genuine
+  // separate clicks on the same portal, to toggle it back, are comfortably slower than this.
+  thisplugin._lastExcludeToggleAt = {};
+  thisplugin.EXCLUDE_TOGGLE_DEBOUNCE_MS = 400;
+
+  // Marks/unmarks a single portal as excluded and updates its no-entry marker right away —
+  // called while picking is armed, never recalculates the plan itself (see
+  // thisplugin.togglePortalExclusionMode for that).
+  thisplugin.toggleExcludedPortal = function (guid) {
+    var now = Date.now();
+    var last = thisplugin._lastExcludeToggleAt[guid];
+    if (last !== undefined && (now - last) < thisplugin.EXCLUDE_TOGGLE_DEBOUNCE_MS) return;
+    thisplugin._lastExcludeToggleAt[guid] = now;
+
+    if (thisplugin.excludedPortalGuids[guid]) {
+      delete thisplugin.excludedPortalGuids[guid];
+      thisplugin.removeExcludedPortalMarker(guid);
+    } else {
+      thisplugin.excludedPortalGuids[guid] = true;
+      thisplugin.addExcludedPortalMarker(guid);
+    }
+  };
+
+  thisplugin.addExcludedPortalMarker = function (guid) {
+    if (!thisplugin.excludedPortalMarkersLayerGroup) return;
+    thisplugin.removeExcludedPortalMarker(guid);
+
+    var point = thisplugin.locations && thisplugin.locations[guid];
+    if (!point) return;
+
+    var marker = L.marker(map.unproject(point, thisplugin.PROJECT_ZOOM), {
+      icon: L.divIcon({
+        className: 'plugin_fanfields3_excluded_marker',
+        iconSize: [22, 22],
+        iconAnchor: [11, 11],
+        html: '&#9940;'
+      }),
+      interactive: false
+    });
+    marker.addTo(thisplugin.excludedPortalMarkersLayerGroup);
+    thisplugin.excludedPortalMarkers[guid] = marker;
+  };
+
+  thisplugin.removeExcludedPortalMarker = function (guid) {
+    var marker = thisplugin.excludedPortalMarkers[guid];
+    if (!marker) return;
+    if (thisplugin.excludedPortalMarkersLayerGroup) {
+      thisplugin.excludedPortalMarkersLayerGroup.removeLayer(marker);
+    }
+    delete thisplugin.excludedPortalMarkers[guid];
+  };
+
+  // Drops every manual exclusion and its marker — called when the plan's own candidate portal
+  // set actually changes (see the lastPlanSignature check in updateLayer()), since a stale
+  // exclusion would otherwise apply to a portal set it was never meant for.
+  thisplugin.clearExcludedPortals = function () {
+    Object.keys(thisplugin.excludedPortalMarkers).forEach(thisplugin.removeExcludedPortalMarker);
+    thisplugin.excludedPortalGuids = {};
+  };
+
+  // Sorted guids of every manually excluded portal — used wherever the exclusion set needs to
+  // be compared or persisted (Manage Ops' dirty-check and saved op data), so the same set always
+  // serializes identically regardless of the order portals were toggled in.
+  thisplugin.excludedGuidsArray = function () {
+    return Object.keys(thisplugin.excludedPortalGuids).sort();
+  };
+
+  // Replaces the whole exclusion set at once (Manage Ops' loadOp) — drops whatever was excluded
+  // before and marks exactly these guids instead.
+  thisplugin.setExcludedPortalGuids = function (guids) {
+    thisplugin.clearExcludedPortals();
+    (guids || []).forEach(function (guid) { thisplugin.excludedPortalGuids[guid] = true; });
+    thisplugin.refreshExcludedPortalMarkers();
+  };
+
+  // Adds a marker for every excluded portal that doesn't have one yet — called whenever
+  // thisplugin.locations is (re)built, since a portal restored from a saved op (or still
+  // loading in) may not have had a known location yet the first time it was excluded.
+  thisplugin.refreshExcludedPortalMarkers = function () {
+    Object.keys(thisplugin.excludedPortalGuids).forEach(function (guid) {
+      if (!thisplugin.excludedPortalMarkers[guid]) thisplugin.addExcludedPortalMarker(guid);
+    });
   };
 
   thisplugin.helpDialogWidth = 650;
@@ -947,22 +1344,32 @@ function wrapper(plugin_info) {
         'Using Drawtools, draw one or more polygons around the portals you want to work with. ' +
         'Polygons can overlap each other or be completely separated. All portals within the polygons ' +
         'count toward your planned fanfield. ' +
-        'Optional: in the menu\'s <i>Options</i>, set <i>Portal&nbsp;selection</i> to <i>Bookmarks&nbsp;only</i> to restrict the selection to your bookmarked portals.</p>' +
+        'Optional: in the menu\'s <i>Options</i>, set <i>Portal&nbsp;selection</i> to <i>Bookmarks&nbsp;only</i> to restrict the selection to your bookmarked portals. ' +
+        'To fine-tune the selection without redrawing the polygon, use the map\'s &#9940; (no-entry) shortcut: click it, then click plan portals to leave them out of the plan (or bring them back in), and click it again when done.</p>' +
 
         '<p><b>Show the plan</b><br>' +
         'From the layer selector, enable the Fanfields layers (Links / Fields / Numbers). ' +
-        'The fanfield is calculated and shown as red links/fields on the intel, with link directions indicated by dashed stubs at the origin portal.</p>' +
+        'The fanfield is calculated and shown as purple links and red fields on the intel, with link directions indicated by dashed stubs at the origin portal.</p>' +
 
         '<p><b>Choose the anchor (start portal)</b><br>' +
-        'By default, the script selects an anchor portal from the convex hull of all selected portals. ' +
-        'Use the Cycle&nbsp;Start buttons to step through hull portals (previous/next). ' +
-        'To force an inside portal as anchor (totally legitimate), place a Drawtools marker snapped onto that portal, ' +
-        'then cycle until it becomes the anchor.</p>' +
+        'By default, the script searches in the background for a start portal and direction that reuse as many of your faction\'s own existing links between the selected portals as possible, so the plan lines up with real progress; this runs once right after drawing or editing a polygon. ' +
+        'With no such link to reuse, it falls back to a portal on the convex hull of the selection. ' +
+        'Use the Cycle&nbsp;Start buttons (&#8634;/&#8635;) to step through hull portals yourself, or <i>Pick&nbsp;anchor</i> (menu) to click any portal of the plan directly on the map, hull or not. ' +
+        'To force an inside portal the old way, place a Drawtools marker snapped onto it, then cycle until it becomes the anchor. ' +
+        'Picking an anchor yourself this way (or cycling) cancels the automatic search for that polygon.</p>' +
 
         '<p><b>Build mode: inbounding / outbounding</b><br>' +
         'A fanfield can be done <i>inbounding</i> by farming many keys at the anchor and linking <i>to</i> it from all other portals. ' +
         'It can also be done <i>outbounding</i> by star-linking <i>from</i> the anchor until the maximum number of outgoing links is reached. ' +
-        'In outbounding mode you can set how many SBUL you plan to use (0–4) to calculate the outgoing link capacity.</p>' +
+        'In outbounding mode you can set how many SBUL you plan to use (0–4) to calculate the outgoing link capacity. ' +
+        'The Task List then places the anchor right after the last portal it directly links to — not first — since throwing those links needs keys you only get by visiting those portals first; the steps leading up to it are ordered to minimize your walking from your current position (GPS, else IITC\'s own location, else the map center). ' +
+        'If a link planned to come into the anchor ends up thrown out of it instead (the only way possible once you\'re standing there), the plan automatically swaps another not-yet-thrown outbound link to inbound to compensate, so the total outbound links stays matched to your SBUL count — even while the plan is Locked.</p>' +
+
+        '<p><b>Order & walking optimization</b><br>' +
+        'In Options, switch between <i>Clockwise</i> and <i>Counterclockwise</i> direction to find an easier route or squeeze out extra fields. ' +
+        'The walk order is automatically optimized to reduce backtracking ("Less walking"): a portal that isn\'t really on the way gets relocated earlier in the walk (shown green in the Task List, as a reminder to capture it and gather its keys ahead of schedule) rather than forcing its own link into a detour. ' +
+        'Flip any single link\'s direction with the &#8646; button next to it in the Task List (keys needed update accordingly); use <i>Reset&nbsp;link&nbsp;orders</i> there to revert every manual flip and the walking optimization back to the algorithm\'s own choice. ' +
+        'For full control over the visit order itself, open <i>Manage&nbsp;order</i> (menu) and drag &amp; drop portals (or use the &#9650;/&#9660; buttons on mobile); use <i>Path</i> there to preview a straight-line route along the current sequence.</p>' +
 
         '<p><b>Avoid blockers</b><br>' +
         'If you need to plan around links you cannot or do not want to destroy, use <i>Respect&nbsp;Intel</i> (menu &rarr; Options). ' +
@@ -974,12 +1381,8 @@ function wrapper(plugin_info) {
         'With <i>Blockers</i> on (Options, the default), blockers are drawn as red dotted lines and the Task List gets <i>Destroy</i> rows: portals to neutralize so that the blockers are gone before the link they block is thrown. ' +
         'An enemy portal the plan captures anyway is marked with a cross when its capture frees a link in time. ' +
         '<i>Max&nbsp;detour</i> (Options: 100&nbsp;m, 200&nbsp;m, 500&nbsp;m, 1&nbsp;km or no limit) caps the extra walk of a single Destroy stop; blockers that cannot be freed within it are listed under the Task List. ' +
+        'Destroying a Destroy stop\'s portal clears its cross and finishes that row (pale yellow, struck through) right away, even while the plan is Locked. ' +
         'Turning <i>Blockers</i> off only removes these rows. A link of your own faction can only be broken with a Jarvis/ADA flip, or by changing <i>Respect&nbsp;Intel</i>.</p>' +
-
-        '<p><b>Order & route planning</b><br>' +
-        'In Options, switch between <i>Clockwise</i> and <i>Counterclockwise</i> direction to find an easier route or squeeze out extra fields. ' +
-        'For fine control, open <i>Manage Portal Order</i> (menu) and drag &amp; drop portals to customise your visit order. ' +
-        'Use <i>Path</i> to preview a straight-line route along the current portal sequence.</p>' +
 
         '<p><b>Freeze recalculation</b><br>' +
         'The plan locks itself as soon as a new plan is completely calculated (once IITC has finished loading the map, and including the automatic anchor search), so it no longer moves while you pan, zoom or the map data refreshes. ' +
@@ -988,13 +1391,19 @@ function wrapper(plugin_info) {
         'The Task List keeps reflecting portal captures and links thrown in-game while locked — only the plan itself (link/field order) stays frozen. ' +
         'Switch back to <i>🔓&nbsp;Unlocked</i> to let the plan itself refresh again.</p>' +
 
+        '<p><b>Manage ops</b><br>' +
+        'Open <i>Manage&nbsp;ops</i> (menu) to save your current drawing — together with its options and anchor — under a name, and reload, rename, update or delete it later. ' +
+        'Loading an op replaces everything currently drawn and moves the map to it; you\'ll be warned first if that would discard unsaved changes. ' +
+        'A <i>Clear&nbsp;drawing</i> button there wipes the current drawing.</p>' +
+
         '<p><b>Task list & exports</b><br>' +
         'Open <i>Task List</i> to get a step-by-step plan including per-portal key requirements, outgoing link counts, and (optional) link details. ' +
-        'If you use a Keys/LiveInventory plugin, the task list can also show your available key counts. ' +
+        'If you use a Keys/LiveInventory plugin, the task list can also show your available key counts, and keys are spent automatically from the Keys plugin as you throw links (toggle in Options: <i>Spend&nbsp;keys&nbsp;on&nbsp;throw</i>). ' +
         'With the Keys plugin, its <i>Keys video</i> button fills in your key counts from a screen recording of your keys in Ingress. ' +
         'The task list includes a navigation link for Google Maps and a print-friendly view. ' +
         'Its <i>Reroute</i> button reorders the steps still to do, starting from your current position (GPS, else IITC\'s own location, else the map center), so you walk as little as possible — while still capturing each portal, and getting its keys, before anyone links to it, and without losing a field. ' +
-        'The links and fields stay the same, it works while the plan is locked too, and the new order holds until the plan itself changes (or <i>Reset&nbsp;link&nbsp;orders</i>).</p>' +
+        'The links and fields stay the same, it works while the plan is locked too, and the new order holds until the plan itself changes (or <i>Reset&nbsp;link&nbsp;orders</i>). ' +
+        'Its <i>Walk&nbsp;sim</i> button closes the list and previews the whole walk on the map, portal by portal, drawing each portal\'s own links and fields as they\'re reached (toggle in Options: <i>Walk&nbsp;sim&nbsp;links</i>); tap the map to dismiss it.</p>' +
 
         '<hr noshade>' +
 
@@ -1009,6 +1418,20 @@ function wrapper(plugin_info) {
 
 
 
+
+  // Total walking distance of the current plan: the walk order's own portal-to-portal distance
+  // (thisplugin.getDisplayOrder — relocations and any Reroute order included), plus whatever
+  // extra walking the Blockers Destroy stops add (thisplugin.computeBlockerPlan already works
+  // this out for the Task List's own summary line).
+  thisplugin.computeTotalWalkDistance = function () {
+    var order = thisplugin.getDisplayOrder();
+    var total = 0;
+    for (var i = 1; i < order.length; i++) {
+      total += thisplugin.distanceTo(order[i - 1].point, order[i].point);
+    }
+    total += thisplugin.computeBlockerPlan().extraDistance;
+    return total;
+  };
 
   // Statistics dialog: build the HTML for the current plan. Used both to open the dialog and
   // to refresh it live (see thisplugin.refreshStatisticsIfOpen) as the background plan changes.
@@ -1035,6 +1458,7 @@ function wrapper(plugin_info) {
       '<tr><td>Total links / keys:</td><td>' + linksText + '</td><tr>' +
       '<tr><td>Fields:</td><td>' + fieldsText + '</td><tr>' +
       '<tr><td>Build AP (links and fields):</td><td>' + (validLinks * 313 + validFields * 1250).toString() + '</td><tr>' +
+      '<tr><td>Total walk distance:</td><td>' + thisplugin.formatDistance(thisplugin.computeTotalWalkDistance()) + '</td><tr>' +
       warn +
       '</table>';
   };
@@ -1276,6 +1700,32 @@ function wrapper(plugin_info) {
     return text;
   };
 
+  // Task List: the row for a Destroy stop from an earlier run that no longer has any blocker
+  // left to free (thisplugin.doneBlockerStopGuids/plan.doneStops) — shown pale yellow and
+  // struck through, like any other finished portal, instead of silently disappearing the
+  // instant the blocking link it stood for is gone. No checkbox, no "frees" count and no
+  // Google Maps stop: there's nothing left to do here.
+  thisplugin.buildDoneBlockerStopHTML = function (stop) {
+    var latlng = map.unproject(stop.point, thisplugin.PROJECT_ZOOM);
+    var lat = Math.round(latlng.lat * 10000000) / 10000000;
+    var lng = Math.round(latlng.lng * 10000000) / 10000000;
+    var title = window.escapeHtmlSpecialChars(thisplugin.getPortalTitleByGuid(stop.guid));
+    var guid = stop.guid || '';
+
+    var text = '<tbody class="plugin_fanfields3_exportText_Portal"><tr class="plugin_fanfields3_portal_done" ' +
+      'title="This Destroy stop is no longer needed: the blocking link(s) it was meant to free are already gone.">';
+    text += '<td>&#10006;</td>';
+    text += '<td>Nothing</td>';
+    text += '<td></td>';
+    text += '<td>';
+    text += '  <a class="plugin_fanfields3_exportText_print" href="https://www.google.com/maps/dir/?api=1&destination=' + lat + ',' + lng + '" target="_blank">' + title + '</a>';
+    text += '  <a class="plugin_fanfields3_exportText_ui" onclick="window.plugin.fanfields.flyToPortal({lat: ' + lat + ', lng: ' + lng + "}, '" + guid + "'); return false;" + '">' + title + '</a>';
+    text += '</td>';
+    text += '<td></td><td></td><td></td>';
+    text += '</tr></tbody>\n';
+    return text;
+  };
+
   // Keys still needed at a plan portal: one per incoming link, except those already made in-game
   // (when "Grey out done links" is on) — that key was already spent to make the link.
   thisplugin.getKeysStillNeeded = function (portal) {
@@ -1404,6 +1854,9 @@ function wrapper(plugin_info) {
     displayOrder.forEach(function (portal, index) {
       blockerPlan.stops.forEach(function (stop) {
         if (stop.slot === index) text += thisplugin.buildBlockerStopHTML(stop, gmStops);
+      });
+      blockerPlan.doneStops.forEach(function (stop) {
+        if (stop.slot === index) text += thisplugin.buildDoneBlockerStopHTML(stop);
       });
 
       var p, lat, lng;
@@ -1635,8 +2088,19 @@ function wrapper(plugin_info) {
           if (outPortal.portal !== undefined) {
             outPortalTitle = outPortal.portal.options.data.title;
           }
-          // Portal Name (Target)
-          linkDetailText += '<td>' + outPortalTitle + '</td>';
+          let outTitle = window.escapeHtmlSpecialChars(outPortalTitle);
+          let outUriTitle = encodeURIComponent(outPortalTitle);
+          let outLatlng = map.unproject(outPortal.point, thisplugin.PROJECT_ZOOM);
+          let outLat = Math.round(outLatlng.lat * 10000000) / 10000000;
+          let outLng = Math.round(outLatlng.lng * 10000000) / 10000000;
+          let outGmapsHref = `https://www.google.com/maps/dir/?api=1&destination=${outLat},${outLng}&query_destination_id=(${outUriTitle})`;
+
+          // Portal Name (Target) — same print/UI link pair as the main portal row.
+          linkDetailText += '<td>';
+          linkDetailText += `  <a class="plugin_fanfields3_exportText_print" href="${outGmapsHref}" target="_blank">${outTitle}</a>`;
+          linkDetailText +=
+            `  <a class="plugin_fanfields3_exportText_ui" onclick="window.plugin.fanfields.flyToPortal({lat: ${outLat}, lng: ${outLng}}, '${outPortal.guid}'); return false;">${outTitle}</a>`;
+          linkDetailText += '</td>';
 
           // Keys (here: empty cell)
           linkDetailText += '<td></td>';
@@ -1992,7 +2456,8 @@ function wrapper(plugin_info) {
       '<button type="button" id="plugin_fanfields3_tasklist_shift_right" class="plugin_fanfields3_tasklist_shift_btn" title="FanFields shift right">' +
       symbol_clockwise + '</button>' +
       '<button type="button" id="plugin_fanfields3_tasklist_refresh" class="plugin_fanfields3_tasklist_shift_btn" title="Force an IITC map data refresh">Refresh</button>' +
-      '<button type="button" id="plugin_fanfields3_tasklist_reroute" class="plugin_fanfields3_tasklist_shift_btn" title="Reorder the steps still to do, starting from your current position, to walk as little as possible">Reroute</button>';
+      '<button type="button" id="plugin_fanfields3_tasklist_reroute" class="plugin_fanfields3_tasklist_shift_btn" title="Reorder the steps still to do, starting from your current position, to walk as little as possible">Reroute</button>' +
+      '<button type="button" id="plugin_fanfields3_tasklist_walksim" class="plugin_fanfields3_tasklist_shift_btn" title="Close this list and preview the planned walk on the map, portal by portal">Walk sim</button>';
     if (window.plugin.keys) {
       buttonsHtml += '<button type="button" id="plugin_fanfields3_tasklist_keysvideo" class="plugin_fanfields3_tasklist_shift_btn" title="Update the Keys plugin from a screen recording of your keys in Ingress">Keys video</button>';
     }
@@ -2034,6 +2499,248 @@ function wrapper(plugin_info) {
       .on('click', function () {
         thisplugin.openKeysVideoDialog();
       });
+    $buttonpane.find('#plugin_fanfields3_tasklist_walksim')
+      .off('click')
+      .on('click', function () {
+        $('#plugin_fanfields3_exportText_inner').closest('.ui-dialog-content').dialog('close');
+        thisplugin.startWalkSim();
+      });
+  };
+
+  // ---------------------------------------------------------------------
+  // Task List "Walk sim" button: closes the Task List and previews the planned walk (portal
+  // positions plus any Blockers Destroy stops, in walk order — the same stops "Navigate with
+  // Google Maps" sends) as an animated line crawling from stop to stop across the map, pausing
+  // briefly at each one. Pure visualization: touches no plan state. Clicking anywhere on the
+  // map stops it early.
+  // ---------------------------------------------------------------------
+
+  thisplugin.WALK_SIM_SEGMENT_MS = 500; // time to animate between two consecutive stops
+  thisplugin.WALK_SIM_DWELL_MS = 150;   // pause at each stop before moving on
+
+  // Whether the sim also draws each portal's own outgoing links (thinner, same cyan) as the
+  // walk reaches it — lets the fields visibly form alongside the walk itself. Persisted with
+  // the other options (Options dialog); defaults on.
+  thisplugin.walkSimShowLinks = true;
+
+  // The ordered stops to animate through: every walk portal, with any Blockers Destroy stop
+  // inserted at its slot — mirrors how buildTaskListHTML/getPortalRouteStops build their own
+  // stop list, just without the HTML/API-specific parts. A portal stop also carries the
+  // latlngs of its own outgoing links, and of any field that closes exactly when this stop's
+  // links are thrown (a Destroy stop throws nothing, so it gets neither), for
+  // thisplugin.walkSimShowLinks to draw once the sim settles there. Field completion is worked
+  // out the same way thisplugin.simulateWalk does (a field closes once all 3 of its sides have
+  // been thrown, credited to whichever of the 3 links is thrown last), kept separate since this
+  // only needs latlngs to draw, not validity.
+  thisplugin.getWalkSimStops = function () {
+    var order = thisplugin.getDisplayOrder();
+    var blockerPlan = thisplugin.computeBlockerPlan();
+    var stops = [];
+
+    var pointToGuid = {};
+    order.forEach(function (fp) { pointToGuid[thisplugin.pointKey(fp.point)] = fp.guid; });
+
+    var fieldsByLink = {};
+    var seenFieldIds = {};
+    order.forEach(function (fp) {
+      (fp.outgoing || []).forEach(function (target) {
+        var meta = fp.outgoingMeta ? fp.outgoingMeta[target.guid] : null;
+        ((meta && meta.creatingFieldsWith) || []).forEach(function (thirdPoint) {
+          var thirdGuid = pointToGuid[thisplugin.pointKey(thirdPoint)];
+          if (!thirdGuid) return;
+          var id = [fp.guid, target.guid, thirdGuid].sort().join('|');
+          if (seenFieldIds[id]) return;
+          seenFieldIds[id] = true;
+          var field = {
+            id: id,
+            latlngs: [thirdPoint, fp.point, target.point].map(function (p) { return map.unproject(p, thisplugin.PROJECT_ZOOM); }),
+            links: [
+              thisplugin.getUndirectedLinkKey(fp.guid, target.guid),
+              thisplugin.getUndirectedLinkKey(fp.guid, thirdGuid),
+              thisplugin.getUndirectedLinkKey(target.guid, thirdGuid)
+            ]
+          };
+          field.links.forEach(function (linkKey) { (fieldsByLink[linkKey] = fieldsByLink[linkKey] || []).push(field); });
+        });
+      });
+    });
+
+    var builtLinks = {};
+    var formedFieldIds = {};
+
+    order.forEach(function (fp, index) {
+      blockerPlan.stops.forEach(function (stop) {
+        if (stop.slot === index) {
+          stops.push({
+            latlng: map.unproject(stop.point, thisplugin.PROJECT_ZOOM),
+            title: thisplugin.getPortalTitleByGuid(stop.guid),
+            links: [],
+            fields: []
+          });
+        }
+      });
+
+      var links = [];
+      var fields = [];
+      (fp.outgoing || []).forEach(function (target) {
+        links.push(map.unproject(target.point, thisplugin.PROJECT_ZOOM));
+        var linkKey = thisplugin.getUndirectedLinkKey(fp.guid, target.guid);
+        builtLinks[linkKey] = true;
+        (fieldsByLink[linkKey] || []).forEach(function (field) {
+          if (formedFieldIds[field.id]) return;
+          if (!field.links.every(function (k) { return builtLinks[k]; })) return;
+          formedFieldIds[field.id] = true;
+          fields.push(field.latlngs);
+        });
+      });
+
+      stops.push({
+        latlng: map.unproject(fp.point, thisplugin.PROJECT_ZOOM),
+        title: thisplugin.getPortalTitleByGuid(fp.guid),
+        links: links,
+        fields: fields
+      });
+    });
+    return stops;
+  };
+
+  // Clears the sim's drawing (trail, links, fields) and detaches the map-click handler — safe
+  // to call any time, including when nothing is currently drawn. Cancels any in-flight
+  // animation first; this is the ONLY way the drawing goes away — the sim reaching its last
+  // stop on its own leaves everything on the map (see visitNext below) so the result stays
+  // visible until the player taps the map to dismiss it.
+  thisplugin.stopWalkSim = function () {
+    var state = thisplugin._walkSimState;
+    thisplugin._walkSimState = null; // first, so any in-flight animation frame/timeout no-ops
+    if (state) {
+      if (state.rafId !== null) cancelAnimationFrame(state.rafId);
+      if (state.timeoutId !== null) clearTimeout(state.timeoutId);
+    }
+    map.off('click', thisplugin.stopWalkSim);
+
+    if (thisplugin.walkSimLayerGroup) {
+      thisplugin.walkSimLayerGroup.clearLayers();
+      if (map.hasLayer(thisplugin.walkSimLayerGroup)) map.removeLayer(thisplugin.walkSimLayerGroup);
+    }
+
+    if (thisplugin.walkSimCounterEl) {
+      thisplugin.walkSimCounterEl.remove();
+      thisplugin.walkSimCounterEl = null;
+    }
+  };
+
+  // Starts (replacing any run already in progress) an animated preview of the walk: a trail
+  // polyline grows stop by stop, with a marker at its leading edge, panning the map to keep
+  // each stop in view as it's approached.
+  thisplugin.startWalkSim = function () {
+    thisplugin.stopWalkSim();
+
+    var stops = thisplugin.getWalkSimStops();
+    if (stops.length < 2) return;
+
+    if (!thisplugin.walkSimLayerGroup) thisplugin.walkSimLayerGroup = new L.LayerGroup();
+    thisplugin.walkSimLayerGroup.addTo(map);
+
+    // Small running counter of links/fields/distance walked so far — same option as the
+    // links/fields drawing itself, updated as each stop settles (see settleHere below).
+    var totalLinksSoFar = 0;
+    var totalFieldsSoFar = 0;
+    var totalDistanceSoFar = 0;
+    if (thisplugin.walkSimShowLinks) {
+      thisplugin.walkSimCounterEl = $('<div class="plugin_fanfields3_walksim_counter"></div>')
+        .text('Links: 0 · Fields: 0 · Distance: ' + thisplugin.formatDistance(0))
+        .appendTo(document.body);
+    }
+
+    var visited = []; // real stops reached so far; visitNext(0) adds the first one
+    var trail = L.polyline(visited, {
+      color: '#00e5ff', weight: 4, opacity: 0.9, interactive: false
+    }).addTo(thisplugin.walkSimLayerGroup);
+    var head = L.circleMarker(stops[0].latlng, {
+      radius: 7, color: '#00e5ff', fillColor: '#00e5ff', fillOpacity: 1, weight: 2, interactive: false
+    }).addTo(thisplugin.walkSimLayerGroup);
+
+    var state = { rafId: null, timeoutId: null };
+    thisplugin._walkSimState = state;
+    map.on('click', thisplugin.stopWalkSim);
+
+    function centerIfOffscreen(latlng) {
+      if (!map.getBounds().contains(latlng)) map.panTo(latlng, { animate: true });
+    }
+
+    function animateSegment(fromLatLng, toLatLng, onDone) {
+      var startTs = null;
+      function step(now) {
+        if (thisplugin._walkSimState !== state) return; // stopped meanwhile
+        if (startTs === null) startTs = now;
+        var t = Math.min(1, (now - startTs) / thisplugin.WALK_SIM_SEGMENT_MS);
+        var current = L.latLng(
+          fromLatLng.lat + (toLatLng.lat - fromLatLng.lat) * t,
+          fromLatLng.lng + (toLatLng.lng - fromLatLng.lng) * t
+        );
+        head.setLatLng(current);
+        trail.setLatLngs(visited.concat([current]));
+        if (t < 1) {
+          state.rafId = requestAnimationFrame(step);
+        } else {
+          onDone();
+        }
+      }
+      state.rafId = requestAnimationFrame(step);
+    }
+
+    function visitNext(index) {
+      if (thisplugin._walkSimState !== state) return;
+      if (index >= stops.length) {
+        // Done: stop animating, but leave the trail/links/fields and the map-click handler in
+        // place — thisplugin.stopWalkSim() only runs (clearing everything) once the player taps
+        // the map, so the finished result stays visible until then.
+        thisplugin._walkSimState = null;
+        return;
+      }
+
+      var stop = stops[index];
+      centerIfOffscreen(stop.latlng);
+
+      function settleHere() {
+        if (visited.length) totalDistanceSoFar += visited[visited.length - 1].distanceTo(stop.latlng);
+        visited.push(stop.latlng);
+        trail.setLatLngs(visited);
+        head.setLatLng(stop.latlng);
+        if (thisplugin.walkSimShowLinks) {
+          (stop.links || []).forEach(function (targetLatLng) {
+            L.polyline([stop.latlng, targetLatLng], {
+              color: '#00e5ff', weight: 1.5, opacity: 0.7, interactive: false
+            }).addTo(thisplugin.walkSimLayerGroup);
+          });
+          (stop.fields || []).forEach(function (fieldLatLngs) {
+            L.polygon(fieldLatLngs, {
+              color: '#00e5ff', weight: 1, opacity: 0.6, fillColor: '#00e5ff', fillOpacity: 0.15, interactive: false
+            }).addTo(thisplugin.walkSimLayerGroup);
+          });
+          totalLinksSoFar += (stop.links || []).length;
+          totalFieldsSoFar += (stop.fields || []).length;
+          if (thisplugin.walkSimCounterEl) {
+            thisplugin.walkSimCounterEl.text('Links: ' + totalLinksSoFar + ' · Fields: ' + totalFieldsSoFar +
+              ' · Distance: ' + thisplugin.formatDistance(totalDistanceSoFar));
+          }
+        }
+        state.timeoutId = setTimeout(function () { visitNext(index + 1); }, thisplugin.WALK_SIM_DWELL_MS);
+      }
+
+      if (index === 0) {
+        settleHere();
+      } else {
+        // animateSegment only ever reads `visited` (via .concat, never mutating it) to draw its
+        // own live tail point each frame, so it's still exactly the stops reached so far here.
+        animateSegment(stops[index - 1].latlng, stop.latlng, function () {
+          if (thisplugin._walkSimState !== state) return;
+          settleHere();
+        });
+      }
+    }
+
+    visitNext(0);
   };
 
   // ---------------------------------------------------------------------
@@ -2714,11 +3421,31 @@ function wrapper(plugin_info) {
   thisplugin.OPS_STORAGE_KEY = 'plugin-fanfields3-saved-ops';
   thisplugin.OPS_MAX_COUNT = 15;
 
-  // JSON snapshot of the drawing that matches whatever is currently considered "saved" (the op
-  // just loaded, saved or updated) — null until the player has loaded, saved or updated an op
-  // this session, in which case anything already on the map counts as unsaved. Used only to
-  // warn before an op load would silently discard drawing changes; never persisted itself.
+  // JSON snapshot of the drawing, options, anchor and manual exclusions that matches whatever
+  // is currently considered "saved" (the op just loaded, saved or updated, or — see the
+  // pluginDrawTools hook in setup() — whatever was already on the map when IITC opened) — null
+  // until that baseline exists, in which case anything already on the map counts as unsaved.
+  // Shifting the anchor (even just Shift left/right), changing an option, or excluding/
+  // including a portal (the "No entry" shortcut) counts as a change here too, not just editing
+  // the drawn shapes. Used only to warn before an op load would silently discard such changes;
+  // never persisted itself.
   thisplugin.opsBaselineJSON = null;
+
+  // Snapshot of everything isDrawDirty() compares: the drawn shapes, the options, the anchor
+  // and the manually excluded portals. `overrides` lets a caller pin a field to a specific
+  // value instead of the current live one — needed right after loadOp()/clearCurrentDraw()/the
+  // initial restore, where the anchor this op/restore is PINNING (op.anchor.guid, or null) is
+  // known immediately, but thisplugin.startingpointGUID itself only catches up once the
+  // debounced updateLayer() run that pluginDrawTools hook schedules actually completes.
+  thisplugin.buildWorkSnapshotJSON = function (overrides) {
+    overrides = overrides || {};
+    return JSON.stringify({
+      data: overrides.data || thisplugin.serializeCurrentDraw(),
+      options: overrides.options || thisplugin.getCurrentOptionsSnapshot(),
+      anchor: ('anchor' in overrides) ? overrides.anchor : (thisplugin.startingpointGUID || null),
+      excluded: overrides.excluded || thisplugin.excludedGuidsArray()
+    });
+  };
 
   thisplugin.getSavedOps = function () {
     try {
@@ -2806,10 +3533,11 @@ function wrapper(plugin_info) {
     return items;
   };
 
-  // Whether the current drawing differs from whichever op was last loaded/saved/updated this
-  // session (or, with none yet, whether anything at all is currently drawn).
+  // Whether the current drawing, options or anchor differ from whichever op was last loaded/
+  // saved/updated this session (or, with none yet, whether anything at all is currently
+  // drawn/configured).
   thisplugin.isDrawDirty = function () {
-    return JSON.stringify(thisplugin.serializeCurrentDraw()) !== thisplugin.opsBaselineJSON;
+    return thisplugin.buildWorkSnapshotJSON() !== thisplugin.opsBaselineJSON;
   };
 
   // Replaces the entire current drawing with the op's own drawing. Builds the new layers
@@ -2826,9 +3554,36 @@ function wrapper(plugin_info) {
       var layer = thisplugin.buildDrawLayerFromItem(item);
       if (layer) dt.drawnItems.addLayer(layer);
     });
+
+    thisplugin.applyOptionsSnapshot(op.options);
+
+    // Restored ahead of the hook below (same reasoning as the anchor restore just below): the
+    // recalculation it triggers filters these guids out of the rebuilt plan as soon as it runs
+    // (see the excludedPortalGuids block in updateLayer), and their markers are drawn right
+    // away wherever thisplugin.locations already knows that portal.
+    thisplugin.setExcludedPortalGuids(op.excludedGuids);
+
+    // Restored ahead of the hook below, so the recalculation it triggers pins this anchor the
+    // same way setAnchorByGuid does (see the forcedAnchorGUID block in updateLayer) — dropped
+    // back to null there if this op's anchor portal isn't part of its own drawing. Always
+    // restored as a manual pin (regardless of how it was originally chosen — Pick anchor, or
+    // just cycling with Shift left/right) so the automatic anchor/direction search never
+    // silently overrides it right after this op loads.
+    thisplugin.forcedAnchorGUID = (op.anchor && op.anchor.guid) || null;
+    thisplugin.forcedAnchorIsManual = !!(op.anchor && op.anchor.guid);
+
     if (typeof dt.save === 'function') dt.save();
     window.runHooks('pluginDrawTools', { event: 'import' });
-    thisplugin.opsBaselineJSON = JSON.stringify(thisplugin.serializeCurrentDraw());
+
+    // The anchor override here is this op's own pin, not thisplugin.startingpointGUID — that
+    // only catches up once the debounced updateLayer() run the hook above just scheduled
+    // actually completes (see buildWorkSnapshotJSON). Options and exclusions are already live:
+    // applied synchronously above.
+    thisplugin.opsBaselineJSON = thisplugin.buildWorkSnapshotJSON({
+      data: op.data || [],
+      anchor: (op.anchor && op.anchor.guid) || null,
+      excluded: thisplugin.excludedGuidsArray()
+    });
 
     if (dt.drawnItems.getLayers().length) {
       map.fitBounds(dt.drawnItems.getBounds(), { maxZoom: 15, padding: [20, 20] });
@@ -2841,9 +3596,12 @@ function wrapper(plugin_info) {
   thisplugin.clearCurrentDraw = function () {
     var dt = window.plugin.drawTools;
     dt.drawnItems.clearLayers();
+    thisplugin.clearExcludedPortals(); // an empty drawing has no plan, so nothing can stay excluded from it
     if (typeof dt.save === 'function') dt.save();
     window.runHooks('pluginDrawTools', { event: 'import' });
-    thisplugin.opsBaselineJSON = JSON.stringify(thisplugin.serializeCurrentDraw());
+    // anchor: null — an empty drawing has no plan, so none can be pinned; thisplugin.startingpointGUID
+    // itself only catches up once the debounced updateLayer() run the hook above just scheduled completes.
+    thisplugin.opsBaselineJSON = thisplugin.buildWorkSnapshotJSON({ data: [], anchor: null, excluded: [] });
   };
 
   // Returns true on success, or a string identifying why it failed ('limit', 'duplicate').
@@ -2853,9 +3611,20 @@ function wrapper(plugin_info) {
     if (ops.some(function (o) { return o.name === name; })) return 'duplicate';
 
     var data = thisplugin.serializeCurrentDraw();
-    ops.push({ id: thisplugin.generateOpId(), name: name, data: data, savedAt: Date.now() });
+    var options = thisplugin.getCurrentOptionsSnapshot();
+    var anchor = thisplugin.startingpointGUID || null;
+    var excluded = thisplugin.excludedGuidsArray();
+    ops.push({
+      id: thisplugin.generateOpId(),
+      name: name,
+      data: data,
+      options: options,
+      anchor: { guid: anchor },
+      excludedGuids: excluded,
+      savedAt: Date.now()
+    });
     thisplugin.setSavedOps(ops);
-    thisplugin.opsBaselineJSON = JSON.stringify(data);
+    thisplugin.opsBaselineJSON = thisplugin.buildWorkSnapshotJSON({ data: data, options: options, anchor: anchor, excluded: excluded });
     return true;
   };
 
@@ -2867,10 +3636,16 @@ function wrapper(plugin_info) {
     if (!op) return false;
 
     var data = thisplugin.serializeCurrentDraw();
+    var options = thisplugin.getCurrentOptionsSnapshot();
+    var anchor = thisplugin.startingpointGUID || null;
+    var excluded = thisplugin.excludedGuidsArray();
     op.data = data;
+    op.options = options;
+    op.anchor = { guid: anchor };
+    op.excludedGuids = excluded;
     op.savedAt = Date.now();
     thisplugin.setSavedOps(ops);
-    thisplugin.opsBaselineJSON = JSON.stringify(data);
+    thisplugin.opsBaselineJSON = thisplugin.buildWorkSnapshotJSON({ data: data, options: options, anchor: anchor, excluded: excluded });
     return true;
   };
 
@@ -3141,6 +3916,9 @@ function wrapper(plugin_info) {
     });
 
     thisplugin.wireManageOpsHandlers();
+
+    // Focus the new-op name field right away, so typing a name doesn't need a click first.
+    $('#plugin_fanfields3_ops_newname').trigger('focus');
   };
 
 
@@ -3279,14 +4057,36 @@ function wrapper(plugin_info) {
   // beats several stops on the same walking), then stops that became redundant are dropped.
   // The walk itself is never reordered.
   //
-  // Returns { blockers, stops, onRoute, unresolved, extraDistance }:
+  // Returns { blockers, stops, doneStops, onRoute, unresolved, extraDistance }:
   //  - blockers: every blocking link { a, b, team, guidA, guidB, deadline, blocked }
   //  - stops: extra Destroy rows in walk order { guid, point, slot, detour,
   //    blockers } — slot = index of the walk portal it goes right before
+  //  - doneStops: Destroy stops of an earlier run whose portal has no blocker left to free at
+  //    all any more (see thisplugin.doneBlockerStopGuids) — { guid, point, slot }
   //  - onRoute: plan portal guid -> blockers freed by the capture the plan already does there
   //  - unresolved: blockers no stop could free within the maximum detour
+  //
+  // A Destroy stop's own portal and the blocker(s) it frees are both recomputed from scratch
+  // every call, straight from the current intel links — nothing about a stop is remembered
+  // from one call to the next, which is what lets a blocker that just got destroyed in-game
+  // (most often: a stop's own portal was destroyed, destroying its links with it) drop out of
+  // `blockers`/`stops` right away. See thisplugin.doneBlockerStopGuids for how `doneStops`
+  // keeps such a resolved stop showing in the Task List (as finished, not gone) regardless.
+  thisplugin.doneBlockerStopGuids = {}; // guid -> { point, slot } of a Destroy stop fully resolved
+  thisplugin.blockerCandidateGuids = {}; // guid -> { point, slot } of the latest run where it was an active stop
+  thisplugin.blockerTrackingPlanKey = null;
+
+  thisplugin.syncBlockerTracking = function () {
+    var key = thisplugin.getPlanShapeKey();
+    if (key !== thisplugin.blockerTrackingPlanKey) {
+      thisplugin.doneBlockerStopGuids = {};
+      thisplugin.blockerCandidateGuids = {};
+      thisplugin.blockerTrackingPlanKey = key;
+    }
+  };
+
   thisplugin.computeBlockerPlan = function () {
-    var plan = { blockers: [], stops: [], onRoute: {}, unresolved: [], extraDistance: 0 };
+    var plan = { blockers: [], stops: [], doneStops: [], onRoute: {}, unresolved: [], extraDistance: 0 };
     if (!thisplugin.manageBlockers) return plan;
 
     var walk = thisplugin.getDisplayOrder();
@@ -3348,7 +4148,10 @@ function wrapper(plugin_info) {
       });
     }
     plan.blockers = blockers;
-    if (!blockers.length) return plan;
+    // No early return when this is empty: the rest of this function already degrades
+    // correctly with zero blockers (every loop below simply does nothing), and falling
+    // through is what lets the "done stops" tracking further down see that NO candidate is
+    // outstanding any more, rather than skipping that bookkeeping entirely.
 
     // Candidate portals: both ends of every blocker.
     var walkIdxByKey = {};
@@ -3509,6 +4312,41 @@ function wrapper(plugin_info) {
     }
     plan.extraDistance = routeLength(route) - routeLength(route.filter(function (item) { return item.orig !== undefined; }));
 
+    // "Done" Destroy stops: a stop's portal that no longer appears among `cands` at all has no
+    // blocker left to free by it, typically because destroying it in-game also destroyed the
+    // blocking link(s) it stood for — remember it as resolved (thisplugin.doneBlockerStopGuids)
+    // so the Task List keeps showing it, pale yellow and struck through like any other finished
+    // portal, instead of it just vanishing the instant that happens. A guid still present among
+    // `cands` still has SOME blocker to free — it just wasn't picked this round (made redundant
+    // by a cheaper stop, or by a plan capture) — so it's left alone instead: never truly
+    // resolved, nothing shown for it, exactly as before this tracking existed.
+    thisplugin.syncBlockerTracking();
+    var candGuids = {};
+    for (var candKey in cands) {
+      if (cands[candKey].guid) candGuids[cands[candKey].guid] = true;
+    }
+    var activeStopGuids = {};
+    plan.stops.forEach(function (stop) {
+      if (!stop.guid) return;
+      activeStopGuids[stop.guid] = true;
+      thisplugin.blockerCandidateGuids[stop.guid] = { point: stop.point, slot: stop.slot };
+      delete thisplugin.doneBlockerStopGuids[stop.guid]; // active again: no longer "done"
+    });
+    for (var knownGuid in thisplugin.blockerCandidateGuids) {
+      if (activeStopGuids[knownGuid]) continue;
+      if (candGuids[knownGuid]) {
+        delete thisplugin.doneBlockerStopGuids[knownGuid]; // a new blocker needs it again, after all
+        continue;
+      }
+      if (!thisplugin.doneBlockerStopGuids[knownGuid]) {
+        thisplugin.doneBlockerStopGuids[knownGuid] = thisplugin.blockerCandidateGuids[knownGuid];
+      }
+    }
+    plan.doneStops = Object.keys(thisplugin.doneBlockerStopGuids).map(function (guid) {
+      var info = thisplugin.doneBlockerStopGuids[guid];
+      return { guid: guid, point: info.point, slot: info.slot };
+    });
+
     return plan;
   };
 
@@ -3579,6 +4417,7 @@ function wrapper(plugin_info) {
     // Reset the order and link flips – new geometry, new base ordering (ghi#23)
     thisplugin.manualOrderGuids = null;
     thisplugin.manualLinkFlips = {};
+    thisplugin.reconciledFanLinkKeys = {};
     thisplugin.relocatedForLessWalkingGuids = {};
     thisplugin.displayOrderGuids = null;
     thisplugin.requestLinkOrderRecompute();
@@ -3594,6 +4433,7 @@ function wrapper(plugin_info) {
 
   thisplugin.toggleStarDirection = function () {
     thisplugin.stardirection *= -1;
+    thisplugin.ensureOutboundPositionTracking(); // stops GPS polling right away when leaving RADIATING
     thisplugin.delayedUpdateLayer(0.2, true);
   };
 
@@ -3932,14 +4772,27 @@ function wrapper(plugin_info) {
       '}\n'
     );
 
-    // "Pick anchor" buttons (sidebar and the map's own topleft control): highlighted while
-    // armed (next portal click sets the anchor), so it reads as a toggle rather than a
-    // one-off action.
+    // "Pick anchor" sidebar button (kept for anything that still toggles it directly): highlighted
+    // while armed (next portal click sets the anchor), so it reads as a toggle rather than a
+    // one-off action. The map's own "No entry" shortcut (portal exclusion picking) gets the same
+    // highlight while armed.
     addCSS('\n' +
       '#plugin_fanfields3_pickanchor_btn.plugin_fanfields3_active,\n' +
-      '#fanfieldPickAnchorButton.plugin_fanfields3_active {\n' +
+      '#fanfieldExcludePortalButton.plugin_fanfields3_active {\n' +
       '  box-shadow: 0 0 0 2px #ffce00 inset;\n' +
       '  color: #ffce00;\n' +
+      '}\n'
+    );
+
+    // Marker for a portal manually excluded from the plan (the "No entry" shortcut).
+    addCSS('\n' +
+      '.plugin_fanfields3_excluded_marker {\n' +
+      '  color: #FF4444;\n' +
+      '  font-size: 20px;\n' +
+      '  line-height: 22px;\n' +
+      '  text-align: center;\n' +
+      '  text-shadow: 1px 1px #000, 1px -1px #000, -1px 1px #000, -1px -1px #000;\n' +
+      '  pointer-events: none;\n' +
       '}\n'
     );
 
@@ -4097,6 +4950,24 @@ function wrapper(plugin_info) {
 
       `);
     };
+
+    // Walk sim: small floating counter of links/fields seen so far while the sim runs.
+    addCSS('\n' +
+      '.plugin_fanfields3_walksim_counter {\n' +
+      '  position: fixed;\n' +
+      '  top: 10px;\n' +
+      '  right: 10px;\n' +
+      '  z-index: 10000;\n' +
+      '  background-color: rgba(8, 60, 78, 0.9);\n' +
+      '  color: #00e5ff;\n' +
+      '  border: 1px solid #00e5ff;\n' +
+      '  border-radius: 4px;\n' +
+      '  padding: 6px 12px;\n' +
+      '  font-size: 13px;\n' +
+      '  font-weight: bold;\n' +
+      '  pointer-events: none;\n' +
+      '}\n'
+    );
 
     // Keys video review table: every cell, checkbox and count field on the same line, numbers
     // centered under their headers.
@@ -4263,12 +5134,10 @@ function wrapper(plugin_info) {
                 font-size: 12px;
                 letter-spacing: 1px;
                 user-select: none;
-                ${L.Browser.mobile ? `
                 max-width: 40px !important;
                 white-space: normal !important;
                 word-break: break-all !important;
                 overflow-wrap: break-word !important;
-                ` : ''}
               }
             `);
 
@@ -4361,15 +5230,51 @@ function wrapper(plugin_info) {
   // indexOwnLinks() whenever thisplugin.intelLinks is (re)built.
   thisplugin.ownLinkKeys = {};
 
+  // Throwing a link spends a key to its destination portal. Whenever indexOwnLinks() finds an
+  // own-faction link that wasn't there the previous time (newKeys has it, thisplugin.ownLinkKeys
+  // — the previous run's set — doesn't), that key is now spent: the Keys plugin's own count for
+  // that destination (destByKey) is decremented by 1, never below 0. Skipped on the very first
+  // run (thisplugin._ownLinksBaselineSet still false): with no previous set to compare against,
+  // every link already in-game would otherwise look "new" and get wrongly decremented. Only
+  // window.plugin.keys is touched — LiveInventory is a read-only reflection of the real
+  // inventory and has no such API (same restriction as thisplugin.toggleKeysPluginCount).
+  // Options dialog toggle ("Spend keys on throw"): on by default.
+  thisplugin._ownLinksBaselineSet = false;
+  thisplugin.consumeKeysOnLinkThrown = true;
+
+  thisplugin.consumeKeysForNewLinks = function (newKeys, destByKey) {
+    if (!thisplugin._ownLinksBaselineSet) {
+      thisplugin._ownLinksBaselineSet = true;
+      return;
+    }
+    if (!thisplugin.consumeKeysOnLinkThrown) return;
+    if (!window.plugin.keys || typeof window.plugin.keys.addKey !== 'function') return;
+
+    var oldKeys = thisplugin.ownLinkKeys || {};
+    for (var key in newKeys) {
+      if (oldKeys[key]) continue; // not a newly thrown link
+      var destGuid = destByKey[key];
+      if (!destGuid) continue;
+      var current = window.plugin.keys.keys[destGuid] || 0;
+      if (current > 0) window.plugin.keys.addKey(-1, destGuid);
+    }
+  };
+
   thisplugin.indexOwnLinks = function () {
     var keys = {};
+    var destByKey = {};
     var ownTeam = thisplugin.getOwnFactionTeam();
     if (ownTeam !== undefined) {
       for (var guid in thisplugin.intelLinks) {
         var link = thisplugin.intelLinks[guid];
-        if (link.team === ownTeam) keys[thisplugin.pointPairKey(link.a, link.b)] = true;
+        if (link.team === ownTeam) {
+          var key = thisplugin.pointPairKey(link.a, link.b);
+          keys[key] = true;
+          if (link.guidB) destByKey[key] = link.guidB;
+        }
       }
     }
+    thisplugin.consumeKeysForNewLinks(keys, destByKey);
     thisplugin.ownLinkKeys = keys;
   };
 
@@ -4382,6 +5287,63 @@ function wrapper(plugin_info) {
     if (!pointA || !pointB) return false;
 
     return !!thisplugin.ownLinkKeys[thisplugin.pointPairKey(pointA, pointB)];
+  };
+
+  // Which way a real in-game link between these two guids was actually thrown (own faction
+  // only), as { oGuid, dGuid } — or null if there is no such link. Unlike isLinkInGame, which is
+  // direction-agnostic, this is what thisplugin.reconcileAnchorFanLinkDirections needs to tell a
+  // link thrown as planned from one thrown the other way round.
+  thisplugin.getRealLinkDirection = function (guidA, guidB) {
+    var ownTeam = thisplugin.getOwnFactionTeam();
+    if (ownTeam === undefined) return null;
+
+    for (var guid in thisplugin.intelLinks) {
+      var link = thisplugin.intelLinks[guid];
+      if (link.team !== ownTeam || !link.guidA || !link.guidB) continue;
+      if ((link.guidA === guidA && link.guidB === guidB) || (link.guidA === guidB && link.guidB === guidA)) {
+        return { oGuid: link.guidA, dGuid: link.guidB };
+      }
+    }
+    return null;
+  };
+
+  // Outbound (RADIATING) mode only: standing at the anchor, you can only throw links FROM it, so
+  // a fan link the plan expects INBOUND (still to be thrown at the anchor) that's already live
+  // in-game can only have been thrown the other way round — an extra outbound use the SBUL-
+  // derived capacity (8 + 8*availableSBUL) didn't budget for. To keep the real + still-planned
+  // outbound count at that maximum rather than overshoot it, this flips one not-yet-thrown
+  // planned-outbound fan link to inbound instead, exactly once per reversed link (tracked via
+  // thisplugin.reconciledFanLinkKeys so later refreshes don't keep picking a new victim for the
+  // same already-compensated reversal). Returns true when it changed manualLinkFlips, so the
+  // caller knows to rebuild the plan once more before displaying it.
+  thisplugin.reconciledFanLinkKeys = thisplugin.reconciledFanLinkKeys || {};
+  thisplugin.reconcileAnchorFanLinkDirections = function (sortedFanpoints) {
+    if (thisplugin.stardirection !== thisplugin.starDirENUM.RADIATING) return false;
+    if (!sortedFanpoints || sortedFanpoints.length < 2) return false;
+
+    var anchor = sortedFanpoints[0];
+    if (!anchor || anchor.guid !== thisplugin.startingpointGUID) return false;
+
+    var changed = false;
+    (anchor.incoming || []).forEach(function (partner) {
+      var key = thisplugin.getUndirectedLinkKey(anchor.guid, partner.guid);
+      if (thisplugin.reconciledFanLinkKeys[key]) return;
+
+      var real = thisplugin.getRealLinkDirection(anchor.guid, partner.guid);
+      if (!real || real.oGuid !== anchor.guid) return; // not thrown yet, or thrown the planned way
+
+      var victim = (anchor.outgoing || []).filter(function (target) {
+        return !thisplugin.isLinkFlipped(anchor.guid, target.guid) &&
+          !thisplugin.getRealLinkDirection(anchor.guid, target.guid);
+      })[0];
+      if (!victim) return; // nothing left to compensate with this cycle
+
+      thisplugin.manualLinkFlips[thisplugin.getUndirectedLinkKey(anchor.guid, victim.guid)] = true;
+      thisplugin.reconciledFanLinkKeys[key] = true;
+      changed = true;
+    });
+
+    return changed;
   };
 
   // The player's own faction's in-game links joining two of these fanpoints (guid -> projected
@@ -4528,6 +5490,7 @@ function wrapper(plugin_info) {
 
       // The anchor changed, so flips and relocations made for the previous one no longer apply.
       thisplugin.manualLinkFlips = {};
+      thisplugin.reconciledFanLinkKeys = {};
       thisplugin.relocatedForLessWalkingGuids = {};
       thisplugin.displayOrderGuids = null;
       thisplugin.requestLinkOrderRecompute();
@@ -4793,6 +5756,7 @@ function wrapper(plugin_info) {
   // base algorithm.
   thisplugin.resetLinkFlips = function () {
     thisplugin.manualLinkFlips = {};
+    thisplugin.reconciledFanLinkKeys = {};
     thisplugin.clearRouteOrder();
     thisplugin.relocatedForLessWalkingGuids = {};
     thisplugin.displayOrderGuids = null; // never the user's own Manage Portal Order (manualOrderGuids)
@@ -5587,9 +6551,12 @@ function wrapper(plugin_info) {
 
   // "Less walking": a portal whose own OUTGOING count is exactly 2 (its anchor link plus one
   // mesh link) is a candidate. Its mesh link flips to point AT it (mesh partner -> portal)
-  // when that partner is just as close, or closer, to whatever comes right after this portal
-  // in the walk — i.e. this portal wasn't really "on the way", so the partner can throw
-  // straight to the next stop instead. A portal with outgoing count 1 or 3+ is left untouched.
+  // when visiting it between its own walk neighbors (whichever portals come right before and
+  // right after it in the walk) costs more than skipping straight from one to the other — i.e.
+  // this portal wasn't really "on the way". A portal with outgoing count 1 or 3+ is left
+  // untouched. The mesh partner's own position plays no part in this test: whether it happens
+  // to be the walk's previous stop, a later one, or nowhere nearby, "on the way" is decided
+  // purely by the portal's own neighbors, via plain triangle inequality.
   //
   // Once flipped, the portal is relocated in the WALK/DISPLAY order only
   // (thisplugin.displayOrderGuids — see computeDistanceOrderReordering), never in
@@ -5626,18 +6593,35 @@ function wrapper(plugin_info) {
     var meshFlippedGuids = {};
 
     // Mesh links: only the current thrower can qualify (its own 2 outgoing links are the fan
-    // link plus exactly this one mesh link) — flip it to point at the thrower only if the
-    // distance test says it isn't really on the way to the next stop.
+    // link plus exactly this one mesh link) — flip it to point at the thrower only if visiting
+    // it between its own walk neighbors isn't worth it (see above).
     current.forEach(function (e) {
       if (e.isFanLink) return;
       if (outgoingCountByGuid[e.srcGuid] !== 2) return;
 
+      // e.srcGuid is never the anchor (a link touching it is always isFanLink, filtered above),
+      // so it's never the walk's very first portal and prevFp always exists; nextFp doesn't,
+      // for whichever portal ends up last in the walk.
+      var prevFp = sorted[indexByGuid[e.srcGuid] - 1];
       var nextFp = sorted[indexByGuid[e.srcGuid] + 1];
-      if (!nextFp) return; // last portal in the walk, nothing to compare against
 
-      var d1 = dist(e.dstGuid, e.srcGuid);
-      var d2 = dist(e.dstGuid, nextFp.guid);
-      if (!(d2 < d1)) return; // this portal is genuinely on the way, leave it throwing
+      var shouldFlip;
+      if (nextFp) {
+        // Triangle inequality on the portal's own neighbors: visiting it (prevFp -> src ->
+        // nextFp) only "costs" something over skipping it (prevFp -> nextFp direct) when it's
+        // really a detour. A margin avoids flipping over floating-point noise on three
+        // near-collinear portals, where there's nothing to gain either way.
+        var viaSrc = dist(prevFp.guid, e.srcGuid) + dist(e.srcGuid, nextFp.guid);
+        var direct = dist(prevFp.guid, nextFp.guid);
+        shouldFlip = viaSrc > direct + 1e-6;
+      } else {
+        // Last portal in the walk: there's no "next" to route around, so it's never really "on
+        // the way" to anything — let it through to the feasibility check below, same as any
+        // other candidate. Worst case, the reordering step's cheapest insertion puts it right
+        // back at the end, same as leaving it unflipped would have.
+        shouldFlip = true;
+      }
+      if (!shouldFlip) return;
 
       var desiredSrc = e.dstGuid;
       var desiredDst = e.srcGuid;
@@ -6101,6 +7085,7 @@ function wrapper(plugin_info) {
       }
       thisplugin.locations[guid] = p;
     });
+    thisplugin.refreshExcludedPortalMarkers();
 
     thisplugin.intelLinks = {};
     $.each(window.links, function (guid, link) {
@@ -6172,10 +7157,9 @@ function wrapper(plugin_info) {
       this.filterPolygon);
 
 
-    var fanpointGuids = Object.keys(this.fanpoints);
-    var npoints = fanpointGuids.length;
+    var rawFanpointGuids = Object.keys(this.fanpoints);
 
-    if (npoints === 0) {
+    if (rawFanpointGuids.length === 0) {
       // No plan -> reset signature and disable the path
       thisplugin.lastPlanSignature = null;
       if (thisplugin.showOrderPath) {
@@ -6184,19 +7168,26 @@ function wrapper(plugin_info) {
       return;
     }
 
-    // signature of the current portal set (GUID set, order-independent)
-    var currentSignature = fanpointGuids.sort()
+    // signature of the RAW candidate portal set (GUID set, order-independent, before the "No
+    // entry" shortcut's manual exclusions below are applied) — this is what detects an actual
+    // change to the drawn selection (new/edited polygon, Bookmarks-only, …); toggling an
+    // exclusion must never count as one itself, or applying it here would immediately look
+    // like a "new" portal set and get dropped again by the block right below.
+    var currentSignature = rawFanpointGuids.sort()
       .join(',');
 
-    // If the portal set changed: disable the path and drop manual link flips (ghi#23),
-    // since they reference GUID pairs that may no longer be part of the plan.
+    // If the portal set changed: disable the path, drop manual link flips (ghi#23) and any
+    // manual portal exclusions (the "No entry" shortcut) — all reference GUIDs that may no
+    // longer be part of the plan.
     if (thisplugin.lastPlanSignature !== null &&
       thisplugin.lastPlanSignature !== currentSignature) {
 
       thisplugin.manualLinkFlips = {};
+      thisplugin.reconciledFanLinkKeys = {};
       thisplugin.relocatedForLessWalkingGuids = {};
       thisplugin.displayOrderGuids = null;
       thisplugin.requestLinkOrderRecompute();
+      thisplugin.clearExcludedPortals();
 
       if (thisplugin.showOrderPath) {
         thisplugin.setOrderPathActive(false);
@@ -6215,6 +7206,21 @@ function wrapper(plugin_info) {
 
     // Store signature for the next run
     thisplugin.lastPlanSignature = currentSignature;
+
+    // Apply manual portal exclusions (the "No entry" shortcut) now that the signature above is
+    // settled, so they never themselves look like a changed selection.
+    Object.keys(thisplugin.excludedPortalGuids).forEach(function (guid) {
+      delete thisplugin.fanpoints[guid];
+    });
+
+    if (Object.keys(thisplugin.fanpoints).length === 0) {
+      // Every candidate portal of the selection is excluded: nothing left to plan.
+      thisplugin.linksLayerGroup.clearLayers();
+      thisplugin.fieldsLayerGroup.clearLayers();
+      thisplugin.numbersLayerGroup.clearLayers();
+      thisplugin.clearAllPortalLabels();
+      return;
+    }
 
     // Find convex hull from fanpoints list of points
     // Returns array : [guid, [x,y],.....]
@@ -6315,7 +7321,7 @@ function wrapper(plugin_info) {
       }
     }
 
-    // Pinned anchor (thisplugin.setAnchorByGuid — Pick anchor button, or the auto-orientation
+    // Pinned anchor (thisplugin.setAnchorByGuid — Pick anchor menu entry, or the auto-orientation
     // search below picking an off-hull portal): pin thisplugin.startingpointIndex to it every
     // run, since buildFanPlan() only ever reads the anchor via thisplugin.perimeterpoints[...].
     // Cleared if the portal dropped out of the plan (polygon edited, Bookmarks-only toggled, …).
@@ -6513,7 +7519,11 @@ function wrapper(plugin_info) {
 
           if (pb === 0) {
             maxLinks = 8 + thisplugin.availableSBUL * 8;
-            wantOutbound = (thisplugin.stardirection === thisplugin.starDirENUM.RADIATING) || flipped;
+            // flipped toggles away from the mode's default direction either way: in CENTRALIZING
+            // (default inbound) it tries outbound, and in RADIATING (default outbound) it now
+            // forces inbound instead — used by thisplugin.reconcileAnchorFanLinkDirections to
+            // compensate for a link actually thrown the other way round.
+            wantOutbound = (thisplugin.stardirection === thisplugin.starDirENUM.RADIATING) !== flipped;
             if (wantOutbound && localCenterOutgoings < maxLinks) {
               outbound = 1;
             } else {
@@ -6662,16 +7672,26 @@ function wrapper(plugin_info) {
         }
       }
 
-      var builtPlan = buildFanPlan(thisplugin.perimeterpoints[thisplugin.startingpointIndex][0], thisplugin.is_clockwise);
-      thisplugin.startingpointGUID = builtPlan.startingpointGUID;
-      thisplugin.startingpoint = builtPlan.startingpoint;
-      this.sortedFanpoints = builtPlan.sortedFanpoints;
-      donelinks = builtPlan.donelinks;
-      triangles = builtPlan.triangles;
-      n = builtPlan.n;
-      centerOutgoings = builtPlan.centerOutgoings;
-      centerSbul = builtPlan.centerSbul;
-      thisplugin.centerKeys = builtPlan.centerKeys;
+      function applyBuiltPlan(plan) {
+        thisplugin.startingpointGUID = plan.startingpointGUID;
+        thisplugin.startingpoint = plan.startingpoint;
+        this.sortedFanpoints = plan.sortedFanpoints;
+        donelinks = plan.donelinks;
+        triangles = plan.triangles;
+        n = plan.n;
+        centerOutgoings = plan.centerOutgoings;
+        centerSbul = plan.centerSbul;
+        thisplugin.centerKeys = plan.centerKeys;
+      }
+
+      applyBuiltPlan.call(this, buildFanPlan(thisplugin.perimeterpoints[thisplugin.startingpointIndex][0], thisplugin.is_clockwise));
+      thisplugin.saveCurrentAnchor();
+
+      // A fan link thrown the opposite way from planned (see reconcileAnchorFanLinkDirections)
+      // changes manualLinkFlips, so the plan needs rebuilding once more to reflect it.
+      if (thisplugin.reconcileAnchorFanLinkDirections(this.sortedFanpoints)) {
+        applyBuiltPlan.call(this, buildFanPlan(thisplugin.perimeterpoints[thisplugin.startingpointIndex][0], thisplugin.is_clockwise));
+      }
     }
 
     $.each(donelinks, function (i, link) {
@@ -6694,12 +7714,14 @@ function wrapper(plugin_info) {
     }
 
 
-    // Issue #96: validate plan against under-field link distance constraints
-    thisplugin.validateUnderFieldLinks();
-
     // Link order optimization: recompute once when something invalidated it (anchor/order/
     // geometry change) — never on every recalculation, so manual tweaks made on top via the
-    // Task List ↔ button are left alone otherwise.
+    // Task List ↔ button are left alone otherwise. Checked BEFORE validateUnderFieldLinks()
+    // below: this branch always ends in a full updateLayer() re-run (which validates the
+    // rebuilt plan itself), so validating the about-to-be-discarded pre-optimization plan here
+    // first would just be thrown away — skipping it avoids a wasted getDisplayOrder() pass
+    // (and, in RADIATING mode, a second budgeted outbound-prefix-order search) on every anchor
+    // change.
     if (thisplugin._linkOrderRecomputePending && thisplugin.linkOrderMode !== thisplugin.linkOrderModeENUM.ALGO) {
       thisplugin._linkOrderRecomputePending = false;
 
@@ -6720,6 +7742,9 @@ function wrapper(plugin_info) {
       thisplugin.updateLayer();
       return;
     }
+
+    // Issue #96: validate plan against under-field link distance constraints
+    thisplugin.validateUnderFieldLinks();
 
     thisplugin.drawContext = { n: n, triangles: triangles, centerOutgoings: centerOutgoings, centerSbul: centerSbul };
     thisplugin.drawPlan();
@@ -6807,14 +7832,14 @@ function wrapper(plugin_info) {
       }
       var isInvalid = (linkKey && thisplugin.invalidUnderFieldLinks && thisplugin.invalidUnderFieldLinks[linkKey]);
 
-      // Already thrown in-game for our faction? Fade it to a muted brownish-red on the map,
-      // so only links still left to throw stay bright red — mirrors the Task List's own
+      // Already thrown in-game for our faction? Fade it to a muted purple on the map,
+      // so only links still left to throw stay bright purple — mirrors the Task List's own
       // "Grey out done links" toggle (isLinkInGame), rather than a separate switch.
       var isDone = thisplugin.greyOutExistingLinks && edge.guidA && edge.guidB &&
         thisplugin.isLinkInGame(edge.guidA, edge.guidB);
 
       var baseStyle = {
-        color: isDone ? '#8B3A3A' : '#FF0000',
+        color: isDone ? '#5B3A6B' : '#8E44AD',
         opacity: isDone ? 0.5 : 1,
         weight: 1.5,
         clickable: false,
@@ -6968,6 +7993,7 @@ function wrapper(plugin_info) {
     $.each(window.portals, function (guid, portal) {
       thisplugin.locations[guid] = map.project(portal.getLatLng(), thisplugin.PROJECT_ZOOM);
     });
+    thisplugin.refreshExcludedPortalMarkers();
 
     thisplugin.intelLinks = {};
     $.each(window.links, function (guid, link) {
@@ -6984,14 +8010,27 @@ function wrapper(plugin_info) {
   };
 
   // Called when IITC's own portal/link data changes (new links thrown in-game, portals
-  // captured, etc. — see the mapDataRefreshEnd/requestFinished hooks below). Unlike
-  // moveend/zoom, which just changes which area the user is looking at, this reflects an
-  // actual change to the game state, so it should still reach the Task List even while
-  // Locked — but only as the lightweight live-data refresh above, not the full plan recompute.
+  // captured or destroyed, etc. — see the mapDataRefreshEnd/requestFinished hooks below).
+  // Unlike moveend/zoom, which just changes which area the user is looking at, this reflects
+  // an actual change to the game state, so the map and Task List should still follow it even
+  // while Locked — but only by redrawing the plan already on hand (links/fields/numbers,
+  // Blockers Destroy stops and crosses included), via redrawWalkOrder(), never by recomputing
+  // it (buildFanPlan/updateLayer, which the lock exists to suppress). This is what makes a
+  // Destroy stop's cross disappear as soon as destroying that portal in-game also destroys the
+  // blocking link it stood for, without waiting for the plan to unlock.
   thisplugin.onLiveDataChanged = function (wait) {
     if (thisplugin.is_locked) {
       thisplugin.refreshLiveGameData();
-      thisplugin.refreshTaskListIfOpen();
+
+      // A fan link thrown the opposite way from planned (see reconcileAnchorFanLinkDirections)
+      // changes manualLinkFlips and needs a full rebuild to apply — same bypass the Task List's
+      // own manual flip button (toggleLinkFlip) already uses regardless of the lock, since this
+      // is the same kind of change: one link's direction, not the plan's structure.
+      if (thisplugin.reconcileAnchorFanLinkDirections(thisplugin.sortedFanpoints)) {
+        thisplugin.updateLayer();
+      } else {
+        thisplugin.redrawWalkOrder();
+      }
     } else {
       thisplugin.delayedUpdateLayer(wait);
     }
@@ -7037,10 +8076,10 @@ function wrapper(plugin_info) {
   var symbol_clockwise = '&#8635;';
   var symbol_counterclockwise = '&#8634;';
   var symbol_clipboard = '&#128203;';
-  var symbol_target = '&#127919;';
   var symbol_menu = '&#9776;';
   var symbol_left = '&#5130;';
   var symbol_right = '&#5125;';
+  var symbol_noEntry = '&#9940;';
   // A key with a small camera in its lower right corner (Keys video).
   var symbol_keysVideo = '<span class="plugin_fanfields3_keysvideo_icon">&#128273;<span>&#128247;</span></span>';
 
@@ -7065,6 +8104,15 @@ function wrapper(plugin_info) {
         // hard-stop double click
         L.DomEvent.on(container, 'dblclick', L.DomEvent.stop);
 
+
+        $(container)
+          .append(
+            '<a id="fanfieldMenuButton" href="javascript: void(0);" class="fanfields-control" title="Fan Fields 3 - Menu">' +
+            symbol_menu + '</a>'
+          )
+          .on("click", "#fanfieldMenuButton", function () {
+            thisplugin.showMainMenu(this);
+          });
 
         $(container)
           .append(
@@ -7095,11 +8143,11 @@ function wrapper(plugin_info) {
 
         $(container)
           .append(
-            '<a id="fanfieldPickAnchorButton" href="javascript: void(0);" class="fanfields-control" title="Pick anchor: click a portal on the map to make it the anchor, even one inside the hull">' +
-            symbol_target + '</a>'
+            '<a id="fanfieldExcludePortalButton" href="javascript: void(0);" class="fanfields-control" title="Exclude portals: click, then click plan portals to leave them out of the plan">' +
+            symbol_noEntry + '</a>'
           )
-          .on("click", "#fanfieldPickAnchorButton", function () {
-            thisplugin.toggleAnchorPicking();
+          .on("click", "#fanfieldExcludePortalButton", function () {
+            thisplugin.togglePortalExclusionMode();
           });
 
         $(container)
@@ -7120,15 +8168,6 @@ function wrapper(plugin_info) {
             thisplugin.lock();
           });
 
-        $(container)
-          .append(
-            '<a id="fanfieldMenuButton" href="javascript: void(0);" class="fanfields-control" title="Fan Fields 3 - Menu">' +
-            symbol_menu + '</a>'
-          )
-          .on("click", "#fanfieldMenuButton", function () {
-            thisplugin.showMainMenu(this);
-          });
-
         return container;
       },
     });
@@ -7142,6 +8181,10 @@ function wrapper(plugin_info) {
 
     var entries = [
       { label: 'Options&hellip;', action: thisplugin.showOptionsDialog },
+      {
+        label: thisplugin.isPickingAnchor ? 'Pick&nbsp;anchor&nbsp;(click&nbsp;to&nbsp;cancel)' : 'Pick&nbsp;anchor',
+        action: thisplugin.toggleAnchorPicking
+      },
       { label: 'Manage&nbsp;ops', action: thisplugin.showManageOpsDialog },
       { label: 'Manage&nbsp;order', action: thisplugin.showManageOrderDialog },
       { label: 'Stats', action: thisplugin.showStatistics },
@@ -7191,8 +8234,23 @@ function wrapper(plugin_info) {
     }
   };
 
-  thisplugin.applySavedOptionsDefault = function () {
-    var saved = thisplugin.getSavedOptionsDefault();
+  // Plain snapshot of the option fields below, shared by "Save options as default" and Manage
+  // Ops (each saved op carries its own snapshot, applied back by applyOptionsSnapshot on load).
+  thisplugin.getCurrentOptionsSnapshot = function () {
+    return {
+      isClockwise: thisplugin.is_clockwise,
+      stardirection: thisplugin.stardirection,
+      availableSBUL: thisplugin.availableSBUL,
+      respectIntelLinksMode: thisplugin.respectIntelLinksMode,
+      useBookmarksOnly: thisplugin.use_bookmarks_only,
+      manageBlockers: thisplugin.manageBlockers,
+      blockerMaxDetourM: thisplugin.blockerMaxDetourM,
+      walkSimShowLinks: thisplugin.walkSimShowLinks,
+      consumeKeysOnLinkThrown: thisplugin.consumeKeysOnLinkThrown
+    };
+  };
+
+  thisplugin.applyOptionsSnapshot = function (saved) {
     if (!saved) return;
 
     if (typeof saved.isClockwise === 'boolean') thisplugin.is_clockwise = saved.isClockwise;
@@ -7204,18 +8262,35 @@ function wrapper(plugin_info) {
     if (typeof saved.useBookmarksOnly === 'boolean') thisplugin.use_bookmarks_only = saved.useBookmarksOnly;
     if (typeof saved.manageBlockers === 'boolean') thisplugin.manageBlockers = saved.manageBlockers;
     if (typeof saved.blockerMaxDetourM === 'number') thisplugin.blockerMaxDetourM = saved.blockerMaxDetourM;
+    if (typeof saved.walkSimShowLinks === 'boolean') thisplugin.walkSimShowLinks = saved.walkSimShowLinks;
+    if (typeof saved.consumeKeysOnLinkThrown === 'boolean') thisplugin.consumeKeysOnLinkThrown = saved.consumeKeysOnLinkThrown;
+  };
+
+  // The current anchor, persisted continuously (every updateLayer() run — see where
+  // startingpointGUID is set) so the currently drawn plan — not just a named Manage Ops
+  // entry — keeps its anchor across an IITC reload, the same way DrawTools already keeps the
+  // drawing itself and saveOptionsDefault() already keeps the options.
+  thisplugin.CURRENT_ANCHOR_STORAGE_KEY = 'plugin-fanfields3-current-anchor';
+
+  thisplugin.saveCurrentAnchor = function () {
+    localStorage.setItem(thisplugin.CURRENT_ANCHOR_STORAGE_KEY, JSON.stringify({ guid: thisplugin.startingpointGUID || null }));
+  };
+
+  thisplugin.getSavedCurrentAnchor = function () {
+    try {
+      var raw = localStorage.getItem(thisplugin.CURRENT_ANCHOR_STORAGE_KEY);
+      return raw ? JSON.parse(raw) : null;
+    } catch (e) {
+      return null;
+    }
+  };
+
+  thisplugin.applySavedOptionsDefault = function () {
+    thisplugin.applyOptionsSnapshot(thisplugin.getSavedOptionsDefault());
   };
 
   thisplugin.saveOptionsDefault = function () {
-    localStorage.setItem(thisplugin.OPTIONS_STORAGE_KEY, JSON.stringify({
-      isClockwise: thisplugin.is_clockwise,
-      stardirection: thisplugin.stardirection,
-      availableSBUL: thisplugin.availableSBUL,
-      respectIntelLinksMode: thisplugin.respectIntelLinksMode,
-      useBookmarksOnly: thisplugin.use_bookmarks_only,
-      manageBlockers: thisplugin.manageBlockers,
-      blockerMaxDetourM: thisplugin.blockerMaxDetourM
-    }));
+    localStorage.setItem(thisplugin.OPTIONS_STORAGE_KEY, JSON.stringify(thisplugin.getCurrentOptionsSnapshot()));
   };
 
   // Settings dialog: direction/fan mode/SBUL/Respect Intel/portal selection, each applied
@@ -7292,6 +8367,20 @@ function wrapper(plugin_info) {
         '</select></div>';
     }
 
+    html += '<div class="plugin_fanfields3_options_row">' +
+      '<label for="plugin_fanfields3_opt_walksim_links" title="While Walk sim plays, also draw each portal\'s own links (thin cyan) as the walk reaches it">Walk&nbsp;sim&nbsp;links</label>' +
+      '<select id="plugin_fanfields3_opt_walksim_links">' +
+      '<option value="on"' + (thisplugin.walkSimShowLinks ? ' selected' : '') + '>On</option>' +
+      '<option value="off"' + (!thisplugin.walkSimShowLinks ? ' selected' : '') + '>Off</option>' +
+      '</select></div>';
+
+    html += '<div class="plugin_fanfields3_options_row">' +
+      '<label for="plugin_fanfields3_opt_spendkeys" title="When a link is detected as newly thrown in-game, remove one key for its destination portal from the Keys plugin (never below 0)">Spend&nbsp;keys&nbsp;on&nbsp;throw</label>' +
+      '<select id="plugin_fanfields3_opt_spendkeys">' +
+      '<option value="on"' + (thisplugin.consumeKeysOnLinkThrown ? ' selected' : '') + '>On</option>' +
+      '<option value="off"' + (!thisplugin.consumeKeysOnLinkThrown ? ' selected' : '') + '>Off</option>' +
+      '</select></div>';
+
     html += '</div>';
 
     var width = 380;
@@ -7344,6 +8433,16 @@ function wrapper(plugin_info) {
     $('#plugin_fanfields3_opt_portals').on('change', function () {
       var wantBookmarksOnly = ($(this).val() === 'bookmarks');
       if (wantBookmarksOnly !== thisplugin.use_bookmarks_only) thisplugin.useBookmarksOnly();
+      thisplugin.saveOptionsDefault();
+    });
+
+    $('#plugin_fanfields3_opt_walksim_links').on('change', function () {
+      thisplugin.walkSimShowLinks = ($(this).val() === 'on');
+      thisplugin.saveOptionsDefault();
+    });
+
+    $('#plugin_fanfields3_opt_spendkeys').on('change', function () {
+      thisplugin.consumeKeysOnLinkThrown = ($(this).val() === 'on');
       thisplugin.saveOptionsDefault();
     });
   };
@@ -7472,6 +8571,11 @@ function wrapper(plugin_info) {
 
     thisplugin.orderPathLayerGroup = new L.LayerGroup();
 
+    // Always on the map (not a togglable Fanfields layer): markers for manually excluded
+    // portals need to stay visible even while picking is armed and the plan itself hasn't been
+    // recalculated yet (see thisplugin.toggleExcludedPortal).
+    thisplugin.excludedPortalMarkersLayerGroup = new L.LayerGroup().addTo(map);
+
 
     //Extend LatLng here to ensure it was created before
     thisplugin.initLatLng();
@@ -7517,6 +8621,18 @@ function wrapper(plugin_info) {
 
     thisplugin.applySavedOptionsDefault();
 
+    // Restores the anchor of whatever is currently drawn (persisted on every plan
+    // recalculation — see thisplugin.saveCurrentAnchor), the same way DrawTools already
+    // restores the drawing itself and applySavedOptionsDefault() just restored the options.
+    // Applied as a manual pin (see loadOp for the same pattern) so the auto-orientation search
+    // that runs right after this drawing is first recalculated doesn't silently override it;
+    // dropped by updateLayer() on its own if this portal isn't part of the restored drawing.
+    var savedAnchor = thisplugin.getSavedCurrentAnchor();
+    if (savedAnchor && savedAnchor.guid) {
+      thisplugin.forcedAnchorGUID = savedAnchor.guid;
+      thisplugin.forcedAnchorIsManual = true;
+    }
+
     thisplugin.updateLockButton();
 
     //         window.pluginCreateHook('pluginBkmrksEdit');
@@ -7530,6 +8646,18 @@ function wrapper(plugin_info) {
     window.pluginCreateHook('pluginDrawTools');
 
     window.addHook('pluginDrawTools', function (e) {
+      // The very first time this fires is DrawTools finishing its own restore of whatever was
+      // already drawn when IITC opened — not a real edit — so that drawing (plus the options
+      // and anchor already restored above) counts as the accepted baseline right away.
+      // Without this, opsBaselineJSON would stay null until the player next interacted with
+      // Manage Ops, and Manage Ops would wrongly warn about "unsaved changes" for a session
+      // that in fact hasn't changed since it was last saved. The anchor override is
+      // thisplugin.forcedAnchorGUID (the just-restored pin), not thisplugin.startingpointGUID —
+      // that only catches up once the debounced updateLayer() run below actually completes.
+      if (!thisplugin._hasSeededOpsBaseline) {
+        thisplugin._hasSeededOpsBaseline = true;
+        thisplugin.opsBaselineJSON = thisplugin.buildWorkSnapshotJSON({ anchor: thisplugin.forcedAnchorGUID || null });
+      }
       thisplugin.delayedUpdateLayer(0.5, true);
     });
     window.addHook('mapDataRefreshStart', function () {
@@ -7552,11 +8680,21 @@ function wrapper(plugin_info) {
       }, 1);
     });
 
-    // "Pick anchor" (sidebar button): the next portal clicked/selected on the map becomes
-    // the anchor, hull or not. Disarms itself after one pick (or a failed one), same as most
-    // single-shot picking tools. A portal outside the current plan (outside the drawn
-    // polygon(s), or excluded by Bookmarks-only) can't be set — warn instead of failing silently.
+    // "No entry" shortcut: while armed, the next portal clicked/selected on the map toggles
+    // whether it's excluded from the plan — never disarms itself, so several portals can be
+    // marked in a row; see thisplugin.togglePortalExclusionMode for what happens on disarm.
+    // Takes priority over "Pick anchor" below (the two picking modes are never meant to run
+    // at once; arming one never disarms the other explicitly, but only one tool's portal click
+    // handling makes sense to apply to any given click).
     window.addHook('portalSelected', function (data) {
+      if (thisplugin.isExcludingPortals) {
+        var excludeGuid = data && data.selectedPortalGuid;
+        if (excludeGuid && (excludeGuid in thisplugin.fanpoints || thisplugin.excludedPortalGuids[excludeGuid])) {
+          thisplugin.toggleExcludedPortal(excludeGuid);
+        }
+        return;
+      }
+
       if (!thisplugin.isPickingAnchor) return;
 
       thisplugin.isPickingAnchor = false;
@@ -7581,6 +8719,11 @@ function wrapper(plugin_info) {
     });
 
     window.map.on('moveend', function () {
+      // Walk sim pans the map itself as it goes (see centerIfOffscreen in startWalkSim): a
+      // full plan recalculation right then would stall the main thread mid-animation, making
+      // the dot appear to jump over several stops at once. The sim touches no plan state, so
+      // there's nothing here worth recalculating for anyway.
+      if (thisplugin._walkSimState) return;
       thisplugin.delayedUpdateLayer(0.5);
     });
     window.map.on('overlayadd overlayremove', function () {

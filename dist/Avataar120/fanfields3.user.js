@@ -3,7 +3,7 @@
 // @id              fanfields3@Avataar120
 // @name            Fan Fields 3
 // @category        Layer
-// @version         6.0.0.20261004
+// @version         6.2.1.20261004
 // @description     Fork of Heistergand's Fan Fields 2 (thanks Heistergand for the original work!). Plans the largest tidy set of nested fields, and adds: walking optimization (less backtracking between portals, Destroy stops placed where they add the least walking), automatic best anchor/direction search that reuses your faction's existing links, Blockers handling in the Task List, plan locking, Pick anchor and Exclude portals on the map, a Task List that follows your progress — correctly sequencing outbound plans and rebalancing links when one gets thrown the wrong way — and can Reroute the steps left from where you stand or preview the whole walk with Walk sim, key counts read from a screen recording of your keys in Ingress (Keys plugin) or spent automatically as you throw links, and route export to Google Maps / Portal Route. Enable from the layer chooser.
 // @downloadURL     https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Avataar120/fanfields3.user.js
 // @updateURL       https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Avataar120/fanfields3.meta.js
@@ -25,7 +25,7 @@ function wrapper(plugin_info) {
   // ensure plugin framework is there, even if iitc is not yet loaded
   if (typeof window.plugin !== 'function') window.plugin = function () {};
   plugin_info.buildName = 'main';
-  plugin_info.dateTimeVersion = '2026-10-04-000915';
+  plugin_info.dateTimeVersion = '2026-10-04-231500';
   plugin_info.pluginId = 'fanfields';
 
   /* global L, $, dialog, map, portals, links, plugin  -- eslint*/
@@ -33,6 +33,30 @@ function wrapper(plugin_info) {
 
   var arcname = (window.PLAYER && window.PLAYER.team === 'ENLIGHTENED') ? 'Arc' : '***';
   var changelog = [{
+      version: '6.2.1',
+      changes: [
+        'FIX: The automatic "Spend keys on throw" no longer re-spends a key for a link you had already thrown before reloading IITC, or loses track of one thrown while IITC was closed — each link now only ever spends a key once, whenever it\'s first seen.',
+      ],
+    },{
+      version: '6.2.0',
+      changes: [
+        'NEW: The Statistics window now also shows how many links and fields your faction has actually thrown or formed in-game, read straight from the Intel, next to the plan\'s own totals — so you can compare real progress against the plan. A Today / 2 days / 7 days toggle lets you look further back.',
+      ],
+    },{
+      version: '6.1.1',
+      changes: [
+        'FIX: On mobile, the "Keys video" counts review window was still a bit too tall, with its Apply/Cancel buttons running under the phone\'s navigation bar.',
+        'FIX: Reading a "Keys video" recording no longer gets stuck when the phone\'s screen locks and unlocks during the read.',
+        'FIX: "Less walking" could send you off to a portal that only belongs with a different part of the walk, and back again, instead of leaving it there and visiting a nearby portal right after the anchor like it should.',
+        'FIX: Zooming the map could unlock a Locked plan and recalculate it on the spot, sometimes before all portals around you had finished loading — showing "unknown title" rows in the Task List until they did. Locked now only reacts to an actual change you make to the plan itself.',
+      ],
+    },{
+      version: '6.1.0',
+      changes: [
+        'IMPROVE: "Keys video" now reads a recording noticeably faster, by reading several frames at once instead of one at a time.',
+        'IMPROVE: In the "Keys video" window, the Apply and Cancel buttons moved to the bottom of the window, next to each other, and both now close the window once clicked.',
+      ],
+    },{
       version: '6.0.0',
       changes: [
         'NEW: Added an "Exclude portals" shortcut on the map (no-entry icon): click it, then click plan portals to leave them out of the plan (or bring them back in), and click it again when done. Excluded portals show a no-entry sign and are remembered when an op is saved, so they come back when that op is reloaded. The hamburger menu moved to the top of the map buttons, and "Pick anchor" is now an entry in that menu instead of its own icon.',
@@ -1405,6 +1429,10 @@ function wrapper(plugin_info) {
         'The links and fields stay the same, it works while the plan is locked too, and the new order holds until the plan itself changes (or <i>Reset&nbsp;link&nbsp;orders</i>). ' +
         'Its <i>Walk&nbsp;sim</i> button closes the list and previews the whole walk on the map, portal by portal, drawing each portal\'s own links and fields as they\'re reached (toggle in Options: <i>Walk&nbsp;sim&nbsp;links</i>); tap the map to dismiss it.</p>' +
 
+        '<p><b>Statistics</b><br>' +
+        'Open <i>Stats</i> (menu) for the plan\'s own totals (keys, links, fields, walking distance) alongside a <i>Real activity</i> section showing how many links and fields your faction has actually thrown/formed in-game, read straight from the Intel — not from the plan — so you can compare progress against the plan. ' +
+        'Switch its window (<i>Today</i>, <i>2&nbsp;days</i>, <i>7&nbsp;days</i>) to count further back; it refreshes on its own while the window stays open.</p>' +
+
         '<hr noshade>' +
 
         '<p>Found a bug? Post your issues at GitHub:<br>' +
@@ -1433,11 +1461,72 @@ function wrapper(plugin_info) {
     return total;
   };
 
+  // Real activity (Task List "Stats" window): how many links/fields of the player's own
+  // faction were actually thrown/formed in-game within a trailing window, counted straight
+  // from the live INTEL data (window.links/window.fields) rather than the plan's own computed
+  // links/fields — so it can be compared against what the plan itself calls for. A link/field
+  // entity's own timestamp (ms since epoch) is set once, at creation, and never changes
+  // afterwards (it's only ever created or destroyed) — see IITC's own
+  // Renderer.prototype.createLinkEntity/createFieldEntity — so this is exactly its throw/
+  // creation time, not a "last seen" time.
+  thisplugin.STATS_ACTIVITY_WINDOWS = [
+    { key: 'today', label: 'Today' },
+    { key: '2d', label: '2 days' },
+    { key: '7d', label: '7 days' }
+  ];
+  thisplugin.statsActivityWindow = 'today';
+
+  // The cutoff timestamp (ms since epoch) for a given window: local midnight for 'today' (i.e.
+  // since the day's first link/field), else a rolling N*24h lookback.
+  thisplugin.getActivityWindowCutoff = function (mode) {
+    if (mode === '2d') return Date.now() - 2 * 24 * 60 * 60 * 1000;
+    if (mode === '7d') return Date.now() - 7 * 24 * 60 * 60 * 1000;
+    var now = new Date();
+    return new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+  };
+
+  thisplugin.computeRealActivityStats = function (mode) {
+    var result = { links: 0, fields: 0 };
+    var ownTeam = thisplugin.getOwnFactionTeam();
+    if (ownTeam === undefined) return result;
+
+    var cutoff = thisplugin.getActivityWindowCutoff(mode);
+
+    for (var lguid in window.links) {
+      var link = window.links[lguid];
+      if (link.options.team === ownTeam && link.options.timestamp >= cutoff) result.links++;
+    }
+    for (var fguid in window.fields) {
+      var field = window.fields[fguid];
+      if (field.options.team === ownTeam && field.options.timestamp >= cutoff) result.fields++;
+    }
+    return result;
+  };
+
+  thisplugin.buildRealActivityHTML = function () {
+    var stats = thisplugin.computeRealActivityStats(thisplugin.statsActivityWindow);
+
+    var html = '<hr noshade><div class="plugin_fanfields3_activity">';
+    html += '<div class="plugin_fanfields3_activity_title">Real activity (from Intel, own faction)</div>';
+    html += '<table><tr><td>Links thrown:</td><td>' + stats.links + '</td></tr>';
+    html += '<tr><td>Fields created:</td><td>' + stats.fields + '</td></tr></table>';
+    html += '<div class="plugin_fanfields3_activity_buttons">';
+    thisplugin.STATS_ACTIVITY_WINDOWS.forEach(function (w) {
+      html += '<button type="button" class="plugin_fanfields3_activity_btn' +
+        (thisplugin.statsActivityWindow === w.key ? ' plugin_fanfields3_activity_btn_active' : '') +
+        '" data-window="' + w.key + '">' + w.label + '</button>';
+    });
+    html += '</div></div>';
+    return html;
+  };
+
   // Statistics dialog: build the HTML for the current plan. Used both to open the dialog and
   // to refresh it live (see thisplugin.refreshStatisticsIfOpen) as the background plan changes.
   thisplugin.buildStatisticsHTML = function () {
+    var activityHtml = thisplugin.buildRealActivityHTML();
+
     if (!thisplugin.sortedFanpoints || thisplugin.sortedFanpoints.length <= 3) {
-      return '<p>No Fanfield plan calculated yet.<br>Draw a polygon and let Fanfields calculate first.</p>';
+      return '<p>No Fanfield plan calculated yet.<br>Draw a polygon and let Fanfields calculate first.</p>' + activityHtml;
     }
 
     var totalLinks = thisplugin.donelinks.length;
@@ -1460,7 +1549,8 @@ function wrapper(plugin_info) {
       '<tr><td>Build AP (links and fields):</td><td>' + (validLinks * 313 + validFields * 1250).toString() + '</td><tr>' +
       '<tr><td>Total walk distance:</td><td>' + thisplugin.formatDistance(thisplugin.computeTotalWalkDistance()) + '</td><tr>' +
       warn +
-      '</table>';
+      '</table>' +
+      activityHtml;
   };
 
   // Whether the Statistics dialog is currently open and visible.
@@ -1468,11 +1558,21 @@ function wrapper(plugin_info) {
     return $('#plugin_fanfields3_statistics_inner').is(':visible');
   };
 
+  thisplugin.wireStatisticsHandlers = function () {
+    $('#plugin_fanfields3_statistics_inner')
+      .off('click.plugin_fanfields3_activity')
+      .on('click.plugin_fanfields3_activity', '.plugin_fanfields3_activity_btn', function () {
+        thisplugin.statsActivityWindow = $(this).attr('data-window');
+        thisplugin.refreshStatisticsDialog();
+      });
+  };
+
   // Rebuild the Statistics dialog's content in place. Used to auto-refresh live as the
   // background plan changes (new links appearing in-game, fan field rotation, etc.), mirroring
   // thisplugin.refreshTaskListDialog for the Task List.
   thisplugin.refreshStatisticsDialog = function () {
     $('#plugin_fanfields3_statistics_inner').html(thisplugin.buildStatisticsHTML());
+    thisplugin.wireStatisticsHandlers();
   };
 
   // Called after every plan recalculation (see updateLayer) so an open Statistics dialog
@@ -1484,8 +1584,6 @@ function wrapper(plugin_info) {
   };
 
   thisplugin.showStatistics = function () {
-    if (!thisplugin.sortedFanpoints || thisplugin.sortedFanpoints.length <= 3) return;
-
     var width = 400;
     thisplugin.MaxDialogWidth = thisplugin.getMaxDialogWidth();
     if (thisplugin.MaxDialogWidth < width) {
@@ -1515,11 +1613,29 @@ function wrapper(plugin_info) {
     // centering, so the dialog doesn't sit over the middle of the map where the portals are.
     // IITC's window.dialog() prefixes the id we pass with "dialog-" for the actual jQuery UI
     // element (see addTaskListShiftButtons) — '#plugin_fanfields3_alert_statistics' alone
-    // matches nothing.
+    // matches nothing. The phone's own on-screen navigation bar (or the app's persistent
+    // bottom toolbar) commonly overlaps the bottom of the visible viewport without being
+    // reflected in its reported height at all, so a small offset from the literal bottom edge
+    // (as used here before the Real activity section made this dialog taller) ends up hidden
+    // underneath it — same reasoning as thisplugin.getMaxDialogHeight(), whose own clearance
+    // this reuses for both the position offset and a height cap, so a tall dialog also
+    // scrolls its own content instead of growing past the visible area.
     if (isMobile) {
-      $('#dialog-plugin_fanfields3_alert_statistics')
-        .dialog('option', 'position', { my: 'bottom', at: 'bottom-15', of: window });
+      var $statsDialog = $('#dialog-plugin_fanfields3_alert_statistics');
+      var $statsUi = $statsDialog.closest('.ui-dialog');
+      $statsUi.css({
+        'max-height': thisplugin.getMaxDialogHeight() + 'px',
+        'display': 'flex',
+        'flex-direction': 'column'
+      });
+      $statsUi.find('.ui-dialog-content').css({
+        'flex': '1 1 auto',
+        'overflow-y': 'auto'
+      });
+      $statsDialog.dialog('option', 'position', { my: 'bottom', at: 'bottom-' + thisplugin.MOBILE_DIALOG_BOTTOM_CLEARANCE_PX, of: window });
     }
+
+    thisplugin.wireStatisticsHandlers();
   }
 
   thisplugin.exportTasks = function () {
@@ -2148,6 +2264,7 @@ function wrapper(plugin_info) {
           : ' — the current order was already the shortest found.') +
         '</div>';
     }
+
     text += '<hr noshade>';
 
     // On mobile, only the next stops still to do are sent (see GOOGLE_MAPS_MAX_STOPS_MOBILE);
@@ -4784,6 +4901,29 @@ function wrapper(plugin_info) {
       '}\n'
     );
 
+    // Statistics dialog: the real-activity section (links/fields actually seen in Intel within
+    // the chosen trailing window) and its Today/2 days/7 days toggle buttons.
+    addCSS('\n' +
+      '.plugin_fanfields3_activity_title {\n' +
+      '  font-weight: bold;\n' +
+      '  margin-bottom: 4px;\n' +
+      '}\n' +
+      '.plugin_fanfields3_activity_buttons {\n' +
+      '  margin-top: 6px;\n' +
+      '  display: flex;\n' +
+      '  gap: 4px;\n' +
+      '}\n' +
+      '.plugin_fanfields3_activity_btn {\n' +
+      '  flex: 1 1 auto;\n' +
+      '  cursor: pointer;\n' +
+      '}\n' +
+      '.plugin_fanfields3_activity_btn_active {\n' +
+      '  font-weight: bold;\n' +
+      '  box-shadow: 0 0 0 2px #ffce00 inset;\n' +
+      '  color: #ffce00;\n' +
+      '}\n'
+    );
+
     // Marker for a portal manually excluded from the plan (the "No entry" shortcut).
     addCSS('\n' +
       '.plugin_fanfields3_excluded_marker {\n' +
@@ -5230,51 +5370,109 @@ function wrapper(plugin_info) {
   // indexOwnLinks() whenever thisplugin.intelLinks is (re)built.
   thisplugin.ownLinkKeys = {};
 
-  // Throwing a link spends a key to its destination portal. Whenever indexOwnLinks() finds an
-  // own-faction link that wasn't there the previous time (newKeys has it, thisplugin.ownLinkKeys
-  // — the previous run's set — doesn't), that key is now spent: the Keys plugin's own count for
-  // that destination (destByKey) is decremented by 1, never below 0. Skipped on the very first
-  // run (thisplugin._ownLinksBaselineSet still false): with no previous set to compare against,
-  // every link already in-game would otherwise look "new" and get wrongly decremented. Only
-  // window.plugin.keys is touched — LiveInventory is a read-only reflection of the real
-  // inventory and has no such API (same restriction as thisplugin.toggleKeysPluginCount).
+  // Throwing a link spends a key to its destination portal. A link's own Ingress GUID (the key
+  // IITC itself uses in window.links/thisplugin.intelLinks) uniquely and permanently identifies
+  // that one throw — destroying and re-throwing between the same two portals later gets a brand
+  // new GUID — so thisplugin.chargedLinkGuids (persisted to localStorage, see
+  // loadChargedLinkGuids/markLinkGuidsCharged) remembers every own-faction link GUID already
+  // charged a key for, across reloads AND across IITC being closed entirely: a link thrown while
+  // IITC wasn't even running still gets its key deducted as soon as it's next seen, since its
+  // GUID isn't in that persisted set yet. A GUID already in the set is never charged again.
+  // Evaluated only once IITC has fully finished loading the map (thisplugin._mapDataLoading):
+  // while it's still streaming in link data tile by tile, an own link simply hasn't appeared
+  // yet rather than not existing, so waiting avoids treating an incomplete view as if every link
+  // not yet loaded in had just been thrown. The very first time this ever runs for this browser
+  // (thisplugin.CHARGING_INITIALIZED_KEY not yet set), every own link already in-game is seeded
+  // into the charged set without spending anything — only links thrown from that point onward are
+  // charged. Only window.plugin.keys is touched — LiveInventory is a read-only reflection of the
+  // real inventory and has no such API (same restriction as thisplugin.toggleKeysPluginCount).
   // Options dialog toggle ("Spend keys on throw"): on by default.
-  thisplugin._ownLinksBaselineSet = false;
   thisplugin.consumeKeysOnLinkThrown = true;
 
-  thisplugin.consumeKeysForNewLinks = function (newKeys, destByKey) {
-    if (!thisplugin._ownLinksBaselineSet) {
-      thisplugin._ownLinksBaselineSet = true;
+  thisplugin.CHARGED_LINKS_STORAGE_KEY = 'plugin-fanfields3-charged-link-guids';
+  thisplugin.CHARGING_INITIALIZED_KEY = 'plugin-fanfields3-charging-initialized';
+  // Safety cap so a very long-lived install never grows this localStorage entry without bound;
+  // oldest entries are dropped first once exceeded. A dropped entry could in theory be charged
+  // again if its link were ever destroyed and re-thrown decades later between the same two
+  // portals — an acceptable trade-off against unbounded storage growth.
+  thisplugin.CHARGED_LINKS_MAX = 20000;
+
+  thisplugin._chargedLinkGuidSet = null;
+  thisplugin._chargedLinkGuidOrder = null;
+
+  thisplugin.loadChargedLinkGuids = function () {
+    if (thisplugin._chargedLinkGuidSet) return;
+    var stored = [];
+    try {
+      var raw = localStorage.getItem(thisplugin.CHARGED_LINKS_STORAGE_KEY);
+      stored = raw ? JSON.parse(raw) : [];
+      if (!Array.isArray(stored)) stored = [];
+    } catch (e) {
+      stored = [];
+    }
+    thisplugin._chargedLinkGuidOrder = stored;
+    thisplugin._chargedLinkGuidSet = new Set(stored);
+  };
+
+  thisplugin.markLinkGuidsCharged = function (guids) {
+    if (!guids.length) return;
+    thisplugin.loadChargedLinkGuids();
+
+    guids.forEach(function (guid) {
+      if (thisplugin._chargedLinkGuidSet.has(guid)) return;
+      thisplugin._chargedLinkGuidSet.add(guid);
+      thisplugin._chargedLinkGuidOrder.push(guid);
+    });
+    if (thisplugin._chargedLinkGuidOrder.length > thisplugin.CHARGED_LINKS_MAX) {
+      thisplugin._chargedLinkGuidOrder.splice(0, thisplugin._chargedLinkGuidOrder.length - thisplugin.CHARGED_LINKS_MAX)
+        .forEach(function (guid) { thisplugin._chargedLinkGuidSet.delete(guid); });
+    }
+    try {
+      localStorage.setItem(thisplugin.CHARGED_LINKS_STORAGE_KEY, JSON.stringify(thisplugin._chargedLinkGuidOrder));
+    } catch (e) { /* storage full or unavailable: charging still works for this session */ }
+  };
+
+  thisplugin.chargeNewlyThrownLinks = function (ownLinks) {
+    if (thisplugin._mapDataLoading) return;
+    thisplugin.loadChargedLinkGuids();
+
+    if (localStorage.getItem(thisplugin.CHARGING_INITIALIZED_KEY) !== '1') {
+      // First time ever on this browser: everything already in-game was thrown before this
+      // feature started tracking it, so it's seeded as already-charged rather than charged now.
+      thisplugin.markLinkGuidsCharged(ownLinks.map(function (o) { return o.linkGuid; }));
+      try {
+        localStorage.setItem(thisplugin.CHARGING_INITIALIZED_KEY, '1');
+      } catch (e) { /* ignore */ }
       return;
     }
+
     if (!thisplugin.consumeKeysOnLinkThrown) return;
     if (!window.plugin.keys || typeof window.plugin.keys.addKey !== 'function') return;
 
-    var oldKeys = thisplugin.ownLinkKeys || {};
-    for (var key in newKeys) {
-      if (oldKeys[key]) continue; // not a newly thrown link
-      var destGuid = destByKey[key];
-      if (!destGuid) continue;
-      var current = window.plugin.keys.keys[destGuid] || 0;
-      if (current > 0) window.plugin.keys.addKey(-1, destGuid);
-    }
+    var newlyCharged = [];
+    ownLinks.forEach(function (o) {
+      if (thisplugin._chargedLinkGuidSet.has(o.linkGuid)) return;
+      var current = window.plugin.keys.keys[o.destGuid] || 0;
+      if (current > 0) window.plugin.keys.addKey(-1, o.destGuid);
+      newlyCharged.push(o.linkGuid);
+    });
+    thisplugin.markLinkGuidsCharged(newlyCharged);
   };
 
   thisplugin.indexOwnLinks = function () {
     var keys = {};
-    var destByKey = {};
+    var ownLinks = [];
     var ownTeam = thisplugin.getOwnFactionTeam();
     if (ownTeam !== undefined) {
-      for (var guid in thisplugin.intelLinks) {
-        var link = thisplugin.intelLinks[guid];
+      for (var linkGuid in thisplugin.intelLinks) {
+        var link = thisplugin.intelLinks[linkGuid];
         if (link.team === ownTeam) {
-          var key = thisplugin.pointPairKey(link.a, link.b);
-          keys[key] = true;
-          if (link.guidB) destByKey[key] = link.guidB;
+          keys[thisplugin.pointPairKey(link.a, link.b)] = true;
+          if (link.guidB) ownLinks.push({ linkGuid: linkGuid, destGuid: link.guidB });
         }
       }
     }
-    thisplugin.consumeKeysForNewLinks(keys, destByKey);
+    thisplugin.chargeNewlyThrownLinks(ownLinks);
     thisplugin.ownLinkKeys = keys;
   };
 
@@ -5790,6 +5988,12 @@ function wrapper(plugin_info) {
   thisplugin.KEYS_VIDEO_WIDTH = 1080;       // frames are scaled to this width before OCR
   thisplugin.KEYS_VIDEO_WHITE_MIN = 180;    // a pixel is text when its R, G and B are all above this
   thisplugin.KEYS_VIDEO_MATCH_MIN = 0.78;   // minimum name similarity (0..1) to accept a match
+  thisplugin.KEYS_VIDEO_DIFF_GRID = [16, 64]; // [cols, rows] of the frame-change check
+  thisplugin.KEYS_VIDEO_DIFF_MIN = 0.05;    // relative change in that grid for a new frame
+  // OCR is the slow part (not reading the video itself), and each Tesseract worker is its own
+  // thread, so running several in parallel is close to a free speedup on a multi-core device. One
+  // core is left for the main thread (video seeking, canvas prep, UI).
+  thisplugin.KEYS_VIDEO_WORKERS = Math.max(1, Math.min(4, (navigator.hardwareConcurrency || 2) - 1));
 
   thisplugin.loadTesseract = function () {
     if (window.Tesseract) return Promise.resolve(window.Tesseract);
@@ -5926,6 +6130,11 @@ function wrapper(plugin_info) {
   // Ingress writes names and counts in white over darkened photos, so only near-white pixels are
   // kept, as black text on white. This also drops the red level digit, the blue resonator bars
   // and most of the photo. Returns null when the frame looks the same as the previous one read.
+  //
+  // The frame-change check below reads the already-thresholded full-resolution data (not a
+  // cheap downscaled preview): a small blown-up grid loses exactly the kind of thin, short-lived
+  // text strokes a fast scroll produces, which silently dropped real frames and tanked the OCR
+  // match rate — worth the extra full-resolution pass per sampled frame to not risk that again.
   thisplugin.prepareKeysOcrFrame = function (source, width, height, state) {
     var scale = thisplugin.KEYS_VIDEO_WIDTH / width;
     var w = Math.max(1, Math.round(width * scale)), h = Math.max(1, Math.round(height * scale));
@@ -5941,8 +6150,7 @@ function wrapper(plugin_info) {
       d[i] = d[i + 1] = d[i + 2] = Math.min(d[i], d[i + 1], d[i + 2]) > thisplugin.KEYS_VIDEO_WHITE_MIN ? 0 : 255;
     }
 
-    // Small signature of the frame to skip frames identical to the last one read.
-    var sig = [], gx = 16, gy = 64;
+    var sig = [], gx = thisplugin.KEYS_VIDEO_DIFF_GRID[0], gy = thisplugin.KEYS_VIDEO_DIFF_GRID[1];
     for (var sy = 0; sy < gy; sy++) {
       for (var sx = 0; sx < gx; sx++) {
         var x0 = Math.floor(sx * w / gx), y0 = Math.floor(sy * h / gy);
@@ -5956,7 +6164,7 @@ function wrapper(plugin_info) {
     if (state.lastSig) {
       var diff = 0, total = 1;
       for (var k = 0; k < sig.length; k++) { diff += Math.abs(sig[k] - state.lastSig[k]); total += sig[k]; }
-      if (diff / total < 0.05) return null;
+      if (diff / total < thisplugin.KEYS_VIDEO_DIFF_MIN) return null;
     }
     state.lastSig = sig;
 
@@ -5990,8 +6198,23 @@ function wrapper(plugin_info) {
 
   thisplugin.seekKeysVideo = function (video, time) {
     return new Promise(function (resolve) {
-      var done = function () { video.removeEventListener('seeked', done); resolve(); };
+      var settled = false;
+      var done = function () {
+        if (settled) return;
+        settled = true;
+        video.removeEventListener('seeked', done);
+        document.removeEventListener('visibilitychange', onVisible);
+        resolve();
+      };
+      // On mobile, locking the screen suspends the video decoder mid-seek, and the 'seeked'
+      // event for that seek never comes — even once the screen is back on. Re-issuing the same
+      // seek once the page is visible again gets the decoder going and still fires 'seeked'
+      // normally, instead of leaving the read stuck forever.
+      var onVisible = function () {
+        if (!document.hidden && !settled) video.currentTime = time;
+      };
       video.addEventListener('seeked', done);
+      document.addEventListener('visibilitychange', onVisible);
       video.currentTime = time;
     });
   };
@@ -6005,23 +6228,68 @@ function wrapper(plugin_info) {
     });
   };
 
+  // Runs OCR jobs with at most `limit` running at once (one Tesseract worker each). wait()
+  // resolves once a slot is free, so a caller can throttle how fast it hands out work without
+  // buffering unlimited frames ahead of what the pool can process; drain() waits for whatever is
+  // still running. Never rejects itself even when a job does — callers catch their own job.
+  thisplugin.makeKeysOcrPool = function (limit) {
+    var active = new Set();
+    var neverReject = function (p) { return p.then(function () {}, function () {}); };
+    return {
+      wait: async function () {
+        while (active.size >= limit) await Promise.race(Array.from(active).map(neverReject));
+      },
+      run: function (job) {
+        var p = job();
+        active.add(p);
+        var cleanup = function () { active.delete(p); };
+        p.then(cleanup, cleanup);
+        return p;
+      },
+      drain: function () { return Promise.allSettled(Array.from(active)); }
+    };
+  };
+
+  // Tried tuning tessedit_pageseg_mode (SPARSE_TEXT) and switching off the English dictionary
+  // here, to save a bit more OCR time on top of running several workers at once — reverted:
+  // it badly hurt the match rate in practice (SPARSE_TEXT skips the page-layout analysis that
+  // apparently matters for this card layout). Left as a plain, untuned worker, same as before
+  // the workers were parallelized.
+  thisplugin.createKeysOcrWorker = async function (Tesseract) {
+    return Tesseract.createWorker('eng');
+  };
+
   // OCRs every file (videos: one frame every KEYS_VIDEO_FRAME_STEP seconds) and returns
-  // guid -> the count read most often for that portal (the highest one on a tie).
+  // guid -> the count read most often for that portal (the highest one on a tie). Several
+  // Tesseract workers run at once (KEYS_VIDEO_WORKERS): OCR, not reading the video, is the slow
+  // part of this, and each worker is its own thread, so the next frame's seek and threshold keep
+  // running on the main thread while earlier frames are still being recognized.
   thisplugin.readKeysFromFiles = async function (files, candidates, onProgress, isCancelled) {
     var Tesseract = await thisplugin.loadTesseract();
     onProgress('Loading text recognition…');
-    var worker = await Tesseract.createWorker('eng');
+    var workers = await Promise.all(Array.from({ length: thisplugin.KEYS_VIDEO_WORKERS },
+      function () { return thisplugin.createKeysOcrWorker(Tesseract); }));
+    var pool = thisplugin.makeKeysOcrPool(workers.length);
+    var nextWorker = 0;
     var votes = {};
     var framesRead = 0;
-    var ocr = async function (canvas) {
-      var result = await worker.recognize(canvas);
-      framesRead++;
-      var found = thisplugin.matchKeysInText(result.data.text, candidates);
-      Object.keys(found).forEach(function (guid) {
-        votes[guid] = votes[guid] || {};
-        votes[guid][found[guid]] = (votes[guid][found[guid]] || 0) + 1;
-      });
+
+    var submit = async function (canvas) {
+      await pool.wait();
+      if (isCancelled()) return;
+      var worker = workers[nextWorker];
+      nextWorker = (nextWorker + 1) % workers.length;
+      pool.run(async function () {
+        var result = await worker.recognize(canvas);
+        framesRead++;
+        var found = thisplugin.matchKeysInText(result.data.text, candidates);
+        Object.keys(found).forEach(function (guid) {
+          votes[guid] = votes[guid] || {};
+          votes[guid][found[guid]] = (votes[guid][found[guid]] || 0) + 1;
+        });
+      }).catch(function (e) { if (!isCancelled()) console.error('Fan Fields 3 - Keys video OCR', e); });
     };
+
     try {
       for (var f = 0; f < files.length && !isCancelled(); f++) {
         var file = files[f];
@@ -6030,7 +6298,8 @@ function wrapper(plugin_info) {
         if (/^image\//.test(file.type)) {
           onProgress('Reading image' + label + '…');
           var img = await thisplugin.loadKeysImage(file);
-          await ocr(thisplugin.prepareKeysOcrFrame(img, img.naturalWidth, img.naturalHeight, state));
+          var icanvas = thisplugin.prepareKeysOcrFrame(img, img.naturalWidth, img.naturalHeight, state);
+          if (icanvas) await submit(icanvas);
           URL.revokeObjectURL(img.src);
           continue;
         }
@@ -6041,12 +6310,13 @@ function wrapper(plugin_info) {
           onProgress('Reading video' + label + ': ' + Math.min(100, Math.round(100 * t / (duration || 1))) +
             '% — ' + Object.keys(votes).length + '/' + candidates.length + ' plan portals found');
           var canvas = thisplugin.prepareKeysOcrFrame(video, video.videoWidth, video.videoHeight, state);
-          if (canvas) await ocr(canvas);
+          if (canvas) await submit(canvas);
         }
         URL.revokeObjectURL(video.src);
       }
+      await pool.drain();
     } finally {
-      await worker.terminate();
+      await Promise.all(workers.map(function (w) { return w.terminate(); }));
     }
 
     var counts = {};
@@ -6099,6 +6369,12 @@ function wrapper(plugin_info) {
       closeCallback: function () { cancelled = true; }
     });
     thisplugin.pinKeysVideoDialogToTop();
+    // Nothing to apply yet (no recording read) — just a way to close the dialog, same as the
+    // default OK button would, but named for what it actually does here. showKeysVideoReview
+    // adds the "Apply to Keys plugin" button next to this one once there's something to apply.
+    $('#dialog-plugin_fanfields3_keysvideo').dialog('option', 'buttons', {
+      Cancel: function () { $(this).dialog('close'); }
+    });
 
     var $status = $('#plugin_fanfields3_keysvideo_status');
     $('#plugin_fanfields3_keysvideo_file').on('change', function () {
@@ -6124,17 +6400,33 @@ function wrapper(plugin_info) {
 
   // Keeps the Keys video dialog at the top of the screen, fully opaque so the map doesn't show
   // through the counts, and capped to the screen height with its content scrolling, so the
-  // review table that grows it never pushes it off the bottom.
+  // review table that grows it never pushes it off the bottom. Same flex technique as
+  // addTaskListShiftButtons: the cap has to be on the .ui-dialog itself (not just its content),
+  // since jQuery UI resizes the content pane to fit its own height option and ignores a
+  // max-height set there on its own.
   thisplugin.pinKeysVideoDialogToTop = function () {
     var $content = $('#dialog-plugin_fanfields3_keysvideo');
     if (!$content.length) return;
     var $ui = $content.closest('.ui-dialog');
-    $ui.css({ 'background': 'rgb(8, 48, 78)', 'opacity': 1 });
-    var chrome = $ui.outerHeight() - $content.outerHeight();
+    // A bit more generous than getMaxDialogHeight()'s own mobile clearance: this dialog's
+    // bottom button row stays clear of the phone's nav bar with less margin than that shared
+    // default assumes, so it can use more of the screen — kept local to this dialog rather
+    // than lowering that margin for every other dialog too.
+    var vh = (window.visualViewport && window.visualViewport.height) ? window.visualViewport.height : window.innerHeight;
+    var bottomClearance = L.Browser.mobile ? 90 : 20;
+    var maxDialogHeight = Math.max(200, Math.floor(vh) - bottomClearance);
+    $ui.css({
+      'background': 'rgb(8, 48, 78)',
+      'opacity': 1,
+      'max-height': maxDialogHeight + 'px',
+      'display': 'flex',
+      'flex-direction': 'column'
+    });
     $content.css({
-      'max-height': Math.max(100, thisplugin.getMaxDialogHeight() - chrome) + 'px',
+      'flex': '1 1 auto',
       'overflow-y': 'auto'
     });
+    $ui.find('.ui-dialog-buttonpane').css('flex', '0 0 auto');
     $content.dialog('option', 'position', { my: 'top', at: 'top+10', of: window });
   };
 
@@ -6162,11 +6454,9 @@ function wrapper(plugin_info) {
       '</tr></thead><tbody>' + rows + '</tbody></table>' +
       '<p><label><input type="checkbox" id="plugin_fanfields3_keysvideo_zero"> ' +
       'Set plan portals not found in the recording to 0 (only if you scrolled through all your keys)</label></p>' +
-      (window.plugin.LiveInventory ? '<p><i>LiveInventory is installed: the Task List shows its counts first.</i></p>' : '') +
-      '<p><button type="button" id="plugin_fanfields3_keysvideo_applybtn">Apply to Keys plugin</button></p>';
+      (window.plugin.LiveInventory ? '<p><i>LiveInventory is installed: the Task List shows its counts first.</i></p>' : '');
 
     var $result = $('#plugin_fanfields3_keysvideo_result').html(html);
-    thisplugin.pinKeysVideoDialogToTop();
 
     // Editing a count ticks that row; the "not found → 0" option ticks/unticks the unseen rows.
     $result.on('input', '.plugin_fanfields3_keysvideo_count', function () {
@@ -6181,22 +6471,28 @@ function wrapper(plugin_info) {
         $(this).find('.plugin_fanfields3_keysvideo_apply').prop('checked', on && current !== 0);
       });
     });
-    $result.on('click', '#plugin_fanfields3_keysvideo_applybtn', function () {
-      var changed = 0;
-      $result.find('tbody tr').each(function () {
-        if (!$(this).find('.plugin_fanfields3_keysvideo_apply').prop('checked')) return;
-        var guid = $(this).attr('data-guid');
-        var target = Math.max(0, parseInt($(this).find('.plugin_fanfields3_keysvideo_count').val(), 10) || 0);
-        var delta = target - (window.plugin.keys.keys[guid] || 0);
-        if (delta !== 0) {
-          window.plugin.keys.addKey(delta, guid);
-          changed++;
-        }
-      });
-      $('#plugin_fanfields3_keysvideo_status').text(changed + ' portal(s) updated in the Keys plugin.');
-      $result.empty();
-      thisplugin.refreshTaskListIfOpen();
+
+    // "Apply to Keys plugin" lives in the dialog's own button pane, next to Cancel, instead of
+    // in the scrolling content above — added here (not at dialog creation) since there's
+    // nothing to apply before a recording has been read.
+    $('#dialog-plugin_fanfields3_keysvideo').dialog('option', 'buttons', {
+      Cancel: function () { $(this).dialog('close'); },
+      'Apply to Keys plugin': function () {
+        $result.find('tbody tr').each(function () {
+          if (!$(this).find('.plugin_fanfields3_keysvideo_apply').prop('checked')) return;
+          var guid = $(this).attr('data-guid');
+          var target = Math.max(0, parseInt($(this).find('.plugin_fanfields3_keysvideo_count').val(), 10) || 0);
+          var delta = target - (window.plugin.keys.keys[guid] || 0);
+          if (delta !== 0) window.plugin.keys.addKey(delta, guid);
+        });
+        thisplugin.refreshTaskListIfOpen();
+        $(this).dialog('close');
+      }
     });
+    // After the buttons above, not before: the button pane's height (now Cancel + Apply,
+    // possibly wrapping to two lines on a narrow dialog) is what the content area's max-height
+    // needs to leave room for.
+    thisplugin.pinKeysVideoDialogToTop();
   };
 
   // Marks the active link order optimization (if any) as needing to be recomputed at the next
@@ -6553,10 +6849,22 @@ function wrapper(plugin_info) {
   // mesh link) is a candidate. Its mesh link flips to point AT it (mesh partner -> portal)
   // when visiting it between its own walk neighbors (whichever portals come right before and
   // right after it in the walk) costs more than skipping straight from one to the other — i.e.
-  // this portal wasn't really "on the way". A portal with outgoing count 1 or 3+ is left
-  // untouched. The mesh partner's own position plays no part in this test: whether it happens
+  // this portal wasn't really "on the way". A portal with outgoing count 1 (only its own anchor
+  // link, no mesh link) gets the same "on the way" check further down, without any flip — there's
+  // nothing to flip, only where it sits in the walk can change. A portal with outgoing count 3+
+  // is left untouched either way: with several mesh links, moving it risks losing a field or
+  // making another one of its own links infeasible, which this simple per-portal check can't
+  // rule out. The mesh partner's own position plays no part in this test: whether it happens
   // to be the walk's previous stop, a later one, or nowhere nearby, "on the way" is decided
   // purely by the portal's own neighbors, via plain triangle inequality.
+  //
+  // Never onto a mesh partner that only has its own anchor link (outgoing count 1) AND is
+  // genuinely closer to the anchor than to this portal's OTHER neighbor (nextFp): flipping
+  // would make that partner depend on this portal being visited first, dragging it away from
+  // wherever it actually belongs. A partner nearer the anchor belongs up front regardless, so
+  // flipping onto it would only shove it out of the way of the very spot it wants; a partner
+  // nearer nextFp's own neighborhood instead belongs there, so the flip is left to go through,
+  // freeing it to be relocated near that neighborhood rather than forced up front by this link.
   //
   // Once flipped, the portal is relocated in the WALK/DISPLAY order only
   // (thisplugin.displayOrderGuids — see computeDistanceOrderReordering), never in
@@ -6606,13 +6914,14 @@ function wrapper(plugin_info) {
       var nextFp = sorted[indexByGuid[e.srcGuid] + 1];
 
       var shouldFlip;
+      var direct;
       if (nextFp) {
         // Triangle inequality on the portal's own neighbors: visiting it (prevFp -> src ->
         // nextFp) only "costs" something over skipping it (prevFp -> nextFp direct) when it's
         // really a detour. A margin avoids flipping over floating-point noise on three
         // near-collinear portals, where there's nothing to gain either way.
         var viaSrc = dist(prevFp.guid, e.srcGuid) + dist(e.srcGuid, nextFp.guid);
-        var direct = dist(prevFp.guid, nextFp.guid);
+        direct = dist(prevFp.guid, nextFp.guid);
         shouldFlip = viaSrc > direct + 1e-6;
       } else {
         // Last portal in the walk: there's no "next" to route around, so it's never really "on
@@ -6621,7 +6930,12 @@ function wrapper(plugin_info) {
         // back at the end, same as leaving it unflipped would have.
         shouldFlip = true;
       }
-      if (!shouldFlip) return;
+
+      var partnerIsDegreeOne = outgoingCountByGuid[e.dstGuid] === 1;
+      var blockedByPartner = shouldFlip && nextFp && partnerIsDegreeOne &&
+        dist(thisplugin.startingpointGUID, e.dstGuid) <= dist(e.dstGuid, nextFp.guid);
+
+      if (!shouldFlip || blockedByPartner) return;
 
       var desiredSrc = e.dstGuid;
       var desiredDst = e.srcGuid;
@@ -6636,6 +6950,31 @@ function wrapper(plugin_info) {
       meshFlippedGuids[e.srcGuid] = true;
       e.srcGuid = desiredSrc;
       e.dstGuid = desiredDst;
+    });
+
+    // Portals with outgoing count 1 (only their own anchor/fan link, no mesh link at all) have
+    // nothing to flip, but the same "on the way" question still applies to where they sit in the
+    // walk: skipped here by the loop above (it only ever looks at mesh links), they'd otherwise
+    // always stay at their bearing-sorted build position even when that's a detour — e.g. a
+    // portal a few meters from the anchor but sorted far from it by angle. Reuses the very same
+    // relocation set and reordering step as the flipped portals above; no feasibility check is
+    // needed first since their link direction never changes, only when they're visited.
+    sorted.forEach(function (fp) {
+      if (fp.guid === thisplugin.startingpointGUID) return;
+      if (outgoingCountByGuid[fp.guid] !== 1) return;
+
+      var prevFp = sorted[indexByGuid[fp.guid] - 1];
+      var nextFp = sorted[indexByGuid[fp.guid] + 1];
+
+      var shouldRelocate;
+      if (nextFp) {
+        var viaSrc = dist(prevFp.guid, fp.guid) + dist(fp.guid, nextFp.guid);
+        var direct = dist(prevFp.guid, nextFp.guid);
+        shouldRelocate = viaSrc > direct + 1e-6;
+      } else {
+        shouldRelocate = true;
+      }
+      if (shouldRelocate) meshFlippedGuids[fp.guid] = true;
     });
 
     var flips = thisplugin.flipsFromDirections(current, naturalByKey);
@@ -8452,16 +8791,20 @@ function wrapper(plugin_info) {
     return Math.max(260, Math.floor(vw) - 12); // leave some space
   };
 
+  // On mobile, the phone's own on-screen navigation bar (or the app's persistent bottom
+  // toolbar) commonly overlaps the bottom of the visible viewport without being reflected in
+  // its reported height at all — an edge-to-edge WebView reports the full screen height, then
+  // the OS/app draws its own controls on top of it. Shared by getMaxDialogHeight() (caps how
+  // tall a dialog may grow) and anything that also positions a dialog relative to the literal
+  // bottom edge (e.g. showStatistics on mobile), so neither a dialog's content nor its own
+  // bottom edge ends up hidden underneath it.
+  thisplugin.MOBILE_DIALOG_BOTTOM_CLEARANCE_PX = 150;
+
   thisplugin.getMaxDialogHeight = function () {
     const vh = (window.visualViewport && window.visualViewport.height) ? window.visualViewport.height : window.innerHeight;
 
-    // On mobile, the phone's own on-screen navigation bar (or the app's persistent bottom
-    // toolbar) commonly overlaps the bottom of the visible viewport without being reflected
-    // in vh/innerHeight at all — an edge-to-edge WebView reports the full screen height, then
-    // the OS/app draws its own controls on top of it. Leave generous extra clearance there so
-    // a dialog's own bottom button row doesn't end up hidden underneath it. Desktop browsers
-    // don't have this problem, so keep their margin minimal.
-    var bottomClearance = (L.Browser.mobile) ? 150 : 20;
+    // Desktop browsers don't have the nav-bar overlap problem above, so keep their margin minimal.
+    var bottomClearance = (L.Browser.mobile) ? thisplugin.MOBILE_DIALOG_BOTTOM_CLEARANCE_PX : 20;
     return Math.max(200, Math.floor(vh) - bottomClearance);
   };
 
@@ -8726,7 +9069,20 @@ function wrapper(plugin_info) {
       if (thisplugin._walkSimState) return;
       thisplugin.delayedUpdateLayer(0.5);
     });
-    window.map.on('overlayadd overlayremove', function () {
+    // Recalculates (and, if Locked, unlocks for it — see delayedUpdateLayer's userRequested
+    // branch) only when one of THIS plugin's own layers (Links/Fields/Numbers) is toggled —
+    // updateLayer() itself early-returns while none of them are visible, so switching one on
+    // needs a fresh run. Checking e.layer against them specifically matters because Leaflet
+    // fires this same event for every overlay on the map, including ones IITC shows/hides on
+    // its own as the zoom crosses their configured range: without the check, simply zooming
+    // past some unrelated layer's threshold silently unlocked and recalculated the plan,
+    // rebuilding it from whatever portals IITC happened to have loaded at that instant (often
+    // showing "unknown title" rows until the rest streamed in).
+    window.map.on('overlayadd overlayremove', function (e) {
+      if (e.layer !== thisplugin.linksLayerGroup && e.layer !== thisplugin.fieldsLayerGroup &&
+        e.layer !== thisplugin.numbersLayerGroup) {
+        return;
+      }
       setTimeout(function () {
         thisplugin.delayedUpdateLayer(1.0, true);
       }, 1);
@@ -8750,19 +9106,23 @@ function wrapper(plugin_info) {
       thisplugin.forceMapDataRefresh();
     });
 
-    // Keep an open Task List current between plan recalculations — available key counts
-    // (LiveInventory/Keys plugin) and in-game link/portal completion can change on their own
-    // timeline, not just when this plugin recomputes the plan. Refreshes live game data
-    // (thisplugin.locations/intelLinks) itself first, rather than only repainting from
+    // Keep an open Task List or Statistics dialog current between plan recalculations —
+    // available key counts (LiveInventory/Keys plugin), in-game link/portal completion and the
+    // Statistics dialog's own real-activity counts (straight from INTEL) can all change on
+    // their own timeline, not just when this plugin recomputes the plan. Refreshes live game
+    // data (thisplugin.locations/intelLinks) itself first, rather than only repainting from
     // whatever a mapDataRefreshEnd/requestFinished hook last put there: on some platforms
     // (observed on IITC Mobile) IITC's own map updates without those hooks ever firing for
     // this plugin, which would otherwise leave the Task List showing a stale, already-thrown
     // link as still outstanding indefinitely.
     setInterval(function () {
-      if (thisplugin.isTaskListDialogOpen()) {
-        thisplugin.refreshLiveGameData();
-        thisplugin.refreshTaskListDialog();
-      }
+      var taskListOpen = thisplugin.isTaskListDialogOpen();
+      var statisticsOpen = thisplugin.isStatisticsDialogOpen();
+      if (!taskListOpen && !statisticsOpen) return;
+
+      thisplugin.refreshLiveGameData();
+      if (taskListOpen) thisplugin.refreshTaskListDialog();
+      if (statisticsOpen) thisplugin.refreshStatisticsDialog();
     }, 10000);
 
     window.addLayerGroup('Fanfields links', thisplugin.linksLayerGroup, false);

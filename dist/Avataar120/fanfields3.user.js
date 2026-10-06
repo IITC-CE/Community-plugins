@@ -3,8 +3,8 @@
 // @id              fanfields3@Avataar120
 // @name            Fan Fields 3
 // @category        Layer
-// @version         6.2.1.20261004
-// @description     Fork of Heistergand's Fan Fields 2 (thanks Heistergand for the original work!). Plans the largest tidy set of nested fields, and adds: walking optimization (less backtracking between portals, Destroy stops placed where they add the least walking), automatic best anchor/direction search that reuses your faction's existing links, Blockers handling in the Task List, plan locking, Pick anchor and Exclude portals on the map, a Task List that follows your progress — correctly sequencing outbound plans and rebalancing links when one gets thrown the wrong way — and can Reroute the steps left from where you stand or preview the whole walk with Walk sim, key counts read from a screen recording of your keys in Ingress (Keys plugin) or spent automatically as you throw links, and route export to Google Maps / Portal Route. Enable from the layer chooser.
+// @version         6.3.0.20261005
+// @description     Fork of Heistergand's Fan Fields 2 (thanks Heistergand for the original work!). Plans the largest tidy set of nested fields, and adds: walking optimization (less backtracking between portals, Destroy stops placed where they add the least walking), automatic best anchor/direction search that reuses your faction's existing links, Blockers handling in the Task List, plan locking, Pick anchor and Exclude portals on the map, a Task List that follows your progress — correctly sequencing outbound plans and rebalancing links when one gets thrown the wrong way — and can Reroute the steps left from where you stand or preview the whole walk with Walk sim, key counts read from a screen recording of your keys in Ingress (Keys plugin) or spent automatically as you throw links (now safe to use across several of your devices at once), and route export to Google Maps / Portal Route or a step-by-step plan report ("Plan details" menu). Enable from the layer chooser.
 // @downloadURL     https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Avataar120/fanfields3.user.js
 // @updateURL       https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Avataar120/fanfields3.meta.js
 // @icon            https://raw.githubusercontent.com/Avataar120/fanfields3/master/fanfields3-32.png
@@ -25,7 +25,7 @@ function wrapper(plugin_info) {
   // ensure plugin framework is there, even if iitc is not yet loaded
   if (typeof window.plugin !== 'function') window.plugin = function () {};
   plugin_info.buildName = 'main';
-  plugin_info.dateTimeVersion = '2026-10-04-231500';
+  plugin_info.dateTimeVersion = '2026-10-05-200000';
   plugin_info.pluginId = 'fanfields';
 
   /* global L, $, dialog, map, portals, links, plugin  -- eslint*/
@@ -33,6 +33,19 @@ function wrapper(plugin_info) {
 
   var arcname = (window.PLAYER && window.PLAYER.team === 'ENLIGHTENED') ? 'Arc' : '***';
   var changelog = [{
+      version: '6.3.0',
+      changes: [
+        'NEW: Added a "Plan details" entry to the hamburger menu, gathering three ways to review or export the current plan -- "Print route" (the Task List, printable), "Print step by step plan" (one page per portal with the links to throw there, a running total of links/fields, and a map of progress so far, saved as a file you can open or print from your phone), and "Live simulation" (the planned walk previewed on the map, portal by portal). The separate Print and Walk sim buttons previously in the Task List moved here.',
+        'IMPROVE: Live simulation (previously "Walk sim") always draws each portal\'s own links as it reaches them now, instead of that being a separate option to turn on.',
+        'FIX: The Statistics window\'s "Real activity" used to count every link and field your whole faction threw/formed, not just your own -- it now reads the Faction and All Comm feeds instead of the plan\'s own intel data, so it only counts what you personally did, limited to today (Comm history on Niantic\'s own servers doesn\'t reliably reach further back than that).',
+        'FIX: "Less walking" could flip a link\'s direction in a way that, combined with an earlier flip, made the plan impossible to walk in a single pass (a portal needing a key from another portal that itself needed one from the first) — such a flip is no longer made.',
+        'FIX: In outbound mode, the Task List could keep showing a portal as "moved by Less walking" even after it had been placed back in its natural position by the GPS-based reordering ahead of the anchor.',
+        'FIX: "Less walking" could relocate a portal to a spot that looked cheaper on paper but actually made the real walk longer; it now double-checks the actual cost after relocating and undoes any move that doesn\'t really pay off -- including when that move only looked justified because it was compared to the wrong spot.',
+        'IMPROVE: "Less walking" now also considers flipping a mesh link to reach a genuinely cheaper spot elsewhere in the walk, not just reverting a relocation that its own immediate neighbors couldn\'t justify.',
+        'IMPROVE: In outbound mode, the walking order ahead of the anchor now also tries starting from "Less walking"\'s own existing order, keeping it when it\'s shorter than reordering from scratch.',
+        'FIX: Spent-key tracking is now safe to use across several devices at once (with the separate Simple Cloud Sync plugin): a key is never deducted twice for the same link, and a brand new device waits for its first sync to land before assuming it has no charged links yet.',
+      ],
+    },{
       version: '6.2.1',
       changes: [
         'FIX: The automatic "Spend keys on throw" no longer re-spends a key for a link you had already thrown before reloading IITC, or loses track of one thrown while IITC was closed — each link now only ever spends a key once, whenever it\'s first seen.',
@@ -949,6 +962,14 @@ function wrapper(plugin_info) {
     thisplugin.ensureOutboundPositionTracking();
     if (thisplugin.outboundPlayerPosition) {
       before = thisplugin.orderPrefixForOutbound(before, anchor, after, thisplugin.outboundPlayerPosition.latlng);
+      // Whatever "Less walking" (computeDistanceOrderReordering) decided for this segment is
+      // entirely superseded by the reorder just above — every portal in it was just placed by
+      // orderPrefixForOutbound's own search, not by that earlier relocation. Dropping them from
+      // relocatedForLessWalkingGuids here stops the Task List from flagging (green, "capture
+      // early") a portal based on a position it no longer actually has.
+      if (Object.keys(thisplugin.relocatedForLessWalkingGuids).length) {
+        before.forEach(function (fp) { delete thisplugin.relocatedForLessWalkingGuids[fp.guid]; });
+      }
     }
     // No cached position yet: ensureOutboundPositionTracking() above has a fetch under way and
     // redraws once it resolves — leave this segment in its natural order meanwhile.
@@ -1095,6 +1116,19 @@ function wrapper(plugin_info) {
 
     var deadline = Date.now() + thisplugin.OUTBOUND_PREFIX_ORDER_BUDGET_MS;
     var best = evaluate(seq);
+
+    // "Less walking" (computeDistanceOrderFlips/computeDistanceOrderReordering) may already have
+    // relocated some of these portals into a good order of its own before this ever runs —
+    // prefixFps arrives in exactly that order. Tried here as a second starting candidate
+    // alongside the nearest-neighbour construction above, rather than only ever starting fresh
+    // and silently discarding that earlier work; the local search below then refines whichever
+    // of the two starts out ahead. Never makes the result worse: best only changes when this
+    // candidate actually evaluates better.
+    var identitySeq = [];
+    for (var identityIdx = 0; identityIdx < m; identityIdx++) identitySeq.push(identityIdx);
+    var identityCandidate = evaluate(identitySeq);
+    if (isBetter(identityCandidate, best)) best = identityCandidate;
+
     var maxPasses = 6;
     for (var pass = 0; pass < maxPasses && Date.now() < deadline; pass++) {
       var improved = false;
@@ -1424,13 +1458,17 @@ function wrapper(plugin_info) {
         'Open <i>Task List</i> to get a step-by-step plan including per-portal key requirements, outgoing link counts, and (optional) link details. ' +
         'If you use a Keys/LiveInventory plugin, the task list can also show your available key counts, and keys are spent automatically from the Keys plugin as you throw links (toggle in Options: <i>Spend&nbsp;keys&nbsp;on&nbsp;throw</i>). ' +
         'With the Keys plugin, its <i>Keys video</i> button fills in your key counts from a screen recording of your keys in Ingress. ' +
-        'The task list includes a navigation link for Google Maps and a print-friendly view. ' +
+        'The task list includes a navigation link for Google Maps. ' +
         'Its <i>Reroute</i> button reorders the steps still to do, starting from your current position (GPS, else IITC\'s own location, else the map center), so you walk as little as possible — while still capturing each portal, and getting its keys, before anyone links to it, and without losing a field. ' +
-        'The links and fields stay the same, it works while the plan is locked too, and the new order holds until the plan itself changes (or <i>Reset&nbsp;link&nbsp;orders</i>). ' +
-        'Its <i>Walk&nbsp;sim</i> button closes the list and previews the whole walk on the map, portal by portal, drawing each portal\'s own links and fields as they\'re reached (toggle in Options: <i>Walk&nbsp;sim&nbsp;links</i>); tap the map to dismiss it.</p>' +
+        'The links and fields stay the same, it works while the plan is locked too, and the new order holds until the plan itself changes (or <i>Reset&nbsp;link&nbsp;orders</i>).</p>' +
+
+        '<p><b>Plan details (menu)</b><br>' +
+        '<i>Print&nbsp;route</i> prints the Task List exactly as it stands (per-portal key requirements, link details and all). ' +
+        '<i>Print&nbsp;step&nbsp;by&nbsp;step&nbsp;plan</i> saves a step-by-step report of the current plan — one page per portal with the links to throw there, a running total of links/fields completed, and a map of your progress so far — as a file you can open or print from your phone. ' +
+        '<i>Live&nbsp;simulation</i> previews the whole walk on the map, portal by portal, drawing each portal\'s own links and fields as they\'re reached, with a running counter of links, fields and distance walked so far; tap the map to dismiss it.</p>' +
 
         '<p><b>Statistics</b><br>' +
-        'Open <i>Stats</i> (menu) for the plan\'s own totals (keys, links, fields, walking distance) alongside a <i>Real activity</i> section showing how many links and fields your faction has actually thrown/formed in-game, read straight from the Intel — not from the plan — so you can compare progress against the plan. ' +
+        'Open <i>Stats</i> (menu) for the plan\'s own totals (keys, links, fields, walking distance) alongside a <i>Your&nbsp;activity&nbsp;today</i> section showing how many links and fields you personally have thrown/formed in-game today, read from the Faction and All Comm feeds — not from the plan — so you can compare your own progress against it. <i>Refresh</i> re-reads Comm; it only covers today, and however far back Comm history and your current map view actually reach. If it cannot be read at all, the reason (e.g. an IITC build without a Comm module) is shown there. ' +
         'Switch its window (<i>Today</i>, <i>2&nbsp;days</i>, <i>7&nbsp;days</i>) to count further back; it refreshes on its own while the window stays open.</p>' +
 
         '<hr noshade>' +
@@ -1461,63 +1499,313 @@ function wrapper(plugin_info) {
     return total;
   };
 
-  // Real activity (Task List "Stats" window): how many links/fields of the player's own
-  // faction were actually thrown/formed in-game within a trailing window, counted straight
-  // from the live INTEL data (window.links/window.fields) rather than the plan's own computed
-  // links/fields — so it can be compared against what the plan itself calls for. A link/field
-  // entity's own timestamp (ms since epoch) is set once, at creation, and never changes
-  // afterwards (it's only ever created or destroyed) — see IITC's own
-  // Renderer.prototype.createLinkEntity/createFieldEntity — so this is exactly its throw/
-  // creation time, not a "last seen" time.
-  thisplugin.STATS_ACTIVITY_WINDOWS = [
-    { key: 'today', label: 'Today' },
-    { key: '2d', label: '2 days' },
-    { key: '7d', label: '7 days' }
-  ];
-  thisplugin.statsActivityWindow = 'today';
+  // Real activity (Task List "Stats" window): how many links/fields the PLAYER THEMSELVES
+  // (not their whole faction) actually threw/formed in-game today. window.links/window.fields
+  // only ever carry a TEAM, never an agent name, so this can't be computed from them (an
+  // earlier version of this feature did, and ended up counting every teammate's activity too,
+  // not just the player's own) — the only place IITC exposes WHO performed an action is the
+  // Comm feed, where a "linked"/"created a Control Field" message's PLAYER markup names the
+  // agent. Both the Faction and All channels are read (see thisplugin.refreshMyActivityToday):
+  // either one alone can be thin or empty for a given account/session (e.g. a channel the
+  // player's own client has never opened a tab for), while a link/field the player throws is
+  // reported on both, so reading both is what actually makes this reliable.
+  //
+  // Scoped to today (local midnight) only, and to whatever map area Comm currently requests
+  // data for (IITC's own chat bounding box) — Niantic's own Comm history retention is short
+  // (hours, not a guaranteed full day), so a longer window would often come back incomplete or
+  // empty anyway; this already accepts that same-day risk rather than pretending to cover more.
+  thisplugin.MY_ACTIVITY_CHANNELS = ['faction', 'all'];
+  thisplugin.MY_ACTIVITY_MAX_HISTORY_PAGES = 8;
+  thisplugin.MY_ACTIVITY_PAGE_TIMEOUT_MS = 6000;
 
-  // The cutoff timestamp (ms since epoch) for a given window: local midnight for 'today' (i.e.
-  // since the day's first link/field), else a rolling N*24h lookback.
-  thisplugin.getActivityWindowCutoff = function (mode) {
-    if (mode === '2d') return Date.now() - 2 * 24 * 60 * 60 * 1000;
-    if (mode === '7d') return Date.now() - 7 * 24 * 60 * 60 * 1000;
+  thisplugin.myActivityToday = { links: 0, fields: 0, totalSeen: 0, ownSeen: 0 };
+  thisplugin.myActivityState = 'idle'; // 'idle' | 'loading' | 'done' | 'error'
+  thisplugin._myActivityRequestToken = 0;
+
+  thisplugin.getTodayCutoff = function () {
     var now = new Date();
     return new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
   };
 
-  thisplugin.computeRealActivityStats = function (mode) {
-    var result = { links: 0, fields: 0 };
-    var ownTeam = thisplugin.getOwnFactionTeam();
-    if (ownTeam === undefined) return result;
+  // IITC fires a differently-named hook for the 'all' channel than the generic
+  // "<channel>ChatDataAvailable" pattern every other channel (including 'faction') uses — see
+  // IITC-CE's core/code/comm.js.
+  thisplugin.getCommHookName = function (channel) {
+    return (channel === 'all') ? 'publicChatDataAvailable' : (channel + 'ChatDataAvailable');
+  };
 
-    var cutoff = thisplugin.getActivityWindowCutoff(mode);
+  // Tallies, among every Comm message gathered so far this refresh (processed: the same
+  // accumulated guid -> [time, auto, html, nick, parsedData] hash IITC's own comm.js hands to
+  // its "<channel>ChatDataAvailable" listeners — see thisplugin.getCommHookName), how many were
+  // thrown/formed by the player themselves today. Also reports the oldest message's own time,
+  // so the caller knows whether paging back further could still reach anything newer than the
+  // cutoff. Channel-agnostic: the caller merges per-channel results before/after calling this.
+  //
+  // Whether to match a given message's author against our own name goes through THREE
+  // independent signals, any one of which is accepted: the tuple's own "nick" field (index 3 --
+  // what the Comm panel itself uses to highlight "your own" messages), parsedData.player.name
+  // (index 4's own internal field), and any PLAYER/SENDER markup entry's own plain text (the
+  // name actually printed in the message by parseMsgData, independent of both of the above).
+  // Different real IITC builds have been seen to leave one or two of these empty or wrong while
+  // the others stay correct, so relying on a single one keeps missing the player's own actions
+  // depending on which build is running -- accepting any match is what actually makes this
+  // robust across builds instead of chasing one build's quirk at a time.
+  thisplugin.getMessageAuthorCandidates = function (entry) {
+    var parsed = entry[4];
+    var candidates = [entry[3], parsed && parsed.player && parsed.player.name];
+    ((parsed && parsed.markup) || []).forEach(function (m) {
+      if ((m[0] === 'PLAYER' || m[0] === 'SENDER') && m[1] && m[1].plain) candidates.push(m[1].plain);
+    });
+    return candidates;
+  };
 
-    for (var lguid in window.links) {
-      var link = window.links[lguid];
-      if (link.options.team === ownTeam && link.options.timestamp >= cutoff) result.links++;
-    }
-    for (var fguid in window.fields) {
-      var field = window.fields[fguid];
-      if (field.options.team === ownTeam && field.options.timestamp >= cutoff) result.fields++;
-    }
+  // Tallies, among every Comm message gathered so far this refresh (processed: the same
+  // accumulated guid -> [time, auto, html, nick, parsedData] hash IITC's own comm.js hands to
+  // its "<channel>ChatDataAvailable" listeners — see thisplugin.getCommHookName), how many were
+  // thrown/formed by the player themselves today. Also reports the oldest message's own time, so
+  // the caller knows whether paging back further could still reach anything newer than the
+  // cutoff, and how many messages were read in total vs. recognized as the player's own, so the
+  // Stats dialog can show that even when both counts land on zero (see buildRealActivityBodyHTML)
+  // -- the only way to tell "nothing to count" apart from "the matching itself failed" without
+  // opening a console. Channel-agnostic: the caller merges per-channel results before/after
+  // calling this.
+
+  // Plain, human-visible text of a rendered Comm message row's own HTML (entry[2] -- see
+  // getMessageAuthorCandidates for the processed tuple shape), with every tag (and the
+  // attributes on it -- onclick handlers, portal hrefs, …) dropped, leaving only what the
+  // chat panel actually displays. Used as a fallback text source below: some IITC builds (and
+  // some message types even on builds that usually do) carry the message's own narrative
+  // words -- "agent", "linked", "to", … -- baked into the rendering itself rather than as a
+  // plain 'TEXT' markup entry, so a message can visibly read "agent X linked A to B" while its
+  // own markup array has no 'TEXT' entry at all to find that in. Without this fallback, such a
+  // message's activity is silently missed -- recognized as the player's own (the author match
+  // doesn't depend on this), but never counted as a link/field.
+  thisplugin.stripHtmlToText = function (html) {
+    return String(html || '')
+      .replace(/<[^>]*>/g, ' ')
+      .replace(/&nbsp;/g, ' ')
+      .replace(/&amp;/g, '&')
+      .replace(/&lt;/g, '<')
+      .replace(/&gt;/g, '>')
+      .replace(/&quot;/g, '"')
+      .replace(/&#39;/g, "'")
+      .replace(/\s+/g, ' ')
+      .trim();
+  };
+
+  thisplugin.tallyMyActivity = function (processed) {
+    var cutoff = thisplugin.getTodayCutoff();
+    var ownName = window.PLAYER && window.PLAYER.nickname;
+    var result = { links: 0, fields: 0, oldestSeen: Infinity, totalSeen: 0, ownSeen: 0 };
+    if (!ownName) return result;
+    var ownNameTrimmed = ownName.trim();
+
+    Object.keys(processed).forEach(function (guid) {
+      var entry = processed[guid];
+      if (!entry) return;
+      result.totalSeen++;
+
+      var candidates = thisplugin.getMessageAuthorCandidates(entry);
+      var isOwn = candidates.some(function (name) {
+        return name && name.trim() === ownNameTrimmed;
+      });
+      if (!isOwn) return;
+      result.ownSeen++;
+
+      var time = entry[0];
+      if (time < result.oldestSeen) result.oldestSeen = time;
+      if (time < cutoff) return;
+
+      var parsed = entry[4];
+      var markup = parsed && parsed.markup;
+      // markup 'TEXT' entries first (cheap, exact), plus the rendered row's own HTML stripped
+      // to plain text as a fallback -- see stripHtmlToText for why the fallback is needed.
+      var text = (markup || []).map(function (m) { return m[0] === 'TEXT' ? m[1].plain : ''; }).join('') +
+        ' ' + thisplugin.stripHtmlToText(entry[2]);
+
+      if (text.indexOf('destroyed') !== -1) return; // destroying something isn't "activity" for this count
+      if (text.indexOf('created a Control Field') !== -1) { result.fields++; return; }
+      if (text.indexOf('linked') !== -1) result.links++;
+    });
+
     return result;
   };
 
-  thisplugin.buildRealActivityHTML = function () {
-    var stats = thisplugin.computeRealActivityStats(thisplugin.statsActivityWindow);
+  // Fetches the Faction AND All Comm feeds (thisplugin.MY_ACTIVITY_CHANNELS), each paging back
+  // on its own (IITC.comm.requestChannel's own getOlderMsgs) until either today's local
+  // midnight is reached for that channel, the server stops returning anything new, or
+  // MY_ACTIVITY_MAX_HISTORY_PAGES is hit -- then merges both channels' messages (by guid, so an
+  // action reported on both never double-counts) and updates thisplugin.myActivityToday/State
+  // and, if the Stats dialog is open, its activity section.
+  // Which of refreshMyActivityToday's prerequisites was missing, in plain English -- shown
+  // directly in the Stats dialog (buildRealActivityBodyHTML) instead of only in the console, so
+  // a report of "Could not read Comm data" from the field actually says why.
+  thisplugin.diagnoseMyActivityUnavailable = function () {
+    if (!(window.PLAYER && window.PLAYER.nickname)) return 'your player info (nickname) is not loaded yet.';
 
-    var html = '<hr noshade><div class="plugin_fanfields3_activity">';
-    html += '<div class="plugin_fanfields3_activity_title">Real activity (from Intel, own faction)</div>';
-    html += '<table><tr><td>Links thrown:</td><td>' + stats.links + '</td></tr>';
-    html += '<tr><td>Fields created:</td><td>' + stats.fields + '</td></tr></table>';
-    html += '<div class="plugin_fanfields3_activity_buttons">';
-    thisplugin.STATS_ACTIVITY_WINDOWS.forEach(function (w) {
-      html += '<button type="button" class="plugin_fanfields3_activity_btn' +
-        (thisplugin.statsActivityWindow === w.key ? ' plugin_fanfields3_activity_btn_active' : '') +
-        '" data-window="' + w.key + '">' + w.label + '</button>';
+    var hasModernComm = !!(window.IITC && window.IITC.comm && typeof window.IITC.comm.requestChannel === 'function');
+    var hasLegacyChat = !!(window.chat && typeof window.chat.requestFaction === 'function');
+    if (hasModernComm || hasLegacyChat) return null;
+
+    // Neither of the two ways this plugin knows how to ask IITC for Comm data exists on this
+    // build -- dumped here (not just logged to the console, which mobile builds often have no
+    // way to open) so a report of this error already says exactly what's missing, without
+    // needing a follow-up round of guessing.
+    return 'this IITC build exposes neither window.IITC.comm.requestChannel nor window.chat.requestFaction (window.IITC: ' +
+      (window.IITC ? 'present' : 'missing') + ', window.chat: ' + (window.chat ? 'present' : 'missing') + ').';
+  };
+
+  // The function to call to request one page of a channel's Comm messages, preferring the
+  // long-standing window.chat.request*() entry points (chat.js) -- present across more IITC
+  // build vintages than the newer window.IITC.comm.requestChannel (comm.js) they both end up
+  // calling internally -- and falling back to that newer one directly when only it exists.
+  thisplugin.getCommRequestFn = function (channel) {
+    if (window.chat) {
+      if (channel === 'faction' && typeof window.chat.requestFaction === 'function') return window.chat.requestFaction;
+      if (channel === 'all' && typeof window.chat.requestPublic === 'function') return window.chat.requestPublic;
+    }
+    if (window.IITC && window.IITC.comm && typeof window.IITC.comm.requestChannel === 'function') {
+      return function (olderMsgs, isRetry) { return window.IITC.comm.requestChannel(channel, olderMsgs, isRetry); };
+    }
+    return null;
+  };
+
+  // IITC's own already-accumulated store for a channel (the exact same object its
+  // "<channel>ChatDataAvailable" hook hands listeners as `processed` -- see comm.js
+  // _handleChannel/_writeDataToHash), read directly rather than only ever through that hook.
+  // This matters because IITC.comm.requestChannel silently returns with NO hook firing at all
+  // whenever its own response carries nothing new to add on top of what it already has (see
+  // comm.js _handleChannel's own "no new data" shortcut) -- which is the common case, not a
+  // rare one: any time something else already caused this channel to be up to date (IITC's own
+  // background refresh of a visible chat tab, or an earlier page of this very fetch), our own
+  // request comes back empty and the hook stays silent, even though the channel's own store
+  // already holds everything we need, including activity from moments ago. Without reading the
+  // store directly, such a silent response was wrongly treated the same as "nothing to report",
+  // discarding everything the channel already knew.
+  //
+  // window.chat._public/_faction/_alerts (chat.js) are tried first, not window.IITC.comm's own
+  // _channelsData: modern chat.js keeps those three names only as "legacy compatibility"
+  // aliases pointing at the very same objects (`chat._public = IITC.comm._channelsData.all`),
+  // but an older IITC build that predates the IITC.comm/comm.js split never had
+  // window.IITC.comm._channelsData at all -- window.chat._public/_faction/_alerts (or
+  // equivalent) was the ONE real store in that era. Trying the chat.js names first means the
+  // exact same code path works whether this build still has window.IITC.comm or not, rather
+  // than silently reading nothing on an older build. Returns null when neither exists.
+  thisplugin.CHAT_LEGACY_CHANNEL_PROP = { all: '_public', faction: '_faction', alerts: '_alerts' };
+
+  thisplugin.getChannelLiveProcessedData = function (channel) {
+    var legacyProp = thisplugin.CHAT_LEGACY_CHANNEL_PROP[channel];
+    var legacyStore = legacyProp && window.chat && window.chat[legacyProp];
+    if (legacyStore && legacyStore.data) return legacyStore.data;
+
+    var channelsData = window.IITC && window.IITC.comm && window.IITC.comm._channelsData;
+    return (channelsData && channelsData[channel] && channelsData[channel].data) || null;
+  };
+
+  thisplugin.refreshMyActivityToday = function () {
+    thisplugin.myActivityState = 'loading';
+    $('#plugin_fanfields3_activity_body').html(thisplugin.buildRealActivityBodyHTML());
+
+    var unavailableReason = thisplugin.diagnoseMyActivityUnavailable();
+    if (unavailableReason) {
+      thisplugin.myActivityState = 'error';
+      thisplugin.myActivityErrorReason = unavailableReason;
+      $('#plugin_fanfields3_activity_body').html(thisplugin.buildRealActivityBodyHTML());
+      return;
+    }
+
+    var token = ++thisplugin._myActivityRequestToken;
+    var cutoff = thisplugin.getTodayCutoff();
+    var combinedProcessed = {};
+    var channelsPending = thisplugin.MY_ACTIVITY_CHANNELS.length;
+
+    function finishAllIfDone() {
+      if (token !== thisplugin._myActivityRequestToken) return;
+      if (channelsPending > 0) return;
+      var tally = thisplugin.tallyMyActivity(combinedProcessed);
+      thisplugin.myActivityToday = {
+        links: tally.links, fields: tally.fields, totalSeen: tally.totalSeen, ownSeen: tally.ownSeen
+      };
+      thisplugin.myActivityState = 'done';
+      $('#plugin_fanfields3_activity_body').html(thisplugin.buildRealActivityBodyHTML());
+    }
+
+    thisplugin.MY_ACTIVITY_CHANNELS.forEach(function (channel) {
+      var requestFn = thisplugin.getCommRequestFn(channel);
+      if (!requestFn) {
+        channelsPending--;
+        finishAllIfDone();
+        return; // neither API available for this channel
+      }
+
+      var hookName = thisplugin.getCommHookName(channel);
+      var pagesLeft = thisplugin.MY_ACTIVITY_MAX_HISTORY_PAGES;
+      var pageTimer = null;
+      var lastProcessed = {}; // kept across pages so a later page's timeout doesn't lose earlier ones
+
+      function finishChannel(processed) {
+        if (token !== thisplugin._myActivityRequestToken) return; // superseded by a newer refresh
+        clearTimeout(pageTimer);
+        window.removeHook(hookName, onPage);
+        Object.keys(processed).forEach(function (guid) {
+          combinedProcessed[guid] = processed[guid];
+        });
+        channelsPending--;
+        finishAllIfDone();
+      }
+
+      function requestPage(olderMsgs) {
+        if (typeof window.idleReset === 'function') window.idleReset();
+        requestFn(olderMsgs);
+        // No hook response at all -- a genuine server error, no older data left to send, OR
+        // (the common case) this request simply had nothing new to add on top of what
+        // IITC already has -- never fires the hook below. Falls back to IITC's own live store
+        // (see getChannelLiveProcessedData) rather than just `lastProcessed`, so a silent-
+        // because-nothing-new response still reports everything the channel already knows
+        // instead of looking like nothing was ever read.
+        pageTimer = setTimeout(function () {
+          var live = thisplugin.getChannelLiveProcessedData(channel);
+          finishChannel(live || lastProcessed);
+        }, thisplugin.MY_ACTIVITY_PAGE_TIMEOUT_MS);
+      }
+
+      function onPage(data) {
+        if (token !== thisplugin._myActivityRequestToken) return;
+        clearTimeout(pageTimer);
+        lastProcessed = data.processed;
+        var tally = thisplugin.tallyMyActivity(data.processed);
+        pagesLeft--;
+        if (tally.oldestSeen <= cutoff || pagesLeft <= 0) {
+          finishChannel(data.processed);
+        } else {
+          requestPage(true);
+        }
+      }
+
+      window.addHook(hookName, onPage);
+      requestPage(false);
     });
-    html += '</div></div>';
-    return html;
+  };
+
+  thisplugin.buildRealActivityBodyHTML = function () {
+    if (thisplugin.myActivityState === 'error') {
+      return '<p class="plugin_fanfields3_warn">Could not read Comm data' +
+        (thisplugin.myActivityErrorReason ? ': ' + thisplugin.myActivityErrorReason : '.') + '</p>';
+    }
+    if (thisplugin.myActivityState !== 'done') {
+      return '<p class="plugin_fanfields3_italic">Loading…</p>';
+    }
+
+    return '<table><tr><td>Links thrown:</td><td>' + thisplugin.myActivityToday.links + '</td></tr>' +
+      '<tr><td>Fields created:</td><td>' + thisplugin.myActivityToday.fields + '</td></tr></table>';
+  };
+
+  thisplugin.buildRealActivityHTML = function () {
+    return '<hr noshade><div class="plugin_fanfields3_activity">' +
+      '<div class="plugin_fanfields3_activity_title">Your activity today (from Comm)</div>' +
+      '<div id="plugin_fanfields3_activity_body">' + thisplugin.buildRealActivityBodyHTML() + '</div>' +
+      '<div class="plugin_fanfields3_activity_buttons"><a href="#" id="plugin_fanfields3_activity_refresh">Refresh</a></div>' +
+      '</div>';
   };
 
   // Statistics dialog: build the HTML for the current plan. Used both to open the dialog and
@@ -1561,9 +1849,9 @@ function wrapper(plugin_info) {
   thisplugin.wireStatisticsHandlers = function () {
     $('#plugin_fanfields3_statistics_inner')
       .off('click.plugin_fanfields3_activity')
-      .on('click.plugin_fanfields3_activity', '.plugin_fanfields3_activity_btn', function () {
-        thisplugin.statsActivityWindow = $(this).attr('data-window');
-        thisplugin.refreshStatisticsDialog();
+      .on('click.plugin_fanfields3_activity', '#plugin_fanfields3_activity_refresh', function (ev) {
+        ev.preventDefault();
+        thisplugin.refreshMyActivityToday();
       });
   };
 
@@ -1636,6 +1924,7 @@ function wrapper(plugin_info) {
     }
 
     thisplugin.wireStatisticsHandlers();
+    thisplugin.refreshMyActivityToday();
   }
 
   thisplugin.exportTasks = function () {
@@ -2279,8 +2568,7 @@ function wrapper(plugin_info) {
     text += '<div style="margin-top:10px; text-align:right;">' +
       '  <button id="plugin_fanfields3_reset_link_flips_btn"' + (flipCount === 0 && !routeInfo ? ' disabled' : '') +
       '    title="Revert all manually flipped links (' + flipCount + ') back to automatic calculation' +
-      (routeInfo ? ', and drop the Reroute order' : '') + '">Reset link orders</button> ' +
-      '  <button id="plugin_fanfields3_export_pdf_btn">Print</button>' +
+      (routeInfo ? ', and drop the Reroute order' : '') + '">Reset link orders</button>' +
       '</div>';
 
     text += '<div style="margin-top:10px;">';
@@ -2444,12 +2732,6 @@ function wrapper(plugin_info) {
         thisplugin.refreshTaskListDialog();
       });
 
-    $('#plugin_fanfields3_export_pdf_btn')
-      .off('click')
-      .on('click', function () {
-        thisplugin.exportTaskListToPDF();
-      });
-
     if (thisplugin.isCompatiblePortalRoutePlugin()) {
       $('#plugin_fanfields3_portal_route_link')
         .off('click')
@@ -2573,8 +2855,7 @@ function wrapper(plugin_info) {
       '<button type="button" id="plugin_fanfields3_tasklist_shift_right" class="plugin_fanfields3_tasklist_shift_btn" title="FanFields shift right">' +
       symbol_clockwise + '</button>' +
       '<button type="button" id="plugin_fanfields3_tasklist_refresh" class="plugin_fanfields3_tasklist_shift_btn" title="Force an IITC map data refresh">Refresh</button>' +
-      '<button type="button" id="plugin_fanfields3_tasklist_reroute" class="plugin_fanfields3_tasklist_shift_btn" title="Reorder the steps still to do, starting from your current position, to walk as little as possible">Reroute</button>' +
-      '<button type="button" id="plugin_fanfields3_tasklist_walksim" class="plugin_fanfields3_tasklist_shift_btn" title="Close this list and preview the planned walk on the map, portal by portal">Walk sim</button>';
+      '<button type="button" id="plugin_fanfields3_tasklist_reroute" class="plugin_fanfields3_tasklist_shift_btn" title="Reorder the steps still to do, starting from your current position, to walk as little as possible">Reroute</button>';
     if (window.plugin.keys) {
       buttonsHtml += '<button type="button" id="plugin_fanfields3_tasklist_keysvideo" class="plugin_fanfields3_tasklist_shift_btn" title="Update the Keys plugin from a screen recording of your keys in Ingress">Keys video</button>';
     }
@@ -2616,12 +2897,6 @@ function wrapper(plugin_info) {
       .on('click', function () {
         thisplugin.openKeysVideoDialog();
       });
-    $buttonpane.find('#plugin_fanfields3_tasklist_walksim')
-      .off('click')
-      .on('click', function () {
-        $('#plugin_fanfields3_exportText_inner').closest('.ui-dialog-content').dialog('close');
-        thisplugin.startWalkSim();
-      });
   };
 
   // ---------------------------------------------------------------------
@@ -2636,8 +2911,9 @@ function wrapper(plugin_info) {
   thisplugin.WALK_SIM_DWELL_MS = 150;   // pause at each stop before moving on
 
   // Whether the sim also draws each portal's own outgoing links (thinner, same cyan) as the
-  // walk reaches it — lets the fields visibly form alongside the walk itself. Persisted with
-  // the other options (Options dialog); defaults on.
+  // walk reaches it — lets the fields visibly form alongside the walk itself. Always on (no
+  // longer a user-facing option); an older saved op or default that still carries its own
+  // walkSimShowLinks: false is simply ignored (see applyOptionsSnapshot), not applied.
   thisplugin.walkSimShowLinks = true;
 
   // The ordered stops to animate through: every walk portal, with any Blockers Destroy stop
@@ -3105,19 +3381,11 @@ function wrapper(plugin_info) {
     });
   };
 
+  // Builds the Task List fresh (not from an already-open dialog, since this is also reachable
+  // directly from the hamburger menu's "Plan details" submenu without the Task List ever being
+  // open) and opens it in a new window for printing, with every link detail row expanded.
   thisplugin.exportTaskListToPDF = function () {
-    const id = 'plugin_fanfields3_alert_textExport';
-
-    // Resolve the actual dialog content element.
-    // IITC/jQuery-UI may wrap the original element inside a dialog container.
-
-    let $dlg = $('#dialog-' + id + ' .ui-dialog-content');
-    if (!$dlg.length) $dlg = $('#dialog-' + id);
-    if (!$dlg.length) $dlg = $('#' + id);
-    if (!$dlg.length) return;
-
-
-    // Ensure all link detail rows are expanded before exporting
+    var $dlg = $('<div></div>').html(thisplugin.buildTaskListHTML());
 
     $dlg.find('[plugin_fanfields3_exportText_toggle="toggle"]')
       .each(function () {
@@ -4902,7 +5170,7 @@ function wrapper(plugin_info) {
     );
 
     // Statistics dialog: the real-activity section (links/fields actually seen in Intel within
-    // the chosen trailing window) and its Today/2 days/7 days toggle buttons.
+    // the player's own Comm activity, and its Refresh link.
     addCSS('\n' +
       '.plugin_fanfields3_activity_title {\n' +
       '  font-weight: bold;\n' +
@@ -4910,17 +5178,6 @@ function wrapper(plugin_info) {
       '}\n' +
       '.plugin_fanfields3_activity_buttons {\n' +
       '  margin-top: 6px;\n' +
-      '  display: flex;\n' +
-      '  gap: 4px;\n' +
-      '}\n' +
-      '.plugin_fanfields3_activity_btn {\n' +
-      '  flex: 1 1 auto;\n' +
-      '  cursor: pointer;\n' +
-      '}\n' +
-      '.plugin_fanfields3_activity_btn_active {\n' +
-      '  font-weight: bold;\n' +
-      '  box-shadow: 0 0 0 2px #ffce00 inset;\n' +
-      '  color: #ffce00;\n' +
       '}\n'
     );
 
@@ -5373,11 +5630,23 @@ function wrapper(plugin_info) {
   // Throwing a link spends a key to its destination portal. A link's own Ingress GUID (the key
   // IITC itself uses in window.links/thisplugin.intelLinks) uniquely and permanently identifies
   // that one throw — destroying and re-throwing between the same two portals later gets a brand
-  // new GUID — so thisplugin.chargedLinkGuids (persisted to localStorage, see
-  // loadChargedLinkGuids/markLinkGuidsCharged) remembers every own-faction link GUID already
-  // charged a key for, across reloads AND across IITC being closed entirely: a link thrown while
-  // IITC wasn't even running still gets its key deducted as soon as it's next seen, since its
-  // GUID isn't in that persisted set yet. A GUID already in the set is never charged again.
+  // new GUID — so the charged-link set below (persisted to localStorage under a "plugin-fanfields3-"
+  // key) remembers every own-faction link GUID already charged a key for, across reloads AND
+  // across IITC being closed entirely: a link thrown while IITC wasn't even running still gets
+  // its key deducted as soon as it's next seen, since its GUID isn't in that persisted set yet.
+  // A GUID already in the set is never charged again.
+  //
+  // Cross-device: this plugin does no syncing of its own — any "plugin-*" localStorage key is
+  // exactly what the separate Simple Cloud Sync plugin (window.plugin.simpleCloudSync, see
+  // https://github.com/Avataar120/IITC-Synchro) already syncs end-to-end encrypted across an
+  // agent's devices, merging per key by most-recent-write. For that merge to actually end up
+  // with the union of both devices' charges rather than one overwriting the other, every read
+  // and write here goes straight to localStorage — never a value cached in memory across calls
+  // — so a set just pulled down from another device is always the starting point for the next
+  // write, not something a stale in-memory copy could clobber. See
+  // thisplugin.isCrossDeviceSyncPending for the one place this still isn't enough on its own
+  // (a brand new device's very first run).
+  //
   // Evaluated only once IITC has fully finished loading the map (thisplugin._mapDataLoading):
   // while it's still streaming in link data tile by tile, an own link simply hasn't appeared
   // yet rather than not existing, so waiting avoids treating an incomplete view as if every link
@@ -5397,46 +5666,70 @@ function wrapper(plugin_info) {
   // portals — an acceptable trade-off against unbounded storage growth.
   thisplugin.CHARGED_LINKS_MAX = 20000;
 
-  thisplugin._chargedLinkGuidSet = null;
-  thisplugin._chargedLinkGuidOrder = null;
-
-  thisplugin.loadChargedLinkGuids = function () {
-    if (thisplugin._chargedLinkGuidSet) return;
-    var stored = [];
+  // The charged-link set exactly as currently stored, fetched fresh every time (see the
+  // cross-device note above) — never memoized, so a value Simple Cloud Sync just wrote into
+  // localStorage from another device is always picked up on the very next check.
+  thisplugin.getChargedLinkGuids = function () {
     try {
       var raw = localStorage.getItem(thisplugin.CHARGED_LINKS_STORAGE_KEY);
-      stored = raw ? JSON.parse(raw) : [];
-      if (!Array.isArray(stored)) stored = [];
+      var stored = raw ? JSON.parse(raw) : [];
+      return Array.isArray(stored) ? stored : [];
     } catch (e) {
-      stored = [];
+      return [];
     }
-    thisplugin._chargedLinkGuidOrder = stored;
-    thisplugin._chargedLinkGuidSet = new Set(stored);
   };
 
+  // Adds guids to the charged-link set, merging into whatever is CURRENTLY in localStorage
+  // (read fresh, not a cached copy) rather than overwriting it with an older in-memory version —
+  // the only thing that keeps this safe to write from a device that hasn't just pulled in
+  // another device's own additions via Simple Cloud Sync.
   thisplugin.markLinkGuidsCharged = function (guids) {
     if (!guids.length) return;
-    thisplugin.loadChargedLinkGuids();
-
+    var current = thisplugin.getChargedLinkGuids();
+    var set = new Set(current);
+    var added = false;
     guids.forEach(function (guid) {
-      if (thisplugin._chargedLinkGuidSet.has(guid)) return;
-      thisplugin._chargedLinkGuidSet.add(guid);
-      thisplugin._chargedLinkGuidOrder.push(guid);
+      if (set.has(guid)) return;
+      set.add(guid);
+      current.push(guid);
+      added = true;
     });
-    if (thisplugin._chargedLinkGuidOrder.length > thisplugin.CHARGED_LINKS_MAX) {
-      thisplugin._chargedLinkGuidOrder.splice(0, thisplugin._chargedLinkGuidOrder.length - thisplugin.CHARGED_LINKS_MAX)
-        .forEach(function (guid) { thisplugin._chargedLinkGuidSet.delete(guid); });
+    if (!added) return;
+    if (current.length > thisplugin.CHARGED_LINKS_MAX) {
+      current.splice(0, current.length - thisplugin.CHARGED_LINKS_MAX);
     }
     try {
-      localStorage.setItem(thisplugin.CHARGED_LINKS_STORAGE_KEY, JSON.stringify(thisplugin._chargedLinkGuidOrder));
+      localStorage.setItem(thisplugin.CHARGED_LINKS_STORAGE_KEY, JSON.stringify(current));
     } catch (e) { /* storage full or unavailable: charging still works for this session */ }
+  };
+
+  // How long after this plugin loads to still treat Simple Cloud Sync's own first pull as
+  // possibly still in flight — see isCrossDeviceSyncPending. Bounded so a Simple Cloud Sync
+  // install that's present but never configured (no password entered yet) doesn't block the
+  // very first seeding below forever.
+  thisplugin.CROSS_DEVICE_SYNC_GRACE_MS = 15000;
+  thisplugin._loadedAt = Date.now();
+
+  // Whether the one-time "seed the charged-link set" decision below should still wait: Simple
+  // Cloud Sync (window.plugin.simpleCloudSync, a separate plugin — see the note above) may
+  // still be pulling down an already-charged set from this same agent's other devices, and
+  // seeding from an empty/incomplete local set here would both miss those already-charged
+  // links and, once Simple Cloud Sync's own pull lands, look like a local edit that needs
+  // pushing — overwriting the real synced data with this device's wrong, premature guess.
+  // simpleCloudSync.initialSyncPending is a plain property on its own plugin namespace (same
+  // way this file already reads window.plugin.keys.keys directly), cleared for good the moment
+  // its first sync of this page load completes.
+  thisplugin.isCrossDeviceSyncPending = function () {
+    var scs = window.plugin.simpleCloudSync;
+    if (!scs || !scs.initialSyncPending) return false;
+    return (Date.now() - thisplugin._loadedAt) < thisplugin.CROSS_DEVICE_SYNC_GRACE_MS;
   };
 
   thisplugin.chargeNewlyThrownLinks = function (ownLinks) {
     if (thisplugin._mapDataLoading) return;
-    thisplugin.loadChargedLinkGuids();
 
     if (localStorage.getItem(thisplugin.CHARGING_INITIALIZED_KEY) !== '1') {
+      if (thisplugin.isCrossDeviceSyncPending()) return; // retried on the next indexOwnLinks() call
       // First time ever on this browser: everything already in-game was thrown before this
       // feature started tracking it, so it's seeded as already-charged rather than charged now.
       thisplugin.markLinkGuidsCharged(ownLinks.map(function (o) { return o.linkGuid; }));
@@ -5449,9 +5742,10 @@ function wrapper(plugin_info) {
     if (!thisplugin.consumeKeysOnLinkThrown) return;
     if (!window.plugin.keys || typeof window.plugin.keys.addKey !== 'function') return;
 
+    var charged = new Set(thisplugin.getChargedLinkGuids());
     var newlyCharged = [];
     ownLinks.forEach(function (o) {
-      if (thisplugin._chargedLinkGuidSet.has(o.linkGuid)) return;
+      if (charged.has(o.linkGuid)) return;
       var current = window.plugin.keys.keys[o.destGuid] || 0;
       if (current > 0) window.plugin.keys.addKey(-1, o.destGuid);
       newlyCharged.push(o.linkGuid);
@@ -6580,7 +6874,7 @@ function wrapper(plugin_info) {
     var builtLinks = {};
     var formedFields = {};
 
-    order.forEach(function (srcFp) {
+    order.forEach(function (srcFp, visitIndex) {
       var srcUnder = thisplugin.isPointUnderAnyTriangle(srcFp.point, result.triangles);
       result.underAtVisit[srcFp.guid] = srcUnder;
 
@@ -6600,7 +6894,9 @@ function wrapper(plugin_info) {
           if (formedFields[field.id]) return;
           if (!field.links.every(function (k) { return builtLinks[k]; })) return;
           formedFields[field.id] = true;
-          result.triangles.push({ a: field.points[0], b: field.points[1], c: field.points[2] });
+          // visitIndex: which step of `order` completes this field -- unused by
+          // validateUnderFieldLinks (the other caller), only by exportPlanPdf's report.
+          result.triangles.push({ a: field.points[0], b: field.points[1], c: field.points[2], visitIndex: visitIndex });
           formedHere++;
         });
         result.fieldsByDirectedLink[dkey] = formedHere;
@@ -6845,6 +7141,39 @@ function wrapper(plugin_info) {
     return { incomingCount: incomingCount, invalidCount: invalidCount };
   };
 
+  // Whether `edges` (srcGuid throws to dstGuid, same shape buildLinkOrderEdges/
+  // simulateDirectedPlan use) could ever be walked in a single pass at all: throwing a link
+  // needs the target's key already in hand, so the target must be visited before the source —
+  // if that requirement forms a cycle (A needs B's key, B needs C's, C needs A's), no walk order
+  // can satisfy every one of them simultaneously, regardless of which order is tried. The base
+  // plan the core algorithm builds never has this problem on its own (every mesh link points from
+  // the later-built portal to an earlier one, and the anchor's own fan links are the only
+  // exception, so a single consistent order always exists) — only an additional directed edge on
+  // top of that, such as a candidate mesh-link flip, can introduce one. Used to veto exactly that
+  // before it's accepted (see computeDistanceOrderFlips/computeKeysOrderFlips below).
+  thisplugin.hasPrecedenceCycle = function (edges) {
+    var dependents = {}; // guid -> guids that need ITS key before they can throw (visited after it)
+    edges.forEach(function (e) {
+      (dependents[e.dstGuid] = dependents[e.dstGuid] || []).push(e.srcGuid);
+    });
+
+    var state = {}; // 0/unset: unvisited, 1: on the current path, 2: fully resolved, no cycle through it
+    var cycleFound = false;
+
+    function visit(guid) {
+      if (cycleFound || state[guid] === 2) return;
+      if (state[guid] === 1) { cycleFound = true; return; }
+      state[guid] = 1;
+      (dependents[guid] || []).forEach(visit);
+      if (!cycleFound) state[guid] = 2;
+    }
+
+    Object.keys(dependents).forEach(function (guid) {
+      if (!cycleFound) visit(guid);
+    });
+    return cycleFound;
+  };
+
   // "Less walking": a portal whose own OUTGOING count is exactly 2 (its anchor link plus one
   // mesh link) is a candidate. Its mesh link flips to point AT it (mesh partner -> portal)
   // when visiting it between its own walk neighbors (whichever portals come right before and
@@ -6899,6 +7228,14 @@ function wrapper(plugin_info) {
 
     // Portals whose mesh link actually flips below — these are the ones relocated further down.
     var meshFlippedGuids = {};
+    // Candidates whose detour cost was a plain triangle-inequality number (every one except a
+    // "last in the walk, nothing to route around" candidate, forced through unconditionally and
+    // marked Infinity here so the verification pass below never second-guesses it) — see
+    // isMoveWorthwhile for how this is used once the actual insertion point is known.
+    var savingsByGuid = {};
+    // Which edge (by key) a given guid's mesh link flip touched, so a candidate that turns out
+    // not to pay off (see below) can have that flip undone, not just its walk position.
+    var flippedEdgeKeyByGuid = {};
 
     // Mesh links: only the current thrower can qualify (its own 2 outgoing links are the fan
     // link plus exactly this one mesh link) — flip it to point at the thrower only if visiting
@@ -6914,21 +7251,23 @@ function wrapper(plugin_info) {
       var nextFp = sorted[indexByGuid[e.srcGuid] + 1];
 
       var shouldFlip;
-      var direct;
+      var detourCost;
       if (nextFp) {
         // Triangle inequality on the portal's own neighbors: visiting it (prevFp -> src ->
         // nextFp) only "costs" something over skipping it (prevFp -> nextFp direct) when it's
         // really a detour. A margin avoids flipping over floating-point noise on three
         // near-collinear portals, where there's nothing to gain either way.
         var viaSrc = dist(prevFp.guid, e.srcGuid) + dist(e.srcGuid, nextFp.guid);
-        direct = dist(prevFp.guid, nextFp.guid);
-        shouldFlip = viaSrc > direct + 1e-6;
+        var direct = dist(prevFp.guid, nextFp.guid);
+        detourCost = viaSrc - direct;
+        shouldFlip = detourCost > 1e-6;
       } else {
         // Last portal in the walk: there's no "next" to route around, so it's never really "on
         // the way" to anything — let it through to the feasibility check below, same as any
         // other candidate. Worst case, the reordering step's cheapest insertion puts it right
         // back at the end, same as leaving it unflipped would have.
         shouldFlip = true;
+        detourCost = Infinity;
       }
 
       var partnerIsDegreeOne = outgoingCountByGuid[e.dstGuid] === 1;
@@ -6946,8 +7285,11 @@ function wrapper(plugin_info) {
       });
       var after = thisplugin.simulateDirectedPlan(trial);
       if (after.invalidCount > before.invalidCount) return; // required for feasibility, keep as-is
+      if (thisplugin.hasPrecedenceCycle(trial)) return; // would make no walk order satisfy every key dependency
 
       meshFlippedGuids[e.srcGuid] = true;
+      savingsByGuid[e.srcGuid] = detourCost;
+      flippedEdgeKeyByGuid[e.srcGuid] = e.key;
       e.srcGuid = desiredSrc;
       e.dstGuid = desiredDst;
     });
@@ -6967,28 +7309,158 @@ function wrapper(plugin_info) {
       var nextFp = sorted[indexByGuid[fp.guid] + 1];
 
       var shouldRelocate;
+      var detourCost;
       if (nextFp) {
         var viaSrc = dist(prevFp.guid, fp.guid) + dist(fp.guid, nextFp.guid);
         var direct = dist(prevFp.guid, nextFp.guid);
-        shouldRelocate = viaSrc > direct + 1e-6;
+        detourCost = viaSrc - direct;
+        shouldRelocate = detourCost > 1e-6;
       } else {
         shouldRelocate = true;
+        detourCost = Infinity;
       }
-      if (shouldRelocate) meshFlippedGuids[fp.guid] = true;
+      if (shouldRelocate) {
+        meshFlippedGuids[fp.guid] = true;
+        savingsByGuid[fp.guid] = detourCost;
+      }
     });
-
-    var flips = thisplugin.flipsFromDirections(current, naturalByKey);
 
     // Every portal that throws a link AT a given guid, in the final (post-flip) direction —
     // used by computeDistanceOrderReordering so a relocated portal never lands in the walk
     // after something that needs it already captured.
-    var incomingSourcesByGuid = {};
-    current.forEach(function (e) {
-      (incomingSourcesByGuid[e.dstGuid] = incomingSourcesByGuid[e.dstGuid] || []).push(e.srcGuid);
-    });
+    function buildIncomingSourcesByGuid(edgeList) {
+      var map = {};
+      edgeList.forEach(function (e) {
+        (map[e.dstGuid] = map[e.dstGuid] || []).push(e.srcGuid);
+      });
+      return map;
+    }
 
-    // Relocate each flipped portal into the walk/display order.
-    var reorderResult = thisplugin.computeDistanceOrderReordering(meshFlippedGuids, incomingSourcesByGuid);
+    // Relocate each flipped/degree-one portal into the walk/display order, then check whether
+    // each one actually paid off THERE — the decisions above only ever compared a candidate
+    // against its own two immediate neighbors in the base build order, never against where
+    // computeDistanceOrderReordering's cheapest insertion actually ends up placing it, which can
+    // land somewhere the detour it avoided is smaller than the one it just created. A candidate
+    // that doesn't pay off is reverted (walk position AND, if it had one, its link flip) and the
+    // walk is rebuilt once more without it — same reasoning computeDistanceOrderFlips already
+    // applies per candidate, just checked again now that the real insertion cost is known instead
+    // of assumed.
+    function buildReorder(relocateGuids) {
+      return thisplugin.computeDistanceOrderReordering(relocateGuids, buildIncomingSourcesByGuid(current));
+    }
+
+    function insertionCost(orderGuids, guid) {
+      var idx = orderGuids.indexOf(guid);
+      var prevGuid = orderGuids[idx - 1];
+      var nextGuid = orderGuids[idx + 1];
+      if (prevGuid !== undefined && nextGuid !== undefined) {
+        return dist(prevGuid, guid) + dist(guid, nextGuid) - dist(prevGuid, nextGuid);
+      }
+      if (prevGuid !== undefined) return dist(prevGuid, guid);
+      if (nextGuid !== undefined) return dist(guid, nextGuid);
+      return 0;
+    }
+
+    // The cheapest gap for `guid` in `orderGuids` if its own incoming-link precedence didn't
+    // bound where it may land at all — together with exactly which of its incoming sources
+    // (if any) are positioned early enough to rule that gap out. Mirrors
+    // computeDistanceOrderReordering's own gap search, minus the `limit` it applies.
+    function cheapestUnconstrainedGap(orderGuids, guid) {
+      var withoutGuid = orderGuids.filter(function (g) { return g !== guid; });
+      var best = null;
+      for (var i = 0; i < withoutGuid.length - 1; i++) {
+        var a = withoutGuid[i], b = withoutGuid[i + 1];
+        var cost = dist(a, guid) + dist(guid, b) - dist(a, b);
+        if (!best || cost < best.cost - 1e-9) best = { afterGuid: a, afterIdx: i, cost: cost };
+      }
+      if (withoutGuid.length) {
+        var endCost = dist(withoutGuid[withoutGuid.length - 1], guid);
+        if (!best || endCost < best.cost - 1e-9) {
+          best = { afterGuid: withoutGuid[withoutGuid.length - 1], afterIdx: withoutGuid.length - 1, cost: endCost };
+        }
+      }
+      return best;
+    }
+
+    var reorderResult = buildReorder(meshFlippedGuids);
+
+    if (reorderResult) {
+      var toRevert = [];
+
+      Object.keys(reorderResult.movedGuids).forEach(function (guid) {
+        var ownCost = insertionCost(reorderResult.order, guid);
+        var paidOff = ownCost <= savingsByGuid[guid] + 1e-6;
+
+        // Besides checking whether the actual landing spot paid off at all, also look for a
+        // strictly cheaper gap elsewhere in the walk — the trigger decision above only ever
+        // compared a candidate against its own two immediate build-order neighbors, never
+        // against every other gap in the walk, so a genuinely better slot can exist even for a
+        // candidate that already "paid off" where it landed. Reaching it may only be blocked by
+        // one or more of its own incoming links (whoever throws a link at it needs it captured
+        // first) — the one thing a flip, not a revert, can actually fix.
+        var gap = cheapestUnconstrainedGap(reorderResult.order, guid);
+        var gapIsBetter = gap && gap.cost < ownCost - 1e-6;
+
+        if (!paidOff && !gapIsBetter) { toRevert.push(guid); return; }
+        if (!gapIsBetter) return; // already as good as it gets here, nothing more to try
+
+        // For a candidate that hasn't paid off yet, chasing this gap is only worth it if it
+        // actually beats the ORIGINAL detour cost the candidate was trying to avoid in the
+        // first place -- merely being cheaper than its own (already losing) current spot isn't
+        // enough, or a flip could be kept even though the candidate still nets worse overall
+        // than leaving it at its original build-order position.
+        if (!paidOff && gap.cost > savingsByGuid[guid] + 1e-6) { toRevert.push(guid); return; }
+
+        var withoutGuid = reorderResult.order.filter(function (g) { return g !== guid; });
+        var blockingSourceGuids = (buildIncomingSourcesByGuid(current)[guid] || []).filter(function (srcGuid) {
+          return withoutGuid.indexOf(srcGuid) <= gap.afterIdx;
+        });
+        if (!blockingSourceGuids.length) {
+          if (!paidOff) toRevert.push(guid); // not actually a precedence problem, and didn't pay off either
+          return;
+        }
+
+        var trial = current;
+        var flippable = blockingSourceGuids.every(function (srcGuid) {
+          var edge = trial.filter(function (e) { return e.srcGuid === srcGuid && e.dstGuid === guid; })[0];
+          if (!edge) return false; // not a direct edge (e.g. same pair flipped already) -- bail, don't guess
+          trial = trial.map(function (e) {
+            return e === edge ? $.extend({}, e, { srcGuid: guid, dstGuid: srcGuid }) : e;
+          });
+          return true;
+        });
+        if (!flippable) { if (!paidOff) toRevert.push(guid); return; }
+
+        var beforeFlip = thisplugin.simulateDirectedPlan(current);
+        var afterFlip = thisplugin.simulateDirectedPlan(trial);
+        if (afterFlip.invalidCount > beforeFlip.invalidCount || thisplugin.hasPrecedenceCycle(trial)) {
+          if (!paidOff) toRevert.push(guid);
+          return;
+        }
+
+        // Safe and strictly better: adopt the flipped edge(s) so the next reorder can actually
+        // reach that cheaper gap, whether or not the candidate's current spot already paid off
+        // on its own.
+        current = trial;
+      });
+
+      if (toRevert.length) {
+        toRevert.forEach(function (guid) {
+          delete meshFlippedGuids[guid];
+          var edgeKey = flippedEdgeKeyByGuid[guid];
+          if (!edgeKey) return; // a degree-one relocation, no flip to undo
+          var edge = current.filter(function (e) { return e.key === edgeKey; })[0];
+          if (edge) { var tmp = edge.srcGuid; edge.srcGuid = edge.dstGuid; edge.dstGuid = tmp; }
+        });
+      }
+      // Either some guids were reverted, or an incoming edge was flipped to free up a cheaper
+      // gap for one that wasn't — either way the walk order has to be rebuilt once more to
+      // reflect it.
+      reorderResult = buildReorder(meshFlippedGuids);
+    }
+
+    var flips = thisplugin.flipsFromDirections(current, naturalByKey);
+
     if (reorderResult) {
       thisplugin.displayOrderGuids = reorderResult.order;
       thisplugin.relocatedForLessWalkingGuids = reorderResult.movedGuids;
@@ -7118,6 +7590,7 @@ function wrapper(plugin_info) {
         });
         var trialState = thisplugin.simulateDirectedPlan(trial);
         if (trialState.invalidCount > state.invalidCount) return; // never trade feasibility away
+        if (thisplugin.hasPrecedenceCycle(trial)) return; // would make no walk order satisfy every key dependency
 
         var trialMax = 0;
         Object.keys(trialState.incomingCount).forEach(function (guid) {
@@ -8513,22 +8986,12 @@ function wrapper(plugin_info) {
     map.addControl(new thisplugin.ffButtons());
   };
 
-  // Popup menu opened from the map's hamburger icon: one-shot actions that have no icon of
-  // their own in the topleft bar.
-  thisplugin.showMainMenu = function (anchorEl) {
+  // Popup menu opened from the map's hamburger icon (and, for an entry with its own `submenu`,
+  // opened again from there): one-shot actions that have no icon of their own in the topleft
+  // bar. Shared by thisplugin.showMainMenu and any submenu it opens, so both look and behave
+  // the same way.
+  thisplugin.buildPopupMenu = function (entries, position) {
     $('#plugin_fanfields3_mainmenu').remove();
-
-    var entries = [
-      { label: 'Options&hellip;', action: thisplugin.showOptionsDialog },
-      {
-        label: thisplugin.isPickingAnchor ? 'Pick&nbsp;anchor&nbsp;(click&nbsp;to&nbsp;cancel)' : 'Pick&nbsp;anchor',
-        action: thisplugin.toggleAnchorPicking
-      },
-      { label: 'Manage&nbsp;ops', action: thisplugin.showManageOpsDialog },
-      { label: 'Manage&nbsp;order', action: thisplugin.showManageOrderDialog },
-      { label: 'Stats', action: thisplugin.showStatistics },
-      { label: 'Help', action: thisplugin.help }
-    ];
 
     var $menu = $('<div id="plugin_fanfields3_mainmenu" class="plugin_fanfields3_mainmenu"></div>');
     entries.forEach(function (entry) {
@@ -8536,16 +8999,19 @@ function wrapper(plugin_info) {
         .html(entry.label)
         .on('click', function () {
           $menu.remove();
-          entry.action();
+          if (entry.submenu) {
+            thisplugin.buildPopupMenu(entry.submenu, position);
+          } else {
+            entry.action();
+          }
         })
         .appendTo($menu);
     });
 
-    var rect = anchorEl.getBoundingClientRect();
     $menu.css({
       position: 'fixed',
-      top: rect.bottom,
-      left: rect.left
+      top: position.top,
+      left: position.left
     });
 
     $('body').append($menu);
@@ -8559,6 +9025,280 @@ function wrapper(plugin_info) {
     $(document).one('keydown.plugin_fanfields3_mainmenu', function (e) {
       if (e.key === 'Escape') $menu.remove();
     });
+  };
+
+  thisplugin.showMainMenu = function (anchorEl) {
+    var entries = [
+      { label: 'Manage&nbsp;ops', action: thisplugin.showManageOpsDialog },
+      { label: 'Manage&nbsp;order', action: thisplugin.showManageOrderDialog },
+      { label: 'Plan&nbsp;details', submenu: [
+          { label: 'Print&nbsp;route', action: thisplugin.exportTaskListToPDF },
+          { label: 'Print&nbsp;step&nbsp;by&nbsp;step&nbsp;plan', action: thisplugin.exportPlanPdf },
+          { label: 'Live&nbsp;simulation', action: function () {
+              $('#plugin_fanfields3_exportText_inner').closest('.ui-dialog-content').dialog('close');
+              thisplugin.startWalkSim();
+            }
+          }
+        ]
+      },
+      { label: 'Pick&nbsp;anchor', action: thisplugin.toggleAnchorPicking },
+      { label: 'Stats', action: thisplugin.showStatistics },
+      { label: 'Options', action: thisplugin.showOptionsDialog },
+      { label: 'Help', action: thisplugin.help }
+    ];
+
+    var rect = anchorEl.getBoundingClientRect();
+    thisplugin.buildPopupMenu(entries, { top: rect.bottom, left: rect.left });
+  };
+
+  // Step-by-step PDF of the current plan: one page per portal in the walk, showing the links
+  // thrown there (with how many fields each completes) and a map of the plan so far (links/
+  // fields already done vs. done at this step). Mirrors test/tools/generateWalkReportPdf.py,
+  // used to validate "Less walking" during development, but reading live plan state directly
+  // instead of a fixture, so it always reflects exactly what's about to be walked.
+  // Step-by-step plan report: one printable page per portal in the walk (links thrown there,
+  // fields completed, a map of the plan so far). Built as plain HTML/SVG rather than a binary
+  // PDF generated in JS: IITC Mobile's WebView can't reliably hand a JS-generated binary blob
+  // back out (no real download support, and opening a blob: URL directly can crash the app
+  // outright), and its one JS->native bridge for saving files (window.saveFile) only ever
+  // writes plain text, not arbitrary bytes.
+  //
+  // Delivery differs by platform, since testing on IITC Mobile found neither of the two things
+  // this could otherwise lean on actually works there: window.print() does nothing (the app
+  // never wires a WebView's print output to Android's PrintManager, confirmed by its absence
+  // from the app's own source -- the existing "Print Task List" above likely never worked on
+  // mobile either, just never noticed), and window.open('', '_blank') plus writing into it
+  // produced no visible result either (likely silently blocked). window.saveFile is the one
+  // thing IITC Mobile actually implements for getting a file out of the WebView, so mobile gets
+  // the report as a plain .html file via that -- open it in a real mobile browser afterward to
+  // print it to PDF if wanted. Desktop keeps the print-dialog route, which is a real browser
+  // feature there.
+  thisplugin.exportPlanPdf = function () {
+    var order = thisplugin.getDisplayOrder();
+    if (!order || order.length < 2) {
+      alert('Fan Fields 3: no plan to export yet -- draw a polygon around some portals first.');
+      return;
+    }
+
+    var html = thisplugin.buildPlanPdfHtml(order);
+
+    if (window.saveFile) {
+      var mode = (thisplugin.stardirection === thisplugin.starDirENUM.RADIATING) ? 'outbound' : 'inbound';
+      var anchorTitle = order[0].portal.options.data.title;
+      var safeAnchor = anchorTitle.replace(/[\\/:*?"<>|]/g, '_');
+      window.saveFile(html, 'Fan Fields 3 - ' + mode + ' plan - ' + safeAnchor + '.html', 'text/html');
+      alert('Fan Fields 3: plan report saved as an HTML file. Open it in your phone\'s browser (not IITC) to view it or print it to PDF.');
+      return;
+    }
+
+    var w = window.open('', '_blank');
+    if (!w) return;
+
+    w.document.open();
+    w.document.write(html);
+    w.document.close();
+
+    w.focus();
+    setTimeout(function () { w.print(); }, 250);
+  };
+
+  // Escapes text dropped into the HTML built below (portal titles can contain '<', '&', etc.).
+  thisplugin.escapeHtml = function (s) {
+    return String(s).replace(/[&<>"]/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c];
+    });
+  };
+
+  thisplugin.buildPlanPdfHtml = function (order) {
+    var walk = thisplugin.simulateWalk(order);
+
+    // Every portal's own lat/lng (for the map) and title (for the text panel), keyed the same
+    // way simulateWalk keys its own triangle points, so a field's three corners can be matched
+    // back to real portals without re-deriving anything simulateWalk already knows.
+    var infoByPointKey = {};
+    order.forEach(function (fp) {
+      var ll = fp.portal.getLatLng();
+      infoByPointKey[thisplugin.pointKey(fp.point)] = { guid: fp.guid, title: fp.portal.options.data.title, lat: ll.lat, lng: ll.lng };
+    });
+    function infoFor(point) { return infoByPointKey[thisplugin.pointKey(point)]; }
+
+    var linkSeq = []; // { srcInfo, dstInfo, stepIndex }
+    order.forEach(function (fp, stepIndex) {
+      (fp.outgoing || []).forEach(function (target) {
+        linkSeq.push({ srcInfo: infoFor(fp.point), dstInfo: infoFor(target.point), stepIndex: stepIndex });
+      });
+    });
+
+    var mode = (thisplugin.stardirection === thisplugin.starDirENUM.RADIATING) ? 'outbound' : 'inbound';
+    var anchorTitle = order[0].portal.options.data.title;
+
+    var steps = order.map(function (fp, i) {
+      var prevFp = order[i - 1];
+      var distFromPrev = prevFp ? thisplugin.distanceTo(prevFp.point, fp.point) : 0;
+      var links = (fp.outgoing || []).map(function (target) {
+        var dkey = thisplugin.getDirectedLinkKey(fp.guid, target.guid);
+        return { title: target.portal.options.data.title, newFields: walk.fieldsByDirectedLink[dkey] || 0 };
+      });
+      return { info: infoFor(fp.point), distFromPrev: distFromPrev, links: links };
+    });
+    var cumulativeDist = 0;
+    steps.forEach(function (s) { cumulativeDist += s.distFromPrev; s.cumulativeDist = cumulativeDist; });
+
+    var runningLinks = 0, runningFields = 0;
+    var runningLinksAt = [], runningFieldsAt = [];
+    steps.forEach(function (s) {
+      runningLinks += s.links.length;
+      s.links.forEach(function (l) { runningFields += l.newFields; });
+      runningLinksAt.push(runningLinks);
+      runningFieldsAt.push(runningFields);
+    });
+
+    // Map bounds, in lat/lng, with an 8% margin -- same framing as the Python report.
+    var allLats = order.map(function (fp) { return infoFor(fp.point).lat; });
+    var allLngs = order.map(function (fp) { return infoFor(fp.point).lng; });
+    var minLat = Math.min.apply(null, allLats), maxLat = Math.max.apply(null, allLats);
+    var minLng = Math.min.apply(null, allLngs), maxLng = Math.max.apply(null, allLngs);
+    var latMargin = (maxLat - minLat) * 0.08 || 0.001;
+    var lngMargin = (maxLng - minLng) * 0.08 || 0.001;
+    minLat -= latMargin; maxLat += latMargin; minLng -= lngMargin; maxLng += lngMargin;
+
+    // SVG viewBox units for the map (arbitrary; scales to whatever size the CSS below gives it).
+    var mapSize = 1000;
+    var scale = Math.min(mapSize / (maxLng - minLng), mapSize / (maxLat - minLat));
+    var drawnW = (maxLng - minLng) * scale, drawnH = (maxLat - minLat) * scale;
+    var originX = (mapSize - drawnW) / 2, originY = (mapSize - drawnH) / 2;
+    function px(lng) { return originX + (lng - minLng) * scale; }
+    function py(lat) { return originY + (maxLat - lat) * scale; }
+
+    var esc = thisplugin.escapeHtml;
+
+    function buildMapSvg(i) {
+      var parts = [];
+      parts.push('<svg viewBox="0 0 ' + mapSize + ' ' + mapSize + '" class="ff3-map" preserveAspectRatio="xMidYMid meet">');
+
+      order.forEach(function (fp) {
+        var inf = infoFor(fp.point);
+        parts.push('<circle cx="' + px(inf.lng) + '" cy="' + py(inf.lat) + '" r="3" class="ff3-portal-dot"/>');
+      });
+
+      // Fields: completed-before-this-step ones first (light gray), this step's new ones on top
+      // (red) -- same two-layer draw order as the links below.
+      [false, true].forEach(function (onlyCurrent) {
+        walk.triangles.forEach(function (t) {
+          if (t.visitIndex > i) return;
+          if (onlyCurrent !== (t.visitIndex === i)) return;
+          var a = infoFor(t.a), b = infoFor(t.b), c = infoFor(t.c);
+          if (!a || !b || !c) return;
+          var points = [a, b, c].map(function (p) { return px(p.lng) + ',' + py(p.lat); }).join(' ');
+          parts.push('<polygon points="' + points + '" class="' + (onlyCurrent ? 'ff3-field-new' : 'ff3-field-done') + '"/>');
+        });
+      });
+
+      // Links: same already-done-first, this-step-on-top order.
+      [false, true].forEach(function (onlyCurrent) {
+        linkSeq.forEach(function (l) {
+          if (l.stepIndex > i) return;
+          if (onlyCurrent !== (l.stepIndex === i)) return;
+          parts.push('<line x1="' + px(l.srcInfo.lng) + '" y1="' + py(l.srcInfo.lat) + '" x2="' + px(l.dstInfo.lng) + '" y2="' + py(l.dstInfo.lat) +
+            '" class="' + (onlyCurrent ? 'ff3-link-new' : 'ff3-link-done') + '"/>');
+        });
+      });
+
+      // Walked path so far, then the current position on top.
+      if (i > 0) {
+        var pts = order.slice(0, i + 1).map(function (fp) {
+          var inf = infoFor(fp.point);
+          return px(inf.lng) + ',' + py(inf.lat);
+        }).join(' ');
+        parts.push('<polyline points="' + pts + '" class="ff3-walked-path"/>');
+      }
+      var curInfo = infoFor(order[i].point);
+      parts.push('<circle cx="' + px(curInfo.lng) + '" cy="' + py(curInfo.lat) + '" r="9" class="ff3-current-pos"/>');
+
+      parts.push('</svg>');
+      return parts.join('');
+    }
+
+    function buildTextPanel(i) {
+      var s = steps[i];
+      var lines = [];
+      lines.push('<div class="ff3-pdf-step-title">Step ' + (i + 1) + ' / ' + steps.length + '</div>');
+      lines.push('<div class="ff3-pdf-portal">Portal: ' + esc(s.info.title) + '</div>');
+      if (i > 0) lines.push('<div>From: ' + esc(steps[i - 1].info.title) + '</div>');
+      lines.push('<div>Distance walked this step: ' + Math.round(s.distFromPrev) + ' m</div>');
+      lines.push('<div>Cumulative distance walked: ' + Math.round(s.cumulativeDist) + ' m</div>');
+      if (s.links.length) {
+        lines.push('<div class="ff3-pdf-links-label">Links thrown here, in order:</div>');
+        lines.push('<ul class="ff3-pdf-links">');
+        s.links.forEach(function (l) {
+          var fieldTxt = l.newFields === 1 ? '1 field' : (l.newFields + ' fields');
+          lines.push('<li>&rarr; ' + esc(l.title) + ' (' + fieldTxt + ')</li>');
+        });
+        lines.push('</ul>');
+      } else {
+        lines.push('<div>No links thrown here.</div>');
+      }
+      lines.push('<div class="ff3-pdf-totals">Running totals: ' + runningLinksAt[i] + ' link(s), ' + runningFieldsAt[i] + ' field(s)</div>');
+      return lines.join('\n');
+    }
+
+    var legendHtml =
+      '<div class="ff3-pdf-legend">' +
+      '<div><span class="ff3-swatch-line" style="background:#333"></span>Links already thrown</div>' +
+      '<div><span class="ff3-swatch-line" style="background:#e60000"></span>New links (this step)</div>' +
+      '<div><span class="ff3-swatch-box" style="background:#d6d6d6"></span>Fields already formed</div>' +
+      '<div><span class="ff3-swatch-box" style="background:#ff9999"></span>New fields (this step)</div>' +
+      '<div><span class="ff3-swatch-line ff3-swatch-dashed" style="border-color:#1f6feb"></span>Walked path</div>' +
+      '</div>';
+
+    var pagesHtml = steps.map(function (_s, i) {
+      return (
+        '<section class="ff3-pdf-page">' +
+        '<h1>Fan Fields 3 — ' + esc(mode) + ' — anchor: ' + esc(anchorTitle) + ' — step ' + (i + 1) + '/' + steps.length + '</h1>' +
+        '<div class="ff3-pdf-body">' +
+        '<div class="ff3-pdf-map-col">' + buildMapSvg(i) + '</div>' +
+        '<div class="ff3-pdf-text-col">' + buildTextPanel(i) + legendHtml + '</div>' +
+        '</div>' +
+        '</section>'
+      );
+    }).join('\n');
+
+    var css = '\n' +
+      '@page { size: landscape; margin: 10mm; }\n' +
+      'body { font-family: Arial, sans-serif; font-size: 10pt; color: #000; margin: 0; }\n' +
+      '.ff3-pdf-page { page-break-after: always; padding: 6mm; box-sizing: border-box; }\n' +
+      '.ff3-pdf-page:last-child { page-break-after: auto; }\n' +
+      'h1 { font-size: 12pt; text-align: center; margin: 0 0 6mm 0; }\n' +
+      '.ff3-pdf-body { display: flex; gap: 8mm; }\n' +
+      '.ff3-pdf-map-col { flex: 1.3; min-width: 0; }\n' +
+      '.ff3-map { width: 100%; height: auto; aspect-ratio: 1 / 1; }\n' +
+      '.ff3-portal-dot { fill: #999; }\n' +
+      '.ff3-field-done { fill: #d6d6d6; }\n' +
+      '.ff3-field-new { fill: #ff9999; }\n' +
+      '.ff3-link-done { stroke: #333; stroke-width: 2.5; }\n' +
+      '.ff3-link-new { stroke: #e60000; stroke-width: 5; }\n' +
+      '.ff3-walked-path { fill: none; stroke: #1f6feb; stroke-width: 2.5; stroke-dasharray: 8 6; opacity: 0.7; }\n' +
+      '.ff3-current-pos { fill: #1f6feb; stroke: #fff; stroke-width: 2.5; }\n' +
+      '.ff3-pdf-text-col { flex: 1; font-family: "Courier New", monospace; font-size: 9pt; }\n' +
+      '.ff3-pdf-step-title { font-size: 11pt; font-weight: bold; margin-bottom: 4mm; }\n' +
+      '.ff3-pdf-portal { margin-bottom: 4mm; }\n' +
+      '.ff3-pdf-links-label { margin-top: 4mm; }\n' +
+      '.ff3-pdf-links { margin: 1mm 0 4mm 0; padding-left: 4mm; list-style: none; }\n' +
+      '.ff3-pdf-totals { margin-top: 4mm; font-weight: bold; }\n' +
+      '.ff3-pdf-legend { margin-top: 8mm; font-family: Arial, sans-serif; font-size: 8pt; }\n' +
+      '.ff3-pdf-legend > div { display: flex; align-items: center; gap: 2mm; margin: 1mm 0; }\n' +
+      '.ff3-swatch-line { display: inline-block; width: 6mm; height: 0; border-top: 1mm solid; }\n' +
+      '.ff3-swatch-dashed { border-top-style: dashed; }\n' +
+      '.ff3-swatch-box { display: inline-block; width: 4mm; height: 3mm; }\n';
+
+    var safeAnchor = anchorTitle.replace(/[\\/:*?"<>|]/g, '_');
+    return (
+      '<!doctype html>' +
+      '<html><head><meta charset="utf-8">' +
+      '<title>Fan Fields 3 - ' + esc(mode) + ' plan - ' + esc(safeAnchor) + '</title>' +
+      '<style>' + css + '</style>' +
+      '</head><body>' + pagesHtml + '</body></html>'
+    );
   };
 
   // Settings persisted across sessions via "Save options as default" in the Options dialog.
@@ -8584,7 +9324,6 @@ function wrapper(plugin_info) {
       useBookmarksOnly: thisplugin.use_bookmarks_only,
       manageBlockers: thisplugin.manageBlockers,
       blockerMaxDetourM: thisplugin.blockerMaxDetourM,
-      walkSimShowLinks: thisplugin.walkSimShowLinks,
       consumeKeysOnLinkThrown: thisplugin.consumeKeysOnLinkThrown
     };
   };
@@ -8601,7 +9340,8 @@ function wrapper(plugin_info) {
     if (typeof saved.useBookmarksOnly === 'boolean') thisplugin.use_bookmarks_only = saved.useBookmarksOnly;
     if (typeof saved.manageBlockers === 'boolean') thisplugin.manageBlockers = saved.manageBlockers;
     if (typeof saved.blockerMaxDetourM === 'number') thisplugin.blockerMaxDetourM = saved.blockerMaxDetourM;
-    if (typeof saved.walkSimShowLinks === 'boolean') thisplugin.walkSimShowLinks = saved.walkSimShowLinks;
+    // saved.walkSimShowLinks (an older saved op/default may still carry it) is intentionally
+    // never read any more: the sim's own links are always shown now, not a toggle.
     if (typeof saved.consumeKeysOnLinkThrown === 'boolean') thisplugin.consumeKeysOnLinkThrown = saved.consumeKeysOnLinkThrown;
   };
 
@@ -8707,13 +9447,6 @@ function wrapper(plugin_info) {
     }
 
     html += '<div class="plugin_fanfields3_options_row">' +
-      '<label for="plugin_fanfields3_opt_walksim_links" title="While Walk sim plays, also draw each portal\'s own links (thin cyan) as the walk reaches it">Walk&nbsp;sim&nbsp;links</label>' +
-      '<select id="plugin_fanfields3_opt_walksim_links">' +
-      '<option value="on"' + (thisplugin.walkSimShowLinks ? ' selected' : '') + '>On</option>' +
-      '<option value="off"' + (!thisplugin.walkSimShowLinks ? ' selected' : '') + '>Off</option>' +
-      '</select></div>';
-
-    html += '<div class="plugin_fanfields3_options_row">' +
       '<label for="plugin_fanfields3_opt_spendkeys" title="When a link is detected as newly thrown in-game, remove one key for its destination portal from the Keys plugin (never below 0)">Spend&nbsp;keys&nbsp;on&nbsp;throw</label>' +
       '<select id="plugin_fanfields3_opt_spendkeys">' +
       '<option value="on"' + (thisplugin.consumeKeysOnLinkThrown ? ' selected' : '') + '>On</option>' +
@@ -8772,11 +9505,6 @@ function wrapper(plugin_info) {
     $('#plugin_fanfields3_opt_portals').on('change', function () {
       var wantBookmarksOnly = ($(this).val() === 'bookmarks');
       if (wantBookmarksOnly !== thisplugin.use_bookmarks_only) thisplugin.useBookmarksOnly();
-      thisplugin.saveOptionsDefault();
-    });
-
-    $('#plugin_fanfields3_opt_walksim_links').on('change', function () {
-      thisplugin.walkSimShowLinks = ($(this).val() === 'on');
       thisplugin.saveOptionsDefault();
     });
 
@@ -9107,9 +9835,11 @@ function wrapper(plugin_info) {
     });
 
     // Keep an open Task List or Statistics dialog current between plan recalculations —
-    // available key counts (LiveInventory/Keys plugin), in-game link/portal completion and the
-    // Statistics dialog's own real-activity counts (straight from INTEL) can all change on
-    // their own timeline, not just when this plugin recomputes the plan. Refreshes live game
+    // available key counts (LiveInventory/Keys plugin) and in-game link/portal completion can
+    // change on their own timeline, not just when this plugin recomputes the plan (the
+    // Statistics dialog's own "Your activity today" section refreshes separately, on its own
+    // Refresh link — see thisplugin.refreshMyActivityToday — since it needs a Comm request,
+    // not just a repaint from data already on hand). Refreshes live game
     // data (thisplugin.locations/intelLinks) itself first, rather than only repainting from
     // whatever a mapDataRefreshEnd/requestFinished hook last put there: on some platforms
     // (observed on IITC Mobile) IITC's own map updates without those hooks ever firing for

@@ -3,8 +3,8 @@
 // @id              simple-cloud-sync@Avataar120
 // @name            Simple Cloud Sync
 // @category        Misc
-// @version         2.2.0.20260929
-// @description     Syncs the localStorage data of your IITC plugins (bookmarks, draw tools, settings…) across all your devices. Each agent has a private, password-protected, end-to-end encrypted space on the sync server, keyed by the logged-in agent name. Per-key merge, most recent change wins; the server is only contacted when something changed.
+// @version         2.3.0.20261007
+// @description     One agent, many devices. Simple Cloud Sync keeps all your IITC plugins' data -- bookmarks, drawings, settings -- perfectly in sync across your PC, phones and tablets, fully end-to-end encrypted.
 // @downloadURL     https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Avataar120/simple-cloud-sync.user.js
 // @updateURL       https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Avataar120/simple-cloud-sync.meta.js
 // @icon            https://raw.githubusercontent.com/Avataar120/IITC-Synchro/main/simplecloudsync-32.png
@@ -23,10 +23,15 @@
 function wrapper(plugin_info) {
   if (typeof window.plugin !== 'function') window.plugin = function () {};
   plugin_info.buildName = 'main';
-  plugin_info.dateTimeVersion = '2026-09-29-090000';
+  plugin_info.dateTimeVersion = '2026-10-07-090000';
   plugin_info.pluginId = 'simpleCloudSync';
 
   const changelog = [{
+    version: '2.3.0',
+    changes: [
+      'IMPROVE: Simplified the plugin description to focus on the multi-device sync pitch.',
+    ],
+  }, {
     version: '2.2.0',
     changes: [
       'NEW: Drawn items and key counts synced from another device now show up instantly, without any page reload.',

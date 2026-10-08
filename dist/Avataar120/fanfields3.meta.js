@@ -3,7 +3,7 @@
 // @id              fanfields3@Avataar120
 // @name            Fan Fields 3
 // @category        Layer
-// @version         6.3.1.20261006
+// @version         6.4.0.20261007
 // @description     Draw a polygon around a handful of portals and get an instant, maximized fielding plan. Import your keys straight from Ingress -- even without a Core subscription. Predict and optimize your walking route, and much more. Pair it with the Simple Cloud Sync plugin to keep all your devices connected and perfectly in sync, with full privacy guaranteed.
 // @downloadURL     https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Avataar120/fanfields3.user.js
 // @updateURL       https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Avataar120/fanfields3.meta.js

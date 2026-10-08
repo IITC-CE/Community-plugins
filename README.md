@@ -898,7 +898,7 @@ Draw a polygon around a handful of portals and get an instant, maximized fieldin
 *Recommends*: bookmarks@ZasoGD draw-tools-plus@zaso liveInventory@DanielOnDiordna keys@xelio  |
 *[Homepage](https://github.com/Avataar120/fanfields3/)* |
 *[Issue tracker](https://github.com/Avataar120/fanfields3/issues)* |
-*Version:* 6.3.1.20261006
+*Version:* 6.4.0.20261007
 
 
   
@@ -1553,11 +1553,11 @@ Show uniques visit/captures based on GDPR game_log
 
 
 
-Syncs the localStorage data of your IITC plugins (bookmarks, draw tools, settings…) across all your devices. Each agent has a private, password-protected, end-to-end encrypted space on the sync server, keyed by the logged-in agent name. Per-key merge, most recent change wins; the server is only contacted when something changed.
+One agent, many devices. Simple Cloud Sync keeps all your IITC plugins&#39; data -- bookmarks, drawings, settings -- perfectly in sync across your PC, phones and tablets, fully end-to-end encrypted.
 
 *[Homepage](https://github.com/Avataar120/IITC-Synchro/)* |
 *[Issue tracker](https://github.com/Avataar120/IITC-Synchro/issues)* |
-*Version:* 2.2.0.20260929
+*Version:* 2.3.0.20261007
 
 
   

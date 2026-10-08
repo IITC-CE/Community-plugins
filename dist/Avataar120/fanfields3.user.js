@@ -3,7 +3,7 @@
 // @id              fanfields3@Avataar120
 // @name            Fan Fields 3
 // @category        Layer
-// @version         6.3.1.20261006
+// @version         6.4.0.20261007
 // @description     Draw a polygon around a handful of portals and get an instant, maximized fielding plan. Import your keys straight from Ingress -- even without a Core subscription. Predict and optimize your walking route, and much more. Pair it with the Simple Cloud Sync plugin to keep all your devices connected and perfectly in sync, with full privacy guaranteed.
 // @downloadURL     https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Avataar120/fanfields3.user.js
 // @updateURL       https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Avataar120/fanfields3.meta.js
@@ -25,14 +25,28 @@ function wrapper(plugin_info) {
   // ensure plugin framework is there, even if iitc is not yet loaded
   if (typeof window.plugin !== 'function') window.plugin = function () {};
   plugin_info.buildName = 'main';
-  plugin_info.dateTimeVersion = '2026-10-06-201021';
+  plugin_info.dateTimeVersion = '2026-10-07-213059';
   plugin_info.pluginId = 'fanfields';
 
   /* global L, $, dialog, map, portals, links, plugin  -- eslint*/
   /* exported setup, changelog -- eslint */
 
-  var arcname = (window.PLAYER && window.PLAYER.team === 'ENLIGHTENED') ? 'Arc' : '***';
   var changelog = [{
+      version: '6.4.0',
+      changes: [
+        'IMPROVE: "Spend keys on throw" now defaults to off instead of on when the separate Simple Cloud Sync plugin isn\'t installed.',
+      ],
+    },{
+      version: '6.3.3',
+      changes: [
+        'IMPROVE: The tip promoting Simple Cloud Sync now only shows up to 3 times in total (right after install, then two weekly reminders) instead of indefinitely every week.',
+      ],
+    },{
+      version: '6.3.2',
+      changes: [
+        'FIX: The changelog now starts at 2.8.3, the version this plugin forked from Heistergand\'s Fan Fields 2, instead of listing changes that belong to the original plugin.',
+      ],
+    },{
       version: '6.3.1',
       changes: [
         'IMPROVE: Rewrote the plugin description into a single, clearer line about what Fan Fields 3 does.',
@@ -283,404 +297,7 @@ function wrapper(plugin_info) {
       version: '2.8.3',
       changes: [
         'FIX: formatDistance is not defined on desktop IITC-CE builds.',
-      ],
-    },{    
-      version: '2.8.2',
-      changes: [
-        'FIX: Respect Intel integrates already existing own-faction links into planned fields.',
-      ],
-    },{
-      version: '2.8.1',
-      changes: [
-        'NEW: Add support for 3rd party plugin "Portal Route".',
-      ],
-    },{
-      version: '2.8.0',
-      changes: [
-        'NEW: Add user warning when trying to link impossible lengths from underneath a field.',
-        'IMPROVE print design',
-        'FIX: adjust label position to avoid overlapping with portal names',
-        'FIX: minor code cleanup.',
-      ],
-    },{
-      version: '2.7.8',
-      changes: [
-        'NEW: Respect Intel now supports filtering which factions\' links are treated as blockers (Issue #104).',
-      ],
-    },
-    {
-      version: '2.7.7',
-      changes: [
-        'IMPROVE portal sequence editor usage for mobile',
-        'UPDATE help dialog content',
-        'IMPROVE task list design',
-      ],
-    },
-    {
-      version: '2.7.6',
-      changes: [
-        'FIX: Some minor code cleanup',
-        'FIX: Minor cosmetics',
-      ],
-    },
-    {
-      version: '2.7.5',
-      changes: [
-        'NEW: Print your task list.',
-        'NEW: Show fields in task list.',
-        'FIX: Click on portal in task list now flies to the portal.',
-        'FIX: Uniform dialog titles',
-      ],
-    },
-    {
-      version: '2.7.4',
-      changes: [
-        'FIX: Respect Intel not working anymore.',
-        'FIX: Dialog width on mobile too small.',
-      ],
-    },
-    {
-      version: '2.7.3',
-      changes: [
-        'FIX: Tooltip must be a glyph sequence.',
-        'FIX: Double-Click on leaflet buttons isn\'t zooming the map anymore.',
-      ],
-    },
-    {
-      version: '2.7.2',
-      changes: [
-        'FIX: Code cleanup and refactoring.',
-      ],
-    },
-    {
-      version: '2.7.1',
-      changes: [
-        'FIX: The linking algorithm from version 2.6.6 was not perfect.',
-      ],
-    },
-    {
-      version: '2.7.0',
-      changes: [
-        'NEW: Added portal sequence editor to customise the visit order.',
-        'NEW: Added straight-line route preview along the portal sequence.',
-      ],
-    },
-    {
-      version: '2.6.6',
-      changes: [
-        'NEW: New linking algorythm.',
-      ],
-    },
-    {
-      version: '2.6.5',
-      changes: [
-        'FIX: Fixed last fix.',
-      ],
-    },
-    {
-      version: '2.6.4',
-      changes: [
-        'FIX: Fixed compatibility with Inventory Overview plugin.',
-      ],
-    },
-    {
-      version: '2.6.3',
-      changes: [
-        'FIX: Fixed some minor issues like spelling mistakes.',
-      ],
-    },
-    {
-      version: '2.6.2',
-      changes: [
-        'NEW: Task list now contains a single navigation link for each portal.',
-      ],
-    },
-    {
-      version: '2.6.1',
-      changes: [
-        'FIX: Counts of outgoing links and sbul are now correct when respecting intel and using outbounding mode.',
-      ],
-    },
-    {
-      version: '2.6.0',
-      changes: [
-        'NEW: Add control buttons for better ux on mobile.',
-      ],
-    },
-    {
-      version: '2.5.6',
-      changes: [
-        'NEW: Implementing link details in show-as-list dialog.',
-      ],
-    },
-    {
-      version: '2.5.5',
-      changes: [
-        'FIX: Plugin did not work on IITC-Mobile.',
-      ],
-    },
-    {
-      version: '2.5.4',
-      changes: [
-        'NEW: Option to only use bookmarked portals within the Fanfields (Toggle-Button)',
-      ],
-    },
-    {
-      version: '2.5.3',
-      changes: [
-        'NEW: Saving to Bookmarks now creates a folder in the Bookmarks list.',
-      ],
-    },
-    {
-      version: '2.5.2',
-      changes: [
-        'FIX: Prefer LiveInventory Plugin over Keys Plugin (hotfix)',
-      ],
-    },
-    {
-      version: '2.5.1',
-      changes: [
-        'FIX: Prefer LiveInventory Plugin over Keys Plugin',
-      ],
-    },
-    {
-      version: '2.5.0',
-      changes: [
-        'NEW: Integrate key counts from LiveInventory plugin.',
-      ],
-    },
-    {
-      version: '2.4.1',
-      changes: [
-        'FIX: "Show as List" without having the Keys Plugin did not show any Keys.',
-      ],
-    },
-    {
-      version: '2.4.0',
-      changes: [
-        'NEW: Integrate functionality with Key Plugin.',
-        'NEW: Replace fieldset box design with a separated sidebar box.',
-      ],
-    },
-    {
-      version: '2.3.2',
-      changes: [
-        'NEW: Introducing code for upcoming multiple fanfields by Drawtools Colors',
-        'FIX: some code refactorings',
-        'FIX: SBUL defaults to 2 now, assuming most fields are done solo.',
-        'FIX: If a marker is not actually snapped onto a portal it does not act as fan point anymore.',
-        'FIX: When adding a marker, it\'s now selected as start portal.',
-      ],
-    },
-    {
-      version: '2.3.1',
-      changes: [
-        'FIX: Portals were difficult to select underneath the fanfileds plan.',
-      ],
-    },
-    {
-      version: '2.3.0',
-      changes: [
-        'NEW: Added ' + arcname + ' support.',
-      ],
-    },
-    {
-      version: '2.2.9',
-      changes: [
-        'FIX: Link direction indicator did not work anymore.',
-        'NEW: Link direction indicator is now optional.',
-        'NEW: New plugin icon showing a hand fan.',
-      ],
-    },
-    {
-      version: '2.2.8',
-      changes: [
-        'FIX: minor changes',
-      ],
-    },
-    {
-      version: '2.2.7',
-      changes: [
-        'FIX: Menu Buttons in Mobile version are now actually buttons.',
-      ],
-    },
-    {
-      version: '2.2.6',
-      changes: [
-        'NEW: Google Maps Portal Routing',
-      ],
-    },
-    {
-      version: '2.2.5',
-      changes: [
-        'NEW: Set how many SBUL you plan to use.',
-        'FIX: Anchor shift button design changed',
-      ],
-    },
-    {
-      version: '2.2.4',
-      changes: [
-        'FIX: Width of dialog boxes did extend screen size',
-        'FIX: Fixed what should have been fixed in 2.2.4',
-      ],
-    },
-    {
-      version: '2.2.3',
-      changes: [
-        'FIX: Made Bookmark Plugin optional',
-        'NEW: Anchor shifting ("Cycle Start") is now bidirectional.',
-        'FIX: Some minor fixes and code formatting.',
-      ],
-    },
-    {
-      version: '2.2.2',
-      changes: [
-        'NEW: Added favicon.ico to script header.',
-      ],
-    },
-    {
-      version: '2.2.1',
-      changes: [
-        'FIX: Merged from Jormund fork (2.1.7): Fixed L.LatLng extension',
-      ],
-    },
-
-    {
-      version: '2.2.0',
-      changes: [
-        'FIX: Reintroducing the marker function which was removed in 2.1.7 so that a Drawtools Marker can be used to force a portal inside (or outside) the hull to be the anchor.',
-      ],
-    },
-    {
-      version: '2.1.10',
-      changes: [
-        'FIX: minor fixes',
-      ],
-    },
-    {
-      version: '2.1.9',
-      changes: [
-        'FIX: Fixed blank in header for compatibility with IITC-CE Button.',
-        'FIX: Fix for missing constants in leaflet verion 1.6.0.',
-      ],
-    },
-    {
-      version: '2.1.8',
-      changes: [
-        'NEW: Added starting portal advance button to select among the list of perimeter portals.',
-      ],
-    },
-    {
-      version: '2.1.7',
-      changes: [
-        'DEL: Removed marker and random selection of starting point portal.',
-        'NEW: Replaced with use of first outer hull portal. This ensures maximum fields will be generated.',
-      ],
-    },
-    {
-      version: '2.1.5',
-      changes: [
-        'FIX: Minor syntax issue affecting potentially more strict runtimes',
-      ],
-    },
-    {
-      version: '2.1.4',
-      changes: [
-        'FIX: Make the clockwise button change its label to "Counterclockwise" when toggled',
-      ],
-    },
-    {
-      version: '2.1.3',
-      changes: [
-        'FIX: added id tags to menu button elements, ...just because.',
-      ],
-    },
-    {
-      version: '2.1.2',
-      changes: [
-        'FIX: Minor issues',
-      ],
-    },
-    {
-      version: '2.1.1',
-      changes: [
-        'FIX: changed List export format to display as a table',
-      ],
-    },
-    {
-      version: '2.1.0',
-      changes: [
-        'NEW: Added save to DrawTools functionality',
-        'NEW: Added fanfield statistics',
-        'FIX: Changed some menu texts',
-        'VER: Increased Minor Version due to DrawTools Milestone',
-      ],
-    },
-    {
-      version: '2.0.9',
-      changes: [
-        'NEW: Added the number of outgoing links to the simple list export',
-      ],
-    },
-    {
-      version: '2.0.8',
-      changes: [
-        'NEW: Toggle the direction of the star-links (Inbound/Outbound) and calculate number of SBUL',
-        'FIX: Despite crosslinks, respecting the current intel did not handle done links',
-      ],
-    },
-    {
-      version: '2.0.7',
-      changes: [
-        'FIX: Sorting of the portals was not accurate for far distance anchors when the angle was too equal.',
-        'NEW: Added option to respect current intel and not crossing lines.',
-      ],
-    },
-    {
-      version: '2.0.6',
-      changes: [
-        'FIX: Plan messed up on multiple polygons.',
-      ],
-    },
-    {
-      version: '2.0.5',
-      changes: [
-        'FIX: fan links abandoned when Marker was outside the polygon',
-        'BUG: Issue found where plan messes up when using more than one polygon (fixed in 2.0.6)',
-      ],
-    },
-    {
-      version: '2.0.4',
-      changes: [
-        'NEW: Added Lock/Unlock button to freeze the plan and prevent recalculation on any events.',
-        'NEW: Added a simple text export (in a dialog box)',
-        'FIX: Several changes to the algorithm',
-        'BUG: Issue found where links are closing fields on top of portals that are successors in the list once you got around the startportal',
-      ],
-    },
-    {
-      version: '2.0.3',
-      changes: [
-        'FIX: Counterclockwise did not work properly',
-        'NEW: Save as Bookmarks',
-      ],
-    },
-    {
-      version: '2.0.2',
-      changes: [
-        'NEW: Added Menu',
-        'NEW: Added counterclockwise option',
-        'FIX: Minor Bugfixes',
-      ],
-    },
-    {
-      version: '2.0.1',
-      changes: [
-        'NEW: Count keys to farm',
-        'NEW: Count total fields',
-        'NEW: Added labels to portals',
-        'FIX: Links were drawn in random order',
-        'FIX: Only fields to the center portal were drawn',
+        'FORK: from Fanfields2 (heistergand)',
       ],
     },
   ];
@@ -1494,20 +1111,26 @@ function wrapper(plugin_info) {
   // Promotes the separate Simple Cloud Sync plugin (keeps the drawn plan, options and spent-key
   // tracking synced across an agent's devices, end-to-end encrypted — see the charged-link
   // tracking comments above for how this plugin already cooperates with it). Shown once right
-  // after this plugin's very first run on a browser, and again once a week after that, for as
-  // long as Simple Cloud Sync isn't actually installed — never shown once it's detected
-  // (window.plugin.simpleCloudSync).
+  // after this plugin's very first run on a browser, then again once a week after that, up to
+  // a total of 3 times (install + 2 weekly reminders) — never shown once it's detected
+  // (window.plugin.simpleCloudSync), and never again past that count.
   thisplugin.SYNC_TIP_STORAGE_KEY = 'plugin-fanfields3-synctip-last-shown';
+  thisplugin.SYNC_TIP_COUNT_STORAGE_KEY = 'plugin-fanfields3-synctip-shown-count';
   thisplugin.SYNC_TIP_INTERVAL_MS = 7 * 24 * 60 * 60 * 1000;
+  thisplugin.SYNC_TIP_MAX_SHOWN = 3;
   thisplugin.SYNC_TIP_URL = 'https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Avataar120/simple-cloud-sync.user.js';
 
   thisplugin.maybeShowSyncTip = function () {
     if (window.plugin.simpleCloudSync) return;
 
+    var shownCount = parseInt(localStorage.getItem(thisplugin.SYNC_TIP_COUNT_STORAGE_KEY), 10) || 0;
+    if (shownCount >= thisplugin.SYNC_TIP_MAX_SHOWN) return;
+
     var lastShown = parseInt(localStorage.getItem(thisplugin.SYNC_TIP_STORAGE_KEY), 10) || 0;
     if (Date.now() - lastShown < thisplugin.SYNC_TIP_INTERVAL_MS) return;
 
     localStorage.setItem(thisplugin.SYNC_TIP_STORAGE_KEY, Date.now().toString());
+    localStorage.setItem(thisplugin.SYNC_TIP_COUNT_STORAGE_KEY, (shownCount + 1).toString());
 
     var width = 380;
     thisplugin.MaxDialogWidth = thisplugin.getMaxDialogWidth();
@@ -5697,8 +5320,18 @@ function wrapper(plugin_info) {
   // into the charged set without spending anything — only links thrown from that point onward are
   // charged. Only window.plugin.keys is touched — LiveInventory is a read-only reflection of the
   // real inventory and has no such API (same restriction as thisplugin.toggleKeysPluginCount).
-  // Options dialog toggle ("Spend keys on throw"): on by default.
+  // Options dialog toggle ("Spend keys on throw"): on by default, except on a fresh install of
+  // this plugin alone -- see defaultConsumeKeysOnLinkThrown, applied in setup().
   thisplugin.consumeKeysOnLinkThrown = true;
+
+  // Defaults "Spend keys on throw" to off when the separate Simple Cloud Sync plugin isn't
+  // installed (window.plugin.simpleCloudSync, see the cross-device note above): without it,
+  // spent-key tracking never leaves this one device, which is a less safe default for an agent
+  // who hasn't installed it yet. A saved snapshot (Manage Ops/Save options as default) still
+  // overrides whatever this returns, since setup() applies it before reading that snapshot.
+  thisplugin.defaultConsumeKeysOnLinkThrown = function () {
+    return !!window.plugin.simpleCloudSync;
+  };
 
   thisplugin.CHARGED_LINKS_STORAGE_KEY = 'plugin-fanfields3-charged-link-guids';
   thisplugin.CHARGING_INITIALIZED_KEY = 'plugin-fanfields3-charging-initialized';
@@ -9731,6 +9364,11 @@ function wrapper(plugin_info) {
     } else if (ownTeamForDefault === window.TEAM_RES) {
       thisplugin.respectIntelLinksMode = thisplugin.respectIntelLinksModeENUM.RES;
     }
+
+    // Defaults "Spend keys on throw" to off when the separate Simple Cloud Sync plugin isn't
+    // installed, same reasoning and same spot as Respect Intel's own default just above: a
+    // saved snapshot (Manage Ops/Save options as default) still overrides this below.
+    thisplugin.consumeKeysOnLinkThrown = thisplugin.defaultConsumeKeysOnLinkThrown();
 
     thisplugin.applySavedOptionsDefault();
 

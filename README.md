@@ -1557,7 +1557,7 @@ One agent, many devices. Simple Cloud Sync keeps all your IITC plugins&#39; data
 
 *[Homepage](https://github.com/Avataar120/IITC-Synchro/)* |
 *[Issue tracker](https://github.com/Avataar120/IITC-Synchro/issues)* |
-*Version:* 2.3.0.20261007
+*Version:* 2.4.0.20261008
 
 
   

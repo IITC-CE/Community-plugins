@@ -3,7 +3,7 @@
 // @id              simple-cloud-sync@Avataar120
 // @name            Simple Cloud Sync
 // @category        Misc
-// @version         2.3.0.20261007
+// @version         2.4.0.20261008
 // @description     One agent, many devices. Simple Cloud Sync keeps all your IITC plugins' data -- bookmarks, drawings, settings -- perfectly in sync across your PC, phones and tablets, fully end-to-end encrypted.
 // @downloadURL     https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Avataar120/simple-cloud-sync.user.js
 // @updateURL       https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Avataar120/simple-cloud-sync.meta.js
@@ -23,10 +23,15 @@
 function wrapper(plugin_info) {
   if (typeof window.plugin !== 'function') window.plugin = function () {};
   plugin_info.buildName = 'main';
-  plugin_info.dateTimeVersion = '2026-10-07-090000';
+  plugin_info.dateTimeVersion = '2026-10-08-153000';
   plugin_info.pluginId = 'simpleCloudSync';
 
   const changelog = [{
+    version: '2.4.0',
+    changes: [
+      'NEW: Your faction (Resistance/Enlightened) is now sent to the sync server in clear text, so the admin page can show it; everything else stays fully end-to-end encrypted.',
+    ],
+  }, {
     version: '2.3.0',
     changes: [
       'IMPROVE: Simplified the plugin description to focus on the multi-device sync pitch.',
@@ -173,6 +178,14 @@ function wrapper(plugin_info) {
   self.getUser = function () {
     const nickname = window.PLAYER && window.PLAYER.nickname;
     return nickname ? nickname.toLowerCase() : null;
+  };
+
+  // Resistance or Enlightened, as IITC exposes it. Sent to the server in
+  // clear on every sync -- the one field that isn't end-to-end encrypted --
+  // so the admin page can show it; everything else stays unreadable to the server.
+  self.getFaction = function () {
+    const team = window.PLAYER && window.PLAYER.team;
+    return (team === 'RESISTANCE' || team === 'ENLIGHTENED') ? team : null;
   };
 
   self.getState = function () {
@@ -492,6 +505,8 @@ function wrapper(plugin_info) {
 
         const body = { v: self.PROTOCOL_VERSION, user: user, since: forceAll ? 0 : (state.rev || 0), entries: sentEntries };
         if (keys.wrappedKeyToSend) body.wrappedKey = keys.wrappedKeyToSend;
+        const faction = self.getFaction();
+        if (faction) body.faction = faction;
 
         return fetch(self.ENDPOINT + '/sync', {
           method: 'POST',
@@ -714,6 +729,8 @@ function wrapper(plugin_info) {
           keysToSend.forEach(function (k, i) { sentEntries[k] = { value: encryptedValues[i], ts: plainEntries[k].ts }; });
           const body = { v: self.PROTOCOL_VERSION, password: keys.authKey, user: user, since: 0, entries: sentEntries };
           if (keys.wrappedKeyToSend) body.wrappedKey = keys.wrappedKeyToSend;
+          const faction = self.getFaction();
+          if (faction) body.faction = faction;
           self.pendingBeacon = JSON.stringify(body);
         });
     }).catch(function () { /* kept as null, retried on the next tick */ });

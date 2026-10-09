@@ -198,7 +198,7 @@
       ],
       "preview": "https://raw.githubusercontent.com/Avataar120/fanfields3/master/FanFields3.png",
       "id_hash": "fanfields3-by-Avataar120",
-      "updatedAt": "2026-10-08T04:18:28.210Z",
+      "updatedAt": "2026-10-08T04:19:05.000Z",
       "_depends_links": [
         {
           "id": "draw-tools@breunigs",
@@ -234,7 +234,7 @@
       "id": "simple-cloud-sync@Avataar120",
       "name": "Simple Cloud Sync",
       "category": "Misc",
-      "version": "2.3.0.20261007",
+      "version": "2.4.0.20261008",
       "description": "One agent, many devices. Simple Cloud Sync keeps all your IITC plugins' data -- bookmarks, drawings, settings -- perfectly in sync across your PC, phones and tablets, fully end-to-end encrypted.",
       "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Avataar120/simple-cloud-sync.user.js",
       "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Avataar120/simple-cloud-sync.meta.js",
@@ -257,7 +257,7 @@
         "none"
       ],
       "id_hash": "simple-cloud-sync-by-Avataar120",
-      "updatedAt": "2026-10-08T04:18:28.782Z"
+      "updatedAt": "2026-10-09T04:23:36.826Z"
     },
     {
       "author": "BlancLapin",

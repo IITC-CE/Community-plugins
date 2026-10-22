@@ -3,7 +3,7 @@
 // @name            Ultimate Mission Maker - Extended
 // @id              ummex@McBen
 // @category        Mission
-// @version         1.3.1
+// @version         1.3.2
 // @namespace       https://github.com/IITC-CE/ingress-intel-total-conversion
 // @updateURL       https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/McBen/ummex.meta.js
 // @downloadURL     https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/McBen/ummex.user.js
@@ -17,6 +17,14 @@
 // ==/UserScript==
 
 /**
+ * # v1.3.2
+ * 
+ * - add option to remove mission image
+ * - (IMATTC) fix removing category might fail
+ * - (IMATTC) check for duplicate IDs (we might have created) and fix it
+ * - improve console.log on mission import error
+ * - remove deprecated JQuery styles
+ * 
  * # v1.3.1
  * 
  * - fix confirm dialog for import all missions ("ok" and "cancle" were inverted)
@@ -2793,11 +2801,15 @@ function wrapper_iitc(SCRIPT_INFO) {
         }
         const Button_button = (label, click, classes) => $("<button>", {
             text: label,
-            click,
+            on: {
+                click
+            },
             class: "umm-mission-btn " + (classes ?? "")
         }), dialogButton = (label, callback) => ({
             text: label,
-            click: callback,
+            on: {
+                click: callback
+            },
             class: "umm-dialog-button"
         }), dialogButtonClose = label => dialogButton(label ?? "Close", event => {
             $(event.currentTarget).parents(".ui-dialog").children(".ui-dialog-content").dialog("close");
@@ -3186,12 +3198,12 @@ function wrapper_iitc(SCRIPT_INFO) {
             html += "</div>";
             const buttons = [ dialogButton("< Main Menu", showUmmOptions), dialogButton("Changelog", () => dialog({
                 title: "Changelog",
-                html: miniMarkdown('# v1.3.1\n\n- fix confirm dialog for import all missions ("ok" and "cancle" were inverted)\n- fix status text for import\n\n# v1.3\n\n- Import all missions.\n  Create new missions or update existing unpublished missions.\n  Note: Changes to images are difficult to detect and may not always be recognized.\n- Warn when missions overlap, such as when one mission is simply the reverse of another.\n- Scale images if smaller as 256x256 or bigger as 512x512\n- Fixed an IMATTC interaction bug.\n- fixed two bugs of the origin page (they use outdated versions) to get a cleaner log\n\n# v1.2\n\n- new Picture dialog - setup Banner images directly in UMM.\n- added "Sequential" flag\n- with IMATTC support\n- reduce map movements\n\nwith all this addition you can now import a mission in minimal Steps:\n\n1.  load banner json\n2.  select mission\n3.  click "import"\n4.  submit mission\n    (repeat 2-4 for all missions)\n\n# v1.1.2\n\n- fix: dialogs auto open on load - forgotten debug code\n  (nah, the truth: the build script should have removed it, but it failed)\n\n# v1.1.1\n\n- fix: "edit" button was covering banner length in main dialog\n- dependencies update\n\n# v1.1\n\n- new "Mission Generator" dialog  \n  This new dialog provides several tools to modify current mission:\n  1. "Reset"  \n     Discard all current changes.\n  2. Add portals  \n     Adds nearby portals to the current mission.\n     You can:\n     - Limit selection using a DrawTools polygon\n     - Exclude individual portals with DrawTool Markers\n     - Restrict selection to portals within path hack range\n  3. Sort portals  \n     Attempts to arrange portals for the shortest possible path.\n     (Note: This is a complex optimization problem—results may vary.\n     The “keep end portal” option may occasionally fail.)\n  4. Change start  \n     Set the selected Portal as new mission start.\n     If no portal is selected, the start point will cycle through all mission portals.\n\n  All changes are temporary until "applied" or be "dismissed".  \n  Note: Distance calculations are based on straight-line (“as-the-crow-flies”) distances; real-world paths are not considered.\n\n- Use static layers  \n  UMM is now fully hidden when inactive. Background processing is also disabled while inactive.\n- Added Multi-Reverse  \n  Using the reverse action in the main dialog, you can now reverse an entire banner or selected parts of it—not just a single mission.\n- Drag: allow swapping mission portals\n- Fixed merge in main dialog\n- Fixed “Should merge?” prompt in split option (main dialog)\n- Mission-Select dialog moved to the left\n\n# v1.0.2\n\n- fix IITC-Button load\n  in iitc-button load order is differnet and custom "if UUM is loaded then disable it" failed\n- fix variable if both plugins are active\n\n# v1.0.1\n\n- fix mission number (index started by 0 instead of 1)\n\n# v1.0\n\nThis is a complete rewrite of the Ultimate Mission Maker from a developer perspective.\nThe entire codebase has been redesigned while maintaining the familiar user experience of the original UMM.\nBelow are the visible improvements and changes you\'ll notice.\n\n## What\'s Changed:\n\n- UMM is now hidden by default. You need to hit the "UMM" button in the Portal details window to make it appear.\n\n- **Select Mission Dialog** (open it through the toolbar or the main dialog)\n  - Selecting a mission is no longer required; simply open another mission\n  - Navigation buttons (+/-) allow you to cycle through missions\n  - Added split, clear, merge, and reverse commands for mission manipulation\n  - New mission information display: portal count and distances\n\n- **Banner Settins** (start window)\n  - changed Title placeholders to $T $M $N\n- **Option Dialog** (main window)\n  - Banner information now displays as a compact table\n  - Removed warning for mission counts that are not multiples of 6\n  - Added warning when missions lack sufficient waypoints\n\n- **Drag & Drop** in the mission editor path\n  - Move existing markers to adjust waypoints\n  - Add new waypoints by positioning intermediate markers at new locations\n  - Remove waypoints by double-clicking a marker\n  - Merge missions by dragging start and end markers together\n\n- **Mission Numbers**\n  - Potential split points are previewed while creating missions\n\n- **Waypoint edit**\n  - current mission is preselected\n  - passphrases: add random default questions.\n    when question & answer is empty a simple question will be set.\n\n- **Miscellaneous**\n  - Custom confirmation dialogs clarify actions and improve readability\n  - Switch between any missions, even those without portals\n  - Option to split missions when starting on a portal that\'s already assigned to another mission\n  - on mobile dialogs are not at the top instead of centered\n  - flash buttonbar on activation to draw attention\n\n---\n\n# History:\n\n## v1.0.beta.2 - 15.02.26\n\n- fixed update-URL in script header\n\n## v1.0.beta - 15.02.26\n\n- first public release\n- automated build process on GitHub\n- fixed layer checkboxes in Option-Dialog\n- add "clear" mission to selection dialog\n- always color selected mission even when not in Edit-Mode\n- move "no" to left in custom confirm dialog\n- remove doubled "v" in version numbers\n- fix toggeling edit mode on mission detail window "save" button\n- close dialog on mission detail window "save"\n- fix linebreaks in changelog dialog\n- select mission: directly select mission on combo-box change\n- fix question text in portal details\n- on mobile dialogs are not at the top instead of centered\n'),
+                html: miniMarkdown('# v1.3.2\n\n- add option to remove mission image\n- (IMATTC) fix removing category might fail\n- (IMATTC) check for duplicate IDs (we might have created) and fix it\n- improve console.log on mission import error\n- remove deprecated JQuery styles\n\n# v1.3.1\n\n- fix confirm dialog for import all missions ("ok" and "cancle" were inverted)\n- fix status text for import\n\n# v1.3\n\n- Import all missions.\n  Create new missions or update existing unpublished missions.\n  Note: Changes to images are difficult to detect and may not always be recognized.\n- Warn when missions overlap, such as when one mission is simply the reverse of another.\n- Scale images if smaller as 256x256 or bigger as 512x512\n- Fixed an IMATTC interaction bug.\n- fixed two bugs of the origin page (they use outdated versions) to get a cleaner log\n\n# v1.2\n\n- new Picture dialog - setup Banner images directly in UMM.\n- added "Sequential" flag\n- with IMATTC support\n- reduce map movements\n\nwith all this addition you can now import a mission in minimal Steps:\n\n1.  load banner json\n2.  select mission\n3.  click "import"\n4.  submit mission\n    (repeat 2-4 for all missions)\n\n# v1.1.2\n\n- fix: dialogs auto open on load - forgotten debug code\n  (nah, the truth: the build script should have removed it, but it failed)\n\n# v1.1.1\n\n- fix: "edit" button was covering banner length in main dialog\n- dependencies update\n\n# v1.1\n\n- new "Mission Generator" dialog  \n  This new dialog provides several tools to modify current mission:\n  1. "Reset"  \n     Discard all current changes.\n  2. Add portals  \n     Adds nearby portals to the current mission.\n     You can:\n     - Limit selection using a DrawTools polygon\n     - Exclude individual portals with DrawTool Markers\n     - Restrict selection to portals within path hack range\n  3. Sort portals  \n     Attempts to arrange portals for the shortest possible path.\n     (Note: This is a complex optimization problem—results may vary.\n     The “keep end portal” option may occasionally fail.)\n  4. Change start  \n     Set the selected Portal as new mission start.\n     If no portal is selected, the start point will cycle through all mission portals.\n\n  All changes are temporary until "applied" or be "dismissed".  \n  Note: Distance calculations are based on straight-line (“as-the-crow-flies”) distances; real-world paths are not considered.\n\n- Use static layers  \n  UMM is now fully hidden when inactive. Background processing is also disabled while inactive.\n- Added Multi-Reverse  \n  Using the reverse action in the main dialog, you can now reverse an entire banner or selected parts of it—not just a single mission.\n- Drag: allow swapping mission portals\n- Fixed merge in main dialog\n- Fixed “Should merge?” prompt in split option (main dialog)\n- Mission-Select dialog moved to the left\n\n# v1.0.2\n\n- fix IITC-Button load\n  in iitc-button load order is differnet and custom "if UUM is loaded then disable it" failed\n- fix variable if both plugins are active\n\n# v1.0.1\n\n- fix mission number (index started by 0 instead of 1)\n\n# v1.0\n\nThis is a complete rewrite of the Ultimate Mission Maker from a developer perspective.\nThe entire codebase has been redesigned while maintaining the familiar user experience of the original UMM.\nBelow are the visible improvements and changes you\'ll notice.\n\n## What\'s Changed:\n\n- UMM is now hidden by default. You need to hit the "UMM" button in the Portal details window to make it appear.\n\n- **Select Mission Dialog** (open it through the toolbar or the main dialog)\n  - Selecting a mission is no longer required; simply open another mission\n  - Navigation buttons (+/-) allow you to cycle through missions\n  - Added split, clear, merge, and reverse commands for mission manipulation\n  - New mission information display: portal count and distances\n\n- **Banner Settins** (start window)\n  - changed Title placeholders to $T $M $N\n- **Option Dialog** (main window)\n  - Banner information now displays as a compact table\n  - Removed warning for mission counts that are not multiples of 6\n  - Added warning when missions lack sufficient waypoints\n\n- **Drag & Drop** in the mission editor path\n  - Move existing markers to adjust waypoints\n  - Add new waypoints by positioning intermediate markers at new locations\n  - Remove waypoints by double-clicking a marker\n  - Merge missions by dragging start and end markers together\n\n- **Mission Numbers**\n  - Potential split points are previewed while creating missions\n\n- **Waypoint edit**\n  - current mission is preselected\n  - passphrases: add random default questions.\n    when question & answer is empty a simple question will be set.\n\n- **Miscellaneous**\n  - Custom confirmation dialogs clarify actions and improve readability\n  - Switch between any missions, even those without portals\n  - Option to split missions when starting on a portal that\'s already assigned to another mission\n  - on mobile dialogs are not at the top instead of centered\n  - flash buttonbar on activation to draw attention\n\n---\n\n# History:\n\n## v1.0.beta.2 - 15.02.26\n\n- fixed update-URL in script header\n\n## v1.0.beta - 15.02.26\n\n- first public release\n- automated build process on GitHub\n- fixed layer checkboxes in Option-Dialog\n- add "clear" mission to selection dialog\n- always color selected mission even when not in Edit-Mode\n- move "no" to left in custom confirm dialog\n- remove doubled "v" in version numbers\n- fix toggeling edit mode on mission detail window "save" button\n- close dialog on mission detail window "save"\n- fix linebreaks in changelog dialog\n- select mission: directly select mission on combo-box change\n- fix question text in portal details\n- on mobile dialogs are not at the top instead of centered\n'),
                 width: 500
             })), dialogButtonClose() ];
             window.dialog({
                 html,
-                title: `${title} v1.3.1 - About`,
+                title: `${title} v1.3.2 - About`,
                 id: "umm-options",
                 width: 350,
                 buttons
@@ -3420,7 +3432,7 @@ function wrapper_iitc(SCRIPT_INFO) {
             };
             Generator_dialog = window.dialog({
                 html,
-                title: `${title} v1.3.1`,
+                title: `${title} v1.3.2`,
                 id: "umm-options_generator",
                 width: 350,
                 position,
@@ -3893,6 +3905,16 @@ function wrapper_iitc(SCRIPT_INFO) {
                     saveAs(blob, filename, "application/zip");
                 });
             } else files.forEach(file => saveAs(file, file.name, "image/png"));
+        }, removeImages = async () => {
+            let missions = currentEditMode.getSelected();
+            0 === missions.length && (missions = main.state.missions.getAll());
+            const missionsWithImages = missions.filter(mission => mission.hasImage());
+            if (0 === missionsWithImages.length) return;
+            const missionLabel = 1 === missionsWithImages.length ? "mission" : "missions";
+            await confirmDialog({
+                message: `Remove images from ${missionsWithImages.length} ${missionLabel}?`
+            }) && (missionsWithImages.forEach(mission => mission.setImage(-1)), main.state.removeUnusedImages(), 
+            ImageEditor_updatePreview(), currentEditMode.imageReloaded());
         }, onMaskChanged = status => {
             tiles.forEach(t => t.showMask(status));
         }, onBorderChanged = status => {
@@ -3921,7 +3943,7 @@ function wrapper_iitc(SCRIPT_INFO) {
             };
             window.dialog({
                 html,
-                title: `${title} v1.3.1`,
+                title: `${title} v1.3.2`,
                 id: "umm-options",
                 width: 350,
                 position,
@@ -4056,7 +4078,9 @@ function wrapper_iitc(SCRIPT_INFO) {
                     type: "radio",
                     id: "EM_noEdit",
                     name: "editmode",
-                    click: () => setEditMode(0)
+                    on: {
+                        click: () => setEditMode(0)
+                    }
                 }), $("<label>", {
                     for: "EM_noEdit",
                     text: "no edit"
@@ -4064,7 +4088,9 @@ function wrapper_iitc(SCRIPT_INFO) {
                     type: "radio",
                     id: "EM_massedit",
                     name: "editmode",
-                    click: () => setEditMode(1)
+                    on: {
+                        click: () => setEditMode(1)
+                    }
                 }).prop("checked", !0), $("<label>", {
                     for: "EM_massedit",
                     text: "one image"
@@ -4072,7 +4098,9 @@ function wrapper_iitc(SCRIPT_INFO) {
                     type: "radio",
                     id: "EM_singleedit",
                     name: "editmode",
-                    click: () => setEditMode(2)
+                    on: {
+                        click: () => setEditMode(2)
+                    }
                 }), $("<label>", {
                     for: "EM_singleedit",
                     text: "seperated images"
@@ -4080,7 +4108,9 @@ function wrapper_iitc(SCRIPT_INFO) {
                     type: "radio",
                     id: "EM_swapedit",
                     name: "editmode",
-                    click: () => setEditMode(3)
+                    on: {
+                        click: () => setEditMode(3)
+                    }
                 }), $("<label>", {
                     for: "EM_swapedit",
                     text: "swap images"
@@ -4107,11 +4137,23 @@ function wrapper_iitc(SCRIPT_INFO) {
                     id: "download-image",
                     type: "button",
                     text: "Download Images",
-                    click: downloadImages
+                    on: {
+                        click: downloadImages
+                    }
                 }), Checkbox_checkbox("saveAsZip", "as ZIP", !0).css({
                     "margin-left": "auto",
                     width: "6em"
-                })))));
+                })), $("<button>", {
+                    id: "delete-image",
+                    type: "button",
+                    text: "Remove Images",
+                    on: {
+                        click: removeImages
+                    }
+                }).css({
+                    width: "50%",
+                    "margin-top": "0.8em"
+                }))));
                 window.dialog({
                     title: "UUM-Image Edit",
                     id: "umm_image_edit",
@@ -4145,7 +4187,7 @@ function wrapper_iitc(SCRIPT_INFO) {
                 at: "center top"
             }), window.dialog({
                 html,
-                title: `${title} v1.3.1`,
+                title: `${title} v1.3.2`,
                 id: "umm-options",
                 width: 350,
                 position,
@@ -4203,7 +4245,7 @@ function wrapper_iitc(SCRIPT_INFO) {
             html += '<table>\n      <tr><td>$T = Mission title</td><td>additional flags:</td></tr>\n      <tr><td>$N = Current Missione number</td><td>$0n = with leading zeros</td></tr>\n      <tr><td>$M = Banner length</td><td>$3n = minimum length</td></tr>\n      </table>\n      <br><br>Examples: "$T $N / $M" or "$0n.$m $t"  or "$T $03N-$03M" </p> \n      </details>\n      <input id="umm-mission-title-format" name="umm-mission-title-format" type="text" placeholder="Enter a title format" style="margin-bottom: 5px;">\n      <b>Preview: </b><span id="umm-mission-title-preview"></span>', 
             html += "</div>", currentDialog = window.dialog({
                 html,
-                title: "Edit banner details - UMM v1.3.1",
+                title: "Edit banner details - UMM v1.3.2",
                 id: "umm-options",
                 width: 400,
                 buttons: [ dialogButton("< Main Menu", showUmmOptions), dialogButton("Save", () => successfulSave(toggleMissionModeAfterSave)), dialogButtonClose() ]
@@ -4576,6 +4618,14 @@ function wrapper_iitc(SCRIPT_INFO) {
 };
 
 /**
+ * # v1.3.2
+ * 
+ * - add option to remove mission image
+ * - (IMATTC) fix removing category might fail
+ * - (IMATTC) check for duplicate IDs (we might have created) and fix it
+ * - improve console.log on mission import error
+ * - remove deprecated JQuery styles
+ * 
  * # v1.3.1
  * 
  * - fix confirm dialog for import all missions ("ok" and "cancle" were inverted)
@@ -7088,7 +7138,12 @@ function wrapper_editor(SCRIPT_INFO) {
                 return this.images_changed;
             }
         }
-        const show = (message = "Please wait…", prefix) => {
+        const MeUi_notification = (text, persistent = !1) => {
+            document.querySelectorAll(".umm-notification").forEach(element => element.remove());
+            const element = document.createElement("div");
+            element.className = "umm-notification", element.textContent = text, document.body.append(element), 
+            persistent || window.setTimeout(() => element.remove(), 3e3);
+        }, show = (message = "Please wait…", prefix) => {
             if ($("#userscript-progress-overlay").length > 0) throw new Error("progress already visible");
             const overlay = $("<div>", {
                 id: "userscript-progress-overlay"
@@ -7102,7 +7157,9 @@ function wrapper_editor(SCRIPT_INFO) {
             }), $("<button>", {
                 id: "progress-cancel",
                 text: "cancel",
-                click: () => hide()
+                on: {
+                    click: () => hide()
+                }
             })));
             $("body").append(overlay), startAnim(), $(".progress-message").text(message);
         }, update = (message = "Please wait…") => {
@@ -7179,13 +7236,21 @@ function wrapper_editor(SCRIPT_INFO) {
                 const key = `allCategories_${$(".navbar-login a").first().text().trim()}`;
                 localStorage.setItem(key, JSON.stringify(categories));
             }
-        }, catchCategoryControl = async category => {
+        }, countDuplicateMissionIds = () => (categories => {
+            const seen = new Set;
+            let duplicates = 0;
+            return categories.forEach(category => {
+                category.missions.forEach(missionId => {
+                    seen.has(missionId) ? duplicates++ : seen.add(missionId);
+                });
+            }), duplicates;
+        })(loadCategoryContent()), catchCategoryControl = async (category, missionId) => {
             try {
                 const element = await waitForControl($(".preview-buttons").get(0), ".category-dropdown", 800);
                 getEditorScope().selectedCategoryID = category, $(element).val(category);
-                const store = loadCategoryContent();
-                store[category].missions.pop(), storeCategoryContent(store);
-            } catch {}
+                const store = loadCategoryContent(), categoryMissions = store[category]?.missions, pos = categoryMissions?.indexOf(missionId) ?? -1;
+                categoryMissions && -1 !== pos && categoryMissions.splice(pos, 1), storeCategoryContent(store);
+            } catch (error) {}
         }, waitForControl = (parent, selector, timeoutMs = 1e5) => {
             const existing = document.querySelector(selector);
             return existing ? Promise.resolve(existing) : new Promise((resolve, reject) => {
@@ -7263,7 +7328,7 @@ function wrapper_editor(SCRIPT_INFO) {
             (() => {
                 if (localStorage.getItem("allCategories")) return !0;
                 const key = `allCategories_${$(".navbar-login a").first().text().trim()}`;
-                return void 0 !== localStorage.getItem(key);
+                return null !== localStorage.getItem(key);
             })() && setIMATTCCategory(mission), submit && mission.hasImage() ? (update("submit"), 
             await (async editor => {
                 editor.submitMission(), await waitForRouteChange();
@@ -7323,13 +7388,16 @@ function wrapper_editor(SCRIPT_INFO) {
                 -1 !== catID && (category => {
                     const id = getEditorScope().mission.mission_guid, store = loadCategoryContent();
                     store.forEach((cat, index) => {
-                        index !== category && -1 !== cat.missions.indexOf(id) && cat.missions.splice(index, 1);
+                        if (index !== category) {
+                            const pos = cat.missions.indexOf(id);
+                            -1 !== pos && cat.missions.splice(pos, 1);
+                        }
                     }), store[category].missions.includes(id) || store[category].missions.push(id), 
-                    storeCategoryContent(store), catchCategoryControl(category);
+                    storeCategoryContent(store), catchCategoryControl(category, id);
                 })(catID);
             }
         }, refreshMission = async () => {
-            update("Refreshing"), notification("Refreshing mission...\n(Missing data detected)", !0);
+            update("Refreshing"), MeUi_notification("Refreshing mission...\n(Missing data detected)", !0);
             const scope = getEditorScope();
             await loadMission(scope.mission.mission_id);
         }, saveAndPreview = async (mission, editor) => {
@@ -7381,8 +7449,8 @@ function wrapper_editor(SCRIPT_INFO) {
                 aportal.objective.type = portal.objective.type, aportal.objective.passphrase_params.question = portal.objective.passphrase_params.question, 
                 aportal.objective.passphrase_params._single_passphrase = portal.objective.passphrase_params._single_passphrase;
             }), editorScope.$apply(), missingImagesCount;
-        }, checkEditorState = editorScope => $(".loading").hasClass("ng-hide") ? editorScope.mission ? !(editorScope.mission.definition.waypoints.length > 0 && !confirm("Your current mission already contains portals/waypoints. Are you sure you want to overwrite these?")) : (notification("You can not import a mission on this page\nStart with Create New Mission"), 
-        !1) : (notification("Please wait for the spinner in the top right to finish loading before importing a (new) mission"), 
+        }, checkEditorState = editorScope => $(".loading").hasClass("ng-hide") ? editorScope.mission ? !(editorScope.mission.definition.waypoints.length > 0 && !confirm("Your current mission already contains portals/waypoints. Are you sure you want to overwrite these?")) : (MeUi_notification("You can not import a mission on this page\nStart with Create New Mission"), 
+        !1) : (MeUi_notification("Please wait for the spinner in the top right to finish loading before importing a (new) mission"), 
         !1), resetWaypoints = scope => {
             scope.mission.definition.waypoints = [], scope.waypointMarkers = [], scope.$apply();
         }, createPortal = portal => {
@@ -7481,7 +7549,9 @@ function wrapper_editor(SCRIPT_INFO) {
                     id: "umm-mission-editor-bar"
                 }).append($("<div>", {
                     id: "umm-mission-title",
-                    click: () => $("#umm-import-file").trigger("click")
+                    on: {
+                        click: () => $("#umm-import-file").trigger("click")
+                    }
                 }), $("<div>", {
                     style: "margin-top: 0.3em;"
                 }).append($("<input>", {
@@ -7496,16 +7566,40 @@ function wrapper_editor(SCRIPT_INFO) {
                 }).append($("<select>", {
                     id: "umm-mission-picker",
                     class: "umm-mission-picker",
-                    click: () => this.onMissionSelect()
+                    on: {
+                        click: () => this.onMissionSelect()
+                    }
                 }), $("<button>", {
                     id: "umm-mission-picker-btn",
                     class: "umm-mission-picker-btn",
                     text: "Import",
-                    click: () => this.importMission()
+                    on: {
+                        click: () => this.importMission()
+                    }
                 })), $("<span>", {
                     id: "umm-mission-edit"
                 }))), this.state = new State, this.setActiveBannerTitle(), this.bindFileImport(), 
-                this.generateMissionSelect(), this.generateImportOptions());
+                this.generateMissionSelect(), this.generateImportOptions(), this.fixImattcData());
+            }
+            async fixImattcData() {
+                const duplicateCount = countDuplicateMissionIds();
+                if (0 === duplicateCount) return;
+                if (!await (({message, details, title}) => {
+                    const prompt = [ title, message, details ].filter(Boolean).join("\n\n");
+                    return Promise.resolve(window.confirm(prompt));
+                })({
+                    message: "Found duplicated Missions in IMATTC Data",
+                    details: `This usually leads to loading error. Remove ${duplicateCount} duplicate IMATTC mission ID${1 === duplicateCount ? "" : "s"}?`
+                })) return;
+                const removed = (() => {
+                    const categories = loadCategoryContent(), seen = new Set;
+                    let removed = 0;
+                    return categories.forEach(category => {
+                        category.missions = category.missions.filter(missionId => seen.has(missionId) ? (removed++, 
+                        !1) : (seen.add(missionId), !0));
+                    }), removed > 0 && storeCategoryContent(categories), removed;
+                })();
+                MeUi_notification(`Removed ${removed} duplicate IMATTC mission ID${1 === removed ? "" : "s"}.\n\nReload is recommended.`);
             }
             setActiveBannerTitle() {
                 "" === this.state.getBannerName() ? $("#umm-mission-title").text("Please load a mission file...") : $("#umm-mission-title").text(this.state.getBannerName());
@@ -7574,18 +7668,21 @@ function wrapper_editor(SCRIPT_INFO) {
                     } finally {
                         hide();
                     }
-                })(mission) : notification("Mission has no text or portals");
+                })(mission) : MeUi_notification("Mission has no text or portals");
             }
             async importAllMissions() {
-                if (await getRemainingMissions() < this.state.missions.count()) return void notification("No enough missions slots remaining");
+                if (await getRemainingMissions() < this.state.missions.count()) return void MeUi_notification("No enough missions slots remaining");
                 const missions = main.state.missions.getAll();
-                missions.some(m => m.isEmpty() || !m.hasImage() || m.portals.length < 6) ? notification("Some Missions are missing data") : await (async missions => {
-                    if (confirm(`Import all ${missions.length} missions?`)) try {
+                missions.some(m => m.isEmpty() || !m.hasImage() || m.portals.length < 6) ? MeUi_notification("Some Missions are missing data") : await (async missions => {
+                    if (!confirm(`Import all ${missions.length} missions?`)) return;
+                    let currentMission;
+                    try {
                         show("creating banner");
-                        for (const mission of missions) setPrefix(`${mission.id + 1} / ${missions.length}: `), 
+                        for (const mission of missions) currentMission = mission, setPrefix(`${mission.id + 1} / ${missions.length}: `), 
                         await fillMission(mission, !0);
-                    } catch {
-                        console.error("end by exception"), hide();
+                    } catch (error) {
+                        const missionNumber = currentMission ? currentMission.id + 1 : "unknown";
+                        console.error(`Import failed at mission ${missionNumber}`, error), MeUi_notification(`Import failed at mission ${missionNumber}. See the browser console for details.`);
                     } finally {
                         hide();
                     }

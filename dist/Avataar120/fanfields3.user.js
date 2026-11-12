@@ -3,7 +3,7 @@
 // @id              fanfields3@Avataar120
 // @name            Fan Fields 3
 // @category        Layer
-// @version         7.0.1.20261019
+// @version         7.1.1.20261111
 // @description     Draw a polygon around a handful of portals and get an instant, maximized fielding plan. Import your keys straight from Ingress -- even without a Core subscription. Predict and optimize your walking route, and much more. Pair it with the Simple Cloud Sync plugin to keep all your devices connected and perfectly in sync, with full privacy guaranteed.
 // @downloadURL     https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Avataar120/fanfields3.user.js
 // @updateURL       https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Avataar120/fanfields3.meta.js
@@ -25,13 +25,23 @@ function wrapper(plugin_info) {
   // ensure plugin framework is there, even if iitc is not yet loaded
   if (typeof window.plugin !== 'function') window.plugin = function () {};
   plugin_info.buildName = 'main';
-  plugin_info.dateTimeVersion = '2026-10-19-120000';
+  plugin_info.dateTimeVersion = '2026-11-11-162304';
   plugin_info.pluginId = 'fanfields';
 
   /* global L, $, dialog, map, portals, links, plugin  -- eslint*/
   /* exported setup, changelog -- eslint */
 
   var changelog = [{
+      version: '7.1.1',
+      changes: [
+        'NEW: After about 2 hours, then again after 5 hours of active use, a one-time popup suggests starring the plugin on GitHub if you\'ve found it useful.',
+      ],
+    },{
+      version: '7.1.0',
+      changes: [
+        'IMPROVE: The anonymous usage data the plugin sends now also covers desktop or mobile, the plugin version, the plan mode and rough size, the options in use and how often the main features are used, to better understand how the plugin is used and where to improve it. Nothing about your plan is ever sent, and you stay fully anonymous.',
+      ],
+    },{
       version: '7.0.1',
       changes: [
         'FIX: Outbound Fan Field plans sometimes only closed one of a pair of fields that should have closed together, because the anchor was walked last instead of before the links that depend on it. The walk order now visits the anchor earlier and is guaranteed to close every double field it plans, while still following the usual fan field capture route instead of backtracking.',
@@ -986,6 +996,7 @@ function wrapper(plugin_info) {
   // portal as the anchor (see the portalSelected hook in setup()).
   thisplugin.toggleAnchorPicking = function () {
     thisplugin.isPickingAnchor = !thisplugin.isPickingAnchor;
+    if (thisplugin.isPickingAnchor) thisplugin.countUsage('anchor');
     thisplugin.updateAnchorPickingButton();
   };
 
@@ -1033,6 +1044,7 @@ function wrapper(plugin_info) {
   // called while picking is armed, never recalculates the plan itself (see
   // thisplugin.togglePortalExclusionMode for that).
   thisplugin.toggleExcludedPortal = function (guid) {
+    thisplugin.countUsage('exclude');
     var now = Date.now();
     var last = thisplugin._lastExcludeToggleAt[guid];
     if (last !== undefined && (now - last) < thisplugin.EXCLUDE_TOGGLE_DEBOUNCE_MS) return;
@@ -1238,6 +1250,95 @@ function wrapper(plugin_info) {
       width: width,
       closeOnEscape: true
     });
+  };
+
+  // GitHub star prompt: shown once after roughly 2 hours of active use, and once more after 5
+  // hours — "active" meaning the browser tab is visible, counted in whole-minute ticks
+  // (thisplugin.STAR_TIP_TICK_SECONDS) rather than wall-clock time, so a tab left open and
+  // forgotten in the background doesn't count. Each threshold fires at most once ever, tracked
+  // by thisplugin.STAR_TIP_SHOWN_KEY, independently of usage stats (thisplugin.initUsageStats)
+  // so this still works even when that's unavailable (no Web Crypto, no window.PLAYER yet).
+  //
+  // To try the dialog itself right away, from the console: window.plugin.fanfields.showStarTipDialog();
+  // To test the full time-based flow without actually waiting, lower the thresholds first, e.g.
+  // window.plugin.fanfields.STAR_TIP_THRESHOLDS_S = [10, 20]; — the next tick (within
+  // STAR_TIP_TICK_SECONDS) then shows it for real. localStorage.removeItem('plugin-fanfields3-startip-shown')
+  // (and the matching -active-seconds key) resets a threshold already marked as shown.
+  thisplugin.STAR_TIP_ACTIVE_SECONDS_KEY = 'plugin-fanfields3-startip-active-seconds';
+  thisplugin.STAR_TIP_SHOWN_KEY = 'plugin-fanfields3-startip-shown';
+  thisplugin.STAR_TIP_THRESHOLDS_S = [2 * 60 * 60, 5 * 60 * 60];
+  thisplugin.STAR_TIP_TICK_SECONDS = 60;
+  thisplugin.STAR_TIP_URL = 'https://github.com/Avataar120/fanfields3';
+  thisplugin._starTipTimer = null;
+
+  thisplugin.getStarTipShownThresholds = function () {
+    try {
+      var stored = JSON.parse(localStorage.getItem(thisplugin.STAR_TIP_SHOWN_KEY) || '[]');
+      return Array.isArray(stored) ? stored : [];
+    } catch (e) {
+      return [];
+    }
+  };
+
+  thisplugin.showStarTipDialog = function () {
+    var width = Math.min(420, thisplugin.getMaxDialogWidth());
+    dialog({
+      html: '<p>You\'ve been planning with Fan Fields 3 for a good while now. If it\'s been useful to you, ' +
+        'a star on GitHub helps other Ingress agents discover it too — and it only takes a couple of clicks.</p>' +
+        '<p><b>How to star it:</b> on the repository page, click the <b>&#9734; Star</b> button near the top ' +
+        'right (sign in to GitHub first if asked).</p>',
+      id: 'plugin_fanfields3_alert_startip',
+      title: 'Fan Fields 3 - Enjoying it?',
+      width: width,
+      closeOnEscape: true
+    });
+
+    $('#dialog-plugin_fanfields3_alert_startip').dialog('option', 'buttons', {
+      Great: function () {
+        window.open(thisplugin.STAR_TIP_URL, '_blank');
+        $(this).dialog('close');
+      },
+      'Not now': function () {
+        $(this).dialog('close');
+      }
+    });
+  };
+
+  // One tick of active time: adds it to the running total and, the first time this crosses one
+  // or more thresholds, shows the dialog once and marks every threshold crossed by this same
+  // tick as shown — so a tick that happens to jump past more than one at once (only plausible in
+  // testing, by seeding a large active-seconds value directly) still only ever shows a single
+  // dialog, never one per threshold, and never shows again for a threshold already passed.
+  thisplugin.tickStarTip = function () {
+    var total = (parseInt(localStorage.getItem(thisplugin.STAR_TIP_ACTIVE_SECONDS_KEY), 10) || 0) +
+      thisplugin.STAR_TIP_TICK_SECONDS;
+    localStorage.setItem(thisplugin.STAR_TIP_ACTIVE_SECONDS_KEY, String(total));
+
+    var shown = thisplugin.getStarTipShownThresholds();
+    var due = thisplugin.STAR_TIP_THRESHOLDS_S.filter(function (threshold) {
+      return total >= threshold && shown.indexOf(threshold) === -1;
+    });
+    if (!due.length) return;
+
+    localStorage.setItem(thisplugin.STAR_TIP_SHOWN_KEY, JSON.stringify(shown.concat(due)));
+    thisplugin.showStarTipDialog();
+  };
+
+  thisplugin._startStarTipTicking = function () {
+    if (thisplugin._starTipTimer) return;
+    thisplugin._starTipTimer = setInterval(thisplugin.tickStarTip, thisplugin.STAR_TIP_TICK_SECONDS * 1000);
+  };
+  thisplugin._stopStarTipTicking = function () {
+    clearInterval(thisplugin._starTipTimer);
+    thisplugin._starTipTimer = null;
+  };
+
+  thisplugin.initStarTip = function () {
+    document.addEventListener('visibilitychange', function () {
+      if (document.visibilityState === 'visible') thisplugin._startStarTipTicking();
+      else thisplugin._stopStarTipTicking();
+    });
+    if (document.visibilityState === 'visible') thisplugin._startStarTipTicking();
   };
 
 
@@ -1609,6 +1710,7 @@ function wrapper(plugin_info) {
       .off('click.plugin_fanfields3_activity')
       .on('click.plugin_fanfields3_activity', '#plugin_fanfields3_activity_refresh', function (ev) {
         ev.preventDefault();
+        thisplugin.countUsage('activityRefresh');
         thisplugin.refreshMyActivityToday();
       });
   };
@@ -1630,6 +1732,7 @@ function wrapper(plugin_info) {
   };
 
   thisplugin.showStatistics = function () {
+    thisplugin.countUsage('stats');
     var width = 400;
     thisplugin.MaxDialogWidth = thisplugin.getMaxDialogWidth();
     if (thisplugin.MaxDialogWidth < width) {
@@ -1753,6 +1856,7 @@ function wrapper(plugin_info) {
   };
 
   thisplugin.routeWithPortalRoute = function () {
+    thisplugin.countUsage('portalRoute');
     var routePlugin = thisplugin.getPortalRoutePlugin();
 
     if (!routePlugin) {
@@ -2529,6 +2633,7 @@ function wrapper(plugin_info) {
 
   // Show as list
   thisplugin.exportText = function () {
+    thisplugin.countUsage('taskList');
     thisplugin.exportDialogWidth = 500;
 
     var width = thisplugin.exportDialogWidth;
@@ -2665,6 +2770,7 @@ function wrapper(plugin_info) {
     $buttonpane.find('#plugin_fanfields3_tasklist_refresh')
       .off('click')
       .on('click', function () {
+        thisplugin.countUsage('taskRefresh');
         thisplugin.forceMapDataRefresh();
       });
     $buttonpane.find('#plugin_fanfields3_tasklist_reroute')
@@ -2811,6 +2917,7 @@ function wrapper(plugin_info) {
   // polyline grows stop by stop, with a marker at its leading edge, panning the map to keep
   // each stop in view as it's approached.
   thisplugin.startWalkSim = function () {
+    thisplugin.countUsage('walkSim');
     thisplugin.stopWalkSim();
 
     var stops = thisplugin.getWalkSimStops();
@@ -3166,6 +3273,7 @@ function wrapper(plugin_info) {
   // the new order everywhere the walk order is used, without recalculating the plan itself — so
   // it works the same whether the plan is Locked or not. Calls onDone once finished.
   thisplugin.rerouteFromPlayerPosition = function (onDone) {
+    thisplugin.countUsage('reroute');
     thisplugin.getPlayerPosition(function (position) {
       thisplugin.clearRouteOrder();
       thisplugin.validateUnderFieldLinks();
@@ -3194,6 +3302,7 @@ function wrapper(plugin_info) {
   // directly from the hamburger menu's "Plan details" submenu without the Task List ever being
   // open) and opens it in a new window for printing, with every link detail row expanded.
   thisplugin.exportTaskListToPDF = function () {
+    thisplugin.countUsage('printRoute');
     var $dlg = $('<div></div>').html(thisplugin.buildTaskListHTML());
 
     $dlg.find('[plugin_fanfields3_exportText_toggle="toggle"]')
@@ -3779,6 +3888,7 @@ function wrapper(plugin_info) {
   // same drawing, the same way DrawTools' own "Reset" does — best-effort, since this plugin's
   // own op storage is already the source of truth either way.
   thisplugin.loadOp = function (op) {
+    thisplugin.countUsage('opLoad');
     var dt = window.plugin.drawTools;
     dt.drawnItems.clearLayers();
     (op.data || []).forEach(function (item) {
@@ -4020,6 +4130,7 @@ function wrapper(plugin_info) {
         return;
       }
 
+      thisplugin.countUsage('opSave');
       thisplugin.refreshManageOpsDialog();
     }
 
@@ -4105,6 +4216,7 @@ function wrapper(plugin_info) {
       thisplugin.confirmDialog('Fan Fields 3 - Manage Ops',
         'Overwrite "' + window.escapeHtmlSpecialChars(op.name) + '" with the current drawing? This cannot be undone.',
         function () {
+          thisplugin.countUsage('opSave');
           thisplugin.updateOp(opId);
           thisplugin.refreshManageOpsDialog();
         });
@@ -4133,6 +4245,7 @@ function wrapper(plugin_info) {
       });
       return;
     }
+    thisplugin.countUsage('ops');
 
     var width = 480;
     thisplugin.MaxDialogWidth = thisplugin.getMaxDialogWidth();
@@ -6712,6 +6825,7 @@ function wrapper(plugin_info) {
     $('#dialog-plugin_fanfields3_keysvideo').dialog('option', 'buttons', {
       Cancel: function () { $(this).dialog('close'); },
       'Apply to Keys plugin': function () {
+        thisplugin.countUsage('keysVideo');
         $result.find('tbody tr').each(function () {
           if (!$(this).find('.plugin_fanfields3_keysvideo_apply').prop('checked')) return;
           var guid = $(this).attr('data-guid');
@@ -9580,6 +9694,7 @@ function wrapper(plugin_info) {
   // print it to PDF if wanted. Desktop keeps the print-dialog route, which is a real browser
   // feature there.
   thisplugin.exportPlanPdf = function () {
+    thisplugin.countUsage('printPlan');
     var order = thisplugin.getDisplayOrder();
     if (!order || order.length < 2) {
       alert('Fan Fields 3: no plan to export yet -- draw a polygon around some portals first.');
@@ -10098,10 +10213,12 @@ function wrapper(plugin_info) {
   //
   // Anonymous usage ping, sent to a small server this plugin's author runs: a one-way hash of
   // the agent's nickname (never the nickname itself — see computeStatsAgentHash below), the
-  // faction, and how many seconds the plugin was active. The server derives a coarse region
-  // from the request's IP itself (never sent by this code) and never sees anything else. Used
-  // only to gauge how the plugin is actually used (which faction, which region, how much) —
-  // there is no per-feature tracking of what you click or plan.
+  // faction, and anonymous usage details (see statsUsageDetails): desktop or mobile, plugin
+  // version, fan or herringbone, a coarse plan size bucket, which options are on, and how many
+  // times each tracked feature was used since the previous ping. The server derives a coarse
+  // region from the request's IP itself (never sent by this code). Nothing about the plan's
+  // content (portals, positions, op names) is ever sent. Used only to gauge how the plugin is
+  // actually used.
   //
   // In the field, IITC is often only open for a few seconds at a time (check the next step,
   // close it again), so there's no accumulating active time client-side on a timer: a ping this
@@ -10110,7 +10227,7 @@ function wrapper(plugin_info) {
   // STATS_PING_INTERVAL_MS below and SESSION_GAP_MS server-side) — a gap short enough to be the
   // same look at the map counts as active time, a long gap (plugin actually closed) doesn't.
   const STATS_ENDPOINT = 'https://fanfields.avataar120.com/collect';
-  const STATS_PROTOCOL_VERSION = 1;
+  const STATS_PROTOCOL_VERSION = 2;
   // While visible, re-ping often enough that consecutive pings always fall well under the
   // server's same-session cutoff — this is what lets a long, continuously open session still
   // accumulate active time, instead of only the instant open/close pings below.
@@ -10125,6 +10242,41 @@ function wrapper(plugin_info) {
 
   thisplugin._statsAgentHash = null;
   thisplugin._statsPingTimer = null;
+  // Feature use counts since the last ping sent (see thisplugin.countUsage); reset by each ping.
+  thisplugin._statsUsed = {};
+
+  // Records one use of a tracked feature, reported (then reset) with the next usage ping. Names
+  // must be in the stats server's USAGE_COUNTERS list, anything else is ignored there.
+  thisplugin.countUsage = function (name) {
+    thisplugin._statsUsed[name] = (thisplugin._statsUsed[name] || 0) + 1;
+  };
+
+  thisplugin.statsPlanSizeBucket = function (portalCount) {
+    if (portalCount <= 0) return '0';
+    if (portalCount <= 10) return '1-10';
+    if (portalCount <= 25) return '11-25';
+    if (portalCount <= 50) return '26-50';
+    return '50+';
+  };
+
+  // The plugin's state at ping time (the server credits the time since the previous ping to
+  // it), plus the feature use counts since that previous ping.
+  thisplugin.statsUsageDetails = function () {
+    var flags = [];
+    if (thisplugin.isTaskListDialogOpen()) flags.push('taskList');
+    if (thisplugin.consumeKeysOnLinkThrown) flags.push('spendKeys');
+    if (window.plugin && window.plugin.simpleCloudSync) flags.push('sync');
+    if (thisplugin.manageBlockers) flags.push('blockers');
+    if (thisplugin.use_bookmarks_only) flags.push('bookmarksOnly');
+    return {
+      platform: (L && L.Browser && L.Browser.mobile) ? 'mobile' : 'desktop',
+      version: changelog[0].version,
+      mode: thisplugin.fieldMode === thisplugin.fieldModeENUM.HERRINGBONE ? 'herringbone' : 'fan',
+      plan: thisplugin.statsPlanSizeBucket(thisplugin.sortedFanpoints.length),
+      flags: flags,
+      used: thisplugin._statsUsed
+    };
+  };
 
   function computeStatsAgentHash(nickname) {
     const enc = new TextEncoder();
@@ -10146,11 +10298,12 @@ function wrapper(plugin_info) {
   thisplugin._statsPing = function () {
     if (!thisplugin._statsAgentHash) return;
     try {
-      const payload = JSON.stringify({
+      const payload = JSON.stringify(Object.assign({
         v: STATS_PROTOCOL_VERSION,
         agent: thisplugin._statsAgentHash,
         faction: (window.PLAYER && window.PLAYER.team === 'ENLIGHTENED') ? 'ENL' : 'RES'
-      });
+      }, thisplugin.statsUsageDetails()));
+      thisplugin._statsUsed = {};
       if (navigator.sendBeacon) {
         navigator.sendBeacon(STATS_ENDPOINT, new Blob([payload], { type: 'text/plain' }));
       } else {
@@ -10429,6 +10582,7 @@ function wrapper(plugin_info) {
     window.addLayerGroup('Fanfields numbers', thisplugin.numbersLayerGroup, false);
 
     thisplugin.initUsageStats();
+    thisplugin.initStarTip();
 
     //window.map.on('zoomend', thisplugin.clearAllPortalLabels );
   };

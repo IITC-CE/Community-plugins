@@ -898,7 +898,7 @@ Draw a polygon around a handful of portals and get an instant, maximized fieldin
 *Recommends*: bookmarks@ZasoGD draw-tools-plus@zaso liveInventory@DanielOnDiordna keys@xelio  |
 *[Homepage](https://github.com/Avataar120/fanfields3/)* |
 *[Issue tracker](https://github.com/Avataar120/fanfields3/issues)* |
-*Version:* 7.0.1.20261019
+*Version:* 7.1.1.20261111
 
 
   

@@ -2,10 +2,10 @@
 // @author         DanielOnDiordna
 // @name           Console log
 // @category       Misc
-// @version        0.0.1.20210724.002500
+// @version        1.0.0.20261116.225800
 // @updateURL      https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/consolelog.meta.js
 // @downloadURL    https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/consolelog.user.js
-// @description    [danielondiordna-0.0.1.20210724.002500] Display the Console log in a window, captures console.log and console.warn. Execute Javascript commands with the eval field, results are displayed with JSON.stringify formatting
+// @description    [danielondiordna-1.0.0.20261116.225800] Display the Console log in a window, captures console.log, console.warn and console.error. Execute Javascript commands with the eval field. Objects are displayed with JSON.stringify formatting with circular structure removal
 // @id             consolelog@DanielOnDiordna
 // @namespace      https://softspot.nl/ingress/
 // @match          https://intel.ingress.com/*
@@ -15,17 +15,21 @@
 
 function wrapper(plugin_info) {
     // ensure plugin framework is there, even if iitc is not yet loaded
-    if(typeof window.plugin !== 'function') window.plugin = function() {};
+    if (typeof window.plugin !== 'function') window.plugin = () => {};
 
     // use own namespace for plugin
-    window.plugin.consolelog = function() {};
-    var self = window.plugin.consolelog;
+    const self = window.plugin.consolelog = () => {};
     self.id = 'consolelog';
-    self.title = 'Console log';
-    self.version = '0.0.1.20210724.002500';
-    self.author = 'DanielOnDiordna';
+    self.pluginname = 'Console log';
     self.changelog = `
 Changelog:
+
+version 1.0.0.20261116.225800
+- complete plugin renewal
+- better eval error handling
+- resize text areas to fit contents
+- removed jquery as much as possible
+
 version 0.0.1.20210321.121900
 - first release
 - updated plugin wrapper and userscript header formatting to match IITC-CE coding
@@ -37,89 +41,162 @@ version 0.0.1.20210421.190200
 version 0.0.1.20210724.002500
 - prevent double plugin setup on hook iitcLoaded
 `;
-    self.namespace = 'window.plugin.' + self.id + '.';
-    self.pluginname = 'plugin-' + self.id;
 
-    self.consolelog = '';
-
-    self.evaltext = function() {
-        $('#' + self.pluginname + 'result').val($('#' + self.pluginname + 'text').val() + " = " + JSON.stringify(eval($('#' + self.pluginname + 'text').val())) + ";\n" + $('#' + self.pluginname + 'result').val());
+    self.logging = {
+        eval: [],
+        console: []
     };
 
-    self.menu = function() {
-        let html = '<div>' +
-            '<input type="text" id="' + self.pluginname + 'text" size="55" />' +
-            '<input type="button" onclick="' + self.namespace + 'evaltext()" value="Eval"><br />' +
-            '<textarea rows="10" cols="55" id="' + self.pluginname + 'result"></textarea><br />' +
-            'Console:<br />' +
-            '<textarea rows="10" cols="55" id="' + self.pluginname + 'console"></textarea>' +
-            '</div>';
+    self.utils = {};
+    self.utils.currenttime = (date = new Date()) => {
+        return date.toLocaleTimeString('nl-CA');
+    };
+    self.utils.stringifyObject = (obj, replacer, space) => {
+        // Convert circular structure to JSON
+        const cache = [];
+        return JSON.stringify(obj, (key, value) => {
+            if (typeof value === 'object' && value !== null) {
+                if (cache.indexOf(value) !== -1) return; // circular reference found, discard key
+                cache.push(value); // store value in our collection
+            }
+            return typeof replacer == 'function' ? replacer(key, value) : value;
+        }, space);
+    };
 
-        dialog({
-            html: html,
-            id: self.id,
-            title: self.title,
-            width: 'auto'
+    self.updatemenu = (container = document.querySelector(`#dialog-${self.id}`)) => {
+        if (!container) return;
+        container.querySelector(`textarea[name=${self.id}console]`).value = self.logging.console.join("\n");
+        container.querySelector(`textarea[name=${self.id}evalresult]`).value = self.logging.eval.join("\n");
+    };
+
+    self.utils.footer = () => {
+        return `<span style="font-style: italic; font-size: smaller">${self.pluginname} version ${plugin_info.script.version} by ${plugin_info.author}</span>`;
+    };
+
+    self.menu = () => {
+        let container = document.createElement('div');
+        container.style.display = 'grid';
+        container.style.minWidth = '400px';
+        container.innerHTML = `
+<div style="display: grid; grid-template-columns: auto fit-content(0) fit-content(0);"><input type="text" name="${self.id}evalinput" placeholder="eval input"><button name="${self.id}evalbutton">Eval</button><button name="${self.id}evalclearbutton">Clear</button></div>
+<textarea name="${self.id}evalresult" style="field-sizing: content; min-height: 100px;" placeholder="eval results" readonly></textarea>
+<div style="display: grid; grid-template-columns: auto fit-content(0);"><div style="font-weight: bold">Console:</div><button name="${self.id}clearbutton">Clear</button></div>
+<textarea name="${self.id}console" style="field-sizing: content; min-height: 100px;" placeholder="console log results" readonly></textarea>
+${self.utils.footer()}`;
+
+        const evaltext = () => {
+            try {
+                const evaltext = container.querySelector(`input[name=${self.id}evalinput]`).value;
+                const evalresult = eval(evaltext);
+                self.logging.eval.push(`${evaltext} = ${self.utils.stringifyObject(evalresult)};`);
+            } catch({ name, message }) {
+                self.logging.eval.push(`${name}: ${message};`);
+            }
+            self.updatemenu(container);
+        };
+        container.querySelector(`button[name=${self.id}evalbutton]`).addEventListener('click',e => {
+            evaltext();
         });
-
-        $('#' + self.pluginname + 'console').val(self.consolelog);
-        $('#' + self.pluginname + 'text').on('keypress',function(e) {
+        container.querySelector(`button[name=${self.id}evalclearbutton]`).addEventListener('click',e => {
+            self.logging.eval = [];
+            self.updatemenu(container);
+        });
+        container.querySelector(`input[name=${self.id}evalinput]`).addEventListener('keypress',e => {
             if (e.which == 13) {
-                self.evaltext();
+                evaltext();
             }
         });
+        container.querySelector(`button[name=${self.id}clearbutton]`).addEventListener('click',e => {
+            self.logging.console = [];
+            self.updatemenu(container);
+        });
+        self.updatemenu(container);
+
+        const position = { my: "center", at: "top" };
+        const dialog = window.dialog({
+            html: container,
+            id: self.id,
+            title: self.pluginname,
+            width: 'auto',
+            position: position
+        }).dialog('option', 'buttons', {
+            'Changelog': () => { alert(self.changelog); },
+            'Close': () => { $(dialog).dialog('close'); },
+        });
     };
 
-    self.setup = function() {
+    self.setup = {};
+    self.setup.main = function() {
         if ('pluginloaded' in self) {
-            console.log('IITC plugin already loaded: ' + self.title + ' version ' + self.version);
+            console.log(`IITC plugin already loaded: ${self.pluginname} version ${plugin_info.script.version}`);
             return;
-        } else {
-            self.pluginloaded = true;
+        }
+        self.pluginloaded = true;
+
+        if (window.IITC?.toolbox) { // modern IITC:
+            window.IITC.toolbox.addButton({
+                label: self.pluginname,
+                action: self.menu
+            });
+        } else { // legacy IITC:
+            let toolboxlink = document.querySelector('#toolbox').appendChild(document.createElement('a'));
+            toolboxlink.textContent = self.pluginname;
+            toolboxlink.addEventListener('click', function(e) {
+                e.preventDefault();
+                self.menu();
+            }, false);
         }
 
-        $('<a href="#">')
-            .text(self.title)
-            .click(self.menu)
-            .appendTo($('#toolbox'));
-
-        console.log('IITC plugin loaded: ' + self.title + ' version ' + self.version);
+        console.log(`IITC plugin loaded: ${self.pluginname} version ${plugin_info.script.version}`);
     };
 
-    var setup = function() {
+    self.setup.consolehijack = (f) => {
+        if (!(f in console)) return;
+        const originalfunction = console[f];
+        console[f] = (...args) => {
+            self.logging.console.push(self.utils.currenttime() + " " + (f == 'log' ? '' : `${f.toUpperCase()}: `) + args.map(arg => typeof arg == 'object' ? self.utils.stringifyObject(arg) : arg).join(','));
+            self.updatemenu();
+            originalfunction.apply(console,args);
+        };
+    };
+
+    self.setup.boot = () => {
         //if (typeof ulog == "function") ulog = function () { return console; };
 
-        (function(){
-            var oldLog = console.log;
-            console.log = function (message) {
-                self.consolelog = new Date().toLocaleTimeString() + " " + message + "\n" + self.consolelog;
-                $('#' + self.pluginname + 'console').val(self.consolelog);
-                oldLog.apply(console, arguments);
-            };
-        })();
+        self.setup.consolehijack('log');
+        self.setup.consolehijack('warn');
+        self.setup.consolehijack('error');
 
-        (function(){
-            var oldWarn = console.warn;
-            console.warn = function (message) {
-                self.consolelog = new Date().toLocaleTimeString() + " WARN: " + message + "\n" + self.consolelog;
-                $('#' + self.pluginname + 'console').val(self.consolelog);
-                oldWarn.apply(console, arguments);
-            };
-        })();
-
-        (window.iitcLoaded?self.setup():window.addHook('iitcLoaded',self.setup));
+        (window.iitcLoaded ? self.setup.main() : window.addHook('iitcLoaded',self.setup.main));
     };
 
-    setup.info = plugin_info; //add the script info data to the function as a property
-    if(!window.bootPlugins) window.bootPlugins = [];
-    window.bootPlugins.push(setup);
-    // if IITC has already booted, immediately run the 'setup' function
-    if(window.iitcLoaded && typeof setup === 'function') setup();
+    // Added to support About IITC details and changelog:
+    const iitcsetup = self.setup.boot;
+
+    // set priority to boot, to make sure the add-on will run before player-activity-tracker setup:
+    iitcsetup.priority = 'boot'; // addLayerGroup and window.map.on give ERRORS
+
+    iitcsetup.info = plugin_info;
+    iitcsetup.info.changelog = [{version:`This is a <a href="https://softspot.nl/ingress/" target="_blank">softspot.nl</a> plugin by <a href="https://telegram.me/${plugin_info.author}" target="_blank">${plugin_info.author}</a>`,changes:[]},...self.changelog.replace(/^.*?version /s,'').split(/\nversion /).map(v=>{v=v.split(/\n/).map(li=>li.replace(/^- /,'')).filter(li=>li != ""); return {version:v.shift(),changes:v}})];
+    if (!window.bootPlugins) window.bootPlugins = [];
+    window.bootPlugins.push(iitcsetup);
+    if (window.iitcLoaded && typeof iitcsetup === 'function') iitcsetup();
 } // wrapper end
+
 // inject code into site context
 var script = document.createElement('script');
 var info = {};
-if (typeof GM_info !== 'undefined' && GM_info && GM_info.script) info.script = { version: GM_info.script.version, name: GM_info.script.name, description: GM_info.script.description };
+if (typeof GM_info !== 'undefined' && GM_info && GM_info.script) {
+    info.script = {
+        version: GM_info.script.version.replace(/\.\d{8}\.\d{6}$/,''),
+        name: GM_info.script.name,
+        description: GM_info.script.description
+    };
+    info.buildName = 'softspot.nl';
+    info.dateTimeVersion = GM_info.script.version.replace(/^.*(\d{4})(\d{2})(\d{2})\.(\d{6})/,'$1-$2-$3-$4');
+    info.pluginId = GM_info.script.id?.replace(/^iitc-plugin-/,'').replace(/@.*$/,'') || GM_info.script.header.replace(/^.*@id\s+iitc-plugin-/s,'').replace(/@.*$/s,'');
+    info.changelog = [];
+    info.author = GM_info.script.author;
+}
 script.appendChild(document.createTextNode('('+ wrapper +')('+JSON.stringify(info)+');'));
 (document.body || document.head || document.documentElement).appendChild(script);
-

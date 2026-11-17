@@ -1325,9 +1325,9 @@ With this plugin you can backup all your localstorage data, so you can save it t
 
 
 
-Display the Console log in a window, captures console.log and console.warn. Execute Javascript commands with the eval field, results are displayed with JSON.stringify formatting
+Display the Console log in a window, captures console.log, console.warn and console.error. Execute Javascript commands with the eval field. Objects are displayed with JSON.stringify formatting with circular structure removal
 
-*Version:* 0.0.1.20210724.002500
+*Version:* 1.0.0.20261116.225800
 
 
   
@@ -1477,7 +1477,7 @@ Upload and contribute your Media to Mediagress. Requires a C.O.R.E. subscription
 
 *[Homepage](https://ingress.plus/media)* |
 *[Issue tracker](https://github.com/dedo1911/ingress-plus/issues)* |
-*Version:* 1.0.6
+*Version:* 1.0.7
 
 
   

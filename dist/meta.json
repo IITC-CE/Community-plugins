@@ -198,7 +198,7 @@
       ],
       "preview": "https://raw.githubusercontent.com/Avataar120/fanfields3/master/FanFields3.png",
       "id_hash": "fanfields3-by-Avataar120",
-      "updatedAt": "2026-11-12T05:36:45.791Z",
+      "updatedAt": "2026-11-12T05:37:04.000Z",
       "_depends_links": [
         {
           "id": "draw-tools@breunigs",
@@ -406,10 +406,10 @@
       "author": "DanielOnDiordna",
       "name": "Console log",
       "category": "Misc",
-      "version": "0.0.1.20210724.002500",
+      "version": "1.0.0.20261116.225800",
       "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/consolelog.meta.js",
       "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/consolelog.user.js",
-      "description": "Display the Console log in a window, captures console.log and console.warn. Execute Javascript commands with the eval field, results are displayed with JSON.stringify formatting",
+      "description": "Display the Console log in a window, captures console.log, console.warn and console.error. Execute Javascript commands with the eval field. Objects are displayed with JSON.stringify formatting with circular structure removal",
       "id": "consolelog@DanielOnDiordna",
       "namespace": "https://softspot.nl/ingress/",
       "match": [
@@ -419,7 +419,7 @@
         "none"
       ],
       "id_hash": "consolelog-by-DanielOnDiordna",
-      "updatedAt": "2022-06-16T01:16:32.000Z"
+      "updatedAt": "2026-11-17T06:21:27.319Z"
     },
     {
       "author": "DanielOnDiordna",
@@ -1198,7 +1198,7 @@
       "author": "IngressPlus",
       "name": "Mediagress",
       "category": "Misc",
-      "version": "1.0.6",
+      "version": "1.0.7",
       "namespace": "https://ingress.plus",
       "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/IngressPlus/mediagress.user.js",
       "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/IngressPlus/mediagress.meta.js",
@@ -1222,7 +1222,7 @@
       ],
       "preview": "https://ingress.plus/images/mediagress_upload.jpg",
       "id_hash": "mediagress-by-IngressPlus",
-      "updatedAt": "2026-07-21T02:22:02.000Z"
+      "updatedAt": "2026-11-17T06:21:34.184Z"
     },
     {
       "author": "Jormund",

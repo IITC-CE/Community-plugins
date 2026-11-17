@@ -2,7 +2,7 @@
 // @author          IngressPlus
 // @name            Mediagress
 // @category        Misc
-// @version         1.0.6
+// @version         1.0.7
 // @namespace       https://ingress.plus
 // @downloadURL     https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/IngressPlus/mediagress.user.js
 // @updateURL       https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/IngressPlus/mediagress.meta.js
@@ -10,7 +10,6 @@
 // @description     Upload and contribute your Media to Mediagress. Requires a C.O.R.E. subscription to access your Inventory.
 // @icon            https://ingress.plus/icons/icon_mediagress_32.png
 // @icon64          https://ingress.plus/icons/icon_mediagress_64.png
-// @preview         https://ingress.plus/images/mediagress_upload.jpg
 // @issueTracker    https://github.com/dedo1911/ingress-plus/issues
 // @antiFeatures    export
 // @id              mediagress@IngressPlus
@@ -20,6 +19,11 @@
 // ==/UserScript==
 
 
+//
+//  Changelog 1.0.7
+//    Refuse to upload when Intel has not populated the agent details yet, instead of sending an unattributed upload
+//    Fixed alert messages rendering with stray backslashes and ragged indentation
+//    Fixed the plugin's dateTimeVersion, which was stuck on 1.0.5's date
 //
 //  Changelog 1.0.6
 //    Fixed upload confirmation showing wrong count for discovered media
@@ -68,7 +72,7 @@ function wrapper (pluginInfo) {
   // Name of the IITC build for first-party plugins
   pluginInfo.buildName = 'Mediagress'
   // Datetime-derived version of the plugin
-  pluginInfo.dateTimeVersion = '202605200000'
+  pluginInfo.dateTimeVersion = '202609180000'
   // ID/name of the plugin
   pluginInfo.pluginId = 'mediagress'
 
@@ -279,8 +283,7 @@ function wrapper (pluginInfo) {
     showUploadingOverlay('Getting inventory…')
 
     try {
-      const { uploadedIds: rawUploadedIds, lastUploadTimestamp } = getSettings()
-      const uploadedIds = rawUploadedIds.flat()
+      const { uploadedIds, lastUploadTimestamp } = getSettings()
       const remainingWaitMs = getRemainingWaitMs(lastUploadTimestamp)
 
       if (!window.IMPATIENT && remainingWaitMs > 0) {
@@ -300,9 +303,15 @@ function wrapper (pluginInfo) {
         console.warn('[Mediagress] Refresh your browser window to reset bypass')
       }
 
+      // PLAYER is IITC's global and is what the upload is attributed to; if
+      // Intel hasn't populated it there is nothing to attribute, and the
+      // server now rejects the upload anyway.
+      if (!window.PLAYER || !window.PLAYER.nickname) {
+        return window.alert('Intel has not loaded your agent details yet, so the upload cannot be attributed to you. Please refresh the page and try again.')
+      }
+
       if (!(await getHasActiveSubscription()).result) {
-        return window.alert(`Your inventory is only available on Intel if you have an active C.O.R.E. subscription. Without it, you cannot upload media.\n
-          Please subscribe to C.O.R.E. in the Ingress app and then return here!`)
+        return window.alert('Your inventory is only available on Intel if you have an active C.O.R.E. subscription. Without it, you cannot upload media.\n\nPlease subscribe to C.O.R.E. in the Ingress app and then return here!')
       }
 
       let rawInventory
@@ -310,23 +319,31 @@ function wrapper (pluginInfo) {
         rawInventory = await getInventory()
       } catch (inventoryError) {
         console.error('[Mediagress] Failed to fetch inventory: ', inventoryError)
-        window.alert(`Failed to fetch your inventory from Intel. This might happen if:\n\n
-          - Your session expired\n
-          - Intel is temporarily down\n
-          - The server doesn't recognize your C.O.R.E. subscription\n
-          \nPlease refresh or restart IITC and try again in a moment.`)
+        window.alert([
+          'Failed to fetch your inventory from Intel. This might happen if:',
+          '',
+          '- Your session expired',
+          '- Intel is temporarily down',
+          "- The server doesn't recognize your C.O.R.E. subscription",
+          '',
+          'Please refresh or restart IITC and try again in a moment.'
+        ].join('\n'))
         return
       }
 
       // Intel returns '{"result":[]}' when rate limited
       if (!rawInventory || !Array.isArray(rawInventory.result) || rawInventory.result.length === 0) {
         console.warn('[Mediagress] Inventory response was empty:', rawInventory)
-        window.alert(`We have received an empty inventory from Intel. This sometimes happens if:\n\n
-          - You have been rate limited by trying to access your inventory too often \(including via other plugins, for example\)\n
-          - Your C.O.R.E. subscription recently expired\n
-          - Intel is having sync issues\n
-          - Ingress is currently experiencing server issues\n
-          \nPlease refresh or restart IITC and try again in a few minutes.`)
+        window.alert([
+          'We have received an empty inventory from Intel. This sometimes happens if:',
+          '',
+          '- You have been rate limited by trying to access your inventory too often (including via other plugins, for example)',
+          '- Your C.O.R.E. subscription recently expired',
+          '- Intel is having sync issues',
+          '- Ingress is currently experiencing server issues',
+          '',
+          'Please refresh or restart IITC and try again in a few minutes.'
+        ].join('\n'))
         return
       }
 
@@ -360,7 +377,7 @@ function wrapper (pluginInfo) {
         headers: {
           'content-type': 'application/json'
         },
-        body: JSON.stringify({ medias: filteredMedia, player: PLAYER })
+        body: JSON.stringify({ medias: filteredMedia, player: window.PLAYER })
       })
 
       // Response: {"firstTimeUserUploadCount":0,"newMediaTitles":null,"previouslyUnknownMediaCount":0}

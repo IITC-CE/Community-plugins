@@ -1327,7 +1327,7 @@ With this plugin you can backup all your localstorage data, so you can save it t
 
 Display the Console log in a window, captures console.log, console.warn and console.error. Execute Javascript commands with the eval field. Objects are displayed with JSON.stringify formatting with circular structure removal
 
-*Version:* 1.0.0.20261116.225800
+*Version:* 1.0.0.20261117.231700
 
 
   

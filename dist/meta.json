@@ -406,7 +406,7 @@
       "author": "DanielOnDiordna",
       "name": "Console log",
       "category": "Misc",
-      "version": "1.0.0.20261116.225800",
+      "version": "1.0.0.20261117.231700",
       "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/consolelog.meta.js",
       "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/consolelog.user.js",
       "description": "Display the Console log in a window, captures console.log, console.warn and console.error. Execute Javascript commands with the eval field. Objects are displayed with JSON.stringify formatting with circular structure removal",
@@ -419,7 +419,7 @@
         "none"
       ],
       "id_hash": "consolelog-by-DanielOnDiordna",
-      "updatedAt": "2026-11-17T06:21:27.319Z"
+      "updatedAt": "2026-11-18T05:46:16.576Z"
     },
     {
       "author": "DanielOnDiordna",
@@ -1222,7 +1222,7 @@
       ],
       "preview": "https://ingress.plus/images/mediagress_upload.jpg",
       "id_hash": "mediagress-by-IngressPlus",
-      "updatedAt": "2026-11-17T06:21:34.184Z"
+      "updatedAt": "2026-11-17T06:21:53.000Z"
     },
     {
       "author": "Jormund",

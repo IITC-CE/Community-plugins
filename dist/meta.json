@@ -406,7 +406,7 @@
       "author": "DanielOnDiordna",
       "name": "Console log",
       "category": "Misc",
-      "version": "1.0.0.20261117.231700",
+      "version": "1.0.0.20261117.250700",
       "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/consolelog.meta.js",
       "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/consolelog.user.js",
       "description": "Display the Console log in a window, captures console.log, console.warn and console.error. Execute Javascript commands with the eval field. Objects are displayed with JSON.stringify formatting with circular structure removal",
@@ -419,7 +419,7 @@
         "none"
       ],
       "id_hash": "consolelog-by-DanielOnDiordna",
-      "updatedAt": "2026-11-18T05:46:16.576Z"
+      "updatedAt": "2026-11-19T17:35:13.297Z"
     },
     {
       "author": "DanielOnDiordna",
@@ -1286,6 +1286,30 @@
           "source": "core"
         }
       ]
+    },
+    {
+      "author": "Loupblanc1212",
+      "name": "Calculateur de MU",
+      "namespace": "https://intel.ingress.com/",
+      "version": "1.4.1",
+      "description": "Estime les Mind Units d’un champ en sélectionnant ses trois portails sur la carte Intel.",
+      "runAt": "document-end",
+      "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Loupblanc1212/iitc-calculateur-mu.meta.js",
+      "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Loupblanc1212/iitc-calculateur-mu.user.js",
+      "antiFeatures": [
+        "export"
+      ],
+      "id": "iitc-calculateur-mu@Loupblanc1212",
+      "homepageURL": "https://github.com/LoupblancSwitzerland/Ingress",
+      "issueTracker": "https://github.com/LoupblancSwitzerland/Ingress/issues",
+      "match": [
+        "https://intel.ingress.com/*"
+      ],
+      "grant": [
+        "none"
+      ],
+      "id_hash": "iitc-calculateur-mu-by-Loupblanc1212",
+      "updatedAt": "2026-11-19T17:35:20.535Z"
     },
     {
       "author": "MaxEtMoritz",

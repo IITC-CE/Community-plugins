@@ -2,7 +2,7 @@
 
 A collection of amazing plugins made by community.
 
-There are now 139 plugins from 48 authors in the collection.
+There are now 140 plugins from 49 authors in the collection.
 
 > Note: You must install IITC-CE on your [desktop](https://iitc.app/download_desktop)
 or [mobile device](https://iitc.app/download_mobile) to use IITC plugins.
@@ -1319,6 +1319,20 @@ With this plugin you can backup all your localstorage data, so you can save it t
 
 
   
+### [Calculateur de MU](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Loupblanc1212/iitc-calculateur-mu.user.js) by Loupblanc1212
+
+**Anti-features:** **[export](/CONTRIBUTING.md#anti-features)** 
+
+
+
+Estime les Mind Units d’un champ en sélectionnant ses trois portails sur la carte Intel.
+
+*[Homepage](https://github.com/LoupblancSwitzerland/Ingress)* |
+*[Issue tracker](https://github.com/LoupblancSwitzerland/Ingress/issues)* |
+*Version:* 1.4.1
+
+
+  
 ### [Console log](https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/consolelog.user.js) by DanielOnDiordna
 
 
@@ -1327,7 +1341,7 @@ With this plugin you can backup all your localstorage data, so you can save it t
 
 Display the Console log in a window, captures console.log, console.warn and console.error. Execute Javascript commands with the eval field. Objects are displayed with JSON.stringify formatting with circular structure removal
 
-*Version:* 1.0.0.20261117.231700
+*Version:* 1.0.0.20261117.250700
 
 
   

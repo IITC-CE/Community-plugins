@@ -2,10 +2,10 @@
 // @author         DanielOnDiordna
 // @name           Console log
 // @category       Misc
-// @version        1.0.0.20261117.231700
+// @version        1.0.0.20261117.250700
 // @updateURL      https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/consolelog.meta.js
 // @downloadURL    https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/consolelog.user.js
-// @description    [danielondiordna-1.0.0.20261117.231700] Display the Console log in a window, captures console.log, console.warn and console.error. Execute Javascript commands with the eval field. Objects are displayed with JSON.stringify formatting with circular structure removal
+// @description    [danielondiordna-1.0.0.20261117.250700] Display the Console log in a window, captures console.log, console.warn and console.error. Execute Javascript commands with the eval field. Objects are displayed with JSON.stringify formatting with circular structure removal
 // @id             consolelog@DanielOnDiordna
 // @namespace      https://softspot.nl/ingress/
 // @match          https://intel.ingress.com/*
@@ -24,11 +24,12 @@ function wrapper(plugin_info) {
     self.changelog = `
 Changelog:
 
-version 1.0.0.20261117.231700
+version 1.0.0.20261117.250700
 - complete plugin renewal
 - better eval error handling
 - resize text areas to fit contents
 - removed jquery as much as possible
+- replaced textarea elements by div elements
 
 version 0.0.1.20210321.121900
 - first release
@@ -65,8 +66,8 @@ version 0.0.1.20210724.002500
 
     self.updatemenu = (container = document.querySelector(`#dialog-${self.id}`)) => {
         if (!container) return;
-        container.querySelector(`textarea[name=${self.id}console]`).value = self.logging.console.join("\n");
-        container.querySelector(`textarea[name=${self.id}evalresult]`).value = self.logging.eval.join("\n");
+        container.querySelector(`div[name=${self.id}console]`).innerText = self.logging.console.join("\n");
+        container.querySelector(`div[name=${self.id}evalresult]`).innerText = self.logging.eval.join("\n");
     };
 
     self.utils.footer = () => {
@@ -78,10 +79,17 @@ version 0.0.1.20210724.002500
         container.style.display = 'grid';
         container.style.minWidth = '400px';
         container.innerHTML = `
-<div style="display: grid; grid-template-columns: auto fit-content(0) fit-content(0);"><input type="text" name="${self.id}evalinput" placeholder="eval input"><button name="${self.id}evalbutton">Eval</button><button name="${self.id}evalclearbutton">Clear</button></div>
-<textarea name="${self.id}evalresult" style="field-sizing: content; min-height: 100px;" placeholder="eval results" readonly></textarea>
-<div style="display: grid; grid-template-columns: auto fit-content(0);"><div style="font-weight: bold">Console:</div><button name="${self.id}clearbutton">Clear</button></div>
-<textarea name="${self.id}console" style="field-sizing: content; min-height: 100px;" placeholder="console log results" readonly></textarea>
+<div style="display: grid; grid-template-columns: auto fit-content(0) fit-content(0);">
+  <input type="text" name="${self.id}evalinput" placeholder="eval input">
+  <button name="${self.id}evalbutton">Eval</button>
+  <button name="${self.id}evalclearbutton">Clear</button>
+</div>
+<div name="${self.id}evalresult" placeholder="eval results" readonly></div>
+<div style="display: grid; grid-template-columns: auto fit-content(0);">
+  <div style="font-weight: bold">Console:</div>
+  <button name="${self.id}clearbutton">Clear</button>
+</div>
+<div name="${self.id}console" placeholder="console log results" readonly></div>
 ${self.utils.footer()}`;
 
         const evaltext = () => {
@@ -112,15 +120,6 @@ ${self.utils.footer()}`;
         });
         self.updatemenu(container);
 
-        if (!CSS.supports('field-sizing','content')) {
-            container.querySelectorAll('textarea').forEach(textarea => {
-                textarea.addEventListener('input', e => {
-                    textarea.style.height = "";
-                    textarea.style.height = textarea.scrollHeight + "px";
-                });
-            });
-        }
-
         const position = { my: "center", at: "top" };
         const dialog = window.dialog({
             html: container,
@@ -148,13 +147,27 @@ ${self.utils.footer()}`;
                 action: self.menu
             });
         } else { // legacy IITC:
-            let toolboxlink = document.querySelector('#toolbox').appendChild(document.createElement('a'));
+            const toolboxlink = document.querySelector('#toolbox').appendChild(document.createElement('a'));
             toolboxlink.textContent = self.pluginname;
             toolboxlink.addEventListener('click', function(e) {
                 e.preventDefault();
                 self.menu();
             }, false);
         }
+
+        const stylesheet = document.head.appendChild(document.createElement('style'));
+        stylesheet.innerHTML = `
+#dialog-${self.id} div[placeholder] {
+    min-height: 100px;
+    background-color: white;
+    color: black;
+    max-width: calc(100vw - 50px);
+}
+#dialog-${self.id} div[placeholder]:empty:before {
+    content: attr(placeholder);
+    color: #757575;
+}
+`;
 
         console.log(`IITC plugin loaded: ${self.pluginname} version ${plugin_info.script.version}`);
     };

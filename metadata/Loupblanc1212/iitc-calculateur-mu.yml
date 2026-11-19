@@ -1,0 +1,4 @@
+updateURL: https://raw.githubusercontent.com/LoupblancSwitzerland/Ingress/main/iitc-calculateur-mu.meta.js
+downloadURL: https://raw.githubusercontent.com/LoupblancSwitzerland/Ingress/main/iitc-calculateur-mu.user.js
+antiFeatures:
+  - export

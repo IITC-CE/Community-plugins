@@ -17,6 +17,9 @@ const REPO_DIR = '..';
  */
 const CATALOG_ONLY_KEYS = ['preview'];
 
+const FETCH_ATTEMPTS = 3;
+const FETCH_RETRY_DELAY_MS = 5000;
+
 const METABLOCK_RE_HEADER = /==UserScript==\s*([\s\S]*)\/\/\s*==\/UserScript==/m;
 const fileExists = async path => !!(await fs.promises.stat(path).catch(() => false));
 const metaKeysAtBottom = ['include', 'match', 'grant'];
@@ -224,8 +227,25 @@ export const read_patch = (author, filename) => {
     }
 };
 
+/**
+ * Downloads a file like fetchData(), retrying a failed download a couple of times, since the network
+ * of the build sometimes fails for a moment.
+ *
+ * @param {string} url - URL of the file.
+ * @return {Promise<?string>} Contents of the file, or null when every attempt failed.
+ */
+const fetch_with_retry = async (url) => {
+    for (let attempt = 1; ; attempt++) {
+        const data = await fetchData(url);
+        if (data !== null || attempt === FETCH_ATTEMPTS) return data;
+
+        console.log(`Download of ${url} failed, retrying in ${FETCH_RETRY_DELAY_MS / 1000} s`);
+        await new Promise(resolve => setTimeout(resolve, FETCH_RETRY_DELAY_MS));
+    }
+};
+
 export const is_plugin_update_available = async (metadata, author, filename) => {
-    const source_meta_js = await fetchData(metadata.updateURL);
+    const source_meta_js = await fetch_with_retry(metadata.updateURL);
     if (source_meta_js === null) throw new Error(`${metadata.updateURL} is not a valid URL`);
 
     const source_meta = parseMeta(source_meta_js);
@@ -326,7 +346,7 @@ const patch_plugin = (source_plugin_js, source_meta, patch) => {
 };
 
 export const update_plugin = async (metadata, author, filename) => {
-    const downloaded_plugin_js = await fetchData(metadata.downloadURL);
+    const downloaded_plugin_js = await fetch_with_retry(metadata.downloadURL);
     if (downloaded_plugin_js === null) throw new Error(`${metadata.downloadURL} is not a valid URL`);
 
     const source_plugin_js = normalize_eol(downloaded_plugin_js);
@@ -341,6 +361,7 @@ export const update_plugin = async (metadata, author, filename) => {
     if (meta.skipMatchCheck) {delete meta.skipMatchCheck;}
     if (meta.name === undefined) throw new Error(`name is missing in ${filename}`);
     meta.id = filename.replace(/\.yml$/, '')+'@'+author;
+    if (!meta.category) meta.category = 'Misc';
     for (const mergeKey of ['antiFeatures', 'depends', 'recommends']) {
         if (typeof meta[mergeKey] === 'object') {
             meta[mergeKey] = meta[mergeKey].join('|');
@@ -377,9 +398,6 @@ export const get_plugins_in_categories = (metadata) => {
     let data = {};
 
     for (const plugin of metadata) {
-        if (plugin.category === undefined) {
-            plugin.category = 'Misc';
-        }
         if (data[plugin.category] === undefined) {
             data[plugin.category] = [];
         }
@@ -512,6 +530,7 @@ export const get_dist_plugins = async () => {
         for (const key of CATALOG_ONLY_KEYS) delete meta[key]; // published before they were excluded
         Object.assign(meta, catalog_only_meta(author, dist_filename));
 
+        if (!meta.category) meta.category = 'Misc'; // published before it was required
         meta.description = remove_brackets(meta.description || "");
         meta.id_hash = meta.id.replace("@", "-by-");
         community_plugins_ids.push(meta.id_hash);

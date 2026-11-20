@@ -2,3 +2,4 @@ updateURL: https://raw.githubusercontent.com/LoupblancSwitzerland/Ingress/main/i
 downloadURL: https://raw.githubusercontent.com/LoupblancSwitzerland/Ingress/main/iitc-calculateur-mu.user.js
 antiFeatures:
   - export
+preview: https://raw.githubusercontent.com/LoupblancSwitzerland/Ingress/main/badge-calculateur-mu.png

@@ -3,7 +3,7 @@
 // @id              fanfields@heistergand
 // @name            Fan Fields 2
 // @category        Layer
-// @version         2.8.3.20260910
+// @version         2.8.4.20260912
 // @description     Calculate how to link the portals to create the largest tidy set of nested fields. Enable from the layer chooser.
 // @downloadURL     https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/heistergand/fanfields.user.js
 // @updateURL       https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/heistergand/fanfields.meta.js
@@ -25,7 +25,7 @@ function wrapper(plugin_info) {
   // ensure plugin framework is there, even if iitc is not yet loaded
   if (typeof window.plugin !== 'function') window.plugin = function () {};
   plugin_info.buildName = 'main';
-  plugin_info.dateTimeVersion = '2026-09-10-133600';
+  plugin_info.dateTimeVersion = '2026-09-12-171500';
   plugin_info.pluginId = 'fanfields';
 
   /* global L, $, dialog, map, portals, links, plugin  -- eslint*/
@@ -33,6 +33,11 @@ function wrapper(plugin_info) {
 
   var arcname = (window.PLAYER && window.PLAYER.team === 'ENLIGHTENED') ? 'Arc' : '***';
   var changelog = [{
+      version: '2.8.4',
+      changes: [
+        'NEW: add button to flip a link.',
+      ],
+    },{         
       version: '2.8.3',
       changes: [
         'FIX: formatDistance is not defined on desktop IITC-CE builds.',
@@ -497,6 +502,11 @@ function wrapper(plugin_info) {
   thisplugin.manualOrderGuids = null;
   thisplugin.lastPlanSignature = null;
 
+  // Manual per-link direction overrides (Task List "flip" button).
+  // Keyed by undirected link key (getUndirectedLinkKey) -> true.
+  // Applies to mesh links between fan points as well as a portal's own anchor (fan/star) link.
+  thisplugin.manualLinkFlips = {};
+
   thisplugin.saveBookmarks = function () {
 
     // loop thru portals and UN-Select them for bkmrks
@@ -587,8 +597,9 @@ function wrapper(plugin_info) {
     thisplugin.startingpointGUID = thisplugin.perimeterpoints[thisplugin.startingpointIndex][0];
     thisplugin.startingpoint = this.fanpoints[thisplugin.startingpointGUID];
 
-    // Reset manual order because the start/anchor changed (ghi#23)
+    // Reset manual order and link flips because the start/anchor changed (ghi#23)
     thisplugin.manualOrderGuids = null;
+    thisplugin.manualLinkFlips = {};
 
     thisplugin.updateLayer();
   }
@@ -852,11 +863,14 @@ function wrapper(plugin_info) {
 
   // Show as list
   thisplugin.exportText = function () {
+
+    function buildExportHTML() {
     var text = '<table><thead><tr>';
     let fieldSymbol = '&#9650;';
 
     text += '<th style="text-align:right">Pos.</th>';
     text += '<th style="text-align:right">Action</th>';
+    text += '<th style="width:20px;"></th>';
     text += '<th style="text-align:left">Portal Name</th>';
     if (window.plugin.keys || window.plugin.LiveInventory) {
       text += '<th title="own/need">'
@@ -889,6 +903,7 @@ function wrapper(plugin_info) {
 
       let title = window.escapeHtmlSpecialChars(rawTitle);
       let uriTitle = encodeURIComponent(rawTitle);
+      let jsGuid = window.escapeHtmlSpecialChars(String(portal.guid || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'"));
 
       var keysNeeded = (portal.incomingValidCount !== undefined) ? portal.incomingValidCount : portal.incoming.length;
 
@@ -928,11 +943,11 @@ function wrapper(plugin_info) {
 
       text += '<td>';
       text += '  <label class="plugin_fanfields2_exportText_Label" for="plugin_fanfields2_exportText_' + portal.guid + '">Capture</label>';
-      text += '  <input type="checkbox" id="plugin_fanfields2_exportText_' + portal.guid + '" plugin_fanfields2_exportText_toggle="toggle">';
+      text += '  <input type="checkbox" id="plugin_fanfields2_exportText_' + portal.guid + '" data-guid="' + portal.guid + '" plugin_fanfields2_exportText_toggle="toggle">';
       text += '</td>';
 
-
-
+      // Spacer column (aligns with the flip-button column on link detail rows)
+      text += '<td></td>';
 
       // Portal Name
 
@@ -945,7 +960,7 @@ function wrapper(plugin_info) {
       // Visibility is controlled via CSS (@media print or print window styles)
       text += `  <a class="plugin_fanfields2_exportText_print" href="${gmapsHref}" target="_blank">${title}</a>`;
       text +=
-        `  <a class="plugin_fanfields2_exportText_ui" onclick="window.plugin.fanfields.flyToPortal({lat: ${lat}, lng: ${lng}}, '${portal.guid}'); return false;">${title}</a>`;
+        `  <a class="plugin_fanfields2_exportText_ui" onclick="window.plugin.fanfields.flyToPortal({lat: ${lat}, lng: ${lng}}, '${jsGuid}'); return false;">${title}</a>`;
 
 
       text += '</td>';
@@ -994,6 +1009,15 @@ function wrapper(plugin_info) {
           }
           linkDetailText += '</td>';
 
+          // ghi#23 (link flip): swap this link's direction, in its own compact column. Anchor (fan/star) links are flippable too.
+          linkDetailText += '<td>';
+          var isFlipped = thisplugin.isLinkFlipped(portal.guid, outPortal.guid);
+          linkDetailText += '<button class="plugin_fanfields2_link_flip_btn' + (isFlipped ? ' plugin_fanfields2_link_flipped' : '') +
+            '" data-guid-a="' + portal.guid + '" data-guid-b="' + outPortal.guid + '" title="' +
+            (isFlipped ? 'Manually flipped – click to restore automatic direction' : 'Reverse link direction (updates keys needed)') +
+            '">&#8646;</button>';
+          linkDetailText += '</td>';
+
           let outPortalTitle = 'unknown title';
           if (outPortal.portal !== undefined) {
             outPortalTitle = outPortal.portal.options.data.title;
@@ -1026,7 +1050,10 @@ function wrapper(plugin_info) {
     text += '<hr noshade>';
     gmnav += '&nav=1';
 
+    let flipCount = Object.keys(thisplugin.manualLinkFlips || {}).length;
     text += '<div style="margin-top:10px; text-align:right;">' +
+      '  <button id="plugin_fanfields2_reset_link_flips_btn"' + (flipCount === 0 ? ' disabled' : '') +
+      '    title="Revert all manually flipped links (' + flipCount + ') back to automatic calculation">Reset link orders</button> ' +
       '  <button id="plugin_fanfields2_export_pdf_btn">Print</button>' +
       '</div>';
 
@@ -1038,6 +1065,9 @@ function wrapper(plugin_info) {
     text += '<a target="_blank" href="' + gmnav + '">Navigate with Google Maps</a>';
     text += '</div>';
 
+    return text;
+    } // end buildExportHTML
+
     thisplugin.exportDialogWidth = 500;
 
     var width = thisplugin.exportDialogWidth;
@@ -1046,8 +1076,43 @@ function wrapper(plugin_info) {
       width = thisplugin.MaxDialogWidth;
     }
 
-    const toggleFunction = function () {
-      $('[plugin_fanfields2_exportText_toggle="toggle"]')
+    // ghi#23 (link flip): remember which portals' link-detail lists are expanded, so a
+    // flip/reset refresh doesn't visually collapse the dialog back to its default state.
+    function getExpandedGuids() {
+      var guids = [];
+      $('#plugin_fanfields2_exportText_inner [plugin_fanfields2_exportText_toggle="toggle"]:checked')
+        .each(function () {
+          var guid = $(this).attr('data-guid');
+          if (guid) guids.push(guid);
+        });
+      return guids;
+    }
+
+    function restoreExpandedGuids(guids) {
+      var $inner = $('#plugin_fanfields2_exportText_inner');
+      guids.forEach(function (guid) {
+        var $toggle = $inner.find('[plugin_fanfields2_exportText_toggle="toggle"][data-guid="' + guid + '"]');
+        if (!$toggle.length) return;
+        $toggle.prop('checked', true);
+        $toggle.parents()
+          .next('.plugin_fanfields2_exportText_LinkDetails')
+          .show();
+        $toggle.prev('.plugin_fanfields2_exportText_Label')
+          .attr('aria-expanded', true);
+      });
+    }
+
+    function refreshExportDialog() {
+      var expandedGuids = getExpandedGuids();
+      $('#plugin_fanfields2_exportText_inner').html(buildExportHTML());
+      wireExportHandlers();
+      restoreExpandedGuids(expandedGuids);
+    }
+
+    function wireExportHandlers() {
+      var $inner = $('#plugin_fanfields2_exportText_inner');
+
+      $inner.find('[plugin_fanfields2_exportText_toggle="toggle"]')
         .each(function () {
           const $toggle = $(this);
           const $label = $toggle.prev('.plugin_fanfields2_exportText_Label');
@@ -1061,7 +1126,7 @@ function wrapper(plugin_info) {
             $label.css('cursor', 'default'); // Reset the cursor back to default
           }
         });
-      $('[plugin_fanfields2_exportText_toggle="toggle"]')
+      $inner.find('[plugin_fanfields2_exportText_toggle="toggle"]')
         .change(function () {
           const isChecked = $(this)
             .is(':checked');
@@ -1073,31 +1138,49 @@ function wrapper(plugin_info) {
             .prev('.plugin_fanfields2_exportText_Label')
             .attr('aria-expanded', isChecked);
         });
-    };
+
+      // ghi#23 (link flip): reverse a link's direction, recompute the plan, and refresh this dialog in place.
+      $inner
+        .off('click.plugin_fanfields2_link_flip')
+        .on('click.plugin_fanfields2_link_flip', '.plugin_fanfields2_link_flip_btn', function (ev) {
+          ev.preventDefault();
+          var guidA = $(this).attr('data-guid-a');
+          var guidB = $(this).attr('data-guid-b');
+          thisplugin.toggleLinkFlip(guidA, guidB);
+          refreshExportDialog();
+        });
+
+      $('#plugin_fanfields2_reset_link_flips_btn')
+        .off('click')
+        .on('click', function () {
+          thisplugin.resetLinkFlips();
+          refreshExportDialog();
+        });
+
+      $('#plugin_fanfields2_export_pdf_btn')
+        .off('click')
+        .on('click', function () {
+          thisplugin.exportTaskListToPDF();
+        });
+
+      if (thisplugin.isCompatiblePortalRoutePlugin()) {
+        $('#plugin_fanfields2_portal_route_link')
+          .off('click')
+          .on('click', function (ev) {
+            ev.preventDefault();
+            thisplugin.routeWithPortalRoute();
+          });
+      }
+    }
 
     dialog({
-      html: text,
+      html: '<div id="plugin_fanfields2_exportText_inner">' + buildExportHTML() + '</div>',
       id: 'plugin_fanfields2_alert_textExport',
       title: 'Fan Fields 2 - Task List',
       width: width,
       closeOnEscape: true
     });
-    toggleFunction();
-
-    $('#plugin_fanfields2_export_pdf_btn')
-      .off('click')
-      .on('click', function () {
-        thisplugin.exportTaskListToPDF();
-      });
-
-    if (thisplugin.isCompatiblePortalRoutePlugin()) {
-      $('#plugin_fanfields2_portal_route_link')
-        .off('click')
-        .on('click', function (ev) {
-          ev.preventDefault();
-          thisplugin.routeWithPortalRoute();
-        });
-    }
+    wireExportHandlers();
 
   };
 
@@ -1642,8 +1725,9 @@ function wrapper(plugin_info) {
       clockwiseWord = "Counterclockwise";
     }
 
-    // Reset the order – new geometry, new base ordering (ghi#23)
+    // Reset the order and link flips – new geometry, new base ordering (ghi#23)
     thisplugin.manualOrderGuids = null;
+    thisplugin.manualLinkFlips = {};
 
     $('#plugin_fanfields2_clckwsbtn')
       .html(clockwiseWord + '&nbsp;' + clockwiseSymbol + '');
@@ -1894,6 +1978,27 @@ function wrapper(plugin_info) {
       '}\n' +
       '.plugin_fanfields2_exportText_Label.has-children[aria-expanded="true"]::before {\n' +
       '    content: "\\25BF";\n /* (▿) */\n' +
+      '}\n'
+    );
+
+    // Task List: per-link "flip direction" button (ghi#23)
+    addCSS('\n' +
+      '.plugin_fanfields2_link_flip_btn {\n' +
+      '  box-sizing: border-box;\n' +
+      '  padding: 0 2px;\n' +
+      '  border-width: 1px;\n' +
+      '  font-size: 10px;\n' +
+      '  line-height: 1;\n' +
+      '  vertical-align: middle;\n' +
+      '  cursor: pointer;\n' +
+      '}\n' +
+      '.plugin_fanfields2_link_flipped {\n' +
+      '  color: #ffce00;\n' +
+      '  border-color: #ffce00;\n' +
+      '}\n' +
+      '#plugin_fanfields2_reset_link_flips_btn[disabled] {\n' +
+      '  opacity: 0.4;\n' +
+      '  cursor: default;\n' +
       '}\n'
     );
 
@@ -2329,6 +2434,34 @@ function wrapper(plugin_info) {
 
   thisplugin.getUndirectedLinkKey = function (guidA, guidB) {
     return (guidA < guidB) ? (guidA + '|' + guidB) : (guidB + '|' + guidA);
+  };
+
+  // ghi#23 (link flip)
+  // Whether this (undirected) link pair currently has a manual direction override.
+  thisplugin.isLinkFlipped = function (guidA, guidB) {
+    return !!thisplugin.manualLinkFlips[thisplugin.getUndirectedLinkKey(guidA, guidB)];
+  };
+
+  // Toggle the manual direction override for a link (Task List "flip" button). Works for both
+  // mesh links and a portal's own anchor (fan/star) link — for the latter, updateLayer() applies
+  // the override subject to the same SBUL outgoing-capacity check as radiating mode.
+  thisplugin.toggleLinkFlip = function (guidA, guidB) {
+    if (!guidA || !guidB) return;
+
+    var key = thisplugin.getUndirectedLinkKey(guidA, guidB);
+    if (thisplugin.manualLinkFlips[key]) {
+      delete thisplugin.manualLinkFlips[key];
+    } else {
+      thisplugin.manualLinkFlips[key] = true;
+    }
+
+    thisplugin.updateLayer();
+  };
+
+  // Drop all manual link-direction overrides at once (Task List "Reset link orders" button).
+  thisplugin.resetLinkFlips = function () {
+    thisplugin.manualLinkFlips = {};
+    thisplugin.updateLayer();
   };
 
   // Strict point-in-triangle test in projection space:
@@ -2915,12 +3048,16 @@ function wrapper(plugin_info) {
     var currentSignature = fanpointGuids.sort()
       .join(',');
 
-    // If the portal set changed: disable the path
+    // If the portal set changed: disable the path and drop manual link flips (ghi#23),
+    // since they reference GUID pairs that may no longer be part of the plan.
     if (thisplugin.lastPlanSignature !== null &&
-      thisplugin.lastPlanSignature !== currentSignature &&
-      thisplugin.showOrderPath) {
+      thisplugin.lastPlanSignature !== currentSignature) {
 
-      thisplugin.setOrderPathActive(false);
+      thisplugin.manualLinkFlips = {};
+
+      if (thisplugin.showOrderPath) {
+        thisplugin.setOrderPathActive(false);
+      }
     }
 
     // Store signature for the next run
@@ -3253,9 +3390,15 @@ function wrapper(plugin_info) {
         bearing = this.getBearing(a, b);
         const distance = thisplugin.distanceTo(a, b);
 
+        // ghi#23 (link flip): manual direction override, for a mesh link or a portal's own anchor
+        // link (pb === 0) alike — the anchor case is handled below via the same SBUL capacity
+        // check as radiating mode.
+        var flipped = thisplugin.isLinkFlipped(this.sortedFanpoints[pa].guid, this.sortedFanpoints[pb].guid);
+
         if (pb === 0) {
           var maxLinks = 8 + thisplugin.availableSBUL * 8;
-          if (thisplugin.stardirection === thisplugin.starDirENUM.RADIATING && centerOutgoings < maxLinks) {
+          var wantOutbound = (thisplugin.stardirection === thisplugin.starDirENUM.RADIATING) || flipped;
+          if (wantOutbound && centerOutgoings < maxLinks) {
             outbound = 1;
           } else {
             thisplugin.centerKeys++;
@@ -3267,13 +3410,21 @@ function wrapper(plugin_info) {
             // console.log("outbound");
             centerOutgoings++;
           }
+        } else if (flipped) {
+          a = this.sortedFanpoints[pb].point;
+          b = paPoint;
         }
+
+        // The actual direction was swapped either by anchor-link capacity (outbound) or by a
+        // mesh-link flip — never by `flipped` alone for pb === 0, since capacity may have
+        // refused the swap above and fallen back to the default direction.
+        var swapped = (pb === 0) ? (outbound === 1) : flipped;
 
         possibleline = {
           a: a,
           b: b,
-          guidA: (outbound === 1) ? this.sortedFanpoints[pb].guid : this.sortedFanpoints[pa].guid,
-          guidB: (outbound === 1) ? this.sortedFanpoints[pa].guid : this.sortedFanpoints[pb].guid,
+          guidA: swapped ? this.sortedFanpoints[pb].guid : this.sortedFanpoints[pa].guid,
+          guidB: swapped ? this.sortedFanpoints[pa].guid : this.sortedFanpoints[pb].guid,
           bearing: bearing,
           isJetLink: false,
           isFanLink: (pb === 0),
@@ -3359,7 +3510,8 @@ function wrapper(plugin_info) {
 
           if (possibleline.counts) {
             donelinks.splice(donelinks.length - (this.sortedFanpoints.length - pa), 0, possibleline);
-            if (pb === 0 && thisplugin.stardirection === thisplugin.starDirENUM.RADIATING && outbound === 1) {
+            if (swapped) {
+              // pb is the source (anchor throwing out via capacity/flip, or a flipped mesh link).
               this.sortedFanpoints[pb].outgoing.push(this.sortedFanpoints[pa]);
               this.sortedFanpoints[pa].incoming.push(this.sortedFanpoints[pb]);
 
@@ -3368,7 +3520,6 @@ function wrapper(plugin_info) {
               this.sortedFanpoints[pb].outgoingMeta[this.sortedFanpoints[pa].guid] = {
                 creatingFieldsWith: possibleline.creatingFieldsWith
               };
-
             } else {
               this.sortedFanpoints[pa].outgoing.push(this.sortedFanpoints[pb]);
               this.sortedFanpoints[pb].incoming.push(this.sortedFanpoints[pa]);

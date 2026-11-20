@@ -882,7 +882,7 @@ Calculate how to link the portals to create the largest tidy set of nested field
 *Recommends*: bookmarks@ZasoGD draw-tools-plus@zaso liveInventory@DanielOnDiordna keys@xelio  |
 *[Homepage](https://github.com/Heistergand/fanfields2/)* |
 *[Issue tracker](https://github.com/Heistergand/fanfields2/issues)* |
-*Version:* 2.8.3.20260910
+*Version:* 2.8.4.20260912
 
 
   
@@ -1323,7 +1323,7 @@ With this plugin you can backup all your localstorage data, so you can save it t
 
 **Anti-features:** **[export](/CONTRIBUTING.md#anti-features)** 
 
-
+![preview](https://raw.githubusercontent.com/LoupblancSwitzerland/Ingress/main/badge-calculateur-mu.png)
 
 Estime les Mind Units d’un champ en sélectionnant ses trois portails sur la carte Intel.
 

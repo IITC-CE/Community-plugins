@@ -59,7 +59,7 @@
         "none"
       ],
       "id_hash": "spamfilter-by-3ch01c",
-      "updatedAt": "2026-04-28T17:35:48.000Z"
+      "updatedAt": "2026-11-20T14:27:33.752Z"
     },
     {
       "author": "57Cell",
@@ -98,7 +98,7 @@
       ],
       "preview": "https://github.com/mike40033/iitc-57Cell/blob/4f9d4496b40de650ae83d5ca2a0d20ecd00530cc/plugins/homogeneous-fields/Screenshot_2023-10-15_015218.png?raw=true",
       "id_hash": "fieldplanner-by-57Cell",
-      "updatedAt": "2025-08-11T01:28:25.000Z",
+      "updatedAt": "2026-11-20T14:27:33.989Z",
       "_recommends_links": [
         {
           "id": "draw-tools@breunigs",
@@ -312,7 +312,7 @@
         "none"
       ],
       "id_hash": "backup-restore-alldata-by-DanielOnDiordna",
-      "updatedAt": "2023-10-20T00:28:58.000Z"
+      "updatedAt": "2026-11-20T14:27:35.288Z"
     },
     {
       "author": "DanielOnDiordna",
@@ -333,7 +333,7 @@
         "none"
       ],
       "id_hash": "bannergress-plugin-addon-by-DanielOnDiordna",
-      "updatedAt": "2022-09-27T00:48:40.000Z"
+      "updatedAt": "2026-11-20T14:27:35.573Z"
     },
     {
       "author": "DanielOnDiordna",
@@ -352,7 +352,7 @@
         "none"
       ],
       "id_hash": "basemap-opencyclemap-addon-by-DanielOnDiordna",
-      "updatedAt": "2022-08-16T21:52:27.000Z"
+      "updatedAt": "2026-11-20T14:27:35.681Z"
     },
     {
       "author": "DanielOnDiordna",
@@ -374,7 +374,7 @@
         "none"
       ],
       "id_hash": "bookmarks-addon-by-DanielOnDiordna",
-      "updatedAt": "2024-02-28T00:28:47.000Z",
+      "updatedAt": "2026-11-20T14:27:35.855Z",
       "_depends_links": [
         {
           "id": "bookmarks@ZasoGD",
@@ -400,7 +400,7 @@
         "none"
       ],
       "id_hash": "cells-by-DanielOnDiordna",
-      "updatedAt": "2022-06-16T01:16:32.000Z"
+      "updatedAt": "2026-11-20T14:27:35.981Z"
     },
     {
       "author": "DanielOnDiordna",
@@ -419,7 +419,7 @@
         "none"
       ],
       "id_hash": "consolelog-by-DanielOnDiordna",
-      "updatedAt": "2026-11-19T17:35:13.297Z"
+      "updatedAt": "2026-11-19T17:35:42.000Z"
     },
     {
       "author": "DanielOnDiordna",
@@ -438,7 +438,7 @@
         "none"
       ],
       "id_hash": "date-time-by-DanielOnDiordna",
-      "updatedAt": "2023-08-25T00:27:55.000Z"
+      "updatedAt": "2026-11-20T14:27:36.209Z"
     },
     {
       "author": "DanielOnDiordna",
@@ -457,7 +457,7 @@
         "none"
       ],
       "id_hash": "drone-route-planner-by-DanielOnDiordna",
-      "updatedAt": "2022-06-16T01:16:32.000Z"
+      "updatedAt": "2026-11-20T14:27:36.419Z"
     },
     {
       "author": "DanielOnDiordna",
@@ -476,7 +476,7 @@
         "none"
       ],
       "id_hash": "favorite-portal-details-by-DanielOnDiordna",
-      "updatedAt": "2025-10-26T07:18:25.000Z"
+      "updatedAt": "2026-11-20T14:27:36.536Z"
     },
     {
       "author": "DanielOnDiordna",
@@ -495,7 +495,7 @@
         "none"
       ],
       "id_hash": "filter-comms-by-DanielOnDiordna",
-      "updatedAt": "2023-10-20T00:28:58.000Z"
+      "updatedAt": "2026-11-20T14:27:36.645Z"
     },
     {
       "author": "DanielOnDiordna",
@@ -514,7 +514,7 @@
         "none"
       ],
       "id_hash": "fontawesomeintegration-by-DanielOnDiordna",
-      "updatedAt": "2022-06-16T01:16:32.000Z"
+      "updatedAt": "2026-11-20T14:27:36.751Z"
     },
     {
       "author": "DanielOnDiordna",
@@ -534,7 +534,7 @@
         "none"
       ],
       "id_hash": "freestyler-by-DanielOnDiordna",
-      "updatedAt": "2023-04-22T00:30:21.000Z"
+      "updatedAt": "2026-11-20T14:27:36.903Z"
     },
     {
       "author": "DanielOnDiordna",
@@ -553,7 +553,7 @@
         "none"
       ],
       "id_hash": "gotolink-by-DanielOnDiordna",
-      "updatedAt": "2022-08-16T21:52:27.000Z"
+      "updatedAt": "2026-11-20T14:27:37.010Z"
     },
     {
       "author": "DanielOnDiordna",
@@ -572,7 +572,7 @@
         "none"
       ],
       "id_hash": "highlight-resonator-owners-by-DanielOnDiordna",
-      "updatedAt": "2023-10-20T00:28:58.000Z"
+      "updatedAt": "2026-11-20T14:27:37.164Z"
     },
     {
       "author": "DanielOnDiordna",
@@ -591,7 +591,7 @@
         "none"
       ],
       "id_hash": "historyhighlighter-by-DanielOnDiordna",
-      "updatedAt": "2022-06-16T01:16:32.000Z"
+      "updatedAt": "2026-11-20T14:27:37.316Z"
     },
     {
       "author": "DanielOnDiordna",
@@ -610,7 +610,7 @@
         "none"
       ],
       "id_hash": "imageOverlay-by-DanielOnDiordna",
-      "updatedAt": "2022-08-16T21:52:27.000Z"
+      "updatedAt": "2026-11-20T14:27:37.450Z"
     },
     {
       "author": "@Chyld314 @DanielOndiordna",
@@ -633,7 +633,7 @@
         "none"
       ],
       "id_hash": "imattc-by-DanielOnDiordna",
-      "updatedAt": "2026-07-20T14:32:55.000Z"
+      "updatedAt": "2026-11-20T14:27:37.581Z"
     },
     {
       "author": "DanielOnDiordna",
@@ -652,7 +652,7 @@
         "none"
       ],
       "id_hash": "keepalldata-by-DanielOnDiordna",
-      "updatedAt": "2022-08-16T21:52:27.000Z"
+      "updatedAt": "2026-11-20T14:27:37.689Z"
     },
     {
       "author": "EisFrei - fork by DanielOnDiordna",
@@ -672,7 +672,7 @@
         "none"
       ],
       "id_hash": "liveInventory-by-DanielOnDiordna",
-      "updatedAt": "2022-06-16T01:16:32.000Z"
+      "updatedAt": "2026-11-20T14:27:37.814Z"
     },
     {
       "author": "DanielOnDiordna",
@@ -691,7 +691,7 @@
         "none"
       ],
       "id_hash": "loadmorecommshistory-by-DanielOnDiordna",
-      "updatedAt": "2026-07-20T14:32:55.000Z"
+      "updatedAt": "2026-11-20T14:27:37.925Z"
     },
     {
       "author": "DanielOnDiordna",
@@ -711,7 +711,7 @@
         "none"
       ],
       "id_hash": "maps-route-planner-by-DanielOnDiordna",
-      "updatedAt": "2024-03-08T00:30:06.000Z"
+      "updatedAt": "2026-11-20T14:27:38.057Z"
     },
     {
       "author": "DanielOnDiordna",
@@ -733,7 +733,7 @@
         "none"
       ],
       "id_hash": "missions-addon-by-DanielOnDiordna",
-      "updatedAt": "2022-12-12T10:38:19.000Z",
+      "updatedAt": "2026-11-20T14:27:38.190Z",
       "_depends_links": [
         {
           "id": "missions@jonatkins",
@@ -759,7 +759,7 @@
         "none"
       ],
       "id_hash": "mobileimprovements-by-DanielOnDiordna",
-      "updatedAt": "2022-06-16T01:16:32.000Z"
+      "updatedAt": "2026-11-20T14:27:38.296Z"
     },
     {
       "author": "DanielOnDiordna",
@@ -778,7 +778,7 @@
         "none"
       ],
       "id_hash": "onscreenportaldetails-by-DanielOnDiordna",
-      "updatedAt": "2025-11-07T01:17:31.000Z"
+      "updatedAt": "2026-11-20T14:27:38.412Z"
     },
     {
       "author": "DanielOnDiordna",
@@ -800,7 +800,7 @@
         "none"
       ],
       "id_hash": "pan-control-add-on-by-DanielOnDiordna",
-      "updatedAt": "2022-12-12T10:38:19.000Z",
+      "updatedAt": "2026-11-20T14:27:38.518Z",
       "_depends_links": [
         {
           "id": "pan-control@fragger",
@@ -829,7 +829,7 @@
         "none"
       ],
       "id_hash": "player-tracker-addon-by-DanielOnDiordna",
-      "updatedAt": "2026-07-08T02:24:03.000Z",
+      "updatedAt": "2026-11-20T14:27:38.693Z",
       "_depends_links": [
         {
           "id": "player-activity-tracker@breunigs",
@@ -855,7 +855,7 @@
         "none"
       ],
       "id_hash": "portalhistorysupport-by-DanielOnDiordna",
-      "updatedAt": "2025-04-25T01:16:20.000Z"
+      "updatedAt": "2026-11-20T14:27:38.824Z"
     },
     {
       "author": "DanielOnDiordna",
@@ -877,7 +877,7 @@
         "none"
       ],
       "id_hash": "portals-list-addon-by-DanielOnDiordna",
-      "updatedAt": "2023-03-22T00:30:29.000Z",
+      "updatedAt": "2026-11-20T14:27:38.950Z",
       "_depends_links": [
         {
           "id": "portals-list@teo96",
@@ -903,7 +903,7 @@
         "none"
       ],
       "id_hash": "quick-draw-links-by-DanielOnDiordna",
-      "updatedAt": "2022-06-16T01:16:32.000Z"
+      "updatedAt": "2026-11-20T14:27:39.198Z"
     },
     {
       "author": "DanielOnDiordna",
@@ -925,7 +925,7 @@
         "none"
       ],
       "id_hash": "see-more-by-DanielOnDiordna",
-      "updatedAt": "2022-12-12T10:38:19.000Z"
+      "updatedAt": "2026-11-20T14:27:39.305Z"
     },
     {
       "author": "DanielOnDiordna",
@@ -944,7 +944,7 @@
         "none"
       ],
       "id_hash": "smallerportals-by-DanielOnDiordna",
-      "updatedAt": "2022-08-16T21:52:27.000Z"
+      "updatedAt": "2026-11-20T14:27:39.410Z"
     },
     {
       "author": "DanielOnDiordna",
@@ -969,7 +969,7 @@
         "none"
       ],
       "id_hash": "team-bookmarks-by-DanielOnDiordna",
-      "updatedAt": "2022-12-12T10:38:19.000Z",
+      "updatedAt": "2026-11-20T14:27:39.522Z",
       "_depends_links": [
         {
           "id": "bookmarks@ZasoGD",
@@ -1002,7 +1002,7 @@
         "none"
       ],
       "id_hash": "toiletlocations-by-DanielOnDiordna",
-      "updatedAt": "2022-06-16T01:16:32.000Z"
+      "updatedAt": "2026-11-20T14:27:39.639Z"
     },
     {
       "author": "DanielOnDiordna",
@@ -1021,7 +1021,7 @@
         "none"
       ],
       "id_hash": "unfreezebutton-by-DanielOnDiordna",
-      "updatedAt": "2022-06-16T01:16:32.000Z"
+      "updatedAt": "2026-11-20T14:27:39.745Z"
     },
     {
       "author": "DanielOnDiordna",
@@ -1046,7 +1046,7 @@
         "none"
       ],
       "id_hash": "uniqueportalhistory-by-DanielOnDiordna",
-      "updatedAt": "2024-05-25T00:30:58.000Z",
+      "updatedAt": "2026-11-20T14:27:39.928Z",
       "_depends_links": [
         {
           "id": "portalhistorysupport@DanielOnDiordna",
@@ -1075,7 +1075,7 @@
         "none"
       ],
       "id_hash": "zoom-override-by-DanielOnDiordna",
-      "updatedAt": "2026-07-20T14:32:55.000Z"
+      "updatedAt": "2026-11-20T14:27:40.040Z"
     },
     {
       "author": "EisFrei",
@@ -1192,7 +1192,7 @@
         "none"
       ],
       "id_hash": "inventory-overview-by-Guschtel",
-      "updatedAt": "2026-04-28T17:35:48.000Z"
+      "updatedAt": "2026-11-20T14:27:40.689Z"
     },
     {
       "author": "IngressPlus",
@@ -1248,7 +1248,7 @@
         "none"
       ],
       "id_hash": "poly-counts2-by-Jormund",
-      "updatedAt": "2026-04-28T17:35:48.000Z",
+      "updatedAt": "2026-11-20T14:27:41.183Z",
       "_depends_links": [
         {
           "id": "draw-tools@breunigs",
@@ -1300,6 +1300,7 @@
         "export"
       ],
       "id": "iitc-calculateur-mu@Loupblanc1212",
+      "category": "Misc",
       "homepageURL": "https://github.com/LoupblancSwitzerland/Ingress",
       "issueTracker": "https://github.com/LoupblancSwitzerland/Ingress/issues",
       "match": [
@@ -1308,8 +1309,9 @@
       "grant": [
         "none"
       ],
+      "preview": "https://raw.githubusercontent.com/LoupblancSwitzerland/Ingress/main/badge-calculateur-mu.png",
       "id_hash": "iitc-calculateur-mu-by-Loupblanc1212",
-      "updatedAt": "2026-11-19T17:35:20.535Z"
+      "updatedAt": "2026-11-20T14:27:41.329Z"
     },
     {
       "author": "MaxEtMoritz",
@@ -1369,7 +1371,7 @@
       ],
       "preview": "https://raw.githubusercontent.com/MaxEtMoritz/iitc-glympse/master/images/Screenshot%202022-08-12%20163456.png",
       "id_hash": "glympsemap-by-MaxEtMoritz",
-      "updatedAt": "2025-06-11T16:34:24.000Z"
+      "updatedAt": "2026-11-20T14:27:41.594Z"
     },
     {
       "author": "Hevne",
@@ -1860,7 +1862,7 @@
       ],
       "preview": "https://raw.github.com/Xelminoe/Microfield-Checker/main/images/example00.jpg",
       "id_hash": "Microfield-checker-by-Xelminoe",
-      "updatedAt": "2025-07-17T09:36:58.000Z",
+      "updatedAt": "2026-11-20T14:27:45.388Z",
       "_depends_links": [
         {
           "id": "draw-tools@breunigs",
@@ -2418,7 +2420,7 @@
         "none"
       ],
       "id_hash": "dronehelper-by-azrael-42",
-      "updatedAt": "2026-04-28T17:35:48.000Z"
+      "updatedAt": "2026-11-20T14:27:49.515Z"
     },
     {
       "author": "birkett83",
@@ -2440,7 +2442,7 @@
       ],
       "preview": "https://github.com/birkett83/landgrab/raw/main/assets/landgrab.png",
       "id_hash": "landgrab-by-birkett83",
-      "updatedAt": "2022-08-16T21:52:27.000Z"
+      "updatedAt": "2026-11-20T14:27:49.725Z"
     },
     {
       "author": "blsmit5728",
@@ -2514,7 +2516,7 @@
         "none"
       ],
       "id_hash": "short-portal-info-by-eccenux",
-      "updatedAt": "2026-04-28T17:35:48.000Z"
+      "updatedAt": "2026-11-20T14:27:50.330Z"
     },
     {
       "author": "elkuku",
@@ -2588,7 +2590,7 @@
       ],
       "preview": "https://elkuku.github.io/iitc-kuku-inventory/assets/img/screenshot-001.png",
       "id_hash": "inventory-by-elkuku",
-      "updatedAt": "2026-03-25T01:56:41.000Z",
+      "updatedAt": "2026-11-20T14:27:50.478Z",
       "_depends_links": [
         {
           "id": "helper-handlebars@elkuku",
@@ -2674,7 +2676,7 @@
       "id": "fanfields@heistergand",
       "name": "Fan Fields 2",
       "category": "Layer",
-      "version": "2.8.3.20260910",
+      "version": "2.8.4.20260912",
       "description": "Calculate how to link the portals to create the largest tidy set of nested fields. Enable from the layer chooser.",
       "downloadURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/heistergand/fanfields.user.js",
       "updateURL": "https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/heistergand/fanfields.meta.js",
@@ -2704,7 +2706,7 @@
       ],
       "preview": "https://raw.githubusercontent.com/Heistergand/fanfields2/master/FanFields2.png",
       "id_hash": "fanfields-by-heistergand",
-      "updatedAt": "2026-09-12T02:57:41.000Z",
+      "updatedAt": "2026-11-20T14:27:50.897Z",
       "_depends_links": [
         {
           "id": "draw-tools@breunigs",
@@ -2891,7 +2893,7 @@
       ],
       "preview": "https://i.ibb.co/nsprM3s/IITC-Ingress-Icons-by-jaiperdu-desktop.jpg",
       "id_hash": "ingress-icons-by-jaiperdu",
-      "updatedAt": "2026-06-27T02:48:13.000Z"
+      "updatedAt": "2026-11-20T14:27:51.184Z"
     },
     {
       "author": "jaiperdu",
@@ -3358,7 +3360,7 @@
       ],
       "preview": "https://raw.githubusercontent.com/xificurk/iitc-plugins/master/images/portal-highlighter-uniques-opacity.png",
       "id_hash": "portal-highlighter-uniques-opacity-by-xificurk",
-      "updatedAt": "2023-03-05T00:38:33.000Z"
+      "updatedAt": "2026-11-20T14:27:52.509Z"
     },
     {
       "author": "xificurk",
@@ -3427,7 +3429,7 @@
       ],
       "preview": "https://raw.githubusercontent.com/xificurk/iitc-plugins/master/images/uniques-heatmap-explorer.png",
       "id_hash": "uniques-heatmap-by-xificurk",
-      "updatedAt": "2022-08-16T21:52:27.000Z"
+      "updatedAt": "2026-11-20T14:27:52.660Z"
     },
     {
       "author": "yavidor",

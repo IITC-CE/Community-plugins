@@ -9,6 +9,7 @@
 // @downloadURL     https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Loupblanc1212/iitc-calculateur-mu.user.js
 // @antiFeatures    export
 // @id              iitc-calculateur-mu@Loupblanc1212
+// @category        Misc
 // @homepageURL     https://github.com/LoupblancSwitzerland/Ingress
 // @issueTracker    https://github.com/LoupblancSwitzerland/Ingress/issues
 // @match           https://intel.ingress.com/*

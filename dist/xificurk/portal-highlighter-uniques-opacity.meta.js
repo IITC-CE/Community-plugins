@@ -10,7 +10,6 @@
 // @description     [xificurk-2023-03-04-150308] Use stroke and fill opacity to denote player's unique visits and captures. Requires uniques plugin.
 // @issueTracker    https://github.com/xificurk/iitc-plugins/issues
 // @homepageURL     https://github.com/xificurk/iitc-plugins
-// @preview         https://raw.githubusercontent.com/xificurk/iitc-plugins/master/images/portal-highlighter-uniques-opacity.png
 // @include         https://intel.ingress.com/*
 // @include         http://intel.ingress.com/*
 // @include         https://*.ingress.com/intel*

@@ -341,6 +341,7 @@ export const update_plugin = async (metadata, author, filename) => {
     if (meta.skipMatchCheck) {delete meta.skipMatchCheck;}
     if (meta.name === undefined) throw new Error(`name is missing in ${filename}`);
     meta.id = filename.replace(/\.yml$/, '')+'@'+author;
+    if (!meta.category) meta.category = 'Misc';
     for (const mergeKey of ['antiFeatures', 'depends', 'recommends']) {
         if (typeof meta[mergeKey] === 'object') {
             meta[mergeKey] = meta[mergeKey].join('|');
@@ -377,9 +378,6 @@ export const get_plugins_in_categories = (metadata) => {
     let data = {};
 
     for (const plugin of metadata) {
-        if (plugin.category === undefined) {
-            plugin.category = 'Misc';
-        }
         if (data[plugin.category] === undefined) {
             data[plugin.category] = [];
         }
@@ -512,6 +510,7 @@ export const get_dist_plugins = async () => {
         for (const key of CATALOG_ONLY_KEYS) delete meta[key]; // published before they were excluded
         Object.assign(meta, catalog_only_meta(author, dist_filename));
 
+        if (!meta.category) meta.category = 'Misc'; // published before it was required
         meta.description = remove_brackets(meta.description || "");
         meta.id_hash = meta.id.replace("@", "-by-");
         community_plugins_ids.push(meta.id_hash);

@@ -2,10 +2,10 @@
 // @author         DanielOnDiordna
 // @name           Console log
 // @category       Misc
-// @version        1.0.0.20261117.250700
+// @version        1.0.0.20261120.231100
 // @updateURL      https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/consolelog.meta.js
 // @downloadURL    https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/DanielOnDiordna/consolelog.user.js
-// @description    [danielondiordna-1.0.0.20261117.250700] Display the Console log in a window, captures console.log, console.warn and console.error. Execute Javascript commands with the eval field. Objects are displayed with JSON.stringify formatting with circular structure removal
+// @description    [danielondiordna-1.0.0.20261120.231100] Display the Console log in a window, captures console.log, console.warn and console.error. Execute Javascript commands with the eval field. Objects are displayed with JSON.stringify formatting with circular structure removal
 // @id             consolelog@DanielOnDiordna
 // @namespace      https://softspot.nl/ingress/
 // @match          https://intel.ingress.com/*
@@ -24,12 +24,12 @@ function wrapper(plugin_info) {
     self.changelog = `
 Changelog:
 
-version 1.0.0.20261117.250700
+version 1.0.0.20261120.231100
 - complete plugin renewal
 - better eval error handling
 - resize text areas to fit contents
 - removed jquery as much as possible
-- replaced textarea elements by div elements
+- added auto scroll and timestamp toggle checkboxes
 
 version 0.0.1.20210321.121900
 - first release
@@ -44,8 +44,12 @@ version 0.0.1.20210724.002500
 `;
 
     self.logging = {
-        eval: [],
+        evalresult: [],
         console: []
+    };
+    self.settings = {
+        displaytimestamps: true,
+        autoscroll: true
     };
 
     self.utils = {};
@@ -66,8 +70,16 @@ version 0.0.1.20210724.002500
 
     self.updatemenu = (container = document.querySelector(`#dialog-${self.id}`)) => {
         if (!container) return;
-        container.querySelector(`div[name=${self.id}console]`).innerText = self.logging.console.join("\n");
-        container.querySelector(`div[name=${self.id}evalresult]`).innerText = self.logging.eval.join("\n");
+        container.querySelector(`textarea[name=${self.id}console]`).value = self.logging.console.map(item => (self.settings.displaytimestamps ? `[${item.time}] `:'') + `${item.result}`).join("\n");
+        container.querySelector(`textarea[name=${self.id}evalresult]`).value = self.logging.evalresult.map(item => (self.settings.displaytimestamps ? `[${item.time}] `:'') + `${item.command} = ${item.result};`).join("\n");
+
+        container.querySelectorAll('textarea').forEach(textarea => {
+            textarea.style.height = "";
+            textarea.style.height = textarea.scrollHeight + "px";
+            if (self.settings.autoscroll) {
+                textarea.scrollTop = textarea.scrollHeight;
+            }
+        });
     };
 
     self.utils.footer = () => {
@@ -77,28 +89,36 @@ version 0.0.1.20210724.002500
     self.menu = () => {
         let container = document.createElement('div');
         container.style.display = 'grid';
-        container.style.minWidth = '400px';
+        container.style.minWidth = 'Min(90vw, 400px)';
         container.innerHTML = `
 <div style="display: grid; grid-template-columns: auto fit-content(0) fit-content(0);">
-  <input type="text" name="${self.id}evalinput" placeholder="eval input">
-  <button name="${self.id}evalbutton">Eval</button>
+  <input type="text" name="${self.id}evalinput" placeholder="console command input">
+  <button name="${self.id}evalbutton">Execute</button>
   <button name="${self.id}evalclearbutton">Clear</button>
 </div>
-<div name="${self.id}evalresult" placeholder="eval results" readonly></div>
+<textarea name="${self.id}evalresult" placeholder="console command results" readonly></textarea>
 <div style="display: grid; grid-template-columns: auto fit-content(0);">
   <div style="font-weight: bold">Console:</div>
   <button name="${self.id}clearbutton">Clear</button>
 </div>
-<div name="${self.id}console" placeholder="console log results" readonly></div>
+<textarea name="${self.id}console" placeholder="console log results" readonly></textarea>
 ${self.utils.footer()}`;
 
         const evaltext = () => {
+            const evaltext = container.querySelector(`input[name=${self.id}evalinput]`).value;
             try {
-                const evaltext = container.querySelector(`input[name=${self.id}evalinput]`).value;
                 const evalresult = eval(evaltext);
-                self.logging.eval.push(`${evaltext} = ${self.utils.stringifyObject(evalresult)};`);
+                self.logging.evalresult.push({
+                    command: evaltext,
+                    time: self.utils.currenttime(),
+                    result: self.utils.stringifyObject(evalresult)
+                });
             } catch({ name, message }) {
-                self.logging.eval.push(`${name}: ${message};`);
+                self.logging.evalresult.push({
+                    command: evaltext,
+                    time: self.utils.currenttime(),
+                    result: `${name}: ${message}`
+                });
             }
             self.updatemenu(container);
         };
@@ -106,7 +126,7 @@ ${self.utils.footer()}`;
             evaltext();
         });
         container.querySelector(`button[name=${self.id}evalclearbutton]`).addEventListener('click',e => {
-            self.logging.eval = [];
+            self.logging.evalresult = [];
             self.updatemenu(container);
         });
         container.querySelector(`input[name=${self.id}evalinput]`).addEventListener('keypress',e => {
@@ -118,7 +138,22 @@ ${self.utils.footer()}`;
             self.logging.console = [];
             self.updatemenu(container);
         });
-        self.updatemenu(container);
+
+        const buttonAddCheckbox = (button,clickevent,checked = false) => {
+            if (!button) return;
+            const label = document.createElement('label');
+            const checkbox = label.appendChild(document.createElement('input'));
+            checkbox.type = 'checkbox';
+            checkbox.checked = checked;
+            label.append(button.innerText);
+            if (typeof clickevent == 'function') {
+                checkbox.addEventListener('click',e => {
+                    clickevent(checkbox);
+                });
+            }
+            button.innerText = '';
+            button.prepend(label);
+        };
 
         const position = { my: "center", at: "top" };
         const dialog = window.dialog({
@@ -126,11 +161,28 @@ ${self.utils.footer()}`;
             id: self.id,
             title: self.pluginname,
             width: 'auto',
-            position: position
+            position: position,
+            expandCallback: () => {
+                setTimeout(() => { self.updatemenu(container); });
+            }
         }).dialog('option', 'buttons', {
+            'Auto scroll': () => { },
+            'Timestamps': () => { },
             'Changelog': () => { alert(self.changelog); },
             'Close': () => { $(dialog).dialog('close'); },
         });
+
+        const dialogbuttons = document.querySelectorAll(`div.ui-dialog:has(#dialog-${self.id}) .ui-dialog-buttonset button`);
+        buttonAddCheckbox([...dialogbuttons].find(button => button.innerText == 'Auto scroll'),(checkbox) => {
+            self.settings.autoscroll = checkbox.checked;
+            self.updatemenu(container);
+        },self.settings.autoscroll);
+        buttonAddCheckbox([...dialogbuttons].find(button => button.innerText == 'Timestamps'),(checkbox) => {
+            self.settings.displaytimestamps = checkbox.checked;
+            self.updatemenu(container);
+        },self.settings.displaytimestamps);
+
+        self.updatemenu(container);
     };
 
     self.setup = {};
@@ -157,15 +209,31 @@ ${self.utils.footer()}`;
 
         const stylesheet = document.head.appendChild(document.createElement('style'));
         stylesheet.innerHTML = `
-#dialog-${self.id} div[placeholder] {
-    min-height: 100px;
+#dialog-${self.id} textarea {
+    min-height: 50px;
+    min-width: 100%;
     background-color: white;
     color: black;
-    max-width: calc(100vw - 50px);
 }
-#dialog-${self.id} div[placeholder]:empty:before {
-    content: attr(placeholder);
-    color: #757575;
+#dialog-${self.id} textarea[name=${self.id}evalresult] {
+    max-height: 25vh;
+}
+#dialog-${self.id} textarea[name=${self.id}console] {
+    max-height: 50vh;
+}
+#dialog-${self.id} button {
+    min-width: unset;
+}
+
+div.ui-dialog:has(#dialog-${self.id}) .ui-dialog-buttonset:has(button>label) {
+    display: flex;
+}
+div.ui-dialog:has(#dialog-${self.id}) .ui-dialog-buttonset button:first-child:has(label) {
+    margin-left: auto;
+}
+div.ui-dialog:has(#dialog-${self.id}) .ui-dialog-buttonset button label {
+    display: flex;
+    align-items: center;
 }
 `;
 
@@ -176,7 +244,10 @@ ${self.utils.footer()}`;
         if (!(f in console)) return;
         const originalfunction = console[f];
         console[f] = (...args) => {
-            self.logging.console.push(self.utils.currenttime() + " " + (f == 'log' ? '' : `${f.toUpperCase()}: `) + args.map(arg => typeof arg == 'object' ? self.utils.stringifyObject(arg) : arg).join(','));
+            self.logging.console.push({
+                time: self.utils.currenttime(),
+                result: (f == 'log' ? '' : `${f.toUpperCase()}: `) + args.map(arg => typeof arg == 'object' ? self.utils.stringifyObject(arg) : arg).join(',')
+            });
             self.updatemenu();
             originalfunction.apply(console,args);
         };

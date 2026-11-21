@@ -1341,7 +1341,7 @@ Estime les Mind Units d’un champ en sélectionnant ses trois portails sur la c
 
 Display the Console log in a window, captures console.log, console.warn and console.error. Execute Javascript commands with the eval field. Objects are displayed with JSON.stringify formatting with circular structure removal
 
-*Version:* 1.0.0.20261117.250700
+*Version:* 1.0.0.20261120.231100
 
 
   

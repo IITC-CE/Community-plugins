@@ -3,7 +3,7 @@
 // @id              fanfields3@Avataar120
 // @name            Fan Fields 3
 // @category        Layer
-// @version         7.1.1.20261111
+// @version         7.1.2.20261122
 // @description     Draw a polygon around a handful of portals and get an instant, maximized fielding plan. Import your keys straight from Ingress -- even without a Core subscription. Predict and optimize your walking route, and much more. Pair it with the Simple Cloud Sync plugin to keep all your devices connected and perfectly in sync, with full privacy guaranteed.
 // @downloadURL     https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Avataar120/fanfields3.user.js
 // @updateURL       https://raw.githubusercontent.com/IITC-CE/Community-plugins/master/dist/Avataar120/fanfields3.meta.js
@@ -25,13 +25,18 @@ function wrapper(plugin_info) {
   // ensure plugin framework is there, even if iitc is not yet loaded
   if (typeof window.plugin !== 'function') window.plugin = function () {};
   plugin_info.buildName = 'main';
-  plugin_info.dateTimeVersion = '2026-11-11-162304';
+  plugin_info.dateTimeVersion = '2026-11-22-135547';
   plugin_info.pluginId = 'fanfields';
 
   /* global L, $, dialog, map, portals, links, plugin  -- eslint*/
   /* exported setup, changelog -- eslint */
 
   var changelog = [{
+      version: '7.1.2',
+      changes: [
+        'IMPROVE: The usage stats server now only accepts pings that report an officially published plugin version, so a modified or unofficial copy of the plugin can no longer show up in the stats as if it were this one.',
+      ],
+    },{
       version: '7.1.1',
       changes: [
         'NEW: After about 2 hours, then again after 5 hours of active use, a one-time popup suggests starring the plugin on GitHub if you\'ve found it useful.',
